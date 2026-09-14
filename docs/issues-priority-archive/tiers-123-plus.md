@@ -629,3 +629,13 @@ _Pace-check copy plus the 2026-09-12 analysis/design-audit backlog._
 | [#869](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/869) | ✅ Done | Add meal: optional “Save name as template” (no free-text) | Confirmed on-device 2026-09-14 — Save as template for non-preset name; stays read-only. |
 | [#866](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/866) | ✅ Done | Export format matrix + optional Excel Goals / weight parity | Confirmed on-device 2026-09-14 — Excel Goals has week dates + starting weight. |
 | [#886](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/886) | ✅ Done | Info tooltip sits too far from the info icon | Confirmed on-device 2026-09-13 — tip sits next to the ⓘ. |
+
+---
+
+## Tier 162 — Live feedback (2026-09-14)
+
+_Found while validating Settings groups / Day accordion / DateInput follow-ups on device._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#889](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/889) | ✅ Done | Water delete confirm hides all entry chips | Confirmed on-device 2026-09-14 — confirm above chips; other water chips stay visible. |
