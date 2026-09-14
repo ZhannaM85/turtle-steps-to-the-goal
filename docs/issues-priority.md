@@ -51,7 +51,6 @@ _Pace-check copy plus the 2026-09-12 analysis/design-audit backlog (#865–#879)
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#866](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/866) | 🔍 Pending validation | Export format matrix + optional Excel Goals / weight parity | ARCHITECTURE format matrix. Excel Goals gained week start/end + baseline. Next-morning weight stays Send-day CSV only (not a range-Excel gap). |
-| [#870](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/870) | 🔍 Pending validation | Field-specific delete confirm copy (P2) | `ConfirmDeleteEntryBar` takes optional `label`. Note / morning note / steps / water / day totals / night-food / custom metric use their own copy. Weight/sleep/meals still use the generic bar or hand-rolled confirm. |
 | [#869](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/869) | 🔍 Pending validation | Add meal: optional “Save name as template” (no free-text) | Chip-row «Save as template» when the current name is not already a built-in/preset (e.g. a historical custom name). Adds it to Settings presets. Meal name stays read-only. |
 | [#865](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/865) | 🔍 Pending validation | PDF export: clarify summary-only vs optional daily-log pages | PDF stays a one-page summary unless “Daily log pages” is turned on. Extra landscape pages reuse `dailyLogExport` columns. Not a silent Excel dump. |
 
