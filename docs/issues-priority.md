@@ -50,7 +50,6 @@ _Pace-check copy plus the 2026-09-12 analysis/design-audit backlog (#865–#879)
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#866](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/866) | 🔍 Pending validation | Export format matrix + optional Excel Goals / weight parity | ARCHITECTURE format matrix. Excel Goals gained week start/end + baseline. Next-morning weight stays Send-day CSV only (not a range-Excel gap). |
 | [#865](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/865) | 🔍 Pending validation | PDF export: clarify summary-only vs optional daily-log pages | PDF stays a one-page summary unless “Daily log pages” is turned on. Extra landscape pages reuse `dailyLogExport` columns. Not a silent Excel dump. |
 
 ---
