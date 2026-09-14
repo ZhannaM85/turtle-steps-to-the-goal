@@ -601,6 +601,7 @@ _Day field actions: move edit/trash and save/cancel to the title row so content 
 | [#859](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/859) | ✅ Done | Shared Safari-safe TimeInput for all clocks | Confirmed on-device 2026-09-13 — clocks share the Safari-safe layout; native picker unchanged. |
 | [#860](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/860) | ✅ Done | Finish Day field chrome: notes, totals, water delete confirm | Confirmed on-device 2026-09-13 — shared header icons; trash and water-chip × still confirm. |
 | [#862](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/862) | ✅ Done | Custom meal-name templates need a default time | Confirmed on-device 2026-09-14 — custom template pick stamps unused slot time; edit keeps existing clock. |
+| [#861](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/861) | ✅ Done | Settings backup: include remaining portable toggles | Confirmed 2026-09-14 — alcohol / eating-reason / planned meals / nutrition / since-last-meal / comparison restore from backup. |
 
 ---
 

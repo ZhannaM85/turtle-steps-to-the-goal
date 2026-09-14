@@ -34,13 +34,6 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ---
 
-## Tier 160 — Live feedback (2026-09-12)
-
-_Shared Safari-safe clocks. #858 already archived as validated the same day._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#861](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/861) | 🔍 Pending validation | Settings backup: include remaining portable toggles | Optional settings-blob booleans for Day-facing toggles still missing after #594: alcohol, eating-reason enabled, planned meals, nutrition facts, since-last-meal, entry comparison, plus copy-yesterday and meal kcal-vs-yesterday. Older backups omit keys and leave the device alone. Guarded by `PORTABLE_DAY_TOGGLE_KEYS` — collect/schema fail if a marked toggle is dropped. |
 ---
 
 ## Tier 161 — Live feedback (2026-09-13)
