@@ -32,9 +32,11 @@ describe('DeleteRangeSection', () => {
     render(<DeleteRangeSection />)
 
     expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled()
-    expect(
-      screen.getByLabelText('Delete a date range — Start date').parentElement,
-    ).toHaveClass('w-full', 'min-w-36')
+    const start = screen.getByLabelText('Delete a date range — Start date')
+      .parentElement
+    expect(start).toHaveClass('h-12', 'min-w-36')
+    expect(start).not.toHaveClass('w-full')
+    expect(start?.parentElement).toHaveClass('flex', 'items-center', 'gap-2')
   })
 
   it('shows a count-specific confirm prompt instead of deleting immediately', async () => {

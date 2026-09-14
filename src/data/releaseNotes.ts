@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 845,
+    issue: 887,
+    date: '2026-09-14T22:40:00+03:00',
+    en: 'Delete-a-date-range uses the same compact side-by-side date fields as Export.',
+    ru: '«Удалить за период» использует те же компактные поля дат в ряд, что и экспорт.',
+  },
+  {
     version: 844,
     issue: 888,
     date: '2026-09-14T22:30:00+03:00',
