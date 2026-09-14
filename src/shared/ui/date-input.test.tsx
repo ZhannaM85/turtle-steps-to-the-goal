@@ -33,7 +33,18 @@ describe('DateInput', () => {
     expect(screen.getByLabelText('Day').parentElement).toHaveClass(
       'h-[2.625rem]',
     )
+    expect(screen.getByLabelText('Day').parentElement).toHaveClass('min-w-36')
     expect(screen.getByLabelText('Day').parentElement).not.toHaveClass('h-8')
+  })
+
+  it('keeps a readable min width when the value is empty (#887)', () => {
+    render(<DateInput aria-label="Start date" value="" />)
+    expect(screen.getByLabelText('Start date').parentElement).toHaveClass(
+      'min-w-36',
+    )
+    expect(screen.getByLabelText('Start date').parentElement).not.toHaveClass(
+      'min-w-0',
+    )
   })
 
   it('does not clip the closed-state label (#884)', () => {

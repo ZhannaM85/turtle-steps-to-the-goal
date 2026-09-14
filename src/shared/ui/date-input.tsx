@@ -14,6 +14,8 @@ function isoFromProp(value: React.ComponentProps<'input'>['value']): string {
  * iOS Safari formats `<input type="date">` from the OS locale, so a Russian
  * app still showed `13 Sep 2026`. The visible text is date-fns `PP`; the
  * native control stays an invisible overlay so the picker still opens.
+ * `#887` — `min-w-36` so an empty overlay label cannot collapse a flex-row
+ * field into a tall thin pill (`min-w-0` + no text).
  */
 export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
   ({ className, value, defaultValue, onChange, ...props }, ref) => {
@@ -36,7 +38,7 @@ export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
     return (
       <div
         className={cn(
-          'relative flex h-12 min-h-0 min-w-0 items-center rounded-lg border border-input bg-transparent px-2.5 py-0 text-base leading-normal transition-colors outline-none focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:bg-input/50 has-[:disabled]:opacity-50 md:text-sm dark:bg-input/30 dark:has-[:disabled]:bg-input/80',
+          'relative flex h-12 min-h-0 min-w-36 items-center rounded-lg border border-input bg-transparent px-2.5 py-0 text-base leading-normal transition-colors outline-none focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 has-[:disabled]:pointer-events-none has-[:disabled]:cursor-not-allowed has-[:disabled]:bg-input/50 has-[:disabled]:opacity-50 md:text-sm dark:bg-input/30 dark:has-[:disabled]:bg-input/80',
           className,
         )}
       >

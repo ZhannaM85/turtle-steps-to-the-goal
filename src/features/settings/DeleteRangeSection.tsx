@@ -86,7 +86,7 @@ export function DeleteRangeSection() {
       <p className="text-sm text-muted-foreground">
         {t.settings.deleteRangeDescription}
       </p>
-      <div className="flex items-center gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <DateInput
           aria-label={`${t.settings.deleteRangeLabel} — ${t.dashboard.rangeStartLabel}`}
           value={start}
@@ -95,7 +95,7 @@ export function DeleteRangeSection() {
             setStart(e.target.value)
             setStep({ kind: 'idle' })
           }}
-          className="h-12"
+          className="w-full"
           disabled={isBusy}
         />
         <DateInput
@@ -106,7 +106,7 @@ export function DeleteRangeSection() {
             setEnd(e.target.value)
             setStep({ kind: 'idle' })
           }}
-          className="h-12"
+          className="w-full"
           disabled={isBusy}
         />
       </div>

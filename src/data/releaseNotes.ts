@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 842,
+    issue: 887,
+    date: '2026-09-14T22:10:00+03:00',
+    en: 'Delete-a-date-range fields stay wide enough to pick a date, even when they are still empty.',
+    ru: 'Поля «Удалить за период» остаются широкими и читаемыми, даже пока даты ещё не выбраны.',
+  },
+  {
     version: 841,
     issue: 889,
     date: '2026-09-14T22:00:00+03:00',
