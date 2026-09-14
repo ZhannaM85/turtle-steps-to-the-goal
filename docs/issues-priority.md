@@ -50,7 +50,6 @@ _Pace-check copy plus the 2026-09-12 analysis/design-audit backlog (#865–#879)
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#881](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/881) | 🔍 Pending validation | Pace check copy reads as a loss when weight went up | Domain rate is **not** inverted (loss-positive, negative = gain). Card now says gained / lost / stayed the same with an unsigned kg/week amount — no signed `-0.2` that reads as a loss. |
 | [#866](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/866) | 🔍 Pending validation | Export format matrix + optional Excel Goals / weight parity | ARCHITECTURE format matrix. Excel Goals gained week start/end + baseline. Next-morning weight stays Send-day CSV only (not a range-Excel gap). |
 | [#870](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/870) | 🔍 Pending validation | Field-specific delete confirm copy (P2) | `ConfirmDeleteEntryBar` takes optional `label`. Note / morning note / steps / water / day totals / night-food / custom metric use their own copy. Weight/sleep/meals still use the generic bar or hand-rolled confirm. |
 | [#875](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/875) | 🔍 Pending validation | Unify confirm, undo, and discard bars | Shared `NoticeBar` (`confirm` / `undo` / `nudge`). `ConfirmDeleteEntryBar` wraps confirm. Meal delete, Add-meal discard, meal undo, and backup reminder use it. Copy and two-step flow unchanged. |
