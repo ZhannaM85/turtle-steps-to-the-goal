@@ -68,3 +68,4 @@ _Found while validating Settings groups / Day accordion / DateInput follow-ups o
 |---|--------|-------|-------|
 | [#887](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/887) | ⬜ Open | Delete-range date inputs render as empty thin pills | Settings → Danger → Удалить за период: two `DateInput`s collapse to tall empty vertical ovals (empty value, only `h-12`). Likely #882/#884 overlay width follow-up. |
 | [#888](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/888) | ⬜ Open | Empty space under Day and Settings page titles | Follow-up to #876/#877. Day: gap under «День» after description dropped. Settings: empty band with only «Свернуть все» when nothing pinned. |
+| [#889](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/889) | ⬜ Open | Water delete confirm hides all entry chips | Follow-up to #875. Confirm replaces chip grid via ternary; keep chips visible and show bar on top. |
