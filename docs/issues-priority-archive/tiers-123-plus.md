@@ -643,3 +643,4 @@ _Found while validating Settings groups / Day accordion / DateInput follow-ups o
 |---|--------|-------|-------|
 | [#889](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/889) | ✅ Done | Water delete confirm hides all entry chips | Confirmed on-device 2026-09-14 — confirm above chips; other water chips stay visible. |
 | [#888](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/888) | ✅ Done | Empty space under Day and Settings page titles | Confirmed on-device 2026-09-14 — Day title tight on date nav; Settings collapse beside the description. Date-label follow-up filed. |
+| [#887](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/887) | ✅ Done | Delete-range date inputs render as empty thin pills | Confirmed on-device 2026-09-14 — compact side-by-side pills, matching Export. |
