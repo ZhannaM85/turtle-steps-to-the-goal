@@ -4,7 +4,6 @@ import { useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { DateInput } from '@/shared/ui/date-input'
-import { Label } from '@/shared/ui/label'
 import { shiftDate } from './todayScreenUtils'
 
 export function TodayDateNav({
@@ -42,17 +41,6 @@ export function TodayDateNav({
   const t = useTranslation()
   return (
     <div className="sticky top-[calc(2.75rem+1px)] z-10 -mx-4 flex flex-col gap-1.5 border-b border-border bg-background px-4 pt-1 pb-2 sm:top-[calc(3.5rem+1px)]">
-      <div className="flex items-center gap-1.5">
-        <Label htmlFor="log-date">{t.today.dateLabel}</Label>
-        {hasEntry && (
-          <InfoTooltip
-            text={t.today.dayHasEntriesLabel}
-            label={t.today.dayHasEntriesLabel}
-            className="size-auto rounded-full bg-primary/15 p-0.5 text-primary hover:text-primary"
-            icon={<Check aria-hidden="true" className="size-3" />}
-          />
-        )}
-      </div>
       <div className="flex items-center gap-2">
         <Button
           ref={debug465PrevRef}
@@ -71,6 +59,7 @@ export function TodayDateNav({
           value={date}
           max={maxNavigableDate}
           onChange={(e) => onSetDate(e.target.value)}
+          aria-label={t.today.dateLabel}
           className="box-border h-[2.625rem] w-48 shrink-0"
         />
         <Button
@@ -85,6 +74,14 @@ export function TodayDateNav({
         >
           <ChevronRight aria-hidden="true" />
         </Button>
+        {hasEntry && (
+          <InfoTooltip
+            text={t.today.dayHasEntriesLabel}
+            label={t.today.dayHasEntriesLabel}
+            className="size-auto rounded-full bg-primary/15 p-0.5 text-primary hover:text-primary"
+            icon={<Check aria-hidden="true" className="size-3" />}
+          />
+        )}
         <Button
           ref={debug465TodayRef}
           type="button"

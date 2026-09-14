@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 846,
+    issue: 893,
+    date: '2026-09-14T23:10:00+03:00',
+    en: 'The Day date row no longer shows a Date label; the checkmark sits next to the arrows.',
+    ru: 'На экране «День» нет подписи «Дата»; галочка стоит в одном ряду со стрелками.',
+  },
+  {
     version: 845,
     issue: 887,
     date: '2026-09-14T22:40:00+03:00',

@@ -1932,6 +1932,22 @@ describe('TodayScreen', () => {
       ).toBeInTheDocument()
     })
 
+    it('puts the checkmark on the date row and hides the Date label (#893)', async () => {
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ date: '2026-03-01', weightKg: 60 }))
+      renderToday(['/?date=2026-03-01'])
+      const dateInput = await screen.findByLabelText('Date')
+      const check = await screen.findByRole('button', {
+        name: 'This day has logged entries',
+      })
+
+      expect(screen.queryByText('Date')).not.toBeInTheDocument()
+      expect(dateInput.closest('.flex.items-center.gap-2')).toContainElement(
+        check,
+      )
+    })
+
     it('shows an explanatory tooltip when the checkmark is clicked (#422)', async () => {
       const user = userEvent.setup()
       await useDailyEntryStore

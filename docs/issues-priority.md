@@ -40,7 +40,7 @@ _Found while validating Settings groups / Day accordion / DateInput / PDF export
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#893](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/893) | ⬜ Open | Day date nav: drop Date label; put entry checkmark on the date row | Follow-up to #888. Remove visible «Дата»; keep has-entry check on the arrows/date row. |
+| [#893](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/893) | 🔍 Pending validation | Day date nav: drop Date label; put entry checkmark on the date row | Visible «Дата»/Date label removed; `aria-label` kept. Has-entry check sits after next, before the Today slot. |
 | [#890](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/890) | ⬜ Open | Confirm before deleting meal-name templates (and other trash actions) | Settings meal-name trash deletes immediately (`removePreset` with no confirm). Align with Day NoticeBar; audit other Settings library trash. |
 | [#892](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/892) | ⬜ Open | PDF footer date/disclaimer overlaps page content | Follow-up to #865. Disclaimer + «Создано …» overlaps summary end and daily-log table bottoms on device. |
 | [#891](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/891) | ⬜ Open | PDF daily-log pages: human-readable day sections (not Excel table) | Follow-up to #865. Per-day vertical blocks (header / metrics / food / water / notes); Excel stays the spreadsheet path. |
