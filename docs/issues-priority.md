@@ -40,7 +40,6 @@ _Shared Safari-safe clocks. #858 already archived as validated the same day._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#862](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/862) | 🔍 Pending validation | Custom meal-name templates need a default time | **Option 2** (no Settings clock-per-template schema): chip pick stamps the matching built-in slot time, or the unused slot clock nearest to now for a custom name (`defaultTimeEatenForTemplatePick`). Custom seed on add does the same; edit of an already-timed meal does not rewrite the clock. #595 / `effectiveTimeEaten` stay built-in-labels-only so historical times are not invented. |
 | [#861](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/861) | 🔍 Pending validation | Settings backup: include remaining portable toggles | Optional settings-blob booleans for Day-facing toggles still missing after #594: alcohol, eating-reason enabled, planned meals, nutrition facts, since-last-meal, entry comparison, plus copy-yesterday and meal kcal-vs-yesterday. Older backups omit keys and leave the device alone. Guarded by `PORTABLE_DAY_TOGGLE_KEYS` — collect/schema fail if a marked toggle is dropped. |
 ---
 

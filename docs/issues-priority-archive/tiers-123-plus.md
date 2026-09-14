@@ -600,6 +600,7 @@ _Day field actions: move edit/trash and save/cancel to the title row so content 
 | [#864](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/864) | ✅ Done | Enforce max 500 lines per source file + split offenders | Closed 2026-09-13 — ESLint 500-line ceiling and extracts; no on-device surface. |
 | [#859](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/859) | ✅ Done | Shared Safari-safe TimeInput for all clocks | Confirmed on-device 2026-09-13 — clocks share the Safari-safe layout; native picker unchanged. |
 | [#860](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/860) | ✅ Done | Finish Day field chrome: notes, totals, water delete confirm | Confirmed on-device 2026-09-13 — shared header icons; trash and water-chip × still confirm. |
+| [#862](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/862) | ✅ Done | Custom meal-name templates need a default time | Confirmed on-device 2026-09-14 — custom template pick stamps unused slot time; edit keeps existing clock. |
 
 ---
 
