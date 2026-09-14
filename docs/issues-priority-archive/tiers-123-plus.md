@@ -615,4 +615,5 @@ _Pace-check copy plus the 2026-09-12 analysis/design-audit backlog._
 | [#883](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/883) | ✅ Done | Body composition: visceral fat is shifted vs the other four metrics | Confirmed on-device 2026-09-13 — 3-across compact grid, values aligned. |
 | [#885](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/885) | ✅ Done | Day: date input vs arrows height mismatch (regression of #809 / #647) | Confirmed on-device 2026-09-13 — date field matches arrow height. |
 | [#884](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/884) | ✅ Done | Day date Russian label is jammed without spaces | Confirmed on-device 2026-09-14 — spaced Russian `PP` label, not jammed. |
+| [#882](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/882) | ✅ Done | Day date field shows English month in Russian UI | Confirmed on-device 2026-09-14 — closed-state date uses Russian month, not English Sep. |
 | [#886](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/886) | ✅ Done | Info tooltip sits too far from the info icon | Confirmed on-device 2026-09-13 — tip sits next to the ⓘ. |
