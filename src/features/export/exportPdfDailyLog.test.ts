@@ -42,4 +42,24 @@ describe('appendDailyLogPdfPages', () => {
     const raw = doc.output('arraybuffer')
     expect(raw.byteLength).toBeGreaterThan(0)
   })
+
+  it('reserves a bottom margin so table rows stay above the footer (#892)', async () => {
+    const { jsPDF } = await import('jspdf')
+    const { PDF_FOOTER_RESERVE_MM } = await import('./exportPdfFooter')
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' })
+    let captured: { margin?: { bottom?: number } } | undefined
+    const autoTable = (
+      _doc: unknown,
+      options: { margin?: { bottom?: number } },
+    ) => {
+      captured = options
+    }
+    appendDailyLogPdfPages(
+      doc,
+      autoTable as typeof import('jspdf-autotable').default,
+      { entries: [makeEntry()] },
+      t,
+    )
+    expect(captured?.margin?.bottom).toBe(PDF_FOOTER_RESERVE_MM)
+  })
 })

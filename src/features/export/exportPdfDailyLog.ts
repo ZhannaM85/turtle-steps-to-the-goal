@@ -6,6 +6,7 @@ import {
   dailyLogRowValues,
   type DailyLogExportExtras,
 } from './dailyLogExport'
+import { PDF_FOOTER_RESERVE_MM } from './exportPdfFooter'
 
 export interface DailyLogPdfInput {
   entries: DailyEntry[]
@@ -44,7 +45,11 @@ export function appendDailyLogPdfPages(
 
   autoTable(doc, {
     startY: 20,
-    margin: { left: marginX, right: marginX },
+    margin: {
+      left: marginX,
+      right: marginX,
+      bottom: PDF_FOOTER_RESERVE_MM,
+    },
     head: [dailyLogHeaderValues(t, input.sex, input.extras)],
     body: entries.map((entry) =>
       dailyLogRowValues(entry, t, input.extras).map(formatPdfCell),

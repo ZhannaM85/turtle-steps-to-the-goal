@@ -21,6 +21,7 @@ import {
   appendDailyLogPdfPages,
   type DailyLogPdfInput,
 } from './exportPdfDailyLog'
+import { drawPdfDocumentFooters, PDF_FOOTER_RESERVE_MM } from './exportPdfFooter'
 
 interface LatestField {
   value: number
@@ -514,7 +515,11 @@ export async function buildSummaryPdf(
     } else {
       autoTable(doc, {
         startY: cursorY,
-        margin: { left: marginX, right: marginX },
+        margin: {
+          left: marginX,
+          right: marginX,
+          bottom: PDF_FOOTER_RESERVE_MM,
+        },
         head: [
           [
             t.pdfSummary.weekColumnHeader,
@@ -787,29 +792,14 @@ export async function buildSummaryPdf(
     appendDailyLogPdfPages(doc, autoTable, dailyLog, t)
   }
 
-  // #609 acceptance: the disclaimer must be visible on the document —
-  // pinned near the bottom of every page it ends up on, not just wherever
-  // the content happens to stop.
-  const pageCount = doc.getNumberOfPages()
-  const pageHeight = doc.internal.pageSize.getHeight()
-  for (let page = 1; page <= pageCount; page++) {
-    doc.setPage(page)
-    doc.setFontSize(8)
-    doc.setTextColor(110)
-    // #623 — no italic PT Sans is embedded (would double the font payload
-    // for a purely cosmetic style); the muted color + small size already
-    // read as a footnote without it.
-    doc.setFont('PTSans')
-    doc.text(t.pdfSummary.disclaimer, marginX, pageHeight - 12, {
-      maxWidth: pageWidth - marginX * 2,
-    })
-    doc.text(
-      t.pdfSummary.generatedOnLabel(formatDisplayDate(data.rangeEnd, locale)),
-      marginX,
-      pageHeight - 7,
-    )
-    doc.setTextColor(0)
-  }
+  // #609 / #892 — disclaimer on every page, in that page's bottom margin
+  // (portrait summary vs landscape daily-log have different heights).
+  drawPdfDocumentFooters(
+    doc,
+    t,
+    t.pdfSummary.generatedOnLabel(formatDisplayDate(data.rangeEnd, locale)),
+    marginX,
+  )
 
   return doc.output('blob')
 }

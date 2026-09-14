@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 848,
+    issue: 892,
+    date: '2026-09-14T23:35:00+03:00',
+    en: 'PDF disclaimer and created-on date stay in the bottom margin instead of overlapping the last rows.',
+    ru: 'В PDF дисклеймер и дата «Создано» остаются в нижнем поле и больше не наезжают на последние строки.',
+  },
+  {
     version: 847,
     issue: 890,
     date: '2026-09-14T23:20:00+03:00',
