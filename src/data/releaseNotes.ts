@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 867,
+    issue: 913,
+    date: '2026-09-15T17:40:00+03:00',
+    en: 'PDF diary Food headers now include the day’s consumed calorie and macro totals before meal details.',
+    ru: 'В заголовке раздела «Еда» PDF-дневника теперь указаны итоги калорий и макронутриентов до списка приёмов пищи.',
+  },
+  {
     version: 866,
     issue: 912,
     date: '2026-09-15T17:36:00+03:00',

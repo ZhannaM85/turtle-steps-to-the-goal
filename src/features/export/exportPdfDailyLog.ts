@@ -235,7 +235,24 @@ export function dailyLogPdfDayLines(
   const meals = entry.calorieEntries ?? []
   const dayTotalKcal = totalCalories(meals, entry.dayTotals)
   if (meals.length > 0 || entry.dayTotals) {
-    lines.push({ role: 'section', text: t.pdfSummary.dailyLogFoodSectionTitle })
+    const consumedSummary =
+      dayTotalKcal !== undefined && meals.length > 0
+        ? joinParts([
+            t.dailyEntry.consumedMacrosLabel,
+            formatKcal(dayTotalKcal, locale, t),
+            macrosSummaryTextCompact(
+              totalProtein(meals, entry.dayTotals),
+              totalFat(meals, entry.dayTotals),
+              totalCarbs(meals, entry.dayTotals),
+              locale,
+              t,
+            ) ?? undefined,
+          ])
+        : undefined
+    lines.push({
+      role: 'section',
+      text: joinParts([t.pdfSummary.dailyLogFoodSectionTitle, consumedSummary]),
+    })
     meals.forEach((meal, index) => {
       lines.push({
         role: 'body',
@@ -257,22 +274,6 @@ export function dailyLogPdfDayLines(
         text: joinParts([
           t.dailyEntry.dayTotalsLabel,
           formatKcal(entry.dayTotals.amountKcal, locale, t),
-        ]),
-      })
-    }
-    if (dayTotalKcal !== undefined && meals.length > 0) {
-      lines.push({
-        role: 'body',
-        text: joinParts([
-          t.dailyEntry.consumedMacrosLabel,
-          formatKcal(dayTotalKcal, locale, t),
-          macrosSummaryTextCompact(
-            totalProtein(meals, entry.dayTotals),
-            totalFat(meals, entry.dayTotals),
-            totalCarbs(meals, entry.dayTotals),
-            locale,
-            t,
-          ) ?? undefined,
         ]),
       })
     }

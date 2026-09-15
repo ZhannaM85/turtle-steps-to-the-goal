@@ -48,7 +48,7 @@ describe('dailyLogPdfDayLines (#891)', () => {
     expect(text[0]).toContain('80')
     expect(text).toContain('Metrics')
     expect(text.some((line) => line.includes('Hours slept'))).toBe(true)
-    expect(text).toContain('Food')
+    expect(text.some((line) => line.startsWith('Food'))).toBe(true)
     expect(text.some((line) => line.includes('Breakfast'))).toBe(true)
     expect(text.some((line) => line.includes('Oatmeal'))).toBe(true)
     expect(text).toContain('Water')
