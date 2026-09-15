@@ -34,15 +34,16 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ---
 
-## Tier 163 — Calorie/macro goal vs actual (2026-09-15)
+## Tier 163 — Live feedback (2026-09-15)
 
-_Live request with Day КБЖУ Remaining card screenshot: export and summaries should show what the calorie/macro **goal** was and what was **actually eaten**, not remaining-only._
+_Day КБЖУ / export: show calorie/macro **goal vs actual**, and stop putting untracked fields in analysis exports._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#895](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/895) | ⬜ Open | Daily Log export: include calorie and macro targets next to actual intake | CSV / Excel Daily Log / Markdown. JSON backup already has Goal targets. Resolve the Goal that applied that date. |
 | [#896](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/896) | ⬜ Open | PDF export: show calorie and macro goal vs actual intake | #891 day blocks + period/monthly summary page. |
 | [#897](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/897) | ⬜ Open | Day КБЖУ card and monthly summaries: show calorie/macro goal vs actual intake | Follow-up to #521 (calorie remaining line). Macros remaining-only today. Weekly nutrition comparison if same work; do not invent a monthly weight target. |
+| [#898](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/898) | ⬜ Open | Exports still include fields the user is not tracking | Follow-up to #744. Day-share CSV screenshot: empty waist/hips, body fat %, Na/K/Mg. Audit Settings CSV/Excel/Markdown and PDF day pages too. JSON backup stays complete. |
 
 ---
 
