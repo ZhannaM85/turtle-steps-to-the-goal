@@ -637,8 +637,8 @@ describe('buildSummaryPdf', () => {
     )
 
     expect(withDailyLog.length).toBeGreaterThan(summaryOnly.length)
-    expect(withDailyLog).toContain('class="pdf-day"')
-    expect(summaryOnly).not.toContain('class="pdf-day"')
+    expect(withDailyLog).toContain('class="pdf-day-header"')
+    expect(summaryOnly).not.toContain('class="pdf-day-header"')
   })
 
   it('starts each diary date on its own pdf-page (#909)', () => {
@@ -659,7 +659,9 @@ describe('buildSummaryPdf', () => {
     )
     // 1 summary page + 1 page per diary day
     expect(html.match(/class="pdf-page"/g)?.length).toBe(4)
-    expect(html.match(/class="pdf-day"/g)?.length).toBe(3)
+    expect(html.match(/class="pdf-day-header"/g)?.length).toBe(3)
     expect(html.match(/class="pdf-day-section"/g)?.length).toBeGreaterThan(0)
+    expect(html).toContain('class="pdf-day-intro"')
+    expect(html).not.toContain('<article class="pdf-day">')
   })
 })

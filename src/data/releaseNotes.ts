@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 872,
+    issue: 917,
+    date: '2026-09-15T23:00:00+03:00',
+    en: 'PDF diary pages now move whole sections between pages instead of leaving blank sheets between days.',
+    ru: 'В PDF-дневнике целые разделы переносятся между страницами без пустых листов между днями.',
+  },
+  {
     version: 871,
     issue: 917,
     date: '2026-09-15T22:36:00+03:00',

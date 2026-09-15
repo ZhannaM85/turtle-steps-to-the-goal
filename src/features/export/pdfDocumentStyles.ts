@@ -74,10 +74,7 @@ export const PDF_DOCUMENT_CSS = `
     display: block;
     margin-top: 4pt;
   }
-  .pdf-day {
-    margin: 0;
-    padding: 0;
-  }
+  .pdf-day-intro { break-inside: avoid; }
   .pdf-day-header {
     font-size: 13pt;
     font-weight: 600;

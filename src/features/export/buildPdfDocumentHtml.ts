@@ -154,15 +154,18 @@ function dailyLogPagesHtml(
         sectionContent.push(lineHtml)
       }
       finishSection()
-      const body = `${header}${sections.join('')}`
-      const pageTitle =
+      // Keep the diary title and first date together, but leave each card
+      // as a direct page-body child. The HTML renderer can then move a card
+      // to the next styled sheet instead of image-slicing a whole day and
+      // creating an almost-empty tail page.
+      const pageIntro =
         index === 0
-          ? `<h1 class="pdf-title">${escapeHtml(t.pdfSummary.dailyLogPagesTitle)}</h1>`
-          : ''
+          ? `<div class="pdf-day-intro"><h1 class="pdf-title">${escapeHtml(t.pdfSummary.dailyLogPagesTitle)}</h1>${header}</div>`
+          : header
       return `<section class="pdf-page">
   <div class="pdf-page-body">
-    ${pageTitle}
-    <article class="pdf-day">${body}</article>
+    ${pageIntro}
+    ${sections.join('')}
   </div>
   ${footerHtml(t, generatedOn)}
 </section>`
