@@ -401,7 +401,7 @@ describe('buildDailyLogCsv', () => {
     expect(cells[header.split(',').indexOf('Deep sleep (h)')]).toBe('3h 26m')
   })
 
-  it('adds Next Morning Weight after Weight when extras include the map (#829, #832)', () => {
+  it('adds next-morning weight after Weight with the weigh-in date in the header (#829, #832, #899)', () => {
     const csv = buildDailyLogCsv(
       [makeEntry({ date: '2026-03-01', weightKg: 59.65 })],
       t,
@@ -411,28 +411,27 @@ describe('buildDailyLogCsv', () => {
     const [header, row] = dailyTable(csv).split('\r\n')
     const cells = row.split(',')
 
-    expect(
-      header.startsWith('Date,Weight (kg),Next Morning Weight,'),
-    ).toBe(true)
+    expect(header.startsWith('Date,Weight (kg),Weight 2026-03-02,')).toBe(true)
     expect(cells[2]).toBe('59.95')
   })
 
-  it('leaves Next Morning Weight empty when the following day has no weight (#829)', () => {
+  it('leaves next-morning weight empty when the following day has no weight (#829)', () => {
     const csv = buildDailyLogCsv([makeEntry()], t, undefined, {
       nextMorningWeightByDate: {},
     })
     const [header, row] = dailyTable(csv).split('\r\n')
 
-    expect(header).toContain('Next Morning Weight')
+    expect(header).toContain('Weight 2026-03-02')
     expect(row.split(',')[2]).toBe('')
   })
 
-  it('does not add Next Morning Weight without the extras map (#829)', () => {
+  it('does not add next-morning weight without the extras map (#829)', () => {
     const csv = buildDailyLogCsv([makeEntry()], t)
-    expect(dailyTable(csv)).not.toContain('Next Morning Weight')
+    expect(dailyTable(csv)).not.toContain('Weight 2026-03-02')
+    expect(dailyTable(csv)).not.toContain('Next morning weight')
   })
 
-  it('uses the translated Next Morning Weight header in ru (#832)', () => {
+  it('uses a dated next-morning weight header in ru (#832, #899)', () => {
     const ru = getDictionary('ru')
     const csv = buildDailyLogCsv(
       [makeEntry({ date: '2026-03-01', weightKg: 59.65 })],
@@ -441,8 +440,9 @@ describe('buildDailyLogCsv', () => {
       { nextMorningWeightByDate: { '2026-03-01': 59.95 } },
     )
     const [header] = dailyTable(csv).split('\r\n')
-    expect(header).toContain('Вес следующим утром')
+    expect(header).toContain('Вес 2026-03-02')
     expect(header).not.toContain('next_morning_weight')
+    expect(header).not.toContain('Вес следующим утром')
   })
 
   it('uses locale sleep units in CSV (#751)', () => {

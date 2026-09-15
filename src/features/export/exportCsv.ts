@@ -1,6 +1,7 @@
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Sex } from '@/domain/stats'
 import type { Dictionary } from '@/i18n'
+import { addDays, format, parseISO } from 'date-fns'
 import {
   dailyLogHeaderValues,
   dailyLogRowValues,
@@ -42,10 +43,10 @@ function csvTable(
 }
 
 /**
- * #829 / #832 — Next Morning Weight column only on one-day CSV when the
- * caller passes `extras.nextMorningWeightByDate` (Send day). Header is
- * `t.exportXlsx.nextMorningWeightColumn`. Interval Settings CSV does not
- * pass that map, so Excel/Markdown/range CSV stay unchanged.
+ * #829 / #832 / #899 — Next Morning Weight column only on one-day CSV when
+ * the caller passes `extras.nextMorningWeightByDate` (Send day). Header
+ * includes the next calendar date when known. Interval Settings CSV does
+ * not pass that map, so Excel/Markdown/range CSV stay unchanged.
  */
 function withNextMorningWeightColumn(
   headers: (string | number | boolean | undefined)[],
@@ -60,11 +61,15 @@ function withNextMorningWeightColumn(
   if (extras?.nextMorningWeightByDate === undefined) {
     return [headers, rows]
   }
+  const dayDate = extras.labelDate ?? sortedEntries[0]?.date
+  const weighInDate = dayDate
+    ? format(addDays(parseISO(dayDate), 1), 'yyyy-MM-dd')
+    : undefined
   return [
     [
       headers[0],
       headers[1],
-      t.exportXlsx.nextMorningWeightColumn,
+      t.exportXlsx.nextMorningWeightColumn(weighInDate),
       ...headers.slice(2),
     ],
     rows.map((row, index) => [

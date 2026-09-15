@@ -150,7 +150,8 @@ describe('buildDailyLogMarkdown', () => {
     const markdown = buildDailyLogMarkdown([makeEntry()], t, undefined, {
       nextMorningWeightByDate: { '2026-03-01': 59.95 },
     })
-    expect(markdown).not.toContain(t.exportXlsx.nextMorningWeightColumn)
+    expect(markdown).not.toContain('Weight 2026-03-02')
+    expect(markdown).not.toContain(t.exportXlsx.nextMorningWeightColumn())
   })
 
   it('exports a note column next to every custom metric value (#853)', () => {

@@ -252,7 +252,8 @@ export const exportXlsx: ExportXlsxDict = {
     goalsSheetName: 'Goals',
     dateColumn: 'Date',
     weightColumn: 'Weight (kg)',
-    nextMorningWeightColumn: 'Next Morning Weight',
+    nextMorningWeightColumn: (weighInDate) =>
+      weighInDate ? `Weight ${weighInDate}` : 'Next morning weight',
     caloriesColumn: 'Calories (kcal)',
     proteinColumn: 'Protein (g)',
     fatColumn: 'Fat (g)',

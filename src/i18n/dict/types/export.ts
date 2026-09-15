@@ -299,8 +299,8 @@ export interface ExportXlsxDict {
     goalsSheetName: string
     dateColumn: string
     weightColumn: string
-    /** #829 / #832 — one-day CSV only; translated header, not on range exports. */
-    nextMorningWeightColumn: string
+    /** #829 / #832 / #899 — one-day CSV only; optional next-morning ISO date. */
+    nextMorningWeightColumn: (weighInDate?: string) => string
     caloriesColumn: string
     proteinColumn: string
     fatColumn: string

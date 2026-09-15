@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 855,
+    issue: 899,
+    date: '2026-09-15T12:15:00+03:00',
+    en: 'One-day CSV names next-morning weight with that morning’s date, not “next morning”.',
+    ru: 'В CSV за один день вес следующего утра подписан датой взвешивания, а не «следующим утром».',
+  },
+  {
     version: 854,
     issue: 900,
     date: '2026-09-15T12:10:00+03:00',
