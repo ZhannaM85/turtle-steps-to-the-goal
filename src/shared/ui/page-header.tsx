@@ -4,6 +4,8 @@ import { cn } from '@/shared/lib/utils'
 
 export interface PageHeaderProps {
   title: string
+  /** #904 — optional control beside the title (e.g. Day has-entry check). */
+  titleAccessory?: React.ReactNode
   description?: string
   action?: React.ReactNode
   /**
@@ -17,6 +19,7 @@ export interface PageHeaderProps {
 
 export function PageHeader({
   title,
+  titleAccessory,
   description,
   action,
   overlayAction = false,
@@ -33,7 +36,10 @@ export function PageHeader({
       )}
     >
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold text-foreground">{title}</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-semibold text-foreground">{title}</h1>
+          {titleAccessory}
+        </div>
         {description && (
           <p className="text-sm text-muted-foreground">{description}</p>
         )}

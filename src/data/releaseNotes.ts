@@ -78,8 +78,8 @@ export const releaseNotes: ReleaseNote[] = [
     version: 850,
     issue: 904,
     date: '2026-09-15T11:10:00+03:00',
-    en: 'The day checkmark sits next to the date instead of squeezed between Next and Today.',
-    ru: 'Галочка дня стоит рядом с датой, а не зажата между «Далее» и «Сегодня».',
+    en: 'The day checkmark sits next to the Day title, not in the date row.',
+    ru: 'Галочка дня стоит рядом с заголовком «День», а не в строке даты.',
   },
   {
     version: 849,

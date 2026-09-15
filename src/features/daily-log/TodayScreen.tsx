@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { format, parseISO } from 'date-fns'
-import { Share2 } from 'lucide-react'
+import { Check, Share2 } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import { SendDaySnippetDialog } from '@/features/local-transfer/SendDaySnippetDialog'
 import { CustomMetricLogSection } from '@/features/custom-metrics'
@@ -15,6 +15,7 @@ import {
   usePreviousDayEntry,
 } from '@/shared/hooks'
 import { Button } from '@/shared/ui/button'
+import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { PageHeader } from '@/shared/ui/page-header'
 import {
   useDailyEntryStore,
@@ -185,6 +186,16 @@ export function TodayScreen() {
       <div className="flex flex-col" data-slot="day-intro">
         <PageHeader
           title={t.today.title}
+          titleAccessory={
+            entry !== null ? (
+              <InfoTooltip
+                text={t.today.dayHasEntriesLabel}
+                label={t.today.dayHasEntriesLabel}
+                className="size-auto shrink-0 rounded-full bg-primary/15 p-1 text-primary hover:text-primary"
+                icon={<Check aria-hidden="true" className="size-3.5" />}
+              />
+            ) : undefined
+          }
           overlayAction
           action={
             localTransferEnabled ? (
@@ -205,7 +216,6 @@ export function TodayScreen() {
           todayIso={todayIso()}
           realTodayIso={realTodayIso}
           maxNavigableDate={maxNavigableDate}
-          hasEntry={entry !== null}
           onSetDate={setDate}
           onStartTodayEarly={(realToday) => {
             startTodayEarly(realToday)

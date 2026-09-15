@@ -1,8 +1,7 @@
 import { type RefObject } from 'react'
-import { Check, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
-import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { DateInput } from '@/shared/ui/date-input'
 import { shiftDate } from './todayScreenUtils'
 
@@ -11,7 +10,6 @@ export function TodayDateNav({
   todayIso,
   realTodayIso,
   maxNavigableDate,
-  hasEntry,
   onSetDate,
   onStartTodayEarly,
   debug465,
@@ -25,7 +23,6 @@ export function TodayDateNav({
   todayIso: string
   realTodayIso: string
   maxNavigableDate: string
-  hasEntry: boolean
   onSetDate: (next: string | ((prev: string) => string)) => void
   onStartTodayEarly: (realToday: string) => void
   debug465: boolean
@@ -53,29 +50,15 @@ export function TodayDateNav({
         >
           <ChevronLeft aria-hidden="true" />
         </Button>
-        {/* #904 — date + check as one group so the badge is not jammed between › and Today */}
-        <div
-          className="flex shrink-0 items-center gap-1.5"
-          data-testid="date-nav-date-group"
-        >
-          <DateInput
-            id="log-date"
-            ref={debug465DateRef}
-            value={date}
-            max={maxNavigableDate}
-            onChange={(e) => onSetDate(e.target.value)}
-            aria-label={t.today.dateLabel}
-            className="box-border h-[2.625rem] w-48 shrink-0"
-          />
-          {hasEntry && (
-            <InfoTooltip
-              text={t.today.dayHasEntriesLabel}
-              label={t.today.dayHasEntriesLabel}
-              className="size-auto shrink-0 rounded-full bg-primary/15 p-1 text-primary hover:text-primary"
-              icon={<Check aria-hidden="true" className="size-3.5" />}
-            />
-          )}
-        </div>
+        <DateInput
+          id="log-date"
+          ref={debug465DateRef}
+          value={date}
+          max={maxNavigableDate}
+          onChange={(e) => onSetDate(e.target.value)}
+          aria-label={t.today.dateLabel}
+          className="box-border h-[2.625rem] w-48 shrink-0"
+        />
         <Button
           ref={debug465NextRef}
           type="button"

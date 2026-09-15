@@ -1932,7 +1932,7 @@ describe('TodayScreen', () => {
       ).toBeInTheDocument()
     })
 
-    it('puts the checkmark on the date row and hides the Date label (#893)', async () => {
+    it('puts the checkmark beside the Day title and hides the Date label (#893, #904)', async () => {
       await useDailyEntryStore
         .getState()
         .saveEntry(makeEntry({ date: '2026-03-01', weightKg: 60 }))
@@ -1941,30 +1941,28 @@ describe('TodayScreen', () => {
       const check = await screen.findByRole('button', {
         name: 'This day has logged entries',
       })
+      const dayTitle = screen.getByRole('heading', { name: 'Day' })
 
       expect(screen.queryByText('Date')).not.toBeInTheDocument()
-      expect(dateInput.closest('.flex.items-center.gap-2')).toContainElement(
+      expect(dateInput.closest('.flex.items-center.gap-2')).not.toContainElement(
         check,
       )
+      expect(dayTitle.parentElement).toContainElement(check)
     })
 
-    it('keeps the has-entry check beside the date, not between next and Today (#904)', async () => {
+    it('keeps the has-entry check next to День/Day, not in the date nav (#904)', async () => {
       await useDailyEntryStore
         .getState()
         .saveEntry(makeEntry({ date: '2026-03-01', weightKg: 60 }))
       renderToday(['/?date=2026-03-01'])
-      const dateInput = await screen.findByLabelText('Date')
       const check = await screen.findByRole('button', {
         name: 'This day has logged entries',
       })
       const next = screen.getByRole('button', { name: 'Next day' })
-      const today = screen.getByRole('button', { name: 'Today' })
+      const dayTitle = screen.getByRole('heading', { name: 'Day' })
 
-      const dateGroup = screen.getByTestId('date-nav-date-group')
-      expect(dateGroup).toContainElement(dateInput)
-      expect(dateGroup).toContainElement(check)
-      expect(dateGroup).not.toContainElement(next)
-      expect(dateGroup).not.toContainElement(today)
+      expect(dayTitle.parentElement).toContainElement(check)
+      expect(next.closest('.sticky')).not.toContainElement(check)
     })
 
     it('shows an explanatory tooltip when the checkmark is clicked (#422)', async () => {
@@ -2654,6 +2652,8 @@ describe('TodayScreen', () => {
     expect(title.closest('[data-slot="day-intro"]')).toContainElement(
       screen.getByLabelText('Date'),
     )
-    expect(title.parentElement?.parentElement).toHaveClass('relative')
+    expect(title.parentElement?.parentElement?.parentElement).toHaveClass(
+      'relative',
+    )
   })
 })
