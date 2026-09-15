@@ -641,6 +641,7 @@ _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS sta
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#900](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/900) | ✅ Done | Export: include the date on the Morning note column | Confirmed on-device 2026-09-15 — one-day exports date Morning note / Утренняя заметка. |
 | [#901](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/901) | ✅ Done | Export: rename Note to Evening note and include the date | Confirmed on-device 2026-09-15 — Evening note / Вечерняя заметка; one-day exports dated. |
 | [#895](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/895) | ✅ Done | Daily Log export: include calorie and macro targets next to actual intake | Confirmed on-device 2026-09-15 — target columns beside intake on Daily Log exports. |
 | [#899](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/899) | ✅ Done | Export: label next-morning weight with the actual date, not «next morning» | Confirmed on-device 2026-09-15 — one-day CSV uses dated Weight / Вес for next morning. |
