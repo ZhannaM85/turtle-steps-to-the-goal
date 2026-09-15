@@ -49,6 +49,7 @@ describe('SendDaySnippetDialog (#720, #722)', () => {
   afterEach(async () => {
     vi.restoreAllMocks()
     await db.dailyEntries.clear()
+    await db.goals.clear()
   })
 
   it('copies a shareDay link and shows a QR for a typical day', async () => {
@@ -185,7 +186,50 @@ describe('SendDaySnippetDialog (#720, #722)', () => {
     const text = await blob.text()
     expect(text).toContain('2026-08-14')
     expect(text).toContain('Weight 2026-08-15')
+    expect(text).toContain('Calorie target (kcal)')
     expect(click).toHaveBeenCalled()
+  })
+
+  it('fills Day-share calorie/macro targets from the covering goal (#896)', async () => {
+    await db.goals.put({
+      id: 'g1',
+      targetWeeklyLossKg: 0.5,
+      weekStart: '2026-08-10',
+      weekEnd: '2026-08-16',
+      dailyCalorieTargetKcal: 1700,
+      dailyProteinTargetG: 110,
+      dailyFatTargetG: 50,
+      dailyCarbTargetG: 160,
+      createdAt: '2026-08-10T00:00:00.000Z',
+      updatedAt: '2026-08-10T00:00:00.000Z',
+    })
+    const user = userEvent.setup()
+    URL.createObjectURL = vi.fn(() => 'blob:mock')
+    URL.revokeObjectURL = vi.fn()
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+
+    render(
+      <SendDaySnippetDialog
+        open
+        onOpenChange={() => {}}
+        date="2026-08-14"
+        entry={entry}
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Save as CSV' }))
+    await waitFor(() => expect(URL.createObjectURL).toHaveBeenCalled())
+    const blob = vi.mocked(URL.createObjectURL).mock.calls[0]?.[0] as Blob
+    const text = await blob.text()
+    const [header, row] = text.split('\r\n\r\n')[0]!.split('\r\n')
+    const cells = row.split(',')
+
+    expect(cells[header.split(',').indexOf('Calorie target (kcal)')]).toBe(
+      '1700',
+    )
+    expect(cells[header.split(',').indexOf('Protein target (g)')]).toBe('110')
+    expect(cells[header.split(',').indexOf('Fat target (g)')]).toBe('50')
+    expect(cells[header.split(',').indexOf('Carb target (g)')]).toBe('160')
   })
 
   it('offers a one-day PDF from the share sheet (#894)', () => {

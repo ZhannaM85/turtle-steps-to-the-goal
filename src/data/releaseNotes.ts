@@ -68,6 +68,13 @@ export const releaseNotes: ReleaseNote[] = [
     ru: 'Текущий день можно сохранить в виде читаемого PDF из окна «Поделиться».',
   },
   {
+    version: 853,
+    issue: 896,
+    date: '2026-09-15T13:00:00+03:00',
+    en: 'Day-share CSV also includes that day’s calorie and macro targets next to intake.',
+    ru: 'В CSV «Отправить день» рядом с фактом тоже стоят цели по калориям и БЖУ на этот день.',
+  },
+  {
     version: 852,
     issue: 895,
     date: '2026-09-15T12:56:00+03:00',

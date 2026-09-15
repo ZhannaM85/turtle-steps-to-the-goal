@@ -8,7 +8,7 @@ import { currentAnalysisExportTracking } from '@/features/export/analysisExportT
 import { buildSingleDayPdf } from '@/features/export/buildSingleDayPdf'
 import { generateQrDataUrl } from '@/features/food-share/generateQrDataUrl'
 import { useLocale, useTranslation } from '@/i18n'
-import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
+import { IndexedDbDailyEntryRepository, IndexedDbGoalRepository } from '@/infrastructure/persistence/indexeddb'
 import { Button } from '@/shared/ui/button'
 import {
   Dialog,
@@ -165,6 +165,7 @@ function SendDaySnippetBody({
       if (next?.weightKg !== undefined) {
         nextMorningWeightByDate[date] = next.weightKg
       }
+      const goals = await new IndexedDbGoalRepository().getAll()
       const csv = buildDailyLogCsv([entry], t, useProfileStore.getState().sex, {
         customMetrics: useCustomMetricStore.getState().metrics,
         customMetricEntries: useCustomMetricStore.getState().entries,
@@ -173,6 +174,7 @@ function SendDaySnippetBody({
           useEatingReasonTrackingStore.getState().builtinLabelOverrides,
         nextMorningWeightByDate,
         tracking: currentAnalysisExportTracking(),
+        goals,
       })
       const blob = new Blob([CSV_BOM, csv], { type: 'text/csv' })
       const url = URL.createObjectURL(blob)
