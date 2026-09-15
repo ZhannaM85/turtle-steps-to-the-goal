@@ -119,7 +119,7 @@ describe('buildExportWorkbook', () => {
       'On period',
       'Constipation',
       'Alcohol',
-      'Ate late tonight',
+      'Night food 2026-03-01 → 2026-03-02',
       'I remember how I ate',
       'Night food reason',
       'Was it easy?',

@@ -273,7 +273,10 @@ export const exportXlsx: ExportXlsxDict = {
     onPeriodColumn: 'On period',
     hadConstipationColumn: 'Constipation',
     hadAlcoholColumn: 'Alcohol',
-    nightEatingColumn: () => 'Ate late tonight',
+    nightEatingColumn: (_sex, overnightFrom, overnightTo) =>
+      overnightFrom && overnightTo
+        ? `Night food ${overnightFrom} → ${overnightTo}`
+        : 'Ate late tonight',
     nightEatingRememberColumn: () => 'I remember how I ate',
     nightEatingReasonColumn: 'Night food reason',
     nightEatingNoEasyColumn: 'Was it easy?',

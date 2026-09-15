@@ -15,6 +15,7 @@ import {
 import type { CustomMetric, CustomMetricEntry } from '@/domain/customMetric'
 import type { Sex } from '@/domain/stats'
 import type { Dictionary } from '@/i18n'
+import { addDays, format, parseISO } from 'date-fns'
 import { effectiveMealLabel, effectiveTimeEaten, type MealSlotDefaultTimes } from '@/shared/lib/mealLabel'
 import { formatEatingReasonsLine, type EatingReasonLabelOverrides } from '@/shared/lib/eatingReasonDisplay'
 import { formatSleepDuration } from '@/shared/lib/sleepDuration'
@@ -178,6 +179,10 @@ function dailyLogColumns(
   sex?: Sex,
   extras?: DailyLogExportExtras,
 ): ProjectedColumn<DailyEntry>[] {
+  const overnightFrom = extras?.labelDate
+  const overnightTo = overnightFrom
+    ? format(addDays(parseISO(overnightFrom), 1), 'yyyy-MM-dd')
+    : undefined
   const columns: ProjectedColumn<DailyEntry>[] = [
     { header: t.exportXlsx.dateColumn, value: (entry) => entry.date },
     { header: t.exportXlsx.weightColumn, value: (entry) => entry.weightKg },
@@ -261,7 +266,7 @@ function dailyLogColumns(
       gatedBy: 'alcohol',
     },
     {
-      header: t.exportXlsx.nightEatingColumn(sex),
+      header: t.exportXlsx.nightEatingColumn(sex, overnightFrom, overnightTo),
       value: (entry) => hadNightEating(entry),
       gatedBy: 'nightEating',
     },

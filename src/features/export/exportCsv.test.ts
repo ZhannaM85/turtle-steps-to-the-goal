@@ -13,11 +13,11 @@ const DAILY_HEADER =
   'Muscle (kg),Visceral fat,Body water (%),Bone (kg),Fiber (g),' +
   'Sodium (mg),Potassium (mg),Magnesium (mg)'
 
-/** One-day export dates morning/evening note headers (#900 / #901). */
+/** One-day export dates note / night-food headers (#900 / #901 / #903). */
 const DAILY_HEADER_ONE_DAY =
   'Date,Weight (kg),Calories (kcal),Protein (g),Fat (g),Carbs (g),' +
   'Sleep (h),Deep sleep (h),Steps,Waist (cm),Hip (cm),Body fat (%),' +
-  'Mood,Morning note 2026-03-01,Evening note 2026-03-01,On period,Constipation,Alcohol,Ate late tonight,I remember how I ate,Night food reason,Was it easy?,What helped?,Water (ml),' +
+  'Mood,Morning note 2026-03-01,Evening note 2026-03-01,On period,Constipation,Alcohol,Night food 2026-03-01 → 2026-03-02,I remember how I ate,Night food reason,Was it easy?,What helped?,Water (ml),' +
   'Muscle (kg),Visceral fat,Body water (%),Bone (kg),Fiber (g),' +
   'Sodium (mg),Potassium (mg),Magnesium (mg)'
 
@@ -164,9 +164,26 @@ describe('buildDailyLogCsv', () => {
     })
     const csv = buildDailyLogCsv([entry], t)
     const [header, row] = dailyTable(csv).split('\r\n')
-    const nightEatingIndex = header.split(',').indexOf('Ate late tonight')
+    const nightEatingIndex = header
+      .split(',')
+      .indexOf('Night food 2026-03-01 → 2026-03-02')
 
     expect(row.split(',')[nightEatingIndex]).toBe('true')
+  })
+
+  it('labels night food with the overnight date span on one-day exports (#903)', () => {
+    const emptyHeader = dailyTable(buildDailyLogCsv([], t)).split('\r\n')[0]!
+    expect(emptyHeader.split(',')).toContain('Ate late tonight')
+
+    const oneDay = dailyTable(buildDailyLogCsv([makeEntry()], t)).split(
+      '\r\n',
+    )[0]!
+    expect(oneDay.split(',')).toContain('Night food 2026-03-01 → 2026-03-02')
+
+    const ru = dailyTable(
+      buildDailyLogCsv([makeEntry()], getDictionary('ru'), 'female'),
+    ).split('\r\n')[0]!
+    expect(ru.split(',')).toContain('Ночная еда с 1 на 2')
   })
 
   it('exports night food remember and reason columns (#818)', () => {

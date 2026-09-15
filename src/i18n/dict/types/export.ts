@@ -332,7 +332,11 @@ export interface ExportXlsxDict {
      * night eating has no untracked/opt-in state to leave blank. #414 —
      * widened to a function like `dailyEntry.nightEatingLabel` (#398/#407),
      * so this column header is gender-correct too. */
-    nightEatingColumn: (sex?: Sex) => string
+    nightEatingColumn: (
+      sex?: Sex,
+      overnightFrom?: string,
+      overnightTo?: string,
+    ) => string
     nightEatingRememberColumn: (sex?: Sex) => string
     nightEatingReasonColumn: string
     /** #835 / #842 — Night food No-path columns, same nightEating gate as remember/reason. */

@@ -274,12 +274,18 @@ export const exportXlsx: ExportXlsxDict = {
     onPeriodColumn: 'Менструация',
     hadConstipationColumn: 'Запор',
     hadAlcoholColumn: 'Алкоголь',
-    nightEatingColumn: (sex) =>
-      sex === 'female'
+    nightEatingColumn: (sex, overnightFrom, overnightTo) => {
+      if (overnightFrom && overnightTo) {
+        const fromDay = overnightFrom.slice(8, 10).replace(/^0/, '')
+        const toDay = overnightTo.slice(8, 10).replace(/^0/, '')
+        return `Ночная еда с ${fromDay} на ${toDay}`
+      }
+      return sex === 'female'
         ? 'Ела поздно вечером'
         : sex === 'male'
           ? 'Ел поздно вечером'
-          : 'Ел(а) поздно вечером',
+          : 'Ел(а) поздно вечером'
+    },
     nightEatingRememberColumn: (sex) =>
       sex === 'female'
         ? 'Помню, как ела'

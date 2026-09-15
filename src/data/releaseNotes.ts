@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 856,
+    issue: 903,
+    date: '2026-09-15T12:20:00+03:00',
+    en: 'One-day exports label night food with the overnight span (from → to dates).',
+    ru: 'В экспорте за один день ночная еда подписана как ночь с одной даты на другую.',
+  },
+  {
     version: 855,
     issue: 899,
     date: '2026-09-15T12:15:00+03:00',
