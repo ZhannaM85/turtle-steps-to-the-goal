@@ -31,13 +31,3 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
-
----
-
-## Tier 163 — Live feedback (2026-09-15)
-
-_Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack migration (#905)._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#905](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/905) | 🔍 Pending validation | PDF export: migrate off jsPDF to HTML+CSS pipeline for real styling | html2canvas+jsPDF **per `.pdf-page`** (iOS blank one-shot canvas fix). Delayed blob URL revoke for Safari viewer. |
