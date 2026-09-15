@@ -16,6 +16,7 @@ import {
   useWeekStartStore,
 } from '@/stores'
 import { Button } from '@/shared/ui/button'
+import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { DateInput } from '@/shared/ui/date-input'
 import { resolveWeekStartsOn } from '@/shared/lib/resolveWeekStartsOn'
 import type { DailyEntry } from '@/domain/dailyEntry'
@@ -23,6 +24,7 @@ import { exportAllData } from './exportActions'
 import type { DailyLogExportExtras } from './dailyLogExport'
 import { filterByExportPeriod } from './filterByExportPeriod'
 import {
+  exportPeriodForPreset,
   exportPeriodFileStamp,
 } from './exportPeriodFileStamp'
 import {
@@ -100,6 +102,14 @@ export function PdfExportSection() {
   const [pdfPeriodEnd, setPdfPeriodEnd] = useState(() =>
     format(new Date(), 'yyyy-MM-dd'),
   )
+  const [pdfRangePreset, setPdfRangePreset] = useState('month')
+  function applyPdfRangePreset(value: string) {
+    setPdfRangePreset(value)
+    if (value === 'custom') return
+    const bounds = exportPeriodForPreset(value as 'week' | 'month' | 'year' | 'all')
+    setPdfPeriodStart(bounds.start)
+    setPdfPeriodEnd(bounds.end)
+  }
   const [pdfSectionsDialogOpen, setPdfSectionsDialogOpen] = useState(false)
   const [pdfPreviewData, setPdfPreviewData] = useState<PdfSummaryData | null>(
     null,
@@ -234,29 +244,14 @@ export function PdfExportSection() {
         <p className="text-sm text-muted-foreground">
           {t.export.exportPdfBlurb}
         </p>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setPdfPeriodStart(format(subDays(new Date(), 29), 'yyyy-MM-dd'))
-              setPdfPeriodEnd(format(new Date(), 'yyyy-MM-dd'))
-            }}
-          >
-            {t.export.exportPdfRange30Label}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setPdfPeriodStart(format(subDays(new Date(), 89), 'yyyy-MM-dd'))
-              setPdfPeriodEnd(format(new Date(), 'yyyy-MM-dd'))
-            }}
-          >
-            {t.export.exportPdfRange90Label}
-          </Button>
+        <div className="flex flex-col gap-2">
+          <ToggleGroup type="single" value={pdfRangePreset} onValueChange={(value) => value && applyPdfRangePreset(value)} className="flex-wrap justify-start">
+            <ToggleGroupItem value="week" className="h-12">{t.export.exportRangeWeek}</ToggleGroupItem>
+            <ToggleGroupItem value="month" className="h-12">{t.export.exportRangeMonth}</ToggleGroupItem>
+            <ToggleGroupItem value="year" className="h-12">{t.export.exportRangeYear}</ToggleGroupItem>
+            <ToggleGroupItem value="all" className="h-12">{t.export.exportRangeAll}</ToggleGroupItem>
+            <ToggleGroupItem value="custom" className="h-12">{t.export.exportRangeCustom}</ToggleGroupItem>
+          </ToggleGroup>
         </div>
         <span className="text-sm font-medium">
           {t.export.exportPdfRangeLabel}

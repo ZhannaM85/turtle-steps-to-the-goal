@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 869,
+    issue: 916,
+    date: '2026-09-15T17:50:00+03:00',
+    en: 'PDF export now uses the same Week, Month, Year, All, and Custom period choices as other exports.',
+    ru: 'В экспорте PDF теперь используются те же варианты периода: Неделя, Месяц, Год, Все и Свой.',
+  },
+  {
     version: 868,
     issue: 914,
     date: '2026-09-15T17:44:00+03:00',
