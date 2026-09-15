@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 870,
+    issue: 915,
+    date: '2026-09-15T17:55:00+03:00',
+    en: 'PDF exports now use restrained colorful section accents and backgrounds for easier scanning.',
+    ru: 'В PDF-экспорте появились сдержанные цветные акценты и фоны разделов для удобного просмотра.',
+  },
+  {
     version: 869,
     issue: 916,
     date: '2026-09-15T17:50:00+03:00',

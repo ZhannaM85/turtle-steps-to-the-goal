@@ -94,7 +94,7 @@ export const PDF_DOCUMENT_CSS = `
     padding: 0;
     border: 1px solid #e7e5e4;
     border-radius: 8pt;
-    background: #fff;
+    background: #f8fafc;
     overflow: hidden;
     break-inside: avoid;
   }
@@ -107,6 +107,10 @@ export const PDF_DOCUMENT_CSS = `
     background: #fafaf9;
     color: #44403c;
   }
+  .pdf-day-section:nth-of-type(1) .pdf-day-section-title { background: #eef2ff; color: #3730a3; }
+  .pdf-day-section:nth-of-type(2) .pdf-day-section-title { background: #fff7ed; color: #9a3412; }
+  .pdf-day-section:nth-of-type(3) .pdf-day-section-title { background: #ecfeff; color: #155e75; }
+  .pdf-day-section:nth-of-type(4) .pdf-day-section-title { background: #fdf2f8; color: #9d174d; }
   .pdf-day-section-content {
     padding: 7pt 10pt 6pt;
   }
