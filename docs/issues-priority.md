@@ -49,13 +49,3 @@ _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS sta
 | [#901](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/901) | 🔍 Pending validation | Export: rename Note to Evening note and include the date | Daily Log uses «Evening note» / «Вечерняя заметка»; one-day exports append the ISO date. Meal «Note» unchanged. |
 | [#903](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/903) | 🔍 Pending validation | Export: label night food as spanning the overnight dates (e.g. 14→15) | One-day: EN `Night food YYYY-MM-DD → …`; RU `Ночная еда с D на D`. Multi-day keeps sexed late-evening label. |
 | [#905](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/905) | 🔍 Pending validation | PDF export: migrate off jsPDF to HTML+CSS pipeline for real styling | html2pdf.js + `buildPdfDocumentHtml` / `pdfDocumentStyles`. Settings summary + #894 day-share use the new path. Legacy jsPDF draw helpers still in tree for transitional tests. |
-
----
-
-## Tier 162 — Live feedback (2026-09-14)
-
-_Found while validating Settings groups / Day accordion / DateInput / PDF export on device._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#892](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/892) | 🔍 Pending validation | PDF footer date/disclaimer overlaps page content | **Rework 2026-09-15** — measure footer height from wrapped disclaimer; summary `drawSimpleSection` page-breaks; daily pages use same measured bottom. |

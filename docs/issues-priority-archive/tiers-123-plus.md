@@ -652,6 +652,7 @@ _Found while validating Settings groups / Day accordion / DateInput follow-ups o
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#892](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/892) | ✅ Done | PDF footer date/disclaimer overlaps page content | Confirmed on-device 2026-09-15 — footer clears summary and daily-log content. |
 | [#893](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/893) | ✅ Done | Day date nav: drop Date label; put entry checkmark on the date row | Confirmed on-device 2026-09-15 — no «Дата» label; check on date row. Spacing follow-up #904. |
 | [#894](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/894) | ✅ Done | Day share sheet: save this day as PDF | Confirmed on-device 2026-09-15 — Save as PDF next to CSV on the day share sheet. |
 | [#891](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/891) | ✅ Done | PDF daily-log pages: human-readable day sections (not Excel table) | Confirmed on-device 2026-09-15 — day blocks instead of Excel table. Styling follow-up filed. |
