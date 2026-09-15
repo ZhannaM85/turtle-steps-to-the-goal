@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 873,
+    issue: 917,
+    date: '2026-09-15T23:15:00+03:00',
+    en: 'PDF diary pages now pack the end of one day with the next day instead of reserving a separate sheet for every date.',
+    ru: 'Страницы PDF-дневника теперь уплотняются: конец одного дня размещается рядом со следующим без отдельного листа на каждую дату.',
+  },
+  {
     version: 872,
     issue: 917,
     date: '2026-09-15T23:00:00+03:00',

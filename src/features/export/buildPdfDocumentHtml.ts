@@ -109,9 +109,12 @@ function dailyLogPagesHtml(
   )
   if (entries.length === 0) return ''
 
-  // #909 — one `.pdf-page` per calendar day so a new date never wraps under
-  // the previous day when the renderer paginates.
-  return entries
+  // #917 — days share one packable page stream. A day used to own a full
+  // `.pdf-page`, which left a nearly blank sheet whenever only its final
+  // card (usually Notes) overflowed. Keep a date and its first card
+  // together, then let the renderer carry remaining complete cards and the
+  // next date onto the same styled sheet.
+  const dayFragments = entries
     .map((entry, index) => {
       const lines = dailyLogPdfDayLines(
         entry,
@@ -158,19 +161,18 @@ function dailyLogPagesHtml(
       // as a direct page-body child. The HTML renderer can then move a card
       // to the next styled sheet instead of image-slicing a whole day and
       // creating an almost-empty tail page.
-      const pageIntro =
+      const dayStart =
         index === 0
-          ? `<div class="pdf-day-intro"><h1 class="pdf-title">${escapeHtml(t.pdfSummary.dailyLogPagesTitle)}</h1>${header}</div>`
+          ? `<h1 class="pdf-title">${escapeHtml(t.pdfSummary.dailyLogPagesTitle)}</h1>${header}`
           : header
-      return `<section class="pdf-page">
-  <div class="pdf-page-body">
-    ${pageIntro}
-    ${sections.join('')}
-  </div>
-  ${footerHtml(t, generatedOn)}
-</section>`
+      const firstSection = sections.shift() ?? ''
+      return `<div class="pdf-day-start">${dayStart}${firstSection}</div>${sections.join('')}`
     })
     .join('\n')
+  return `<section class="pdf-page">
+  <div class="pdf-page-body">${dayFragments}</div>
+  ${footerHtml(t, generatedOn)}
+</section>`
 }
 
 /**
