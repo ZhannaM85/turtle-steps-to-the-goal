@@ -36,7 +36,7 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 163 — Live feedback (2026-09-15)
 
-_Day КБЖУ / export: show calorie/macro **goal vs actual**, omit untracked fields, and date-label next-morning weight so LLMs don’t confuse it with today’s weigh-in._
+_Day КБЖУ / export: goal vs actual, omit untracked fields, date-label next-morning weight and morning/evening notes._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -45,6 +45,8 @@ _Day КБЖУ / export: show calorie/macro **goal vs actual**, omit untracked fi
 | [#897](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/897) | ⬜ Open | Day КБЖУ card and monthly summaries: show calorie/macro goal vs actual intake | Follow-up to #521 (calorie remaining line). Macros remaining-only today. Weekly nutrition comparison if same work; do not invent a monthly weight target. |
 | [#898](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/898) | ⬜ Open | Exports still include fields the user is not tracking | Follow-up to #744. Day-share CSV screenshot: empty waist/hips, body fat %, Na/K/Mg. Audit Settings CSV/Excel/Markdown and PDF day pages too. JSON backup stays complete. |
 | [#899](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/899) | ⬜ Open | Export: label next-morning weight with the actual date, not «next morning» | «Вес следующим утром» confuses LLMs as today’s weight. Use the next calendar date in the header (follow-up to #832 wording). |
+| [#900](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/900) | ⬜ Open | Export: include the date on the Morning note column | «Утренняя заметка» → include row date in header (same LLM clarity as #899). |
+| [#901](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/901) | ⬜ Open | Export: rename Note to Evening note and include the date | «Заметка» → evening-note wording + row date in header. |
 
 ---
 
