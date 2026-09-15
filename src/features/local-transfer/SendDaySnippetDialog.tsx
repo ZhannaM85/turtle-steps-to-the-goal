@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { addDays, format, parseISO } from 'date-fns'
-import { Check, Copy, FileDown, QrCode, Share2 } from 'lucide-react'
+import { Check, Copy, FileDown, FileText, QrCode, Share2 } from 'lucide-react'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { BarcodeScannerDialog } from '@/features/daily-log/BarcodeScannerDialog'
 import { buildDailyLogCsv, CSV_BOM } from '@/features/export/exportCsv'
+import { buildSingleDayPdf } from '@/features/export/buildSingleDayPdf'
 import { generateQrDataUrl } from '@/features/food-share/generateQrDataUrl'
-import { useTranslation } from '@/i18n'
+import { useLocale, useTranslation } from '@/i18n'
 import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
 import { Button } from '@/shared/ui/button'
 import {
@@ -17,10 +18,17 @@ import {
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import {
+  useAlcoholTrackingStore,
+  useCycleTrackingStore,
   useCustomMetricStore,
+  useDigestionTrackingStore,
   useEatingReasonTrackingStore,
   useMealSlotDefaultTimesStore,
+  useMicronutrientTrackingStore,
   useProfileStore,
+  useTrackedFieldsStore,
+  useUnitStore,
+  useWaterTrackingStore,
 } from '@/stores'
 import { classifyShareScan } from './classifyShareScan'
 import {
@@ -44,8 +52,7 @@ export interface SendDaySnippetDialogProps {
 
 /**
  * #720 / #722 / #723 — send sheet: copy/share/QR, paste, or scan a QR.
- * #795 — Save as CSV for a one-day LLM paste, same Daily Log builder as
- * Settings.
+ * #795 / #894 — CSV and readable PDF exports for the viewed day.
  */
 export function SendDaySnippetDialog({
   open,
@@ -59,7 +66,9 @@ export function SendDaySnippetDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent closeLabel={t.today.importDayCancel}>
         <DialogTitle>{t.today.sendDayDialogTitle}</DialogTitle>
-        <DialogDescription>{t.today.sendDayDialogDescription}</DialogDescription>
+        <DialogDescription>
+          {t.today.sendDayDialogDescription}
+        </DialogDescription>
         {open ? (
           <SendDaySnippetBody
             date={date}
@@ -82,6 +91,7 @@ function SendDaySnippetBody({
   onOpenChange: (open: boolean) => void
 }) {
   const t = useTranslation()
+  const locale = useLocale()
   const openConfirm = useDayTransferUiStore((state) => state.openConfirm)
   // Snapshot once on mount (body only mounts while the sheet is open), same
   // as ShareFoodDialog. Recomputing `dailyEntryToDaySnippet` each render
@@ -100,6 +110,7 @@ function SendDaySnippetBody({
   const [copied, setCopied] = useState(false)
   const [shareError, setShareError] = useState<string | null>(null)
   const [csvError, setCsvError] = useState<string | null>(null)
+  const [pdfError, setPdfError] = useState<string | null>(null)
   const [pasteValue, setPasteValue] = useState('')
   const [pasteError, setPasteError] = useState<string | null>(null)
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
@@ -159,19 +170,14 @@ function SendDaySnippetBody({
       if (next?.weightKg !== undefined) {
         nextMorningWeightByDate[date] = next.weightKg
       }
-      const csv = buildDailyLogCsv(
-        [entry],
-        t,
-        useProfileStore.getState().sex,
-        {
-          customMetrics: useCustomMetricStore.getState().metrics,
-          customMetricEntries: useCustomMetricStore.getState().entries,
-          mealSlotTimes: useMealSlotDefaultTimesStore.getState().times,
-          eatingReasonLabelOverrides:
-            useEatingReasonTrackingStore.getState().builtinLabelOverrides,
-          nextMorningWeightByDate,
-        },
-      )
+      const csv = buildDailyLogCsv([entry], t, useProfileStore.getState().sex, {
+        customMetrics: useCustomMetricStore.getState().metrics,
+        customMetricEntries: useCustomMetricStore.getState().entries,
+        mealSlotTimes: useMealSlotDefaultTimesStore.getState().times,
+        eatingReasonLabelOverrides:
+          useEatingReasonTrackingStore.getState().builtinLabelOverrides,
+        nextMorningWeightByDate,
+      })
       const blob = new Blob([CSV_BOM, csv], { type: 'text/csv' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -181,6 +187,55 @@ function SendDaySnippetBody({
       URL.revokeObjectURL(url)
     } catch {
       setCsvError(t.today.sendDaySaveCsvFailed)
+    }
+  }
+
+  async function handleSavePdf() {
+    if (!entry || entry.date !== date) return
+    setPdfError(null)
+    try {
+      const trackedFields = useTrackedFieldsStore.getState().tracked
+      const micronutrients = useMicronutrientTrackingStore.getState().tracked
+      const pdf = await buildSingleDayPdf(
+        entry,
+        t,
+        locale,
+        useUnitStore.getState().unit,
+        {
+          customMetrics: useCustomMetricStore.getState().metrics,
+          customMetricEntries: useCustomMetricStore.getState().entries,
+          tracking: {
+            sleep: trackedFields.sleep,
+            steps: trackedFields.steps,
+            bodyMeasurements: trackedFields.bodyMeasurements,
+            note: trackedFields.note,
+            morningNote: trackedFields.morningNote,
+            mood: trackedFields.mood,
+            bodyComposition: trackedFields.bodyComposition,
+            nightEating: trackedFields.nightEating,
+            fiber: trackedFields.fiber,
+            cycle: useCycleTrackingStore.getState().enabled,
+            digestion: useDigestionTrackingStore.getState().enabled,
+            alcohol: useAlcoholTrackingStore.getState().enabled,
+            water: useWaterTrackingStore.getState().enabled,
+            sodium: micronutrients.sodium,
+            potassium: micronutrients.potassium,
+            magnesium: micronutrients.magnesium,
+            eatingReason: useEatingReasonTrackingStore.getState().enabled,
+          },
+          mealSlotTimes: useMealSlotDefaultTimesStore.getState().times,
+          eatingReasonLabelOverrides:
+            useEatingReasonTrackingStore.getState().builtinLabelOverrides,
+        },
+      )
+      const url = URL.createObjectURL(pdf)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `turtle-steps-daily-log-${date}.pdf`
+      link.click()
+      URL.revokeObjectURL(url)
+    } catch {
+      setPdfError(t.today.sendDaySavePdfFailed)
     }
   }
 
@@ -219,7 +274,9 @@ function SendDaySnippetBody({
     <>
       {!canSend || !shareUrl ? (
         <div className="flex flex-col gap-4 pt-2">
-          <p className="text-sm text-muted-foreground">{t.today.sendDayNothingLogged}</p>
+          <p className="text-sm text-muted-foreground">
+            {t.today.sendDayNothingLogged}
+          </p>
           {receive}
         </div>
       ) : (
@@ -231,7 +288,11 @@ function SendDaySnippetBody({
               {copied ? t.today.sendDayCopied : t.today.sendDayCopyButton}
             </Button>
             {canNativeShare ? (
-              <Button type="button" variant="outline" onClick={() => void handleNativeShare()}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => void handleNativeShare()}
+              >
                 <Share2 />
                 {t.today.sendDayShareButton}
               </Button>
@@ -240,12 +301,23 @@ function SendDaySnippetBody({
               <FileDown />
               {t.today.sendDaySaveCsvButton}
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => void handleSavePdf()}
+            >
+              <FileText />
+              {t.today.sendDaySavePdfButton}
+            </Button>
           </div>
           {shareError ? (
             <p className="text-sm text-destructive">{shareError}</p>
           ) : null}
           {csvError ? (
             <p className="text-sm text-destructive">{csvError}</p>
+          ) : null}
+          {pdfError ? (
+            <p className="text-sm text-destructive">{pdfError}</p>
           ) : null}
           {qrFits ? (
             <div className="flex flex-col items-center gap-2">
@@ -267,7 +339,9 @@ function SendDaySnippetBody({
               </p>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">{t.today.sendDayQrTooLarge}</p>
+            <p className="text-sm text-muted-foreground">
+              {t.today.sendDayQrTooLarge}
+            </p>
           )}
           {receive}
         </div>
@@ -298,7 +372,9 @@ function ReceiveDayPaste({
   pasteError: string | null
   setPasteValue: (value: string) => void
   setPasteError: (value: string | null) => void
-  onParsed: (payload: NonNullable<ReturnType<typeof parseDaySnippetFromText>>) => void
+  onParsed: (
+    payload: NonNullable<ReturnType<typeof parseDaySnippetFromText>>,
+  ) => void
   onScan: () => void
 }) {
   const t = useTranslation()
@@ -316,7 +392,12 @@ function ReceiveDayPaste({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <Button type="button" variant="outline" className="self-start" onClick={onScan}>
+      <Button
+        type="button"
+        variant="outline"
+        className="self-start"
+        onClick={onScan}
+      >
         {t.today.receiveDayScanQrButton}
       </Button>
       <Label htmlFor="receive-day-paste">{t.today.receiveDayPasteLabel}</Label>

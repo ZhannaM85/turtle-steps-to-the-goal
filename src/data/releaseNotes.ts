@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 852,
+    issue: 894,
+    date: '2026-09-15T11:31:26+03:00',
+    en: 'You can save the day you are viewing as a readable PDF from the share sheet.',
+    ru: 'Текущий день можно сохранить в виде читаемого PDF из окна «Поделиться».',
+  },
+  {
     version: 851,
     issue: 902,
     date: '2026-09-15T11:20:00+03:00',

@@ -70,7 +70,9 @@ describe('SendDaySnippetDialog (#720, #722)', () => {
     expect(writeText).toHaveBeenCalled()
     const copied = writeText.mock.calls[0]?.[0] as string
     expect(copied).toContain('shareDay=')
-    expect(await screen.findByRole('button', { name: 'Copied' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('button', { name: 'Copied' }),
+    ).toBeInTheDocument()
     expect(
       await screen.findByRole('img', { name: 'QR code for this day’s log' }),
     ).toBeInTheDocument()
@@ -80,7 +82,9 @@ describe('SendDaySnippetDialog (#720, #722)', () => {
     const user = userEvent.setup()
     const entryTooBig = bulkyEntry()
     expect(
-      daySnippetFitsQr(encodeDaySnippetPayload(dailyEntryToDaySnippet(entryTooBig))),
+      daySnippetFitsQr(
+        encodeDaySnippetPayload(dailyEntryToDaySnippet(entryTooBig)),
+      ),
     ).toBe(false)
 
     const writeText = vi
@@ -152,6 +156,9 @@ describe('SendDaySnippetDialog (#720, #722)', () => {
     expect(
       screen.queryByRole('button', { name: 'Save as CSV' }),
     ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Save as PDF' }),
+    ).not.toBeInTheDocument()
   })
 
   it('downloads a one-day CSV from the share sheet (#795)', async () => {
@@ -179,6 +186,21 @@ describe('SendDaySnippetDialog (#720, #722)', () => {
     expect(text).toContain('2026-08-14')
     expect(text).toContain('Next Morning Weight')
     expect(click).toHaveBeenCalled()
+  })
+
+  it('offers a one-day PDF from the share sheet (#894)', () => {
+    render(
+      <SendDaySnippetDialog
+        open
+        onOpenChange={() => {}}
+        date="2026-08-14"
+        entry={entry}
+      />,
+    )
+
+    expect(
+      screen.getByRole('button', { name: 'Save as PDF' }),
+    ).toBeInTheDocument()
   })
 
   it('fills next_morning_weight from the following day’s weigh-in (#829)', async () => {

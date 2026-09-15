@@ -172,7 +172,10 @@ export function dailyLogPdfDayLines(
       ),
     )
   }
-  if (trackingOn(extras, 'bodyComposition') && entry.muscleMassKg !== undefined) {
+  if (
+    trackingOn(extras, 'bodyComposition') &&
+    entry.muscleMassKg !== undefined
+  ) {
     metrics.push(
       t.pdfSummary.muscleMassLabel(
         formatNumber(entry.muscleMassKg, locale),
@@ -189,7 +192,9 @@ export function dailyLogPdfDayLines(
     )
   }
   if (trackingOn(extras, 'alcohol') && entry.hadAlcohol !== undefined) {
-    metrics.push(`${t.dailyEntry.hadAlcoholLabel}: ${yesNo(entry.hadAlcohol, t)}`)
+    metrics.push(
+      `${t.dailyEntry.hadAlcoholLabel}: ${yesNo(entry.hadAlcohol, t)}`,
+    )
   }
   if (trackingOn(extras, 'nightEating')) {
     const night = hadNightEating(entry)
@@ -215,7 +220,10 @@ export function dailyLogPdfDayLines(
     if (logged.note) metrics.push(logged.note)
   }
   if (metrics.length > 0) {
-    lines.push({ role: 'section', text: t.pdfSummary.dailyLogMetricsSectionTitle })
+    lines.push({
+      role: 'section',
+      text: t.pdfSummary.dailyLogMetricsSectionTitle,
+    })
     for (const metric of metrics) {
       lines.push({ role: 'body', text: metric })
     }
@@ -291,7 +299,10 @@ export function dailyLogPdfDayLines(
     notes.push(`${t.dailyEntry.noteLabel}: ${entry.note}`)
   }
   if (notes.length > 0) {
-    lines.push({ role: 'section', text: t.pdfSummary.dailyLogNotesSectionTitle })
+    lines.push({
+      role: 'section',
+      text: t.pdfSummary.dailyLogNotesSectionTitle,
+    })
     for (const note of notes) {
       lines.push({ role: 'body', text: note })
     }
@@ -336,11 +347,14 @@ export function appendDailyLogPdfPages(
   t: Dictionary,
   locale: Locale,
   unit: Unit,
+  startOnNewPage = true,
 ): void {
-  const entries = [...input.entries].sort((a, b) => a.date.localeCompare(b.date))
+  const entries = [...input.entries].sort((a, b) =>
+    a.date.localeCompare(b.date),
+  )
   if (entries.length === 0) return
 
-  let y = startPortraitPage(doc)
+  let y = startOnNewPage ? startPortraitPage(doc) : 16
   const pageWidth = doc.internal.pageSize.getWidth()
   const maxWidth = pageWidth - MARGIN_X * 2
 
@@ -350,7 +364,10 @@ export function appendDailyLogPdfPages(
 
   for (const entry of entries) {
     const dayLines = dailyLogPdfDayLines(entry, t, locale, unit, input.extras)
-    const estimated = dayLines.reduce((sum, line) => sum + LINE_MM[line.role], 0)
+    const estimated = dayLines.reduce(
+      (sum, line) => sum + LINE_MM[line.role],
+      0,
+    )
     if (y > 24 && y + Math.min(estimated, 40) > contentBottom(doc)) {
       y = startPortraitPage(doc)
     }
