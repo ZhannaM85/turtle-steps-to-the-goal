@@ -205,6 +205,57 @@ export function useDailyEntryFormState({
     formatMacroGrams(remainingFatG, locale, t),
     formatMacroGrams(remainingCarbG, locale, t),
   )
+  const proteinVsTarget =
+    dailyProteinTargetG !== undefined
+      ? t.dailyEntry.actualVsTargetText(
+          formatNumber(consumedProteinG ?? 0, locale, 0),
+          formatNumber(dailyProteinTargetG, locale, 0),
+        ) + t.dailyEntry.gramsUnit
+      : undefined
+  const fatVsTarget =
+    dailyFatTargetG !== undefined
+      ? t.dailyEntry.actualVsTargetText(
+          formatNumber(consumedFatG ?? 0, locale, 0),
+          formatNumber(dailyFatTargetG, locale, 0),
+        ) + t.dailyEntry.gramsUnit
+      : undefined
+  const carbVsTarget =
+    dailyCarbTargetG !== undefined
+      ? t.dailyEntry.actualVsTargetText(
+          formatNumber(consumedCarbG ?? 0, locale, 0),
+          formatNumber(dailyCarbTargetG, locale, 0),
+        ) + t.dailyEntry.gramsUnit
+      : undefined
+  const macrosVsTargetParts = [
+    proteinVsTarget !== undefined
+      ? `${t.dailyEntry.proteinLabel} ${proteinVsTarget}`
+      : null,
+    fatVsTarget !== undefined ? `${t.dailyEntry.fatLabel} ${fatVsTarget}` : null,
+    carbVsTarget !== undefined
+      ? `${t.dailyEntry.carbsLabel} ${carbVsTarget}`
+      : null,
+  ].filter(Boolean)
+  const macrosVsTargetLine =
+    macrosVsTargetParts.length > 0 ? macrosVsTargetParts.join(' · ') : null
+  const dayGoalVsActualDescription = [
+    macrosVsTargetLine,
+    remainingKcal !== undefined || macrosVsTargetLine
+      ? `${t.dailyEntry.remainingMacrosLabel}: ${
+          remainingKcal !== undefined
+            ? formatKcal(remainingKcal, locale, t)
+            : '—'
+        }${macrosVsTargetLine ? ` · ${remainingMacrosLine}` : ''}`
+      : null,
+  ]
+    .filter(Boolean)
+    .join('\n')
+  const dayGoalVsActualValue =
+    dailyCalorieTargetKcal !== undefined
+      ? t.dailyEntry.actualVsTargetText(
+          formatNumber(dayTotalCalories, locale, 0),
+          formatNumber(dailyCalorieTargetKcal, locale, 0),
+        )
+      : undefined
   const dayRemainingMacrosDescription =
     dailyCalorieTargetKcal !== undefined
       ? [
@@ -349,6 +400,8 @@ export function useDailyEntryFormState({
     dayMacrosDescription,
     dayRemainingMacrosSummary,
     dayRemainingMacrosDescription,
+    dayGoalVsActualDescription,
+    dayGoalVsActualValue,
     remainingKcal,
     calorieEntries,
     setValue,

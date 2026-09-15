@@ -25,6 +25,10 @@ export type { GoalWindowProgress } from './goalWindowProgress'
 export { pastGoals, earliestGoalCreatedAt } from './goalHistory'
 export type { PastGoalRecord } from './goalHistory'
 export {
+  averageNutritionTargetsForEntries,
+} from './averageNutritionTargets'
+export type { PeriodNutritionTargets } from './averageNutritionTargets'
+export {
   reachedGoalWindows,
   isDateWithinReachedWindow,
   isGoalMetOnDate,

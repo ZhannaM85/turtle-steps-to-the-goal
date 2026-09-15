@@ -68,6 +68,13 @@ export const releaseNotes: ReleaseNote[] = [
     ru: 'Текущий день можно сохранить в виде читаемого PDF из окна «Поделиться».',
   },
   {
+    version: 855,
+    issue: 897,
+    date: '2026-09-15T13:12:00+03:00',
+    en: 'Day calories & macros and weekly/monthly summaries show intake vs daily goals, with remaining as a secondary line.',
+    ru: 'На Дне и в недельных/месячных сводках калории и БЖУ показаны как факт против дневной цели; остаток — второй строкой.',
+  },
+  {
     version: 854,
     issue: 892,
     date: '2026-09-15T13:05:00+03:00',

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { earliestGoalCreatedAt } from '@/domain/goal'
+import { earliestGoalCreatedAt, type Goal } from '@/domain/goal'
 import {
   IndexedDbDailyEntryRepository,
   IndexedDbGoalRepository,
@@ -20,11 +20,13 @@ export type DashboardStatus = 'idle' | 'loading' | 'ready' | 'error'
  * repository instance, same reasoning `useHistoryData` already established)
  * to derive `goalTrackingStartDate` (#426) — the earliest goal ever
  * created, distinct from the active `goal`'s own `createdAt` (which resets
- * to "now" every time a fresh weekly target is started).
+ * to "now" every time a fresh weekly target is started). `#897` also
+ * returns that full goals list for per-period nutrition target averages.
  */
 export function useDashboardData() {
   const { goal, status: goalStatus, loadActiveGoal } = useGoalStore()
   const [entries, setEntries] = useState<DailyEntry[]>([])
+  const [goals, setGoals] = useState<Goal[]>([])
   const [goalTrackingStartDate, setGoalTrackingStartDate] = useState<
     string | undefined
   >(undefined)
@@ -37,10 +39,11 @@ export function useDashboardData() {
   useEffect(() => {
     let cancelled = false
     Promise.all([dailyEntryRepository.getAll(), goalRepository.getAll()])
-      .then(([all, goals]) => {
+      .then(([all, allGoals]) => {
         if (cancelled) return
         setEntries(all)
-        setGoalTrackingStartDate(earliestGoalCreatedAt(goals))
+        setGoals(allGoals)
+        setGoalTrackingStartDate(earliestGoalCreatedAt(allGoals))
         setEntriesStatus('ready')
       })
       .catch(() => {
@@ -60,5 +63,5 @@ export function useDashboardData() {
           ? 'idle'
           : 'loading'
 
-  return { goal, entries, goalTrackingStartDate, status }
+  return { goal, goals, entries, goalTrackingStartDate, status }
 }

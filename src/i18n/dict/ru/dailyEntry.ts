@@ -157,6 +157,8 @@ export const dailyEntry: DailyEntryDict = {
     macrosSummaryCompactWithCalories: (kcal, protein, fat, carbs) =>
       `${kcal} · Б ${protein} · Ж ${fat} · У ${carbs}`,
     remainingMacrosLabel: 'Осталось',
+    goalVsActualMacrosLabel: 'Цель и факт',
+    actualVsTargetText: (actual, target) => `${actual} / ${target}`,
     expandMacrosLabel: 'Показать калории и БЖУ',
     collapseMacrosLabel: 'Скрыть калории и БЖУ',
     timeEatenLabel: 'Время',
