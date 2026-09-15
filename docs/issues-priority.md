@@ -36,9 +36,10 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 163 — Live feedback (2026-09-15)
 
-_Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack (#905) + diary follow-ups._
+_Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack (#905) + diary follow-ups; sticky page tops._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#910](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/910) | ⬜ Open | Day (and other tabs): sticky page top — title + date nav stay reachable while scrolling | May be regression. Day: pin title+share+date nav together. Consider sticky tops on other main tabs too. |
 | [#909](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/909) | 🔍 Pending validation | PDF diary: start each new date on its own page | One `.pdf-page` per diary day in `dailyLogPagesHtml`. |
 | [#908](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/908) | 🔍 Pending validation | PDF export: CSS styling missing on pages after the first two | Split overflowing `.pdf-page` nodes before capture so every sheet is a full styled HTML page. |
