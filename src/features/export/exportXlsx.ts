@@ -118,6 +118,18 @@ export async function buildExportWorkbook(
       key: 'baselineWeight',
       width: 14,
     },
+    {
+      header: t.exportXlsx.calorieTargetColumn,
+      key: 'calorieTarget',
+      width: 16,
+    },
+    {
+      header: t.exportXlsx.proteinTargetColumn,
+      key: 'proteinTarget',
+      width: 16,
+    },
+    { header: t.exportXlsx.fatTargetColumn, key: 'fatTarget', width: 14 },
+    { header: t.exportXlsx.carbTargetColumn, key: 'carbTarget', width: 14 },
   ]
   const sortedGoals = [...goals].sort((a, b) =>
     a.createdAt.localeCompare(b.createdAt),
@@ -130,6 +142,10 @@ export async function buildExportWorkbook(
       weekStart: toOptionalDate(goal.weekStart),
       weekEnd: toOptionalDate(weekEnd),
       baselineWeight: goal.baselineWeightKg,
+      calorieTarget: goal.dailyCalorieTargetKcal,
+      proteinTarget: goal.dailyProteinTargetG,
+      fatTarget: goal.dailyFatTargetG,
+      carbTarget: goal.dailyCarbTargetG,
     })
   }
   goalsSheet.getColumn('created').numFmt = DATE_FORMAT

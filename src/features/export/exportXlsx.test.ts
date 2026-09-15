@@ -75,38 +75,48 @@ describe('buildExportWorkbook', () => {
     const dailyLog = workbook.getWorksheet('Daily Log')!
     const [row] = sheetRows(dailyLog)
 
-    // [date, weight, calories, protein, fat, carbs, sleepHours,
-    //  deepSleepHours, steps, waist, hip, bodyFat, mood, note, onPeriod,
-    //  hadConstipation, nightEating]
+    // [date, weight, calories, calorieTarget, protein, proteinTarget,
+    //  fat, fatTarget, carbs, carbTarget, sleepHours, deepSleepHours,
+    //  steps, waist, hip, bodyFat, mood, morningNote, eveningNote,
+    //  onPeriod, hadConstipation, alcohol, nightEating, …]
     expect(row[1]).toBeInstanceOf(Date)
     expect(row[2]).toBe(79.5)
     expect(row[3]).toBe(300)
-    expect(row[4]).toBe(10)
-    expect(row[5]).toBe(5)
-    expect(row[6]).toBe(20)
-    expect(row[7]).toBe('7h 0m')
-    expect(row[8]).toBe('1h 30m')
-    expect(row[9]).toBe(8000)
-    expect(row[10]).toBe(80)
-    expect(row[11]).toBe(95)
-    expect(row[12]).toBe(22)
-    expect(row[13]).toBe('Happy')
-    expect(row[14]).toBeUndefined()
-    expect(row[15]).toBe('Felt good')
-    expect(row[16]).toBe(true)
+    expect(row[4]).toBeUndefined()
+    expect(row[5]).toBe(10)
+    expect(row[6]).toBeUndefined()
+    expect(row[7]).toBe(5)
+    expect(row[8]).toBeUndefined()
+    expect(row[9]).toBe(20)
+    expect(row[10]).toBeUndefined()
+    expect(row[11]).toBe('7h 0m')
+    expect(row[12]).toBe('1h 30m')
+    expect(row[13]).toBe(8000)
+    expect(row[14]).toBe(80)
+    expect(row[15]).toBe(95)
+    expect(row[16]).toBe(22)
+    expect(row[17]).toBe('Happy')
+    expect(row[18]).toBeUndefined()
+    expect(row[19]).toBe('Felt good')
+    expect(row[20]).toBe(true)
     // #902 — an unset choice exports as false, matching Day's «Нет».
-    expect(row[17]).toBe(false)
+    expect(row[21]).toBe(false)
     // #394 — nightEating is blank here (not false): the one logged meal has
     // no timeEaten, so hadNightEating() has no signal to derive from.
-    expect(row[18]).toBeUndefined()
+    // Alcohol sits at [22]; night-food flag at [23].
+    expect(row[23]).toBeUndefined()
     expect(dailyLog.getRow(1).values).toEqual([
       undefined,
       'Date',
       'Weight (kg)',
       'Calories (kcal)',
+      'Calorie target (kcal)',
       'Protein (g)',
+      'Protein target (g)',
       'Fat (g)',
+      'Fat target (g)',
       'Carbs (g)',
+      'Carb target (g)',
       'Sleep (h)',
       'Deep sleep (h)',
       'Steps',
@@ -220,12 +230,12 @@ describe('buildExportWorkbook', () => {
     const dailyRow = sheetRows(workbook.getWorksheet('Daily Log')!)[0]
     const mealRow = sheetRows(workbook.getWorksheet('Meals')!)[0]
 
-    expect(dailyRow[25]).toBe(45.2)
-    expect(dailyRow[26]).toBe(8)
-    expect(dailyRow[27]).toBe(55)
-    expect(dailyRow[28]).toBe(2.4)
-    expect(dailyRow[29]).toBe(2)
-    expect(dailyRow[30]).toBe(200)
+    expect(dailyRow[29]).toBe(45.2)
+    expect(dailyRow[30]).toBe(8)
+    expect(dailyRow[31]).toBe(55)
+    expect(dailyRow[32]).toBe(2.4)
+    expect(dailyRow[33]).toBe(2)
+    expect(dailyRow[34]).toBe(200)
     expect(mealRow[9]).toBe(2)
     expect(mealRow[10]).toBe(200)
     expect(mealRow[11]).toBe(80)
@@ -306,6 +316,10 @@ describe('buildExportWorkbook', () => {
       'Week start',
       'Week end',
       'Baseline (kg)',
+      'Calorie target (kcal)',
+      'Protein target (g)',
+      'Fat target (g)',
+      'Carb target (g)',
     ])
     const [row] = sheetRows(sheet)
     expect(row[2]).toBe(0.4)
@@ -318,6 +332,27 @@ describe('buildExportWorkbook', () => {
     expect((row[4] as Date).getMonth()).toBe(0)
     expect((row[4] as Date).getDate()).toBe(11)
     expect(row[5]).toBe(84.35)
+  })
+
+  it('writes daily calorie and macro targets on the Goals sheet (#895)', async () => {
+    const workbook = await buildExportWorkbook(
+      [
+        makeGoal({
+          weekStart: '2026-03-01',
+          dailyCalorieTargetKcal: 1800,
+          dailyProteinTargetG: 120,
+          dailyFatTargetG: 55,
+          dailyCarbTargetG: 180,
+        }),
+      ],
+      [],
+      t,
+    )
+    const [row] = sheetRows(workbook.getWorksheet('Goals')!)
+    expect(row[6]).toBe(1800)
+    expect(row[7]).toBe(120)
+    expect(row[8]).toBe(55)
+    expect(row[9]).toBe(180)
   })
 
   it('handles no data at all', async () => {

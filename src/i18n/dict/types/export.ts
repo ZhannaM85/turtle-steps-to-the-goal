@@ -302,9 +302,14 @@ export interface ExportXlsxDict {
     /** #829 / #832 / #899 — one-day CSV only; optional next-morning ISO date. */
     nextMorningWeightColumn: (weighInDate?: string) => string
     caloriesColumn: string
+    /** #895 / #896 — daily target beside the matching actual intake column. */
+    calorieTargetColumn: string
     proteinColumn: string
+    proteinTargetColumn: string
     fatColumn: string
+    fatTargetColumn: string
     carbsColumn: string
+    carbTargetColumn: string
     sleepHoursColumn: string
     deepSleepHoursColumn: string
     stepsColumn: string

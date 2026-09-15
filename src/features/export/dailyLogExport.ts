@@ -13,6 +13,8 @@ import {
   totalWaterMl,
 } from '@/domain/dailyEntry'
 import type { CustomMetric, CustomMetricEntry } from '@/domain/customMetric'
+import type { Goal } from '@/domain/goal'
+import { goalCoveringDate } from '@/domain/goal'
 import type { Sex } from '@/domain/stats'
 import type { Dictionary } from '@/i18n'
 import { addDays, format, parseISO } from 'date-fns'
@@ -43,6 +45,11 @@ export interface DailyLogExportExtras {
    * from a single-entry list.
    */
   labelDate?: string
+  /**
+   * #895 / #896 — past + active goals so each Daily Log row can resolve
+   * that day's calorie/macro targets via `goalCoveringDate`.
+   */
+  goals?: Goal[]
 }
 
 /**
@@ -174,6 +181,14 @@ function exportedSleepDuration(
   )
 }
 
+function goalForDay(
+  entry: DailyEntry,
+  extras?: DailyLogExportExtras,
+): Goal | undefined {
+  if (!extras?.goals?.length) return undefined
+  return goalCoveringDate(extras.goals, entry.date)
+}
+
 function dailyLogColumns(
   t: Dictionary,
   sex?: Sex,
@@ -191,16 +206,32 @@ function dailyLogColumns(
       value: (entry) => totalCalories(entry.calorieEntries, entry.dayTotals),
     },
     {
+      header: t.exportXlsx.calorieTargetColumn,
+      value: (entry) => goalForDay(entry, extras)?.dailyCalorieTargetKcal,
+    },
+    {
       header: t.exportXlsx.proteinColumn,
       value: (entry) => totalProtein(entry.calorieEntries, entry.dayTotals),
+    },
+    {
+      header: t.exportXlsx.proteinTargetColumn,
+      value: (entry) => goalForDay(entry, extras)?.dailyProteinTargetG,
     },
     {
       header: t.exportXlsx.fatColumn,
       value: (entry) => totalFat(entry.calorieEntries, entry.dayTotals),
     },
     {
+      header: t.exportXlsx.fatTargetColumn,
+      value: (entry) => goalForDay(entry, extras)?.dailyFatTargetG,
+    },
+    {
       header: t.exportXlsx.carbsColumn,
       value: (entry) => totalCarbs(entry.calorieEntries, entry.dayTotals),
+    },
+    {
+      header: t.exportXlsx.carbTargetColumn,
+      value: (entry) => goalForDay(entry, extras)?.dailyCarbTargetG,
     },
     {
       header: t.exportXlsx.sleepHoursColumn,

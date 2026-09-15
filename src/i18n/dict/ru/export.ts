@@ -256,9 +256,13 @@ export const exportXlsx: ExportXlsxDict = {
     nextMorningWeightColumn: (weighInDate) =>
       weighInDate ? `Вес ${weighInDate}` : 'Вес следующим утром',
     caloriesColumn: 'Калории (ккал)',
+    calorieTargetColumn: 'Цель калорий (ккал)',
     proteinColumn: 'Белки (г)',
+    proteinTargetColumn: 'Цель белков (г)',
     fatColumn: 'Жиры (г)',
+    fatTargetColumn: 'Цель жиров (г)',
     carbsColumn: 'Углеводы (г)',
+    carbTargetColumn: 'Цель углеводов (г)',
     sleepHoursColumn: 'Сон (ч)',
     deepSleepHoursColumn: 'Глубокий сон (ч)',
     stepsColumn: 'Шаги',

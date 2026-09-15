@@ -118,6 +118,7 @@ export function AnalysisExportSection({ children }: { children?: ReactNode }) {
           tracking: currentAnalysisExportTracking(),
           mealSlotTimes: mealSlotDefaultTimes,
           eatingReasonLabelOverrides,
+          goals: bundle.goals,
         },
       )
       const buffer = await workbook.xlsx.writeBuffer()
@@ -159,6 +160,7 @@ export function AnalysisExportSection({ children }: { children?: ReactNode }) {
         tracking: currentAnalysisExportTracking(),
         mealSlotTimes: mealSlotDefaultTimes,
         eatingReasonLabelOverrides,
+        goals: bundle.goals,
       })
       const blob = new Blob([CSV_BOM, csv], { type: 'text/csv' })
       const url = URL.createObjectURL(blob)
@@ -192,6 +194,7 @@ export function AnalysisExportSection({ children }: { children?: ReactNode }) {
         tracking: currentAnalysisExportTracking(),
         mealSlotTimes: mealSlotDefaultTimes,
         eatingReasonLabelOverrides,
+        goals: bundle.goals,
       })
       const blob = new Blob([markdown], { type: 'text/markdown' })
       const url = URL.createObjectURL(blob)

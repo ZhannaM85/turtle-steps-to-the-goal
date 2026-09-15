@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import type { Goal } from '@/domain/goal'
 import { getDictionary } from '@/i18n'
 import type { AnalysisExportTrackingGate } from './dailyLogExport'
 import { buildDailyLogCsv } from './exportCsv'
@@ -7,7 +8,7 @@ import { buildDailyLogCsv } from './exportCsv'
 const t = getDictionary('en')
 
 const DAILY_HEADER =
-  'Date,Weight (kg),Calories (kcal),Protein (g),Fat (g),Carbs (g),' +
+  'Date,Weight (kg),Calories (kcal),Calorie target (kcal),Protein (g),Protein target (g),Fat (g),Fat target (g),Carbs (g),Carb target (g),' +
   'Sleep (h),Deep sleep (h),Steps,Waist (cm),Hip (cm),Body fat (%),' +
   'Mood,Morning note,Evening note,On period,Constipation,Alcohol,Ate late tonight,I remember how I ate,Night food reason,Was it easy?,What helped?,Water (ml),' +
   'Muscle (kg),Visceral fat,Body water (%),Bone (kg),Fiber (g),' +
@@ -15,7 +16,7 @@ const DAILY_HEADER =
 
 /** One-day export dates note / night-food headers (#900 / #901 / #903). */
 const DAILY_HEADER_ONE_DAY =
-  'Date,Weight (kg),Calories (kcal),Protein (g),Fat (g),Carbs (g),' +
+  'Date,Weight (kg),Calories (kcal),Calorie target (kcal),Protein (g),Protein target (g),Fat (g),Fat target (g),Carbs (g),Carb target (g),' +
   'Sleep (h),Deep sleep (h),Steps,Waist (cm),Hip (cm),Body fat (%),' +
   'Mood,Morning note 2026-03-01,Evening note 2026-03-01,On period,Constipation,Alcohol,Night food 2026-03-01 → 2026-03-02,I remember how I ate,Night food reason,Was it easy?,What helped?,Water (ml),' +
   'Muscle (kg),Visceral fat,Body water (%),Bone (kg),Fiber (g),' +
@@ -134,7 +135,7 @@ describe('buildDailyLogCsv', () => {
     // no timeEaten, so hadNightEating() has no signal to derive from.
     // #902 — Constipation is explicit false when unset (matches Day «Нет»).
     expect(row).toBe(
-      '2026-03-01,79.5,300,10,5,20,7h 0m,1h 30m,8000,80,95,22,Happy,,Felt good,true,false,,,,,,,,,,,,,,,',
+      '2026-03-01,79.5,300,,10,,5,,20,,7h 0m,1h 30m,8000,80,95,22,Happy,,Felt good,true,false,,,,,,,,,,,,,,,',
     )
   })
 
@@ -687,5 +688,54 @@ describe('buildDailyLogCsv', () => {
 
     expect(csv.split('\r\n\r\n')).toHaveLength(2)
     expect(csv).not.toContain('Amount (ml)')
+  })
+
+  it('fills calorie and macro targets from the goal covering that day (#895)', () => {
+    const goal: Goal = {
+      id: 'g1',
+      targetWeeklyLossKg: 0.5,
+      weekStart: '2026-02-24',
+      weekEnd: '2026-03-02',
+      dailyCalorieTargetKcal: 1800,
+      dailyProteinTargetG: 120,
+      dailyFatTargetG: 55,
+      dailyCarbTargetG: 180,
+      createdAt: '2026-02-24T00:00:00.000Z',
+      updatedAt: '2026-02-24T00:00:00.000Z',
+    }
+    const entry = makeEntry({
+      calorieEntries: [
+        {
+          id: 'meal-1',
+          items: [{ id: 'i1', amountKcal: 500, proteinG: 40, fatG: 10, carbsG: 50 }],
+          createdAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    })
+    const csv = buildDailyLogCsv([entry], t, undefined, { goals: [goal] })
+    const [header, row] = dailyTable(csv).split('\r\n')
+    const cells = row.split(',')
+
+    expect(cells[header.split(',').indexOf('Calories (kcal)')]).toBe('500')
+    expect(cells[header.split(',').indexOf('Calorie target (kcal)')]).toBe(
+      '1800',
+    )
+    expect(cells[header.split(',').indexOf('Protein (g)')]).toBe('40')
+    expect(cells[header.split(',').indexOf('Protein target (g)')]).toBe('120')
+    expect(cells[header.split(',').indexOf('Fat (g)')]).toBe('10')
+    expect(cells[header.split(',').indexOf('Fat target (g)')]).toBe('55')
+    expect(cells[header.split(',').indexOf('Carbs (g)')]).toBe('50')
+    expect(cells[header.split(',').indexOf('Carb target (g)')]).toBe('180')
+  })
+
+  it('leaves calorie and macro target cells blank when no covering goal (#895)', () => {
+    const csv = buildDailyLogCsv([makeEntry()], t, undefined, { goals: [] })
+    const [header, row] = dailyTable(csv).split('\r\n')
+    const cells = row.split(',')
+
+    expect(cells[header.split(',').indexOf('Calorie target (kcal)')]).toBe('')
+    expect(cells[header.split(',').indexOf('Protein target (g)')]).toBe('')
+    expect(cells[header.split(',').indexOf('Fat target (g)')]).toBe('')
+    expect(cells[header.split(',').indexOf('Carb target (g)')]).toBe('')
   })
 })
