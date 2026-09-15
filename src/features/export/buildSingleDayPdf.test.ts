@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { getDictionary } from '@/i18n'
+import { buildSingleDayPdfDocumentHtml } from './buildPdfDocumentHtml'
 import { buildSingleDayPdf } from './buildSingleDayPdf'
 
-describe('buildSingleDayPdf (#894)', () => {
-  it('produces one readable PDF day with the footer band', async () => {
+describe('buildSingleDayPdf (#894/#905)', () => {
+  it('produces a PDF blob and HTML with day content + footer', async () => {
     const entry: DailyEntry = {
       id: 'day',
       date: '2026-09-14',
@@ -15,10 +16,19 @@ describe('buildSingleDayPdf (#894)', () => {
       updatedAt: '2026-09-14T08:00:00.000Z',
     }
 
-    const pdf = await buildSingleDayPdf(entry, getDictionary('en'), 'en', 'kg')
+    const t = getDictionary('en')
+    const html = buildSingleDayPdfDocumentHtml(
+      { entries: [entry] },
+      t,
+      'en',
+      'kg',
+      'Generated on 14 Sep 2026',
+    )
+    expect(html).toContain('Felt well.')
+    expect(html).toContain('pdf-footer')
 
+    const pdf = await buildSingleDayPdf(entry, t, 'en', 'kg')
     expect(pdf.type).toBe('application/pdf')
     expect(pdf.size).toBeGreaterThan(0)
-    expect(await pdf.text()).toContain('PTSans')
   })
 })

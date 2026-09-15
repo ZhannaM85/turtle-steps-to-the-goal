@@ -49,7 +49,7 @@ _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS sta
 | [#901](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/901) | 🔍 Pending validation | Export: rename Note to Evening note and include the date | Daily Log uses «Evening note» / «Вечерняя заметка»; one-day exports append the ISO date. Meal «Note» unchanged. |
 | [#903](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/903) | 🔍 Pending validation | Export: label night food as spanning the overnight dates (e.g. 14→15) | One-day: EN `Night food YYYY-MM-DD → …`; RU `Ночная еда с D на D`. Multi-day keeps sexed late-evening label. |
 | [#904](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/904) | 🔍 Pending validation | Day date nav: checkmark cramped between next arrow and Today | **Corrected 2026-09-15** — check sits beside «День»/Day title, not in the date nav row. |
-| [#905](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/905) | ⬜ Open | PDF export: migrate off jsPDF to HTML+CSS pipeline for real styling | User decision 2026-09-15 — need CSS in PDFs. Local-first library TBD. Covers summary + #891 day pages. |
+| [#905](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/905) | 🔍 Pending validation | PDF export: migrate off jsPDF to HTML+CSS pipeline for real styling | html2pdf.js + `buildPdfDocumentHtml` / `pdfDocumentStyles`. Settings summary + #894 day-share use the new path. Legacy jsPDF draw helpers still in tree for transitional tests. |
 
 ---
 

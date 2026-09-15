@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 858,
+    issue: 905,
+    date: '2026-09-15T13:26:00+03:00',
+    en: 'PDF exports use styled HTML layout so summaries and day pages are easier to read when shared.',
+    ru: 'PDF-экспорт строится из оформленного HTML, поэтому сводки и страницы дня удобнее читать при отправке.',
+  },
+  {
     version: 857,
     issue: 898,
     date: '2026-09-15T12:30:00+03:00',

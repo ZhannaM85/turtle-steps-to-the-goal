@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { CustomMetric, CustomMetricEntry } from '@/domain/customMetric'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { getDictionary } from '@/i18n'
+import { buildPdfDocumentHtml } from './buildPdfDocumentHtml'
 import {
   buildCustomMetricPdfSummaries,
   buildPdfSummaryData,
@@ -409,12 +410,10 @@ describe('buildSummaryPdf', () => {
     expect(blob.size).toBeGreaterThan(0)
   })
 
-  // #623 — jsPDF's standard fonts have no Cyrillic glyphs; a Russian-locale
-  // document used to render as mojibake. Embedding a real font shows up in
-  // the PDF's own object dictionary, so a raw byte scan is a real check
-  // (not just "no locale-specific throw"), without needing to render/OCR
-  // the actual PDF page image.
-  it('embeds a custom Cyrillic-capable font for a Russian-locale document', async () => {
+  // #623 / #905 — Russian copy must survive the HTML→PDF path. Under jsdom
+  // we only get a stub PDF blob, so assert the HTML builder still emits
+  // Cyrillic labels (system/web fonts cover glyphs in the real browser).
+  it('builds Russian-locale HTML with Cyrillic labels (#623/#905)', async () => {
     const ru = getDictionary('ru')
     const data = buildPdfSummaryData(
       [makeEntry({ date: '2026-08-01', weightKg: 80 })],
@@ -423,10 +422,25 @@ describe('buildSummaryPdf', () => {
       1,
     )
 
-    const blob = await buildSummaryPdf(data, ru, 'ru', 'kg')
-    const raw = await blob.text()
+    const html = buildPdfDocumentHtml(data, ru, 'ru', 'kg', {
+      weightTrend: true,
+      weeklyAverages: true,
+      bodyMeasurements: true,
+      bodyComposition: true,
+      sleep: true,
+      steps: true,
+      water: true,
+      cycle: true,
+      digestion: true,
+      alcohol: true,
+      nightEating: true,
+      customMetricIds: [],
+    })
+    expect(html).toMatch(/[А-Яа-яЁё]/)
 
-    expect(raw).toContain('PTSans')
+    const blob = await buildSummaryPdf(data, ru, 'ru', 'kg')
+    expect(blob.type).toBe('application/pdf')
+    expect(blob.size).toBeGreaterThan(0)
   })
 
   // #629/#630 — a section picker lets the user drop any section from the
@@ -481,8 +495,23 @@ describe('buildSummaryPdf', () => {
       1,
     )
 
-    const fullBlob = await buildSummaryPdf(data, t, 'en', 'kg')
-    const trimmedBlob = await buildSummaryPdf(
+    // #905 — under Vitest, PDF blobs are stubs of equal size; compare the
+    // HTML document that feeds html2pdf instead.
+    const fullHtml = buildPdfDocumentHtml(data, t, 'en', 'kg', {
+      weightTrend: true,
+      weeklyAverages: true,
+      bodyMeasurements: true,
+      bodyComposition: true,
+      sleep: true,
+      steps: true,
+      water: true,
+      cycle: true,
+      digestion: true,
+      alcohol: true,
+      nightEating: true,
+      customMetricIds: [],
+    })
+    const trimmedHtml = buildPdfDocumentHtml(
       data,
       t,
       'en',
@@ -490,7 +519,10 @@ describe('buildSummaryPdf', () => {
       ALL_SECTIONS_EXCLUDED,
     )
 
-    expect(trimmedBlob.size).toBeLessThan(fullBlob.size)
+    expect(trimmedHtml.length).toBeLessThan(fullHtml.length)
+    expect(await buildSummaryPdf(data, t, 'en', 'kg')).toMatchObject({
+      type: 'application/pdf',
+    })
   })
 
   // #630 — every new section (bodyComposition/sleep/steps/water/day
@@ -556,25 +588,29 @@ describe('buildSummaryPdf', () => {
 
   it('omits a custom metric summary that was not selected', async () => {
     const data = buildPdfSummaryData([], '2026-07-07', '2026-08-05', 1)
+    const summaries = [
+      { metricId: 'metric-1', name: 'Acne', average: 3, loggedDays: 2 },
+    ]
 
-    const withMetric = await buildSummaryPdf(
+    const withMetric = buildPdfDocumentHtml(
       data,
       t,
       'en',
       'kg',
       { ...ALL_SECTIONS_EXCLUDED, customMetricIds: ['metric-1'] },
-      [{ metricId: 'metric-1', name: 'Acne', average: 3, loggedDays: 2 }],
+      summaries,
     )
-    const withoutMetric = await buildSummaryPdf(
+    const withoutMetric = buildPdfDocumentHtml(
       data,
       t,
       'en',
       'kg',
       ALL_SECTIONS_EXCLUDED,
-      [{ metricId: 'metric-1', name: 'Acne', average: 3, loggedDays: 2 }],
+      summaries,
     )
 
-    expect(withoutMetric.size).toBeLessThan(withMetric.size)
+    expect(withMetric).toContain('Acne')
+    expect(withoutMetric).not.toContain('Acne')
   })
 
   it('appends daily-log pages only when they are requested (#865)', async () => {
@@ -583,14 +619,14 @@ describe('buildSummaryPdf', () => {
       makeEntry({ date: '2026-08-02', weightKg: 79 }),
     ]
     const data = buildPdfSummaryData(entries, '2026-07-07', '2026-08-05', 1)
-    const summaryOnly = await buildSummaryPdf(
+    const summaryOnly = buildPdfDocumentHtml(
       data,
       t,
       'en',
       'kg',
       ALL_SECTIONS_EXCLUDED,
     )
-    const withDailyLog = await buildSummaryPdf(
+    const withDailyLog = buildPdfDocumentHtml(
       data,
       t,
       'en',
@@ -600,6 +636,8 @@ describe('buildSummaryPdf', () => {
       { entries },
     )
 
-    expect(withDailyLog.size).toBeGreaterThan(summaryOnly.size)
+    expect(withDailyLog.length).toBeGreaterThan(summaryOnly.length)
+    expect(withDailyLog).toContain('class="pdf-day"')
+    expect(summaryOnly).not.toContain('class="pdf-day"')
   })
 })
