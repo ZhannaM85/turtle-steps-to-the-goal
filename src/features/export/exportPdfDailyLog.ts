@@ -27,7 +27,7 @@ import {
   type AnalysisExportTrackingGate,
   type DailyLogExportExtras,
 } from './dailyLogExport'
-import { PDF_FOOTER_RESERVE_MM } from './exportPdfFooter'
+import { pdfContentBottomMm } from './exportPdfFooter'
 
 export interface DailyLogPdfInput {
   entries: DailyEntry[]
@@ -325,8 +325,11 @@ const SIZE: Record<DailyLogPdfLineRole, number> = {
   item: 8,
 }
 
-function contentBottom(doc: import('jspdf').jsPDF): number {
-  return doc.internal.pageSize.getHeight() - PDF_FOOTER_RESERVE_MM
+function contentBottom(
+  doc: import('jspdf').jsPDF,
+  t: Dictionary,
+): number {
+  return pdfContentBottomMm(doc, t, MARGIN_X)
 }
 
 function startPortraitPage(doc: import('jspdf').jsPDF): number {
@@ -368,7 +371,7 @@ export function appendDailyLogPdfPages(
       (sum, line) => sum + LINE_MM[line.role],
       0,
     )
-    if (y > 24 && y + Math.min(estimated, 40) > contentBottom(doc)) {
+    if (y > 24 && y + Math.min(estimated, 40) > contentBottom(doc, t)) {
       y = startPortraitPage(doc)
     }
 
@@ -380,7 +383,7 @@ export function appendDailyLogPdfPages(
       ) as string[]
       const indent = line.role === 'item' ? 4 : 0
       for (const piece of wrapped) {
-        if (y + LINE_MM[line.role] > contentBottom(doc)) {
+        if (y + LINE_MM[line.role] > contentBottom(doc, t)) {
           y = startPortraitPage(doc)
           doc.setFontSize(SIZE[line.role])
         }

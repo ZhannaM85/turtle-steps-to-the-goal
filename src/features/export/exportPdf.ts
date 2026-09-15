@@ -21,7 +21,11 @@ import {
   appendDailyLogPdfPages,
   type DailyLogPdfInput,
 } from './exportPdfDailyLog'
-import { drawPdfDocumentFooters, PDF_FOOTER_RESERVE_MM } from './exportPdfFooter'
+import {
+  drawPdfDocumentFooters,
+  measurePdfFooterReserveMm,
+  pdfContentBottomMm,
+} from './exportPdfFooter'
 
 interface LatestField {
   value: number
@@ -518,7 +522,7 @@ export async function buildSummaryPdf(
         margin: {
           left: marginX,
           right: marginX,
-          bottom: PDF_FOOTER_RESERVE_MM,
+          bottom: measurePdfFooterReserveMm(doc, t, marginX),
         },
         head: [
           [
@@ -578,6 +582,7 @@ export async function buildSummaryPdf(
         lines,
         marginX,
         cursorY,
+        t,
       )
     }
   }
@@ -637,6 +642,7 @@ export async function buildSummaryPdf(
         lines,
         marginX,
         cursorY,
+        t,
       )
     }
   }
@@ -679,6 +685,7 @@ export async function buildSummaryPdf(
         lines,
         marginX,
         cursorY,
+        t,
       )
     }
   }
@@ -695,6 +702,7 @@ export async function buildSummaryPdf(
       ],
       marginX,
       cursorY,
+      t,
     )
   }
 
@@ -710,6 +718,7 @@ export async function buildSummaryPdf(
       ],
       marginX,
       cursorY,
+      t,
     )
   }
 
@@ -760,6 +769,7 @@ export async function buildSummaryPdf(
       daySignalLines,
       marginX,
       cursorY,
+      t,
     )
   }
 
@@ -784,6 +794,7 @@ export async function buildSummaryPdf(
       ),
       marginX,
       cursorY,
+      t,
     )
   }
 
@@ -811,21 +822,35 @@ function toDisplayWeight(kg: number, unit: Unit): number {
  * (body composition, sleep, steps, water, day signals, custom metrics) —
  * only the weight trend (its own chart) and weekly averages (its own
  * table) need bespoke drawing. Returns the y coordinate just below the
- * drawn section, for the caller to continue laying out content from. */
+ * drawn section, for the caller to continue laying out content from.
+ * `#892` — page-breaks before overlapping the measured footer band. */
 function drawSimpleSection(
   doc: import('jspdf').jsPDF,
   title: string,
   lines: string[],
   marginX: number,
   cursorY: number,
+  t: Dictionary,
 ): number {
+  const lineStep = 6
+  const bottom = () => pdfContentBottomMm(doc, t, marginX)
+  const ensureSpace = (needed: number) => {
+    if (cursorY + needed <= bottom()) return
+    doc.addPage()
+    doc.setFont('PTSans')
+    doc.setTextColor(0)
+    cursorY = 18
+  }
+
+  ensureSpace(lineStep + 2)
   doc.setFontSize(13)
   doc.text(title, marginX, cursorY)
-  cursorY += 6
+  cursorY += lineStep
   doc.setFontSize(10)
   for (const line of lines) {
+    ensureSpace(lineStep)
     doc.text(line, marginX, cursorY)
-    cursorY += 6
+    cursorY += lineStep
   }
   return cursorY + 2
 }

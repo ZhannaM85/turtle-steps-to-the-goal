@@ -68,6 +68,13 @@ export const releaseNotes: ReleaseNote[] = [
     ru: 'Текущий день можно сохранить в виде читаемого PDF из окна «Поделиться».',
   },
   {
+    version: 854,
+    issue: 892,
+    date: '2026-09-15T13:05:00+03:00',
+    en: 'PDF summary and daily pages keep the footer clear of Steps, Water, and other content.',
+    ru: 'В PDF сводке и страницах дневника подвал больше не перекрывает шаги, воду и другой текст.',
+  },
+  {
     version: 853,
     issue: 896,
     date: '2026-09-15T13:00:00+03:00',

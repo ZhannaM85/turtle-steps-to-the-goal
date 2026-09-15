@@ -59,4 +59,4 @@ _Found while validating Settings groups / Day accordion / DateInput / PDF export
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#892](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/892) | ⬜ Open | PDF footer date/disclaimer overlaps page content | **Not validated 2026-09-15** — footer still overlaps first-page summary (Шаги / Вода). Prior reserve-band fix insufficient; needs rework. |
+| [#892](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/892) | 🔍 Pending validation | PDF footer date/disclaimer overlaps page content | **Rework 2026-09-15** — measure footer height from wrapped disclaimer; summary `drawSimpleSection` page-breaks; daily pages use same measured bottom. |
