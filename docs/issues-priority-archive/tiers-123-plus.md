@@ -635,6 +635,16 @@ _Pace-check copy plus the 2026-09-12 analysis/design-audit backlog._
 
 ---
 
+## Tier 163 — Live feedback (2026-09-15)
+
+_Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack migration._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#902](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/902) | ✅ Done | Export: constipation column should be true/false from user selection | Confirmed on-device 2026-09-15 — unset/No → false, Yes → true. |
+
+---
+
 ## Tier 162 — Live feedback (2026-09-14)
 
 _Found while validating Settings groups / Day accordion / DateInput follow-ups on device._
