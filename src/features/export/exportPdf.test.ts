@@ -643,9 +643,9 @@ describe('buildSummaryPdf', () => {
 
   it('starts each diary date on its own pdf-page (#909)', () => {
     const entries = [
-      makeEntry({ date: '2026-08-01', weightKg: 80 }),
-      makeEntry({ date: '2026-08-02', weightKg: 79 }),
-      makeEntry({ date: '2026-08-03', weightKg: 78 }),
+      makeEntry({ date: '2026-08-01', weightKg: 80, note: 'One' }),
+      makeEntry({ date: '2026-08-02', weightKg: 79, note: 'Two' }),
+      makeEntry({ date: '2026-08-03', weightKg: 78, note: 'Three' }),
     ]
     const data = buildPdfSummaryData(entries, '2026-07-07', '2026-08-05', 1)
     const html = buildPdfDocumentHtml(
