@@ -94,7 +94,8 @@ describe('buildExportWorkbook', () => {
     expect(row[14]).toBeUndefined()
     expect(row[15]).toBe('Felt good')
     expect(row[16]).toBe(true)
-    expect(row[17]).toBeUndefined()
+    // #902 — an unset choice exports as false, matching Day's «Нет».
+    expect(row[17]).toBe(false)
     // #394 — nightEating is blank here (not false): the one logged meal has
     // no timeEaten, so hadNightEating() has no signal to derive from.
     expect(row[18]).toBeUndefined()
