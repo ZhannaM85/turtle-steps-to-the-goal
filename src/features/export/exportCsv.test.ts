@@ -93,9 +93,23 @@ describe('buildDailyLogCsv', () => {
 
     // #394 — nightEating is blank here (not false): the one logged meal has
     // no timeEaten, so hadNightEating() has no signal to derive from.
+    // #902 — Constipation is explicit false when unset (matches Day «Нет»).
     expect(row).toBe(
-      '2026-03-01,79.5,300,10,5,20,7h 0m,1h 30m,8000,80,95,22,Happy,,Felt good,true,,,,,,,,,,,,,,,,',
+      '2026-03-01,79.5,300,10,5,20,7h 0m,1h 30m,8000,80,95,22,Happy,,Felt good,true,false,,,,,,,,,,,,,,,',
     )
+  })
+
+  it('exports constipation as true/false, defaulting unset to false (#902)', () => {
+    const unset = makeEntry({ date: '2026-03-01' })
+    const no = makeEntry({ date: '2026-03-02', hadConstipation: false })
+    const yes = makeEntry({ date: '2026-03-03', hadConstipation: true })
+    const csv = buildDailyLogCsv([unset, no, yes], t)
+    const [header, ...rows] = dailyTable(csv).split('\r\n')
+    const index = header.split(',').indexOf('Constipation')
+
+    expect(rows[0]!.split(',')[index]).toBe('false')
+    expect(rows[1]!.split(',')[index]).toBe('false')
+    expect(rows[2]!.split(',')[index]).toBe('true')
   })
 
   it('exports the effective night-eating value, derived from a late meal with no override (#383)', () => {

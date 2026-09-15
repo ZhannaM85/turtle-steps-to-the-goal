@@ -232,7 +232,9 @@ function dailyLogColumns(
     },
     {
       header: t.exportXlsx.hadConstipationColumn,
-      value: (entry) => entry.hadConstipation,
+      // #902 — Day shows «Нет» for unset; blank CSV cells read as unknown to
+      // LLMs. Emit explicit false when unset or No; true only when Yes.
+      value: (entry) => entry.hadConstipation ?? false,
       gatedBy: 'digestion',
     },
     {

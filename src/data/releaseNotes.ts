@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 851,
+    issue: 902,
+    date: '2026-09-15T11:20:00+03:00',
+    en: 'Exports write constipation as true or false instead of leaving the cell blank.',
+    ru: 'В экспорте запор пишется как true или false, а не пустой ячейкой.',
+  },
+  {
     version: 850,
     issue: 904,
     date: '2026-09-15T11:10:00+03:00',
