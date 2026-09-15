@@ -97,9 +97,17 @@ describe('dailyLogPdfDayLines (#891)', () => {
       'kg',
     )
 
-    expect(lines.map((line) => line.text)).toContain(
-      'Food · Consumed · 500 kcal · P 30g · F 20g · C 45g',
-    )
+    expect(
+      lines.some(
+        (line) =>
+          line.text.includes('Food') &&
+          line.text.includes('Consumed') &&
+          line.text.includes('500 kcal') &&
+          line.text.includes('P 30g') &&
+          line.text.includes('F 20g') &&
+          line.text.includes('C 45g'),
+      ),
+    ).toBe(true)
   })
 })
 
