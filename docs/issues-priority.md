@@ -36,7 +36,7 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 163 — Live feedback (2026-09-15)
 
-_Day КБЖУ / export labels & gating; Day date-nav checkmark spacing._
+_Day КБЖУ / export labels & gating; Day date-nav checkmark spacing; PDF visual styling._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -50,6 +50,7 @@ _Day КБЖУ / export labels & gating; Day date-nav checkmark spacing._
 | [#902](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/902) | ⬜ Open | Export: constipation column should be true/false from user selection | «Запор» cells blank in Day-share CSV; emit true/false (or Yes/No) from the day’s selection, blank only if unset. |
 | [#903](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/903) | ⬜ Open | Export: label night food as spanning the overnight dates (e.g. 14→15) | «Ночная еда» is overnight; header/value should say с 14 на 15 (same LLM date clarity as #899–#901). |
 | [#904](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/904) | ⬜ Open | Day date nav: checkmark cramped between next arrow and Today | Follow-up to #893 layout — check jammed between › and «Сегодня». |
+| [#905](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/905) | ⬜ Open | PDF export: add visual styling and hierarchy (not a plain text dump) | Follow-up to #891. jsPDF has no CSS — style via draw API. Formal mock optional. |
 
 ---
 
