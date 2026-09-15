@@ -8,6 +8,7 @@ import {
   mealLogHeaderValues,
   mealLogRows,
   mealLogRowValues,
+  resolveAnalysisExportExtras,
   waterLogHeaderValues,
   waterLogRows,
   waterLogRowValues,
@@ -58,17 +59,18 @@ export function buildDailyLogMarkdown(
   const sortedEntries = [...dailyEntries].sort((a, b) =>
     a.date.localeCompare(b.date),
   )
+  const resolvedExtras = resolveAnalysisExportExtras(sortedEntries, extras)
   const daily = mdTable(
-    dailyLogHeaderValues(t, sex, extras),
-    sortedEntries.map((entry) => dailyLogRowValues(entry, t, extras)),
+    dailyLogHeaderValues(t, sex, resolvedExtras),
+    sortedEntries.map((entry) => dailyLogRowValues(entry, t, resolvedExtras)),
   )
   const meals = mdTable(
-    mealLogHeaderValues(t, extras),
-    mealLogRows(sortedEntries, t, extras).map((row) =>
-      mealLogRowValues(row, t, extras),
+    mealLogHeaderValues(t, resolvedExtras),
+    mealLogRows(sortedEntries, t, resolvedExtras).map((row) =>
+      mealLogRowValues(row, t, resolvedExtras),
     ),
   )
-  if (!includeWaterLogTable(extras)) {
+  if (!includeWaterLogTable(resolvedExtras)) {
     return `${daily}\n\n${meals}`
   }
   const water = mdTable(

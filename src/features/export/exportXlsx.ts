@@ -10,6 +10,7 @@ import {
   mealLogHeaderValues,
   mealLogRows,
   mealLogRowValues,
+  resolveAnalysisExportExtras,
   waterLogHeaderValues,
   waterLogRows,
   waterLogRowValues,
@@ -75,24 +76,25 @@ export async function buildExportWorkbook(
   const sortedEntries = [...dailyEntries].sort((a, b) =>
     a.date.localeCompare(b.date),
   )
+  const resolvedExtras = resolveAnalysisExportExtras(sortedEntries, extras)
 
   const dailyLogSheet = workbook.addWorksheet(t.exportXlsx.dailyLogSheetName)
   dailyLogSheet.columns = columnsFromHeaders(
-    dailyLogHeaderValues(t, sex, extras),
+    dailyLogHeaderValues(t, sex, resolvedExtras),
   )
   for (const entry of sortedEntries) {
-    dailyLogSheet.addRow(excelRow(dailyLogRowValues(entry, t, extras)))
+    dailyLogSheet.addRow(excelRow(dailyLogRowValues(entry, t, resolvedExtras)))
   }
   dailyLogSheet.getColumn(1).numFmt = DATE_FORMAT
 
   const mealsSheet = workbook.addWorksheet(t.exportXlsx.mealsSheetName)
-  mealsSheet.columns = columnsFromHeaders(mealLogHeaderValues(t, extras))
-  for (const row of mealLogRows(sortedEntries, t, extras)) {
-    mealsSheet.addRow(excelRow(mealLogRowValues(row, t, extras)))
+  mealsSheet.columns = columnsFromHeaders(mealLogHeaderValues(t, resolvedExtras))
+  for (const row of mealLogRows(sortedEntries, t, resolvedExtras)) {
+    mealsSheet.addRow(excelRow(mealLogRowValues(row, t, resolvedExtras)))
   }
   mealsSheet.getColumn(1).numFmt = DATE_FORMAT
 
-  if (includeWaterLogTable(extras)) {
+  if (includeWaterLogTable(resolvedExtras)) {
     const waterSheet = workbook.addWorksheet(t.exportXlsx.waterEntriesSheetName)
     waterSheet.columns = columnsFromHeaders(waterLogHeaderValues(t))
     for (const row of waterLogRows(sortedEntries)) {

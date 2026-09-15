@@ -265,6 +265,8 @@ export const exportXlsx: ExportXlsxDict = {
     bodyFatColumn: 'Body fat (%)',
     moodColumn: 'Mood',
     noteColumn: 'Note',
+    eveningNoteColumn: (date) =>
+      date ? `Evening note ${date}` : 'Evening note',
     morningNoteColumn: 'Morning note',
     onPeriodColumn: 'On period',
     hadConstipationColumn: 'Constipation',

@@ -315,6 +315,11 @@ export interface ExportXlsxDict {
     bodyFatColumn: string
     moodColumn: string
     noteColumn: string
+    /**
+     * #901 — day-level evening note on Daily Log (meal-group notes still use
+     * noteColumn). Optional ISO date for one-day exports.
+     */
+    eveningNoteColumn: (date?: string) => string
     /** #763 — morning free-text, distinct from evening noteColumn. */
     morningNoteColumn: string
     onPeriodColumn: string

@@ -36,6 +36,12 @@ export interface DailyLogExportExtras {
    * pass this on interval Settings exports (CSV/Excel/Markdown).
    */
   nextMorningWeightByDate?: Record<string, number>
+  /**
+   * #901 / #900 / #899 / #903 — ISO date for dated column headers on a
+   * one-day export. When omitted, `resolveAnalysisExportExtras` fills it
+   * from a single-entry list.
+   */
+  labelDate?: string
 }
 
 /**
@@ -142,6 +148,18 @@ function isIncluded<T>(
   return tracking[column.gatedBy]
 }
 
+/** #901 — fill `labelDate` for one-day analysis exports (dated headers). */
+export function resolveAnalysisExportExtras(
+  dailyEntries: DailyEntry[],
+  extras?: DailyLogExportExtras,
+): DailyLogExportExtras | undefined {
+  const labelDate =
+    extras?.labelDate ??
+    (dailyEntries.length === 1 ? dailyEntries[0]!.date : undefined)
+  if (labelDate === undefined) return extras
+  return { ...extras, labelDate }
+}
+
 /** #751 — analysis exports print h+m like the Day card, not decimal hours. */
 function exportedSleepDuration(
   hours: number | undefined,
@@ -221,7 +239,7 @@ function dailyLogColumns(
       gatedBy: 'morningNote',
     },
     {
-      header: t.exportXlsx.noteColumn,
+      header: t.exportXlsx.eveningNoteColumn(extras?.labelDate),
       value: (entry) => entry.note,
       gatedBy: 'note',
     },

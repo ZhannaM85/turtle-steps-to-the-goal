@@ -8,6 +8,7 @@ import {
   mealLogHeaderValues,
   mealLogRows,
   mealLogRowValues,
+  resolveAnalysisExportExtras,
   waterLogHeaderValues,
   waterLogRows,
   waterLogRowValues,
@@ -98,22 +99,23 @@ export function buildDailyLogCsv(
   const sortedEntries = [...dailyEntries].sort((a, b) =>
     a.date.localeCompare(b.date),
   )
+  const resolvedExtras = resolveAnalysisExportExtras(sortedEntries, extras)
   const daily = csvTable(
     ...withNextMorningWeightColumn(
-      dailyLogHeaderValues(t, sex, extras),
-      sortedEntries.map((entry) => dailyLogRowValues(entry, t, extras)),
+      dailyLogHeaderValues(t, sex, resolvedExtras),
+      sortedEntries.map((entry) => dailyLogRowValues(entry, t, resolvedExtras)),
       sortedEntries,
       t,
-      extras,
+      resolvedExtras,
     ),
   )
   const meals = csvTable(
-    mealLogHeaderValues(t, extras),
-    mealLogRows(sortedEntries, t, extras).map((row) =>
-      mealLogRowValues(row, t, extras),
+    mealLogHeaderValues(t, resolvedExtras),
+    mealLogRows(sortedEntries, t, resolvedExtras).map((row) =>
+      mealLogRowValues(row, t, resolvedExtras),
     ),
   )
-  if (!includeWaterLogTable(extras)) {
+  if (!includeWaterLogTable(resolvedExtras)) {
     return `${daily}\r\n\r\n${meals}`
   }
   const water = csvTable(

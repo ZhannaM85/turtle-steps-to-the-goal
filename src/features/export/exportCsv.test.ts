@@ -9,7 +9,15 @@ const t = getDictionary('en')
 const DAILY_HEADER =
   'Date,Weight (kg),Calories (kcal),Protein (g),Fat (g),Carbs (g),' +
   'Sleep (h),Deep sleep (h),Steps,Waist (cm),Hip (cm),Body fat (%),' +
-  'Mood,Morning note,Note,On period,Constipation,Alcohol,Ate late tonight,I remember how I ate,Night food reason,Was it easy?,What helped?,Water (ml),' +
+  'Mood,Morning note,Evening note,On period,Constipation,Alcohol,Ate late tonight,I remember how I ate,Night food reason,Was it easy?,What helped?,Water (ml),' +
+  'Muscle (kg),Visceral fat,Body water (%),Bone (kg),Fiber (g),' +
+  'Sodium (mg),Potassium (mg),Magnesium (mg)'
+
+/** One-day export dates the evening-note header (#901). */
+const DAILY_HEADER_ONE_DAY =
+  'Date,Weight (kg),Calories (kcal),Protein (g),Fat (g),Carbs (g),' +
+  'Sleep (h),Deep sleep (h),Steps,Waist (cm),Hip (cm),Body fat (%),' +
+  'Mood,Morning note,Evening note 2026-03-01,On period,Constipation,Alcohol,Ate late tonight,I remember how I ate,Night food reason,Was it easy?,What helped?,Water (ml),' +
   'Muscle (kg),Visceral fat,Body water (%),Bone (kg),Fiber (g),' +
   'Sodium (mg),Potassium (mg),Magnesium (mg)'
 
@@ -62,6 +70,22 @@ describe('buildDailyLogCsv', () => {
 
     expect(csv).toBe(
       `${DAILY_HEADER}\r\n\r\n${MEALS_HEADER}\r\n\r\n${WATER_HEADER}`,
+    )
+  })
+
+  it('renames the day note column to Evening note and dates one-day exports (#901)', () => {
+    const emptyHeader = dailyTable(buildDailyLogCsv([], t)).split('\r\n')[0]!
+    expect(emptyHeader.split(',')).toContain('Evening note')
+    expect(emptyHeader.split(',')).not.toContain('Note')
+
+    const oneDay = buildDailyLogCsv([makeEntry()], t)
+    const header = dailyTable(oneDay).split('\r\n')[0]!
+    expect(header).toBe(DAILY_HEADER_ONE_DAY)
+    expect(header.split(',')).toContain('Evening note 2026-03-01')
+
+    const ru = buildDailyLogCsv([makeEntry()], getDictionary('ru'))
+    expect(dailyTable(ru).split('\r\n')[0]!.split(',')).toContain(
+      'Вечерняя заметка 2026-03-01',
     )
   })
 
