@@ -120,27 +120,44 @@ function dailyLogPagesHtml(
         unit,
         dailyLog.extras,
       )
-      const body = lines
-        .map((line) => {
-          if (line.role === 'header') {
-            return `<h2 class="pdf-day-header">${escapeHtml(line.text)}</h2>`
-          }
-          if (line.role === 'section') {
-            return `<h3 class="pdf-day-section-title">${escapeHtml(line.text)}</h3>`
-          }
-          if (line.role === 'item') {
-            return `<p class="pdf-day-item">${escapeHtml(line.text)}</p>`
-          }
-          return `<p class="pdf-line">${escapeHtml(line.text)}</p>`
-        })
-        .join('')
-      const sectionTitle =
+      let header = ''
+      let sectionTitle = ''
+      let sectionContent: string[] = []
+      const sections: string[] = []
+      const finishSection = () => {
+        if (!sectionTitle) return
+        sections.push(`<section class="pdf-day-section">
+  <h3 class="pdf-day-section-title">${escapeHtml(sectionTitle)}</h3>
+  <div class="pdf-day-section-content">${sectionContent.join('')}</div>
+</section>`)
+        sectionTitle = ''
+        sectionContent = []
+      }
+      for (const line of lines) {
+        if (line.role === 'header') {
+          header = `<h2 class="pdf-day-header">${escapeHtml(line.text)}</h2>`
+          continue
+        }
+        if (line.role === 'section') {
+          finishSection()
+          sectionTitle = line.text
+          continue
+        }
+        const lineHtml =
+          line.role === 'item'
+            ? `<p class="pdf-day-item">${escapeHtml(line.text)}</p>`
+            : `<p class="pdf-line">${escapeHtml(line.text)}</p>`
+        sectionContent.push(lineHtml)
+      }
+      finishSection()
+      const body = `${header}${sections.join('')}`
+      const pageTitle =
         index === 0
           ? `<h1 class="pdf-title">${escapeHtml(t.pdfSummary.dailyLogPagesTitle)}</h1>`
           : ''
       return `<section class="pdf-page">
   <div class="pdf-page-body">
-    ${sectionTitle}
+    ${pageTitle}
     <article class="pdf-day">${body}</article>
   </div>
   ${footerHtml(t, generatedOn)}

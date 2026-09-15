@@ -660,5 +660,6 @@ describe('buildSummaryPdf', () => {
     // 1 summary page + 1 page per diary day
     expect(html.match(/class="pdf-page"/g)?.length).toBe(4)
     expect(html.match(/class="pdf-day"/g)?.length).toBe(3)
+    expect(html.match(/class="pdf-day-section"/g)?.length).toBeGreaterThan(0)
   })
 })

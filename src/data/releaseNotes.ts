@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 853,
+    issue: 908,
+    date: '2026-09-15T16:43:54+03:00',
+    en: 'PDF diary pages now group metrics, food, water, and notes into clear, styled sections.',
+    ru: 'Страницы дневника в PDF теперь разделены на понятные оформленные блоки: показатели, еда, вода и заметки.',
+  },
+  {
     version: 864,
     issue: 910,
     date: '2026-09-15T14:50:00+03:00',
