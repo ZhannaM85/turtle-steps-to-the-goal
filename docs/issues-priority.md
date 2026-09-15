@@ -41,5 +41,4 @@ _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS sta
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#906](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/906) | 🔍 Pending validation | Revert #897: restore Remaining-framed Day КБЖУ card (and summaries) | Restored Remaining-framed Day card + prior weekly/monthly nutrition display. Exports #895/#896 unchanged. |
-| [#896](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/896) | 🔍 Pending validation | Daily and Settings exports: show calorie and macro goal vs actual intake | Day-share CSV now passes `goals` into `buildDailyLogCsv` (#895 columns). Settings wiring shipped with #895. |
 | [#905](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/905) | 🔍 Pending validation | PDF export: migrate off jsPDF to HTML+CSS pipeline for real styling | html2canvas+jsPDF **per `.pdf-page`** (iOS blank one-shot canvas fix). Delayed blob URL revoke for Safari viewer. |
