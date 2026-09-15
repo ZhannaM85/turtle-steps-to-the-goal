@@ -20,6 +20,7 @@ export const PDF_DOCUMENT_CSS = `
     flex-direction: column;
     page-break-after: always;
     break-after: page;
+    background: #fff;
   }
   .pdf-page:last-child {
     page-break-after: auto;

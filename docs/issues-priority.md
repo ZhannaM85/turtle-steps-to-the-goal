@@ -41,4 +41,4 @@ _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS sta
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#909](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/909) | 🔍 Pending validation | PDF diary: start each new date on its own page | One `.pdf-page` per diary day in `dailyLogPagesHtml`. |
-| [#908](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/908) | ⬜ Open | PDF export: CSS styling missing on pages after the first two | After #905 — later pages lose section-card / typography chrome (sample Aug 17–Sep 15 summary). |
+| [#908](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/908) | 🔍 Pending validation | PDF export: CSS styling missing on pages after the first two | Split overflowing `.pdf-page` nodes before capture so every sheet is a full styled HTML page. |

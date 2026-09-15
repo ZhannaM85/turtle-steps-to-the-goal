@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 863,
+    issue: 908,
+    date: '2026-09-15T14:40:00+03:00',
+    en: 'Multi-page PDFs keep the same styled look on every page, not only the first ones.',
+    ru: 'Многостраничные PDF сохраняют одинаковое оформление на каждой странице, а не только на первых.',
+  },
+  {
     version: 862,
     issue: 909,
     date: '2026-09-15T14:35:00+03:00',

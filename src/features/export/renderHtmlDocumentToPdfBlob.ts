@@ -1,8 +1,11 @@
 /**
- * #905 — mount an off-DOM HTML document and convert it to a PDF Blob.
+ * #905 / #908 — mount an off-DOM HTML document and convert it to a PDF Blob.
  * Uses html2canvas + jsPDF page-by-page (one canvas per `.pdf-page`) so iOS
- * Safari does not blank out from a single canvas larger than ~4096² — the
- * failure mode of one-shot html2pdf.js on device after the stack migration.
+ * Safari does not blank out from a single canvas larger than ~4096².
+ *
+ * #908 — before capture, split overflowing `.pdf-page` nodes so each PDF
+ * sheet is a full styled HTML page (not a raw mid-canvas JPEG band that
+ * drops section-card chrome after page 2).
  */
 export async function renderHtmlDocumentToPdfBlob(
   html: string,
@@ -40,6 +43,10 @@ export async function renderHtmlDocumentToPdfBlob(
   window.scrollTo(0, 0)
 
   try {
+    // Let layout settle, then pack tall pages into multiple styled pages.
+    void host.offsetHeight
+    explodeOverflowingPdfPages(host)
+
     const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
       import('html2canvas'),
       import('jspdf'),
@@ -69,7 +76,7 @@ export async function renderHtmlDocumentToPdfBlob(
         backgroundColor: '#ffffff',
         scrollX: 0,
         scrollY: 0,
-        windowWidth: target.scrollWidth,
+        windowWidth: Math.max(target.scrollWidth, host.clientWidth),
         windowHeight: target.scrollHeight,
       })
 
@@ -78,16 +85,30 @@ export async function renderHtmlDocumentToPdfBlob(
       }
 
       const imgHeightMm = (canvas.height * contentWidthMm) / canvas.width
-
       if (i > 0) pdf.addPage()
 
-      // Tall pages: slice into A4-height bands so content is not clipped and
-      // we never ask jsPDF to place one huge image.
+      // Prefer one image per styled page. Band-slice only if a single
+      // unsplitable node is still taller than A4 (last resort).
+      if (imgHeightMm <= pageHeightMm - marginMm * 2 + 0.5) {
+        pdf.addImage(
+          canvas.toDataURL('image/jpeg', 0.92),
+          'JPEG',
+          marginMm,
+          marginMm,
+          contentWidthMm,
+          imgHeightMm,
+        )
+        continue
+      }
+
       let drawnMm = 0
       let slicePx = 0
       const pxPerMm = canvas.height / imgHeightMm
       while (drawnMm < imgHeightMm - 0.1) {
-        const bandMm = Math.min(pageHeightMm - marginMm * 2, imgHeightMm - drawnMm)
+        const bandMm = Math.min(
+          pageHeightMm - marginMm * 2,
+          imgHeightMm - drawnMm,
+        )
         const bandPx = Math.max(1, Math.round(bandMm * pxPerMm))
         const sliceCanvas = document.createElement('canvas')
         sliceCanvas.width = canvas.width
@@ -150,4 +171,65 @@ function canvasScaleForElement(el: HTMLElement): number {
   const maxEdge = 4096
   const maxScale = Math.min(maxEdge / w, maxEdge / h, 2)
   return Math.max(1, Math.floor(maxScale * 10) / 10)
+}
+
+/**
+ * #908 — ~A4 content height at the host’s 794px width. Pages taller than
+ * this are split into multiple `.pdf-page` elements so html2canvas captures
+ * full CSS chrome on every sheet.
+ */
+const MAX_STYLED_PAGE_PX = 1000
+
+function explodeOverflowingPdfPages(host: HTMLElement): void {
+  const root = host.querySelector('.pdf-root')
+  if (!root) return
+
+  for (const page of [
+    ...root.querySelectorAll<HTMLElement>(':scope > .pdf-page'),
+  ]) {
+    if (page.scrollHeight <= MAX_STYLED_PAGE_PX) continue
+
+    const body = page.querySelector<HTMLElement>('.pdf-page-body')
+    if (!body) continue
+    const kids = [...body.children] as HTMLElement[]
+    if (kids.length < 2) continue
+
+    const footer = page.querySelector('.pdf-footer')
+    const footerHtml = footer?.outerHTML ?? ''
+    const insertBefore = page.nextSibling
+
+    // Detach original; rebuild as one or more fitting pages.
+    page.remove()
+
+    let current = makeEmptyPdfPage(footerHtml)
+    let currentBody = current.querySelector<HTMLElement>('.pdf-page-body')!
+    root.insertBefore(current, insertBefore)
+
+    for (const kid of kids) {
+      currentBody.appendChild(kid)
+      if (
+        current.scrollHeight > MAX_STYLED_PAGE_PX &&
+        currentBody.children.length > 1
+      ) {
+        const overflow = currentBody.lastElementChild!
+        overflow.remove()
+        current = makeEmptyPdfPage(footerHtml)
+        currentBody = current.querySelector<HTMLElement>('.pdf-page-body')!
+        currentBody.appendChild(overflow)
+        root.insertBefore(current, insertBefore)
+      }
+    }
+  }
+}
+
+function makeEmptyPdfPage(footerHtml: string): HTMLElement {
+  const page = document.createElement('section')
+  page.className = 'pdf-page'
+  page.innerHTML = `<div class="pdf-page-body"></div>${footerHtml}`
+  return page
+}
+
+/** Exported for unit tests (#908 packing). */
+export function explodeOverflowingPdfPagesForTest(host: HTMLElement): void {
+  explodeOverflowingPdfPages(host)
 }
