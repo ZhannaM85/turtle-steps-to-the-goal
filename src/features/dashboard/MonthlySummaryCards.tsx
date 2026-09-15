@@ -1,11 +1,7 @@
 import type { ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import {
-  averageNutritionTargetsForEntries,
-  kgToLb,
-  type Goal,
-} from '@/domain/goal'
+import { kgToLb } from '@/domain/goal'
 import { monthlySummaries } from '@/domain/stats'
 import {
   formatNumber,
@@ -22,21 +18,20 @@ import { EmptyDashboardSection } from './EmptyDashboardSection'
 
 export interface MonthlySummaryCardsProps {
   entries: DailyEntry[]
-  /** #897 — past + active goals for per-month nutrition target averages. */
-  goals?: Goal[]
   /** #355 — see `CorrelationViewProps.dragHandle`'s own doc comment. */
   dragHandle?: ReactNode
 }
 
 /**
  * Same shape as `WeeklySummaryCards.tsx` (#226) — deliberately no
- * *weight* `targetMet` note: goals in this app are always a *weekly*
- * weight target (`Goal.targetWeeklyLossKg`). `#897` does add calorie/macro
- * actual-vs-daily-target averages (not a monthly weight target).
+ * `targetMet` note, unlike that one: goals in this app are always a
+ * *weekly* target (`Goal.targetWeeklyLossKg`), and there's no existing
+ * monthly-target concept to compare against; summing several weeks' worth
+ * of targets into a rough monthly figure would be inventing a comparison
+ * rather than reusing one.
  */
 export function MonthlySummaryCards({
   entries,
-  goals = [],
   dragHandle,
 }: MonthlySummaryCardsProps) {
   const t = useTranslation()
@@ -79,12 +74,17 @@ export function MonthlySummaryCards({
   return (
     <div className="flex flex-col gap-3 section-shell p-3">
       {cardTitle}
+      {/* #379 — same scroll-cap treatment as WeeklySummaryCards, for the
+       * same reason (a multi-year import adds a card per calendar month). */}
       <div className="flex max-h-96 flex-col gap-2 overflow-y-auto">
         {monthsMostRecentFirst.map((month) => {
           const monthLabel = format(parseISO(month.monthStart), 'MMMM yyyy', {
             locale: dateFnsLocale,
           })
           const delta = month.deltaVsPriorMonthKg
+          // formatNumber (not formatSignedNumber): a loss should still show
+          // its minus sign, but a gain shouldn't get an explicit "+" — same
+          // convention WeeklySummaryCards.tsx already uses.
           const deltaText =
             delta === null ? null : formatNumber(toDisplay(delta), locale)
           const isLoss = delta !== null && delta < 0
@@ -99,14 +99,12 @@ export function MonthlySummaryCards({
               </span>
             )
 
-          const monthEntries = entries.filter(
-            (entry) =>
-              entry.date >= month.monthStart && entry.date <= month.monthEnd,
-          )
-          const targets = averageNutritionTargetsForEntries(monthEntries, goals)
-
           const descriptionParts: string[] = []
-          if (delta !== null && month.averageWeightKg !== null) {
+          // #483 — same from→to averages treatment as WeeklySummaryCards.
+          if (
+            delta !== null &&
+            month.averageWeightKg !== null
+          ) {
             descriptionParts.push(
               t.goal.previousToCurrentWeightLabel(
                 formatNumber(
@@ -120,12 +118,7 @@ export function MonthlySummaryCards({
           }
           if (month.averageCalories !== null) {
             descriptionParts.push(
-              targets.averageCalorieTargetKcal !== null
-                ? `${t.dashboard.averageCaloriesLabel}: ${t.dailyEntry.actualVsTargetText(
-                    formatNumber(month.averageCalories, locale, 0),
-                    formatNumber(targets.averageCalorieTargetKcal, locale, 0),
-                  )}`
-                : `${t.dashboard.averageCaloriesLabel}: ${formatNumber(month.averageCalories, locale, 0)}`,
+              `${t.dashboard.averageCaloriesLabel}: ${formatNumber(month.averageCalories, locale, 0)}`,
             )
           }
           const macrosSummary = macrosSummaryText(
@@ -137,40 +130,6 @@ export function MonthlySummaryCards({
           )
           if (macrosSummary) {
             descriptionParts.push(macrosSummary)
-            if (
-              targets.averageProteinTargetG !== null ||
-              targets.averageFatTargetG !== null ||
-              targets.averageCarbTargetG !== null
-            ) {
-              const proteinPart =
-                month.averageProteinG !== null &&
-                targets.averageProteinTargetG !== null
-                  ? `${t.dailyEntry.proteinLabel} ${t.dailyEntry.actualVsTargetText(
-                      formatNumber(month.averageProteinG, locale, 0),
-                      formatNumber(targets.averageProteinTargetG, locale, 0),
-                    )}${t.dailyEntry.gramsUnit}`
-                  : null
-              const fatPart =
-                month.averageFatG !== null &&
-                targets.averageFatTargetG !== null
-                  ? `${t.dailyEntry.fatLabel} ${t.dailyEntry.actualVsTargetText(
-                      formatNumber(month.averageFatG, locale, 0),
-                      formatNumber(targets.averageFatTargetG, locale, 0),
-                    )}${t.dailyEntry.gramsUnit}`
-                  : null
-              const carbPart =
-                month.averageCarbsG !== null &&
-                targets.averageCarbTargetG !== null
-                  ? `${t.dailyEntry.carbsLabel} ${t.dailyEntry.actualVsTargetText(
-                      formatNumber(month.averageCarbsG, locale, 0),
-                      formatNumber(targets.averageCarbTargetG, locale, 0),
-                    )}${t.dailyEntry.gramsUnit}`
-                  : null
-              const vsTarget = [proteinPart, fatPart, carbPart]
-                .filter(Boolean)
-                .join(' · ')
-              if (vsTarget) descriptionParts.push(vsTarget)
-            }
           }
 
           return (

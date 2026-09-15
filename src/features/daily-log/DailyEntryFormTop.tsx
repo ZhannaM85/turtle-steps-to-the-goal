@@ -90,23 +90,15 @@ export function DailyEntryFormTop() {
           )}
           {state.dayRemainingMacrosSummary && (
             <StatCard
-              label={
-                state.dayGoalVsActualValue !== undefined ||
-                state.dayGoalVsActualDescription
-                  ? t.dailyEntry.goalVsActualMacrosLabel
-                  : t.dailyEntry.remainingMacrosLabel
-              }
+              label={t.dailyEntry.remainingMacrosLabel}
               value={
-                state.dayGoalVsActualValue ??
-                (state.remainingKcal !== undefined
+                state.remainingKcal !== undefined
                   ? formatNumber(state.remainingKcal, locale, 0)
-                  : '—')
+                  : '—'
               }
               unit={t.dailyEntry.kcalUnit}
               description={
-                state.dayGoalVsActualDescription ||
-                state.dayRemainingMacrosDescription ||
-                undefined
+                state.dayRemainingMacrosDescription ?? undefined
               }
             />
           )}

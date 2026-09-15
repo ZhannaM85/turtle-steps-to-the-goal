@@ -261,14 +261,8 @@ export interface DailyEntryFieldsDict {
     ) => string
     /** Label above the "remaining macros" row (#462) — same "Осталось ..."
      * wording family as the individual t.today.remaining*Label strings,
-     * but one combined label for the whole row rather than per-macro.
-     * `#897` — Remaining stays a secondary line; the card label is
-     * goalVsActualMacrosLabel. */
+     * but one combined label for the whole row rather than per-macro. */
     remainingMacrosLabel: string
-    /** #897 — Day КБЖУ card primary label: eaten vs daily targets. */
-    goalVsActualMacrosLabel: string
-    /** #897 — `1200 / 1800` style for actual vs target. */
-    actualVsTargetText: (actual: string, target: string) => string
     /** Accordion trigger wrapping the two macros StatCards (#467), same
      * expand/collapse aria-label pair shape as t.today's own
      * expandStatsLabel/collapseStatsLabel. */

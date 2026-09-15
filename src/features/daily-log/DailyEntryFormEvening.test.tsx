@@ -378,12 +378,10 @@ describe('DailyEntryForm', () => {
         proteinG: 30,
       })
 
-      const goalVsActual = screen
-        .getByText('Goal vs actual')
+      const remainingSection = screen
+        .getByText('Remaining')
         .closest('div') as HTMLElement
-      expect(within(goalVsActual).getByText('500 / 2,000')).toBeInTheDocument()
-      expect(within(goalVsActual).getByText(/Remaining:/)).toBeInTheDocument()
-      expect(within(goalVsActual).getByText(/1,500/)).toBeInTheDocument()
+      expect(within(remainingSection).getByText('1,500')).toBeInTheDocument()
     })
 
     it('puts save/edit/delete on the title row, not text buttons (#860)', async () => {

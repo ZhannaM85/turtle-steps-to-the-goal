@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { useEffect } from 'react'
 import { format, parseISO } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { kgToLb, averageNutritionTargetsForEntries, type Goal } from '@/domain/goal'
+import { kgToLb, type Goal } from '@/domain/goal'
 import {
   excludeIncompleteCurrentWeek,
   todayIsoForDayStart,
@@ -30,8 +30,6 @@ import { WeeklyNoteEditor } from './WeeklyNoteEditor'
 export interface WeeklySummaryCardsProps {
   entries: DailyEntry[]
   goal: Goal | null
-  /** #897 — past + active goals for per-week nutrition target averages. */
-  goals?: Goal[]
   /** #426 — the earliest goal ever created (`earliestGoalCreatedAt`), not
    * the active `goal`'s own `createdAt`. See `weeklySummaries()`'s own doc
    * comment for why those two are deliberately different values. */
@@ -43,7 +41,6 @@ export interface WeeklySummaryCardsProps {
 export function WeeklySummaryCards({
   entries,
   goal,
-  goals = [],
   goalTrackingStartDate,
   dragHandle,
 }: WeeklySummaryCardsProps) {
@@ -165,21 +162,8 @@ export function WeeklySummaryCards({
             )
           }
           if (week.averageCalories !== null) {
-            const weekEntries = entries.filter(
-              (entry) =>
-                entry.date >= week.weekStart && entry.date <= week.weekEnd,
-            )
-            const targets = averageNutritionTargetsForEntries(
-              weekEntries,
-              goals,
-            )
             descriptionParts.push(
-              targets.averageCalorieTargetKcal !== null
-                ? `${t.dashboard.averageCaloriesLabel}: ${t.dailyEntry.actualVsTargetText(
-                    formatNumber(week.averageCalories, locale, 0),
-                    formatNumber(targets.averageCalorieTargetKcal, locale, 0),
-                  )}`
-                : `${t.dashboard.averageCaloriesLabel}: ${formatNumber(week.averageCalories, locale, 0)}`,
+              `${t.dashboard.averageCaloriesLabel}: ${formatNumber(week.averageCalories, locale, 0)}`,
             )
           }
           const macrosSummary = macrosSummaryText(

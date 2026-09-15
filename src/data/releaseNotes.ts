@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 859,
+    issue: 906,
+    date: '2026-09-15T13:45:00+03:00',
+    en: 'Day calories & macros again show Remaining first (goal vs actual layout reverted).',
+    ru: 'На Дне калории и БЖУ снова с «Осталось» в начале (сравнение с целью убрано).',
+  },
+  {
     version: 858,
     issue: 905,
     date: '2026-09-15T13:26:00+03:00',
@@ -73,13 +80,6 @@ export const releaseNotes: ReleaseNote[] = [
     date: '2026-09-15T11:31:26+03:00',
     en: 'You can save the day you are viewing as a readable PDF from the share sheet.',
     ru: 'Текущий день можно сохранить в виде читаемого PDF из окна «Поделиться».',
-  },
-  {
-    version: 855,
-    issue: 897,
-    date: '2026-09-15T13:12:00+03:00',
-    en: 'Day calories & macros and weekly/monthly summaries show intake vs daily goals, with remaining as a secondary line.',
-    ru: 'На Дне и в недельных/месячных сводках калории и БЖУ показаны как факт против дневной цели; остаток — второй строкой.',
   },
   {
     version: 854,

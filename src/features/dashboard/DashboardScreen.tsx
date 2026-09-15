@@ -116,8 +116,7 @@ function SortableDashboardSection({
 
 export function DashboardScreen() {
   const t = useTranslation()
-  const { goal, goals, entries, goalTrackingStartDate, status } =
-    useDashboardData()
+  const { goal, entries, goalTrackingStartDate, status } = useDashboardData()
   // #536 — each chart owns its period in `dashboardPeriodStore`.
   // #537 — this screen must NOT subscribe to `byChart`: one period toggle
   // would re-render every section. Trend/correlation components read their
@@ -252,18 +251,13 @@ export function DashboardScreen() {
     weeklySummary: (dragHandle) => (
       <WeeklySummaryCards
         entries={entries}
-        goals={goals}
         goal={goal}
         goalTrackingStartDate={goalTrackingStartDate}
         dragHandle={dragHandle}
       />
     ),
     monthlySummary: (dragHandle) => (
-      <MonthlySummaryCards
-        entries={entries}
-        goals={goals}
-        dragHandle={dragHandle}
-      />
+      <MonthlySummaryCards entries={entries} dragHandle={dragHandle} />
     ),
     compareRanges: (dragHandle) => (
       <CompareRangesView entries={entries} dragHandle={dragHandle} />
