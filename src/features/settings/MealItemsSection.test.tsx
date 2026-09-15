@@ -284,7 +284,9 @@ describe('MealItemsSection', () => {
       screen.getByRole('button', { name: 'Remove serving 1 cup' }),
     )
 
-    expect(screen.queryByText('1 cup — 158g')).not.toBeInTheDocument()
+    await waitFor(() =>
+      expect(screen.queryByText('1 cup — 158g')).not.toBeInTheDocument(),
+    )
     await waitFor(() =>
       expect(useMealItemStore.getState().items[0].servings).toEqual([]),
     )

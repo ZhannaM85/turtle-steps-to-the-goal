@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry } from '@/domain/dailyEntry'
@@ -128,9 +128,9 @@ describe('PlannedMealsSection (#614)', () => {
     )
 
     expect(onChange).not.toHaveBeenCalled()
-    expect(
-      screen.queryByText('Chicken and rice'),
-    ).not.toBeInTheDocument()
+    await waitFor(() =>
+      expect(screen.queryByText('Chicken and rice')).not.toBeInTheDocument(),
+    )
     expect(await db.plannedMeals.toArray()).toEqual([])
   })
 

@@ -318,6 +318,10 @@ and #144's precedent in `docs/issues-priority.md`).
   in a loop waiting for it, and don't idle: move on to the next queued
   issue's research/targeted tests while it runs; only that issue's final
   commit+close needs the result.
+  **Hard release gate (2026-09-15):** if any local or CI validation run
+  reports a failing unit test, fix every reported failure before pushing,
+  regardless of whether it is related to the current issue. Every failing
+  test blocks deployment, so unrelated failures must not be deferred.
 - **E2E suite (#161)**: `npm run e2e` (Playwright, `playwright.config.ts`,
   specs in `e2e/`) — a deliberately small, black-box UI suite (no direct
   IndexedDB seeding), not a replacement for the ad hoc seeded-Playwright

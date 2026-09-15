@@ -36,14 +36,14 @@ describe('app router', () => {
   it('renders the History screen at /history', async () => {
     renderAt('/history')
     expect(
-      await screen.findByRole('heading', { name: 'History' }),
+      await screen.findByRole('heading', { name: 'History' }, { timeout: 5000 }),
     ).toBeInTheDocument()
   })
 
   it('renders the Goal screen at /goal', async () => {
     renderAt('/goal')
     expect(
-      await screen.findByRole('heading', { name: 'Goal' }),
+      await screen.findByRole('heading', { name: 'Goal' }, { timeout: 5000 }),
     ).toBeInTheDocument()
   })
 
@@ -69,7 +69,7 @@ describe('app router', () => {
   it('renders the About screen at /about', async () => {
     renderAt('/about')
     expect(
-      await screen.findByRole('heading', { name: 'About' }),
+      await screen.findByRole('heading', { name: 'About' }, { timeout: 5000 }),
     ).toBeInTheDocument()
   })
 

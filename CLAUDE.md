@@ -66,6 +66,11 @@ change are green, commit and push. Full suite once only when CI already failed
 on this change, the user asks, or a broad unshared rewrite lacks unit coverage.
 See `.cursor/rules/fast-ci-verification.mdc`.
 
+**Hard release gate:** once any local or CI validation run reports a failing
+unit test, fix every reported failing test before pushing — even when the
+failure predates or is unrelated to the current feature. A deployment remains
+blocked by every test failure, so "unrelated" is not a reason to defer it.
+
 ## Implementing a GitHub issue
 
 The moment an issue's implementation is pushed and its `docs/issues-priority.md`

@@ -105,6 +105,11 @@ export default defineConfig(({ mode }) => ({
     // (#846). Isolated re-runs of those files were green — raise the
     // budget instead of turning isolate off.
     testTimeout: 15_000,
+    // The desktop host exposes more cores than its constrained test runtime
+    // can use concurrently. An uncapped worker pool starves IndexedDB and
+    // lazy-route UI tests, producing unrelated timeout failures; four
+    // workers keeps the full suite stable locally and in CI.
+    maxWorkers: 4,
     // e2e/ (#161) holds Playwright specs, run via `npm run e2e`
     // (playwright.config.ts), not Vitest — they use Playwright's own
     // test()/expect(), which crashes if Vitest's default **/*.spec.ts

@@ -7,7 +7,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { elapsedParts, resolveLastMealInstant } from '@/domain/stats'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useMealKcalVsYesterdayStore, useMealLabelPresetStore, useNutritionFactsStore, useRecipeStore, useSinceLastMealTimerStore } from '@/stores'
+import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useMealKcalVsYesterdayStore, useMealLabelPresetStore, useMealSlotDefaultTimesStore, useNutritionFactsStore, useRecipeStore, useSinceLastMealTimerStore } from '@/stores'
+import { BUILTIN_MEAL_SLOT_DEFAULT_TIMES } from '@/shared/lib/mealLabel'
 import { MealList } from './MealList'
 
 // #301 — a plain `onChange={vi.fn()}` never feeds a save back into
@@ -60,13 +61,16 @@ beforeEach(async () => {
   useSinceLastMealTimerStore.setState({ enabled: false })
   useMealKcalVsYesterdayStore.setState({ enabled: true })
   useMealLabelPresetStore.setState({ presets: [] })
+  useMealSlotDefaultTimesStore.setState({
+    times: { ...BUILTIN_MEAL_SLOT_DEFAULT_TIMES },
+  })
   localStorage.clear()
   // #201 made the add row's default collapsed state depend on whether
   // `date` is in the past relative to the real clock — freeze "now" to
   // this file's own fixture "today" (2026-03-01) so the existing fixture
   // dates keep reading as today/future.
   vi.useFakeTimers({ toFake: ['Date'] })
-  vi.setSystemTime(new Date('2026-03-01T12:00:00.000Z'))
+  vi.setSystemTime(new Date(2026, 2, 1, 12, 0, 0))
 })
 
 afterEach(async () => {

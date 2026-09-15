@@ -245,8 +245,13 @@ describe('ExportSection', () => {
       `turtle-steps-daily-log-2026-03-01-to-${today}`,
     )
 
-    await user.click(screen.getByRole('radio', { name: 'Week' }))
-    await user.click(screen.getByRole('radio', { name: 'All' }))
+    const exportPeriodPicker = screen.getByLabelText('Export period')
+    await user.click(
+      within(exportPeriodPicker).getByRole('radio', { name: 'Week' }),
+    )
+    await user.click(
+      within(exportPeriodPicker).getByRole('radio', { name: 'All' }),
+    )
     expect(screen.getByLabelText('Export period — Start date')).toHaveValue(
       '2026-03-01',
     )
