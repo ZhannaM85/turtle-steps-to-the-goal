@@ -320,8 +320,8 @@ export interface ExportXlsxDict {
      * noteColumn). Optional ISO date for one-day exports.
      */
     eveningNoteColumn: (date?: string) => string
-    /** #763 — morning free-text, distinct from evening noteColumn. */
-    morningNoteColumn: string
+    /** #763 / #900 — morning free-text; optional ISO date on one-day exports. */
+    morningNoteColumn: (date?: string) => string
     onPeriodColumn: string
     hadConstipationColumn: string
     /** #607 — same purely-additive column as hadConstipationColumn above. */

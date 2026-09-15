@@ -114,7 +114,7 @@ describe('buildExportWorkbook', () => {
       'Hip (cm)',
       'Body fat (%)',
       'Mood',
-      'Morning note',
+      'Morning note 2026-03-01',
       'Evening note 2026-03-01',
       'On period',
       'Constipation',

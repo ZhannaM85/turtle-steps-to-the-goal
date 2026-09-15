@@ -234,7 +234,7 @@ function dailyLogColumns(
       gatedBy: 'mood',
     },
     {
-      header: t.exportXlsx.morningNoteColumn,
+      header: t.exportXlsx.morningNoteColumn(extras?.labelDate),
       value: (entry) => entry.morningNote,
       gatedBy: 'morningNote',
     },

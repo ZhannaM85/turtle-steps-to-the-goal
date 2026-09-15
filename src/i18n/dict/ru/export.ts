@@ -268,7 +268,8 @@ export const exportXlsx: ExportXlsxDict = {
     noteColumn: 'Заметка',
     eveningNoteColumn: (date) =>
       date ? `Вечерняя заметка ${date}` : 'Вечерняя заметка',
-    morningNoteColumn: 'Утренняя заметка',
+    morningNoteColumn: (date) =>
+      date ? `Утренняя заметка ${date}` : 'Утренняя заметка',
     onPeriodColumn: 'Менструация',
     hadConstipationColumn: 'Запор',
     hadAlcoholColumn: 'Алкоголь',

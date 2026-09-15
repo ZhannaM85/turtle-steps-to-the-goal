@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 854,
+    issue: 900,
+    date: '2026-09-15T12:10:00+03:00',
+    en: 'One-day exports include the date in the Morning note column header.',
+    ru: 'В экспорте за один день в заголовке «Утренняя заметка» указана дата.',
+  },
+  {
     version: 853,
     issue: 901,
     date: '2026-09-15T12:00:00+03:00',
