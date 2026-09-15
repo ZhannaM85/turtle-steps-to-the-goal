@@ -641,6 +641,7 @@ _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS sta
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#907](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/907) | ✅ Done | Day share icon not vertically aligned with title and checkmark | Confirmed on-device 2026-09-15 — share lines up with «День» and checkmark. |
 | [#906](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/906) | ✅ Done | Revert #897: restore Remaining-framed Day КБЖУ card (and summaries) | Confirmed on-device 2026-09-15 — Remaining-framed Day card restored. |
 | [#896](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/896) | ✅ Done | Daily and Settings exports: show calorie and macro goal vs actual intake | Confirmed on-device 2026-09-15 — day-share and Settings exports show goal vs actual intake. |
 | [#897](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/897) | ✅ Done | Day КБЖУ card and monthly summaries: show calorie/macro goal vs actual intake | Shipped then reverted 2026-09-15 (#906) — user found «Цель и факт» confusing. |
