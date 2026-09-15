@@ -17,6 +17,7 @@ import {
 import { Button } from '@/shared/ui/button'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { PageHeader } from '@/shared/ui/page-header'
+import { pageStickyUnderAppHeader } from '@/shared/ui/pageSticky'
 import {
   useDailyEntryStore,
   useDailyReminderStore,
@@ -183,7 +184,12 @@ export function TodayScreen() {
   return (
     <div className="flex flex-col gap-6">
       <GoalCelebrationModal />
-      <div className="flex flex-col" data-slot="day-intro">
+      <div
+        className={pageStickyUnderAppHeader(
+          'flex flex-col gap-1.5 pt-1 pb-2',
+        )}
+        data-slot="day-intro"
+      >
         <PageHeader
           title={t.today.title}
           titleAccessory={

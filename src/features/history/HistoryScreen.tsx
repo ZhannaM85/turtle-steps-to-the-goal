@@ -148,7 +148,11 @@ export function HistoryScreen() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title={t.history.title} description={t.history.description} />
+      <PageHeader
+        title={t.history.title}
+        description={t.history.description}
+        sticky
+      />
 
       {status === 'loading' || status === 'idle' ? (
         <p className="text-sm text-muted-foreground">{t.common.loading}</p>

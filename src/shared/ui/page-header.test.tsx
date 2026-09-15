@@ -47,4 +47,12 @@ describe('PageHeader', () => {
       'items-center',
     )
   })
+
+  it('can stick under the app header (#910)', () => {
+    render(<PageHeader title="History" sticky />)
+    const heading = screen.getByRole('heading', { name: 'History' })
+    expect(heading.parentElement?.parentElement?.parentElement).toHaveClass(
+      'sticky',
+    )
+  })
 })

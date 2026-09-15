@@ -269,6 +269,7 @@ export function DashboardScreen() {
       <PageHeader
         title={t.dashboard.title}
         description={t.dashboard.description}
+        sticky
         action={
           status !== 'loading' &&
           status !== 'idle' &&

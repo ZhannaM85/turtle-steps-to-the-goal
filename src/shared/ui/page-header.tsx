@@ -1,6 +1,7 @@
 import type * as React from 'react'
 
 import { cn } from '@/shared/lib/utils'
+import { pageStickyUnderAppHeader } from '@/shared/ui/pageSticky'
 
 export interface PageHeaderProps {
   title: string
@@ -16,6 +17,12 @@ export interface PageHeaderProps {
    * `top-0` of the header (which made share sit above the title/checkmark).
    */
   overlayAction?: boolean
+  /**
+   * #910 — stick under the app header while the page body scrolls (main
+   * tab screens). Day uses a wider sticky wrapper that also includes the
+   * date nav — leave this off there.
+   */
+  sticky?: boolean
   className?: string
 }
 
@@ -25,6 +32,7 @@ export function PageHeader({
   description,
   action,
   overlayAction = false,
+  sticky = false,
   className,
 }: PageHeaderProps) {
   return (
@@ -34,6 +42,7 @@ export function PageHeader({
           ? 'relative'
           : 'flex items-start justify-between gap-4',
         overlayAction && action ? 'pr-12' : null,
+        sticky ? pageStickyUnderAppHeader('pb-3') : null,
         className,
       )}
     >

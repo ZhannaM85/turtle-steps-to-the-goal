@@ -167,7 +167,7 @@ export function GoalScreen() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title={t.goal.title} description={t.goal.description} />
+      <PageHeader title={t.goal.title} description={t.goal.description} sticky />
 
       {/* #602 — one-tap entry point to the calm end-of-week glance. */}
       <Button variant="outline" size="sm" className="self-start" asChild>

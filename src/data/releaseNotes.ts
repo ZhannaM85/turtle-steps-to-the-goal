@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 864,
+    issue: 910,
+    date: '2026-09-15T14:50:00+03:00',
+    en: 'Day keeps the title and date controls pinned while you scroll; other main tabs pin their page titles too.',
+    ru: 'На Дне заголовок и переключение даты остаются закреплены при прокрутке; на других основных вкладках тоже закреплён заголовок.',
+  },
+  {
     version: 863,
     issue: 908,
     date: '2026-09-15T14:40:00+03:00',

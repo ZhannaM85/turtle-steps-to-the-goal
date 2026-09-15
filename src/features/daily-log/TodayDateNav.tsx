@@ -37,7 +37,7 @@ export function TodayDateNav({
 }) {
   const t = useTranslation()
   return (
-    <div className="sticky top-[calc(2.75rem+1px)] z-10 -mx-4 flex flex-col gap-1.5 border-b border-border bg-background px-4 pt-1 pb-2 sm:top-[calc(3.5rem+1px)]">
+    <div className="flex flex-col gap-1.5">
       <div className="flex items-center gap-2">
         <Button
           ref={debug465PrevRef}

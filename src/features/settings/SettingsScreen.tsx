@@ -47,6 +47,7 @@ export function SettingsScreen() {
         <PageHeader
           title={t.settings.title}
           description={t.settings.description}
+          sticky
           action={
             <div className="flex flex-col items-end">
               {currentVersion !== undefined && (

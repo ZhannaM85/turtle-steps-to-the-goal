@@ -1962,7 +1962,13 @@ describe('TodayScreen', () => {
       const dayTitle = screen.getByRole('heading', { name: 'Day' })
 
       expect(dayTitle.parentElement).toContainElement(check)
-      expect(next.closest('.sticky')).not.toContainElement(check)
+      // #910 — whole day-intro (title + date nav) is sticky; check stays with
+      // the title, not the date-arrow row.
+      expect(dayTitle.closest('[data-slot="day-intro"]')).toHaveClass('sticky')
+      expect(dayTitle.closest('[data-slot="day-intro"]')).toContainElement(check)
+      expect(next.closest('.flex.items-center.gap-2')).not.toContainElement(
+        check,
+      )
     })
 
     it('shows an explanatory tooltip when the checkmark is clicked (#422)', async () => {
