@@ -53,15 +53,29 @@ export function TodayDateNav({
         >
           <ChevronLeft aria-hidden="true" />
         </Button>
-        <DateInput
-          id="log-date"
-          ref={debug465DateRef}
-          value={date}
-          max={maxNavigableDate}
-          onChange={(e) => onSetDate(e.target.value)}
-          aria-label={t.today.dateLabel}
-          className="box-border h-[2.625rem] w-48 shrink-0"
-        />
+        {/* #904 — date + check as one group so the badge is not jammed between › and Today */}
+        <div
+          className="flex shrink-0 items-center gap-1.5"
+          data-testid="date-nav-date-group"
+        >
+          <DateInput
+            id="log-date"
+            ref={debug465DateRef}
+            value={date}
+            max={maxNavigableDate}
+            onChange={(e) => onSetDate(e.target.value)}
+            aria-label={t.today.dateLabel}
+            className="box-border h-[2.625rem] w-48 shrink-0"
+          />
+          {hasEntry && (
+            <InfoTooltip
+              text={t.today.dayHasEntriesLabel}
+              label={t.today.dayHasEntriesLabel}
+              className="size-auto shrink-0 rounded-full bg-primary/15 p-1 text-primary hover:text-primary"
+              icon={<Check aria-hidden="true" className="size-3.5" />}
+            />
+          )}
+        </div>
         <Button
           ref={debug465NextRef}
           type="button"
@@ -74,14 +88,6 @@ export function TodayDateNav({
         >
           <ChevronRight aria-hidden="true" />
         </Button>
-        {hasEntry && (
-          <InfoTooltip
-            text={t.today.dayHasEntriesLabel}
-            label={t.today.dayHasEntriesLabel}
-            className="size-auto rounded-full bg-primary/15 p-0.5 text-primary hover:text-primary"
-            icon={<Check aria-hidden="true" className="size-3" />}
-          />
-        )}
         <Button
           ref={debug465TodayRef}
           type="button"

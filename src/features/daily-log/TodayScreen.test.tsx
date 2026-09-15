@@ -1948,6 +1948,25 @@ describe('TodayScreen', () => {
       )
     })
 
+    it('keeps the has-entry check beside the date, not between next and Today (#904)', async () => {
+      await useDailyEntryStore
+        .getState()
+        .saveEntry(makeEntry({ date: '2026-03-01', weightKg: 60 }))
+      renderToday(['/?date=2026-03-01'])
+      const dateInput = await screen.findByLabelText('Date')
+      const check = await screen.findByRole('button', {
+        name: 'This day has logged entries',
+      })
+      const next = screen.getByRole('button', { name: 'Next day' })
+      const today = screen.getByRole('button', { name: 'Today' })
+
+      const dateGroup = screen.getByTestId('date-nav-date-group')
+      expect(dateGroup).toContainElement(dateInput)
+      expect(dateGroup).toContainElement(check)
+      expect(dateGroup).not.toContainElement(next)
+      expect(dateGroup).not.toContainElement(today)
+    })
+
     it('shows an explanatory tooltip when the checkmark is clicked (#422)', async () => {
       const user = userEvent.setup()
       await useDailyEntryStore
