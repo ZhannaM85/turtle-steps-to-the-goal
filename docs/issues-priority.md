@@ -15,7 +15,7 @@ _The next big initiative, at the user's request: ship this PWA as installable na
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#911](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/911) | 🔍 Pending validation | PDF diary Food section: show consumed macro totals | Add protein, fat, and carbohydrate totals alongside consumed kcal in the readable PDF diary Food section. |
-| [#912](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/912) | ⬜ Open | PDF diary Water section: use a three-column layout | Render water entries in three columns to reduce section height and help fit a complete day on one page. |
+| [#912](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/912) | 🔍 Pending validation | PDF diary Water section: use a three-column layout | Render water entries in three columns to reduce section height and help fit a complete day on one page. |
 | [#913](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/913) | ⬜ Open | PDF diary Food section: move consumed total into the section header | Put the kcal and macro summary in the Food header before meal details. |
 | [#914](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/914) | ⬜ Open | PDF export section picker: keep info icons beside their labels | Keep each info icon adjacent to the section label it explains, with consistent spacing. |
 | [#915](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/915) | ⬜ Open | PDF export: add a colorful, print-friendly visual theme | Use restrained section colors, accents, and backgrounds while preserving readability and iOS Safari capture reliability. |

@@ -126,7 +126,11 @@ function dailyLogPagesHtml(
       const sections: string[] = []
       const finishSection = () => {
         if (!sectionTitle) return
-        sections.push(`<section class="pdf-day-section">
+        const sectionClass =
+          sectionTitle === t.dailyEntry.waterLabel
+            ? ' pdf-day-section-water'
+            : ''
+        sections.push(`<section class="pdf-day-section${sectionClass}">
   <h3 class="pdf-day-section-title">${escapeHtml(sectionTitle)}</h3>
   <div class="pdf-day-section-content">${sectionContent.join('')}</div>
 </section>`)

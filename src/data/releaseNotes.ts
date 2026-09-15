@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 866,
+    issue: 912,
+    date: '2026-09-15T17:36:00+03:00',
+    en: 'PDF diary water entries now flow into three compact columns to keep each day easier to scan.',
+    ru: 'Записи о воде в PDF-дневнике теперь размещаются в три компактные колонки, чтобы день было проще просматривать.',
+  },
+  {
     version: 865,
     issue: 911,
     date: '2026-09-15T17:32:29+03:00',

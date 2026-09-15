@@ -117,6 +117,17 @@ export const PDF_DOCUMENT_CSS = `
   .pdf-day-section-content .pdf-line {
     margin: 0 0 3pt 0;
   }
+  .pdf-day-section-water .pdf-day-section-content {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 10pt;
+  }
+  .pdf-day-section-water .pdf-day-section-content .pdf-line {
+    grid-column: 1 / -1;
+  }
+  .pdf-day-section-water .pdf-day-section-content .pdf-day-item {
+    margin-left: 0;
+  }
   .pdf-day-item {
     margin: 3pt 0 0 8pt;
     padding-left: 8pt;
