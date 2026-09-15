@@ -641,6 +641,7 @@ _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS sta
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#909](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/909) | ✅ Done | PDF diary: start each new date on its own page | Confirmed on-device 2026-09-15 — each diary date starts on its own PDF page. |
 | [#910](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/910) | ✅ Done | Day (and other tabs): sticky page top — title + date nav stay reachable while scrolling | Confirmed on-device 2026-09-15 — Day intro stays together; Dashboard, History, Goal, and Settings headers stay reachable. |
 | [#905](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/905) | ✅ Done | PDF export: migrate off jsPDF to HTML+CSS pipeline for real styling | Confirmed on-device 2026-09-15 — HTML→PDF works; diary page-break + later-page CSS follow-ups filed. |
 | [#907](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/907) | ✅ Done | Day share icon not vertically aligned with title and checkmark | Confirmed on-device 2026-09-15 — share lines up with «День» and checkmark. |
