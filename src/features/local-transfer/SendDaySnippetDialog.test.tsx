@@ -184,7 +184,7 @@ describe('SendDaySnippetDialog (#720, #722)', () => {
     expect(blob.type).toBe('text/csv')
     const text = await blob.text()
     expect(text).toContain('2026-08-14')
-    expect(text).toContain('Next Morning Weight')
+    expect(text).toContain('Weight 2026-08-15')
     expect(click).toHaveBeenCalled()
   })
 
@@ -233,9 +233,7 @@ describe('SendDaySnippetDialog (#720, #722)', () => {
     const text = await blob.text()
     const header = text.split('\r\n')[0] ?? ''
     const row = text.split('\r\n')[1] ?? ''
-    expect(header.startsWith('Date,Weight (kg),Next Morning Weight,')).toBe(
-      true,
-    )
+    expect(header.startsWith('Date,Weight (kg),Weight 2026-08-15,')).toBe(true)
     expect(row.split(',')[2]).toBe('59.95')
     expect(click).toHaveBeenCalled()
   })
