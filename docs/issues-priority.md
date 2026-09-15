@@ -60,4 +60,3 @@ _Found while validating Settings groups / Day accordion / DateInput / PDF export
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#892](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/892) | ⬜ Open | PDF footer date/disclaimer overlaps page content | **Not validated 2026-09-15** — footer still overlaps first-page summary (Шаги / Вода). Prior reserve-band fix insufficient; needs rework. |
-| [#894](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/894) | 🔍 Pending validation | Day share sheet: save this day as PDF | Implemented 2026-09-15. Next to Save as CSV (#795); one viewed day, #891 readable block (not Settings range summary). |

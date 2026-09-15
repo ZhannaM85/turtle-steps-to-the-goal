@@ -652,6 +652,7 @@ _Found while validating Settings groups / Day accordion / DateInput follow-ups o
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#893](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/893) | ✅ Done | Day date nav: drop Date label; put entry checkmark on the date row | Confirmed on-device 2026-09-15 — no «Дата» label; check on date row. Spacing follow-up #904. |
+| [#894](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/894) | ✅ Done | Day share sheet: save this day as PDF | Confirmed on-device 2026-09-15 — Save as PDF next to CSV on the day share sheet. |
 | [#891](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/891) | ✅ Done | PDF daily-log pages: human-readable day sections (not Excel table) | Confirmed on-device 2026-09-15 — day blocks instead of Excel table. Styling follow-up filed. |
 | [#890](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/890) | ✅ Done | Confirm before deleting meal-name templates (and other trash actions) | Confirmed on-device 2026-09-15 — delete confirm on meal-name templates and other Settings trash actions. |
 | [#889](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/889) | ✅ Done | Water delete confirm hides all entry chips | Confirmed on-device 2026-09-14 — confirm above chips; other water chips stay visible. |
