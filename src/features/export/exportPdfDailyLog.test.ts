@@ -98,7 +98,7 @@ describe('dailyLogPdfDayLines (#891)', () => {
     )
 
     expect(lines.map((line) => line.text)).toContain(
-      'Consumed · 500 kcal · P 30g · F 20g · C 45g',
+      'Food · Consumed · 500 kcal · P 30g · F 20g · C 45g',
     )
   })
 })
