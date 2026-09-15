@@ -36,7 +36,7 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 ## Tier 163 — Live feedback (2026-09-15)
 
-_Day КБЖУ / export: goal vs actual, omit untracked fields, date-label next-morning weight and morning/evening notes._
+_Day КБЖУ / export: goal vs actual, omit untracked fields, date-label next-morning weight, morning/evening notes, and night-food overnight span._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -48,6 +48,7 @@ _Day КБЖУ / export: goal vs actual, omit untracked fields, date-label next-m
 | [#900](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/900) | ⬜ Open | Export: include the date on the Morning note column | «Утренняя заметка» → include row date in header (same LLM clarity as #899). |
 | [#901](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/901) | ⬜ Open | Export: rename Note to Evening note and include the date | «Заметка» → evening-note wording + row date in header. |
 | [#902](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/902) | ⬜ Open | Export: constipation column should be true/false from user selection | «Запор» cells blank in Day-share CSV; emit true/false (or Yes/No) from the day’s selection, blank only if unset. |
+| [#903](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/903) | ⬜ Open | Export: label night food as spanning the overnight dates (e.g. 14→15) | «Ночная еда» is overnight; header/value should say с 14 на 15 (same LLM date clarity as #899–#901). |
 
 ---
 
