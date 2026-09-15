@@ -641,6 +641,7 @@ _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS sta
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#897](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/897) | ✅ Done | Day КБЖУ card and monthly summaries: show calorie/macro goal vs actual intake | Shipped then reverted 2026-09-15 (#906) — user found «Цель и факт» confusing. |
 | [#903](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/903) | ✅ Done | Export: label night food as spanning the overnight dates (e.g. 14→15) | Confirmed on-device 2026-09-15 — one-day night food labeled with overnight date span. |
 | [#898](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/898) | ✅ Done | Exports still include fields the user is not tracking | Confirmed on-device 2026-09-15 — day-share and Settings exports omit untracked fields. |
 | [#900](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/900) | ✅ Done | Export: include the date on the Morning note column | Confirmed on-device 2026-09-15 — one-day exports date Morning note / Утренняя заметка. |
