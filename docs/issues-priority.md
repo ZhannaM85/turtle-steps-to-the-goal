@@ -31,3 +31,14 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
+
+---
+
+## Tier 163 — Live feedback (2026-09-15)
+
+_Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack (#905) + diary follow-ups._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#909](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/909) | ⬜ Open | PDF diary: start each new date on its own page | After #905 — days share one `.pdf-page` and wrap mid-page; each date should start a new page. |
+| [#908](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/908) | ⬜ Open | PDF export: CSS styling missing on pages after the first two | After #905 — later pages lose section-card / typography chrome (sample Aug 17–Sep 15 summary). |
