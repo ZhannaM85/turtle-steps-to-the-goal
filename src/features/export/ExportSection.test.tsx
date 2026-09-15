@@ -352,11 +352,11 @@ describe('ExportSection', () => {
     ).toBeInTheDocument()
   })
 
-  it('lets a quick-fill button set the PDF summary to the last 30 days (#624)', async () => {
+  it('lets the shared month preset set the PDF summary period (#624, #916)', async () => {
     const user = userEvent.setup()
 
     render(<ExportSection />)
-    await user.click(screen.getByRole('button', { name: 'Last 30 days' }))
+    await user.click(screen.getByRole('button', { name: 'Month' }))
 
     const today = format(new Date(), 'yyyy-MM-dd')
     expect(screen.getByLabelText('Summary covers — End date')).toHaveValue(
