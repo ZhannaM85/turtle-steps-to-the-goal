@@ -211,7 +211,8 @@ function SendDaySnippetBody({
       link.href = url
       link.download = `turtle-steps-daily-log-${date}.pdf`
       link.click()
-      URL.revokeObjectURL(url)
+      // iOS Safari opens the blob in a viewer; revoking immediately blanks it.
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000)
     } catch {
       setPdfError(t.today.sendDaySavePdfFailed)
     }

@@ -14,7 +14,7 @@ export const PDF_DOCUMENT_CSS = `
   }
   .pdf-page {
     width: 180mm;
-    min-height: 250mm;
+    min-height: 0;
     padding: 0 0 18mm 0;
     display: flex;
     flex-direction: column;

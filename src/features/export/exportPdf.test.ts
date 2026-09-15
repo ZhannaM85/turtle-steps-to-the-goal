@@ -496,7 +496,7 @@ describe('buildSummaryPdf', () => {
     )
 
     // #905 — under Vitest, PDF blobs are stubs of equal size; compare the
-    // HTML document that feeds html2pdf instead.
+    // HTML document that feeds the PDF renderer instead.
     const fullHtml = buildPdfDocumentHtml(data, t, 'en', 'kg', {
       weightTrend: true,
       weeklyAverages: true,

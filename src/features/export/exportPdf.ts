@@ -405,7 +405,8 @@ export function buildPdfSummaryData(
 
 /**
  * #609 / #905 — render the summary (and optional daily-log pages) as
- * HTML+CSS, then convert client-side via html2pdf.js. Data shaping stays
+ * HTML+CSS, then convert client-side via html2canvas + jsPDF (per page).
+ * Data shaping stays
  * in buildPdfSummaryData above; layout lives in buildPdfDocumentHtml.
  */
 export async function buildSummaryPdf(

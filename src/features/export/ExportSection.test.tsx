@@ -69,7 +69,7 @@ beforeEach(async () => {
   // a plain object spread — losing `URL`'s own constructor behavior in the
   // process) keeps `new URL(...)` working everywhere else that needs it,
   // including Vite's own dynamic-`import()` module resolution (#624 —
-  // exportPdf.ts dynamically imports html2pdf.js (and its embedded
+  // exportPdf.ts dynamically imports html2canvas/jspdf for PDF export;
   // font; the very first such import in a fresh module graph threw "URL is
   // not a constructor" under the old stub, intermittently masked by
   // whether Vite's local dep-cache from an earlier run happened to already

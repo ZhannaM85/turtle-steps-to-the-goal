@@ -215,7 +215,8 @@ export function PdfExportSection() {
       link.href = url
       link.download = `turtle-steps-summary-${exportPeriodFileStamp(pdfPeriodStart, pdfPeriodEnd)}.pdf`
       link.click()
-      URL.revokeObjectURL(url)
+      // iOS Safari opens the blob in a viewer; revoking immediately blanks it.
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000)
       setPdfSectionsDialogOpen(false)
       setStatus({ kind: 'exportedPdf' })
     } catch {

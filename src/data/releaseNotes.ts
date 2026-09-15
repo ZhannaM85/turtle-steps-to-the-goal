@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 860,
+    issue: 905,
+    date: '2026-09-15T13:50:00+03:00',
+    en: 'PDF export no longer opens as a blank page on iPhone (pages are rendered one at a time).',
+    ru: 'PDF-экспорт больше не открывается пустым экраном на iPhone (страницы рисуются по одной).',
+  },
+  {
     version: 859,
     issue: 906,
     date: '2026-09-15T13:45:00+03:00',
