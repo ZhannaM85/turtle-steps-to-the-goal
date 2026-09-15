@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 868,
+    issue: 914,
+    date: '2026-09-15T17:44:00+03:00',
+    en: 'PDF export section info icons now sit closer to the controls they explain.',
+    ru: 'Информационные значки в выборе разделов PDF теперь расположены ближе к поясняемым элементам.',
+  },
+  {
     version: 867,
     issue: 913,
     date: '2026-09-15T17:40:00+03:00',

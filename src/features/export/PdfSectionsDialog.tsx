@@ -208,6 +208,7 @@ export function PdfSectionsDialog({
                     <InfoTooltip
                       text={disabledReasonText(t, reason)}
                       label={t.export.pdfSectionDisabledTooltipLabel}
+                      className="size-6"
                     />
                   )}
                 </span>
@@ -245,6 +246,7 @@ export function PdfSectionsDialog({
                       <InfoTooltip
                         text={t.export.pdfSectionDisabledNoDataTooltip}
                         label={t.export.pdfSectionDisabledTooltipLabel}
+                        className="size-6"
                       />
                     )}
                   </span>
@@ -274,6 +276,7 @@ export function PdfSectionsDialog({
                   <InfoTooltip
                     text={t.export.pdfSectionDisabledNoDataTooltip}
                     label={t.export.pdfSectionDisabledTooltipLabel}
+                    className="size-6"
                   />
                 )}
               </span>
