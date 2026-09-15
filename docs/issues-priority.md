@@ -40,4 +40,3 @@ _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS sta
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#908](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/908) | 🔍 Pending validation | PDF export: CSS styling missing on pages after the first two | Diary pages now use styled date and section cards (Metrics, Food, Water, Notes), with print-safe borders, tonal backgrounds, and indented details. |
