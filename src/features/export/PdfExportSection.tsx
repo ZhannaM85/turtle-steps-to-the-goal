@@ -245,7 +245,13 @@ export function PdfExportSection() {
           {t.export.exportPdfBlurb}
         </p>
         <div className="flex flex-col gap-2">
-          <ToggleGroup type="single" value={pdfRangePreset} onValueChange={(value) => value && applyPdfRangePreset(value)} className="flex-wrap justify-start">
+          <ToggleGroup
+            type="single"
+            aria-label={t.export.exportPdfRangeLabel}
+            value={pdfRangePreset}
+            onValueChange={(value) => value && applyPdfRangePreset(value)}
+            className="flex-wrap justify-start"
+          >
             <ToggleGroupItem value="week" className="h-12">{t.export.exportRangeWeek}</ToggleGroupItem>
             <ToggleGroupItem value="month" className="h-12">{t.export.exportRangeMonth}</ToggleGroupItem>
             <ToggleGroupItem value="year" className="h-12">{t.export.exportRangeYear}</ToggleGroupItem>

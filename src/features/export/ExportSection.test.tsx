@@ -356,7 +356,11 @@ describe('ExportSection', () => {
     const user = userEvent.setup()
 
     render(<ExportSection />)
-    await user.click(screen.getByRole('button', { name: 'Month' }))
+    await user.click(
+      within(screen.getByLabelText('Summary covers')).getByRole('radio', {
+        name: 'Month',
+      }),
+    )
 
     const today = format(new Date(), 'yyyy-MM-dd')
     expect(screen.getByLabelText('Summary covers — End date')).toHaveValue(
