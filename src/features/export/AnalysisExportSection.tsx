@@ -1,21 +1,16 @@
 import { type ReactNode, useState } from 'react'
 import { useTranslation } from '@/i18n'
 import {
-  useAlcoholTrackingStore,
-  useCycleTrackingStore,
-  useDigestionTrackingStore,
   useEatingReasonTrackingStore,
   useMealSlotDefaultTimesStore,
-  useMicronutrientTrackingStore,
   useProfileStore,
-  useTrackedFieldsStore,
-  useWaterTrackingStore,
 } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { DateInput } from '@/shared/ui/date-input'
 import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
+import { currentAnalysisExportTracking } from './analysisExportTracking'
 import { exportAllData } from './exportActions'
 import { buildDailyLogCsv, CSV_BOM } from './exportCsv'
 import {
@@ -49,41 +44,9 @@ type Status =
 export function AnalysisExportSection({ children }: { children?: ReactNode }) {
   const t = useTranslation()
   const sex = useProfileStore((state) => state.sex)
-  const trackedFields = useTrackedFieldsStore((state) => state.tracked)
-  const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
-  const digestionTrackingEnabled = useDigestionTrackingStore(
-    (state) => state.enabled,
-  )
-  const alcoholTrackingEnabled = useAlcoholTrackingStore(
-    (state) => state.enabled,
-  )
-  const waterTrackingEnabled = useWaterTrackingStore((state) => state.enabled)
-  const eatingReasonTrackingEnabled = useEatingReasonTrackingStore(
-    (state) => state.enabled,
-  )
   const eatingReasonLabelOverrides = useEatingReasonTrackingStore(
     (state) => state.builtinLabelOverrides,
   )
-  const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
-  const analysisExportTracking = {
-    sleep: trackedFields.sleep,
-    steps: trackedFields.steps,
-    bodyMeasurements: trackedFields.bodyMeasurements,
-    note: trackedFields.note,
-    morningNote: trackedFields.morningNote,
-    mood: trackedFields.mood,
-    bodyComposition: trackedFields.bodyComposition,
-    nightEating: trackedFields.nightEating,
-    fiber: trackedFields.fiber,
-    cycle: cycleTrackingEnabled,
-    digestion: digestionTrackingEnabled,
-    alcohol: alcoholTrackingEnabled,
-    water: waterTrackingEnabled,
-    sodium: micronutrients.sodium,
-    potassium: micronutrients.potassium,
-    magnesium: micronutrients.magnesium,
-    eatingReason: eatingReasonTrackingEnabled,
-  }
   const mealSlotDefaultTimes = useMealSlotDefaultTimesStore(
     (state) => state.times,
   )
@@ -152,7 +115,7 @@ export function AnalysisExportSection({ children }: { children?: ReactNode }) {
         {
           customMetrics: bundle.customMetrics,
           customMetricEntries: bundle.customMetricEntries,
-          tracking: analysisExportTracking,
+          tracking: currentAnalysisExportTracking(),
           mealSlotTimes: mealSlotDefaultTimes,
           eatingReasonLabelOverrides,
         },
@@ -193,7 +156,7 @@ export function AnalysisExportSection({ children }: { children?: ReactNode }) {
       const csv = buildDailyLogCsv(dailyEntries, t, sex, {
         customMetrics: bundle.customMetrics,
         customMetricEntries: bundle.customMetricEntries,
-        tracking: analysisExportTracking,
+        tracking: currentAnalysisExportTracking(),
         mealSlotTimes: mealSlotDefaultTimes,
         eatingReasonLabelOverrides,
       })
@@ -226,7 +189,7 @@ export function AnalysisExportSection({ children }: { children?: ReactNode }) {
       const markdown = buildDailyLogMarkdown(dailyEntries, t, sex, {
         customMetrics: bundle.customMetrics,
         customMetricEntries: bundle.customMetricEntries,
-        tracking: analysisExportTracking,
+        tracking: currentAnalysisExportTracking(),
         mealSlotTimes: mealSlotDefaultTimes,
         eatingReasonLabelOverrides,
       })

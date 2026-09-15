@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 857,
+    issue: 898,
+    date: '2026-09-15T12:30:00+03:00',
+    en: 'Day-share and Settings analysis exports omit columns for fields you are not tracking.',
+    ru: 'Экспорт дня и аналитические выгрузки из настроек не включают столбцы для полей, которые вы не отслеживаете.',
+  },
+  {
     version: 856,
     issue: 903,
     date: '2026-09-15T12:20:00+03:00',

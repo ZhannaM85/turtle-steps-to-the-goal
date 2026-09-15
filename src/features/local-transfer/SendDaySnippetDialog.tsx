@@ -4,6 +4,7 @@ import { Check, Copy, FileDown, FileText, QrCode, Share2 } from 'lucide-react'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { BarcodeScannerDialog } from '@/features/daily-log/BarcodeScannerDialog'
 import { buildDailyLogCsv, CSV_BOM } from '@/features/export/exportCsv'
+import { currentAnalysisExportTracking } from '@/features/export/analysisExportTracking'
 import { buildSingleDayPdf } from '@/features/export/buildSingleDayPdf'
 import { generateQrDataUrl } from '@/features/food-share/generateQrDataUrl'
 import { useLocale, useTranslation } from '@/i18n'
@@ -18,17 +19,11 @@ import {
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import {
-  useAlcoholTrackingStore,
-  useCycleTrackingStore,
   useCustomMetricStore,
-  useDigestionTrackingStore,
   useEatingReasonTrackingStore,
   useMealSlotDefaultTimesStore,
-  useMicronutrientTrackingStore,
   useProfileStore,
-  useTrackedFieldsStore,
   useUnitStore,
-  useWaterTrackingStore,
 } from '@/stores'
 import { classifyShareScan } from './classifyShareScan'
 import {
@@ -177,6 +172,7 @@ function SendDaySnippetBody({
         eatingReasonLabelOverrides:
           useEatingReasonTrackingStore.getState().builtinLabelOverrides,
         nextMorningWeightByDate,
+        tracking: currentAnalysisExportTracking(),
       })
       const blob = new Blob([CSV_BOM, csv], { type: 'text/csv' })
       const url = URL.createObjectURL(blob)
@@ -194,8 +190,6 @@ function SendDaySnippetBody({
     if (!entry || entry.date !== date) return
     setPdfError(null)
     try {
-      const trackedFields = useTrackedFieldsStore.getState().tracked
-      const micronutrients = useMicronutrientTrackingStore.getState().tracked
       const pdf = await buildSingleDayPdf(
         entry,
         t,
@@ -204,25 +198,7 @@ function SendDaySnippetBody({
         {
           customMetrics: useCustomMetricStore.getState().metrics,
           customMetricEntries: useCustomMetricStore.getState().entries,
-          tracking: {
-            sleep: trackedFields.sleep,
-            steps: trackedFields.steps,
-            bodyMeasurements: trackedFields.bodyMeasurements,
-            note: trackedFields.note,
-            morningNote: trackedFields.morningNote,
-            mood: trackedFields.mood,
-            bodyComposition: trackedFields.bodyComposition,
-            nightEating: trackedFields.nightEating,
-            fiber: trackedFields.fiber,
-            cycle: useCycleTrackingStore.getState().enabled,
-            digestion: useDigestionTrackingStore.getState().enabled,
-            alcohol: useAlcoholTrackingStore.getState().enabled,
-            water: useWaterTrackingStore.getState().enabled,
-            sodium: micronutrients.sodium,
-            potassium: micronutrients.potassium,
-            magnesium: micronutrients.magnesium,
-            eatingReason: useEatingReasonTrackingStore.getState().enabled,
-          },
+          tracking: currentAnalysisExportTracking(),
           mealSlotTimes: useMealSlotDefaultTimesStore.getState().times,
           eatingReasonLabelOverrides:
             useEatingReasonTrackingStore.getState().builtinLabelOverrides,
