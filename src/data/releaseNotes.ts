@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 871,
+    issue: 917,
+    date: '2026-09-15T22:36:00+03:00',
+    en: 'PDF diary pages now pack related details together and show every body-composition reading.',
+    ru: 'Страницы PDF-дневника теперь компактнее: связанные данные выводятся вместе, а состав тела показан полностью.',
+  },
+  {
     version: 870,
     issue: 915,
     date: '2026-09-15T17:55:00+03:00',

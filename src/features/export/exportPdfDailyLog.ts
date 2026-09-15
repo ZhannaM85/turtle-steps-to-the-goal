@@ -120,23 +120,25 @@ export function dailyLogPdfDayLines(
   })
 
   const metrics: string[] = []
-  if (trackingOn(extras, 'sleep') && entry.sleepHours !== undefined) {
-    metrics.push(
-      `${t.dailyEntry.sleepHoursLabel}: ${formatSleepDuration(
-        entry.sleepHours,
-        t.dailyEntry.hoursUnit,
-        t.dailyEntry.minutesUnit,
-      )}`,
-    )
-  }
-  if (trackingOn(extras, 'sleep') && entry.deepSleepHours !== undefined) {
-    metrics.push(
-      `${t.dailyEntry.deepSleepLabel}: ${formatSleepDuration(
-        entry.deepSleepHours,
-        t.dailyEntry.hoursUnit,
-        t.dailyEntry.minutesUnit,
-      )}`,
-    )
+  if (trackingOn(extras, 'sleep')) {
+    const sleep =
+      entry.sleepHours === undefined
+        ? undefined
+        : `${t.dailyEntry.sleepHoursLabel}: ${formatSleepDuration(
+            entry.sleepHours,
+            t.dailyEntry.hoursUnit,
+            t.dailyEntry.minutesUnit,
+          )}`
+    const deepSleep =
+      entry.deepSleepHours === undefined
+        ? undefined
+        : `${t.dailyEntry.deepSleepLabel}: ${formatSleepDuration(
+            entry.deepSleepHours,
+            t.dailyEntry.hoursUnit,
+            t.dailyEntry.minutesUnit,
+          )}`
+    const sleepLine = joinParts([sleep, deepSleep])
+    if (sleepLine) metrics.push(sleepLine)
   }
   if (trackingOn(extras, 'steps') && entry.steps !== undefined) {
     metrics.push(
@@ -164,27 +166,29 @@ export function dailyLogPdfDayLines(
       ),
     )
   }
-  if (
-    trackingOn(extras, 'bodyMeasurements') &&
-    entry.bodyFatPercent !== undefined
-  ) {
-    metrics.push(
-      t.pdfSummary.bodyFatLabel(
-        formatNumber(entry.bodyFatPercent, locale),
-        formatLocalizedDate(entry.date, locale),
-      ),
-    )
-  }
-  if (
-    trackingOn(extras, 'bodyComposition') &&
-    entry.muscleMassKg !== undefined
-  ) {
-    metrics.push(
-      t.pdfSummary.muscleMassLabel(
-        formatNumber(entry.muscleMassKg, locale),
-        formatLocalizedDate(entry.date, locale),
-      ),
-    )
+  if (trackingOn(extras, 'bodyComposition')) {
+    const bodyComposition = [
+      entry.muscleMassKg === undefined
+        ? undefined
+        : `${t.dailyEntry.muscleMassShortLabel}: ${formatNumber(entry.muscleMassKg, locale)} ${t.dailyEntry.kgUnit}`,
+      entry.visceralFatRating === undefined
+        ? undefined
+        : `${t.dailyEntry.visceralFatShortLabel}: ${formatNumber(entry.visceralFatRating, locale)}`,
+      entry.bodyWaterPercent === undefined
+        ? undefined
+        : `${t.dailyEntry.bodyWaterShortLabel}: ${formatNumber(entry.bodyWaterPercent, locale)}${t.dailyEntry.percentUnit}`,
+      entry.boneMassKg === undefined
+        ? undefined
+        : `${t.dailyEntry.boneMassShortLabel}: ${formatNumber(entry.boneMassKg, locale)} ${t.dailyEntry.kgUnit}`,
+      entry.bodyFatPercent === undefined
+        ? undefined
+        : `${t.dailyEntry.bodyFatShortLabel}: ${formatNumber(entry.bodyFatPercent, locale)}${t.dailyEntry.percentUnit}`,
+    ].filter((value): value is string => value !== undefined)
+    if (bodyComposition.length > 0) {
+      metrics.push(
+        `${t.dailyEntry.bodyCompositionLabel}: ${bodyComposition.join(' · ')}`,
+      )
+    }
   }
   if (trackingOn(extras, 'cycle') && entry.onPeriod !== undefined) {
     metrics.push(`${t.dailyEntry.onPeriodLabel}: ${yesNo(entry.onPeriod, t)}`)
@@ -219,8 +223,7 @@ export function dailyLogPdfDayLines(
         : metric.unit
           ? `${formatNumber(logged.value, locale)} ${metric.unit}`
           : formatNumber(logged.value, locale)
-    metrics.push(`${metric.name}: ${value}`)
-    if (logged.note) metrics.push(logged.note)
+    metrics.push(joinParts([`${metric.name}: ${value}`, logged.note]))
   }
   if (metrics.length > 0) {
     lines.push({
@@ -378,11 +381,18 @@ export function appendDailyLogPdfPages(
 
   for (const entry of entries) {
     const dayLines = dailyLogPdfDayLines(entry, t, locale, unit, input.extras)
-    const estimated = dayLines.reduce(
-      (sum, line) => sum + LINE_MM[line.role],
-      0,
-    )
-    if (y > 24 && y + Math.min(estimated, 40) > contentBottom(doc, t)) {
+    // Use the real wrapped height instead of a fixed minimum. The old 40 mm
+    // estimate could send a compact day to a fresh page even when it fit in
+    // the space remaining below the preceding day.
+    const estimated = dayLines.reduce((sum, line) => {
+      doc.setFontSize(SIZE[line.role])
+      const wrapped = doc.splitTextToSize(
+        line.text,
+        line.role === 'item' ? maxWidth - 4 : maxWidth,
+      ) as string[]
+      return sum + wrapped.length * LINE_MM[line.role]
+    }, 4)
+    if (y > 24 && y + estimated > contentBottom(doc, t)) {
       y = startPortraitPage(doc)
     }
 

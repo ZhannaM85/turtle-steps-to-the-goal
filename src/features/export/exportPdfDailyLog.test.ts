@@ -109,6 +109,53 @@ describe('dailyLogPdfDayLines (#891)', () => {
       ),
     ).toBe(true)
   })
+
+  it('keeps related metrics on compact lines and includes every body-composition value (#917)', () => {
+    const lines = dailyLogPdfDayLines(
+      makeEntry({
+        sleepHours: 7.5,
+        deepSleepHours: 2,
+        muscleMassKg: 38.2,
+        visceralFatRating: 6,
+        bodyWaterPercent: 51,
+        boneMassKg: 2.7,
+        bodyFatPercent: 24,
+      }),
+      t,
+      'en',
+      'kg',
+      {
+        customMetrics: [
+          {
+            id: 'acne',
+            name: 'Acne',
+            inputKind: 'scale5',
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+        customMetricEntries: [
+          {
+            id: 'acne-entry',
+            metricId: 'acne',
+            date: '2026-08-01',
+            value: 2,
+            note: 'Improving',
+            updatedAt: '2026-08-01T00:00:00.000Z',
+          },
+        ],
+      },
+    )
+
+    const metricLines = lines.filter((line) => line.role === 'body')
+    expect(metricLines.filter((line) => line.text.includes('Hours slept'))).toHaveLength(1)
+    expect(metricLines.find((line) => line.text.includes('Hours slept'))?.text).toContain('Deep sleep')
+    expect(metricLines.find((line) => line.text.includes('Acne'))?.text).toContain('Improving')
+    expect(metricLines.find((line) => line.text.startsWith('Body composition:'))?.text).toContain('Muscle: 38.2 kg')
+    expect(metricLines.find((line) => line.text.startsWith('Body composition:'))?.text).toContain('Visceral fat: 6')
+    expect(metricLines.find((line) => line.text.startsWith('Body composition:'))?.text).toContain('Water: 51.0%')
+    expect(metricLines.find((line) => line.text.startsWith('Body composition:'))?.text).toContain('Bone: 2.7 kg')
+    expect(metricLines.find((line) => line.text.startsWith('Body composition:'))?.text).toContain('Body fat: 24.0%')
+  })
 })
 
 describe('appendDailyLogPdfPages', () => {
