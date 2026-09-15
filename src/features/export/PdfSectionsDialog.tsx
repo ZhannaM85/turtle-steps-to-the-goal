@@ -199,7 +199,7 @@ export function PdfSectionsDialog({
                 <span key={key} className="inline-flex items-center gap-1">
                   <ToggleGroupItem
                     value={key}
-                    className="h-12"
+                    className={reason ? 'h-12 pr-1.5' : 'h-12'}
                     disabled={disabled}
                   >
                     {label}
@@ -234,7 +234,9 @@ export function PdfSectionsDialog({
                   >
                     <ToggleGroupItem
                       value={`${CUSTOM_METRIC_PREFIX}${metric.id}`}
-                      className="h-12"
+                      className={
+                        metric.available ? 'h-12' : 'h-12 pr-1.5'
+                      }
                       disabled={!metric.available}
                     >
                       {metric.name}
@@ -267,7 +269,9 @@ export function PdfSectionsDialog({
               <span className="inline-flex items-center gap-1">
                 <ToggleGroupItem
                   value="dailyLogPages"
-                  className="h-12"
+                  className={
+                    dailyLogAvailable ? 'h-12' : 'h-12 pr-1.5'
+                  }
                   disabled={!dailyLogAvailable}
                 >
                   {t.export.pdfSectionDailyLogPagesLabel}

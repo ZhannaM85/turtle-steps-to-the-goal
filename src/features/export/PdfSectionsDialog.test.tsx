@@ -114,6 +114,26 @@ describe('PdfSectionsDialog', () => {
     ).not.toBeInTheDocument()
   })
 
+  it('reduces only a tooltip-bearing option’s right padding', () => {
+    render(
+      <PdfSectionsDialog
+        open
+        onOpenChange={vi.fn()}
+        onSubmit={vi.fn()}
+        submitting={false}
+        availability={availability({ weightTrend: true })}
+        rawAvailability={availability({ weightTrend: true })}
+        trackingGate={ALL_TRACKED}
+        customMetrics={[]}
+        dailyLogAvailable
+      />,
+    )
+
+    expect(screen.getByRole('button', { name: 'Body measurements' })).toHaveClass('pr-1.5')
+    expect(screen.getByRole('button', { name: 'Weight trend' })).toHaveClass('px-3')
+    expect(screen.getByRole('button', { name: 'Weight trend' })).not.toHaveClass('pr-1.5')
+  })
+
   it('flags a disabled custom metric as "no data" — custom metrics have no Settings tracking toggle', async () => {
     const user = userEvent.setup()
     render(
