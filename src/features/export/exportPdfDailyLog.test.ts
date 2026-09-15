@@ -70,6 +70,37 @@ describe('dailyLogPdfDayLines (#891)', () => {
     expect(text.some((line) => line.includes('Hours slept'))).toBe(false)
     expect(text).toContain('Notes')
   })
+
+  it('includes consumed macro totals in the Food section', () => {
+    const lines = dailyLogPdfDayLines(
+      makeEntry({
+        calorieEntries: [
+          {
+            id: 'meal-1',
+            label: 'Lunch',
+            createdAt: '2026-08-01T12:00:00.000Z',
+            items: [
+              {
+                id: 'item-1',
+                name: 'Bowl',
+                amountKcal: 500,
+                proteinG: 30,
+                fatG: 20,
+                carbsG: 45,
+              },
+            ],
+          },
+        ],
+      }),
+      t,
+      'en',
+      'kg',
+    )
+
+    expect(lines.map((line) => line.text)).toContain(
+      'Consumed · 500 kcal · P 30g · F 20g · C 45g',
+    )
+  })
 })
 
 describe('appendDailyLogPdfPages', () => {

@@ -7,6 +7,9 @@ import {
   hadNightEating,
   mealEatingReasons,
   totalCalories,
+  totalCarbs,
+  totalFat,
+  totalProtein,
   totalWaterMl,
 } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
@@ -263,6 +266,13 @@ export function dailyLogPdfDayLines(
         text: joinParts([
           t.dailyEntry.consumedMacrosLabel,
           formatKcal(dayTotalKcal, locale, t),
+          macrosSummaryTextCompact(
+            totalProtein(meals, entry.dayTotals),
+            totalFat(meals, entry.dayTotals),
+            totalCarbs(meals, entry.dayTotals),
+            locale,
+            t,
+          ) ?? undefined,
         ]),
       })
     }

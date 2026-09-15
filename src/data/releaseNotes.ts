@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 865,
+    issue: 911,
+    date: '2026-09-15T17:32:29+03:00',
+    en: 'PDF diary Food sections now show consumed calories together with protein, fat, and carbohydrate totals.',
+    ru: 'В разделе «Еда» PDF-дневника теперь отображаются не только калории, но и итоги по белкам, жирам и углеводам.',
+  },
+  {
     version: 853,
     issue: 908,
     date: '2026-09-15T16:43:54+03:00',
