@@ -109,8 +109,10 @@ function dailyLogPagesHtml(
   )
   if (entries.length === 0) return ''
 
-  const days = entries
-    .map((entry) => {
+  // #909 — one `.pdf-page` per calendar day so a new date never wraps under
+  // the previous day when the renderer paginates.
+  return entries
+    .map((entry, index) => {
       const lines = dailyLogPdfDayLines(
         entry,
         t,
@@ -132,17 +134,19 @@ function dailyLogPagesHtml(
           return `<p class="pdf-line">${escapeHtml(line.text)}</p>`
         })
         .join('')
-      return `<article class="pdf-day">${body}</article>`
-    })
-    .join('')
-
-  return `<section class="pdf-page">
+      const sectionTitle =
+        index === 0
+          ? `<h1 class="pdf-title">${escapeHtml(t.pdfSummary.dailyLogPagesTitle)}</h1>`
+          : ''
+      return `<section class="pdf-page">
   <div class="pdf-page-body">
-    <h1 class="pdf-title">${escapeHtml(t.pdfSummary.dailyLogPagesTitle)}</h1>
-    ${days}
+    ${sectionTitle}
+    <article class="pdf-day">${body}</article>
   </div>
   ${footerHtml(t, generatedOn)}
 </section>`
+    })
+    .join('\n')
 }
 
 /**

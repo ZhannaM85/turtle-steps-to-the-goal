@@ -640,4 +640,25 @@ describe('buildSummaryPdf', () => {
     expect(withDailyLog).toContain('class="pdf-day"')
     expect(summaryOnly).not.toContain('class="pdf-day"')
   })
+
+  it('starts each diary date on its own pdf-page (#909)', () => {
+    const entries = [
+      makeEntry({ date: '2026-08-01', weightKg: 80 }),
+      makeEntry({ date: '2026-08-02', weightKg: 79 }),
+      makeEntry({ date: '2026-08-03', weightKg: 78 }),
+    ]
+    const data = buildPdfSummaryData(entries, '2026-07-07', '2026-08-05', 1)
+    const html = buildPdfDocumentHtml(
+      data,
+      t,
+      'en',
+      'kg',
+      ALL_SECTIONS_EXCLUDED,
+      [],
+      { entries },
+    )
+    // 1 summary page + 1 page per diary day
+    expect(html.match(/class="pdf-page"/g)?.length).toBe(4)
+    expect(html.match(/class="pdf-day"/g)?.length).toBe(3)
+  })
 })
