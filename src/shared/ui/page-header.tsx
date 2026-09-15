@@ -12,6 +12,8 @@ export interface PageHeaderProps {
    * #888 — pin `action` to the top-right without stretching the title row.
    * Day's share control is `icon-xl` (48px); a flex sibling left a gap
    * under «День» before the date label.
+   * #907 — center that action on the title line (`text-2xl` → `h-8`), not
+   * `top-0` of the header (which made share sit above the title/checkmark).
    */
   overlayAction?: boolean
   className?: string
@@ -47,7 +49,9 @@ export function PageHeader({
       {action && (
         <div
           className={
-            overlayAction ? 'absolute top-0 right-0' : 'shrink-0'
+            overlayAction
+              ? 'absolute top-0 right-0 flex h-8 items-center'
+              : 'shrink-0'
           }
         >
           {action}

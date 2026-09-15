@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 861,
+    issue: 907,
+    date: '2026-09-15T13:55:00+03:00',
+    en: 'On Day, the share button lines up vertically with the title and entry checkmark.',
+    ru: 'На экране День кнопка «Поделиться» выровнена по вертикали с заголовком и галочкой записи.',
+  },
+  {
     version: 860,
     issue: 905,
     date: '2026-09-15T13:50:00+03:00',

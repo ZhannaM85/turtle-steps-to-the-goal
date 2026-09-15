@@ -40,6 +40,6 @@ _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS sta
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#907](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/907) | ⬜ Open | Day share icon not vertically aligned with title and checkmark | Share sits high vs «День» + #904 check — `overlayAction` is `top-0` on tall `icon-xl`. |
+| [#907](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/907) | 🔍 Pending validation | Day share icon not vertically aligned with title and checkmark | `overlayAction` centers on title line (`h-8 items-center`) so share aligns with «День» + check. |
 | [#906](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/906) | 🔍 Pending validation | Revert #897: restore Remaining-framed Day КБЖУ card (and summaries) | Restored Remaining-framed Day card + prior weekly/monthly nutrition display. Exports #895/#896 unchanged. |
 | [#905](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/905) | 🔍 Pending validation | PDF export: migrate off jsPDF to HTML+CSS pipeline for real styling | html2canvas+jsPDF **per `.pdf-page`** (iOS blank one-shot canvas fix). Delayed blob URL revoke for Safari viewer. |

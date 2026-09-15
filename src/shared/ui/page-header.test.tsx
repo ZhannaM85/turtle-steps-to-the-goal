@@ -24,7 +24,7 @@ describe('PageHeader', () => {
     expect(screen.getByRole('button', { name: 'Export' })).toBeInTheDocument()
   })
 
-  it('overlays an action without stretching the title row (#888)', () => {
+  it('overlays an action centered on the title line (#888/#907)', () => {
     render(
       <PageHeader
         title="Day"
@@ -38,6 +38,13 @@ describe('PageHeader', () => {
       'relative',
       'pr-12',
     )
-    expect(action.parentElement).toHaveClass('absolute', 'top-0', 'right-0')
+    expect(action.parentElement).toHaveClass(
+      'absolute',
+      'top-0',
+      'right-0',
+      'flex',
+      'h-8',
+      'items-center',
+    )
   })
 })
