@@ -641,6 +641,7 @@ _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS sta
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#895](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/895) | ✅ Done | Daily Log export: include calorie and macro targets next to actual intake | Confirmed on-device 2026-09-15 — target columns beside intake on Daily Log exports. |
 | [#899](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/899) | ✅ Done | Export: label next-morning weight with the actual date, not «next morning» | Confirmed on-device 2026-09-15 — one-day CSV uses dated Weight / Вес for next morning. |
 | [#904](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/904) | ✅ Done | Day date nav: checkmark cramped between next arrow and Today | Confirmed on-device 2026-09-15 — check beside «День»/Day title, not in date nav. |
 | [#902](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/902) | ✅ Done | Export: constipation column should be true/false from user selection | Confirmed on-device 2026-09-15 — unset/No → false, Yes → true. |

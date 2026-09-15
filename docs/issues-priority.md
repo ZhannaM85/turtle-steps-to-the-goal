@@ -40,7 +40,6 @@ _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS sta
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#895](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/895) | 🔍 Pending validation | Daily Log export: include calorie and macro targets next to actual intake | CSV / Excel Daily Log / Markdown (+ Goals sheet targets). Per-day via `goalCoveringDate`. Day-share wiring in #896. |
 | [#896](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/896) | 🔍 Pending validation | Daily and Settings exports: show calorie and macro goal vs actual intake | Day-share CSV now passes `goals` into `buildDailyLogCsv` (#895 columns). Settings wiring shipped with #895. |
 | [#897](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/897) | 🔍 Pending validation | Day КБЖУ card and monthly summaries: show calorie/macro goal vs actual intake | Day card «Цель и факт» (eaten / target + remaining secondary). Weekly/monthly avg calories (and macros when targets exist) use covering-goal averages. |
 | [#898](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/898) | 🔍 Pending validation | Exports still include fields the user is not tracking | Day-share CSV now passes `currentAnalysisExportTracking()` (#744). Settings exports share the same helper. |
