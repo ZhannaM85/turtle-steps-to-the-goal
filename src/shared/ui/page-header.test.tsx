@@ -34,7 +34,10 @@ describe('PageHeader', () => {
     )
     const heading = screen.getByRole('heading', { name: 'Day' })
     const action = screen.getByRole('button', { name: 'Share' })
-    expect(heading.parentElement?.parentElement).toHaveClass('relative', 'pr-12')
+    expect(heading.parentElement?.parentElement?.parentElement).toHaveClass(
+      'relative',
+      'pr-12',
+    )
     expect(action.parentElement).toHaveClass('absolute', 'top-0', 'right-0')
   })
 })
