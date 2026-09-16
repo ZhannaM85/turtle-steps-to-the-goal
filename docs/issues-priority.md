@@ -65,4 +65,4 @@ _Reported from an iPhone PDF export._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#939](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/939) | 📋 Not started | PDF diary: excessive blank band below the footer | App-generated: the PDF's `10 mm` outer margin plus `9 pt` page and footer bottom padding stack below the footer. Reduce the band without reintroducing device clipping. |
+| [#939](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/939) | 🔍 Pending validation | PDF diary: excessive blank band below the footer | Increased captured page height from `248 mm` to `259 mm`, reducing the post-capture A4 band while staying below the `980 px` split limit and retaining footer safety padding. Awaiting on-device confirmation. |

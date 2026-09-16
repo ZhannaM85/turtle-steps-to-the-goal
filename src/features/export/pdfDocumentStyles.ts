@@ -18,8 +18,8 @@ export const PDF_DOCUMENT_CSS = `
   }
   .pdf-page {
     width: 180mm;
-    /* Leave room for the footer within the renderer's 980px one-page cap. */
-    min-height: 248mm;
+    /* Fill A4 after scaling while staying below the renderer's 980px cap. */
+    min-height: 259mm;
     padding: 0;
     padding-right: 9pt;
     padding-bottom: 9pt;

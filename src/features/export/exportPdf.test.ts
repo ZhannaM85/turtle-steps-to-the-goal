@@ -760,6 +760,7 @@ describe('buildSummaryPdf', () => {
     expect(footerRule).toContain('padding-left: 9pt')
     expect(footerRule).toContain('padding-bottom: 9pt')
     const pageRule = PDF_DOCUMENT_CSS.match(/\.pdf-page \{([^}]*)\}/)?.[1]
+    expect(pageRule).toContain('min-height: 259mm')
     expect(pageRule).toContain('padding-right: 9pt')
     expect(pageRule).toContain('padding-bottom: 9pt')
     expect(PDF_DOCUMENT_CSS).toContain(

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 907,
+    issue: 939,
+    date: '2026-09-17T00:22:00+03:00',
+    en: 'PDF pages now extend closer to the bottom edge, reducing the oversized blank band below the footer.',
+    ru: 'Страницы PDF теперь доходят ближе к нижнему краю, уменьшая слишком большую пустую полосу под футером.',
+  },
+  {
     version: 906,
     issue: 925,
     date: '2026-09-17T00:17:00+03:00',
