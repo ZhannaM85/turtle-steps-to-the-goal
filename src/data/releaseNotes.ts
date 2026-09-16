@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 914,
+    issue: 944,
+    date: '2026-09-17T01:26:00+03:00',
+    en: 'Complete the day on the Day screen now uses the same light outlined look as Start today’s log now.',
+    ru: 'Кнопка «Завершить день» на экране Дня теперь такого же светлого контурного вида, как «Начать сегодняшний день сейчас».',
+  },
+  {
     version: 913,
     issue: 943,
     date: '2026-09-17T01:24:00+03:00',

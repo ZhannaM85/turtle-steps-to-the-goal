@@ -12,7 +12,7 @@ import {
 import { DailyEntryFormStateProvider } from './DailyEntryFormStateContext'
 import { calories, now } from './dailyEntryFormTestUtils'
 
-describe('CompleteDayProjectionDialog (#934 / #936 / #938)', () => {
+describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944)', () => {
   beforeEach(() => {
     useProfileStore.setState({
       heightCm: 165,
@@ -30,6 +30,33 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938)', () => {
       sex: undefined,
       activityLevel: undefined,
     })
+  })
+
+  it('uses outline chrome like Start today’s log now (#944)', () => {
+    render(
+      <MemoryRouter>
+        <DailyEntryFormStateProvider
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            weightKg: 60.2,
+            calorieEntries: [calories(1200, 'm1')],
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        >
+          <CompleteDayProjectionDialog />
+        </DailyEntryFormStateProvider>
+      </MemoryRouter>,
+    )
+
+    const completeDay = screen.getByRole('button', {
+      name: 'Complete the day',
+    })
+    expect(completeDay).toHaveAttribute('data-variant', 'outline')
+    expect(completeDay).toHaveClass('border-border', 'bg-background')
   })
 
   it('opens a closable overlay with a 5-week estimate', async () => {

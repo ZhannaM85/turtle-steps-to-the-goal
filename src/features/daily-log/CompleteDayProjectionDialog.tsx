@@ -68,6 +68,8 @@ export function CompleteDayWeekTick({
 /**
  * #934 — Day CTA + full-height sheet: if days like today became the usual
  * pattern, where weight might be in five weeks. Close with the X only.
+ * #944 — outline chrome matches "Start today's log now" (beige fill, thin
+ * border, dark text) so the full-width CTA is not a solid olive block.
  */
 export function CompleteDayProjectionDialog() {
   const state = useDailyEntryFormStateContext()
@@ -133,6 +135,7 @@ export function CompleteDayProjectionDialog() {
     <>
       <Button
         type="button"
+        variant="outline"
         size="xl"
         className="w-full"
         onClick={() => setOpen(true)}

@@ -59,9 +59,9 @@ _Reported from iPhone PDF previews and local Chrome._
 | [#937](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/937) | 🔍 Pending validation | Complete the day chart: lighten the dashed grid | Dashes use muted-foreground at 35% opacity, 1px. Awaiting on-device confirmation. |
 | [#938](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/938) | 🔍 Pending validation | Complete the day chart: x-axis labels are cut off | Today / 5 weeks now start- and end-anchored so they stay inside the plot. Awaiting on-device confirmation. |
 
-## Tier 165 — PDF footer whitespace (2026-09-17)
+## Tier 165 — PDF footer whitespace and Day chrome (2026-09-17)
 
-_Reported from an iPhone PDF export._
+_Reported from an iPhone PDF export and the Day screen._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -70,3 +70,4 @@ _Reported from an iPhone PDF export._
 | [#941](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/941) | 🔍 Pending validation | PDF diary: match Показатели header to other section headers | Metrics title lead now uses the same `10.5pt` / `600` / inherited color as Еда, Вода, and Заметки; chips stay `7.5pt` / `400` on the same row. Awaiting on-device confirmation. |
 | [#942](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/942) | 🔍 Pending validation | PDF summary: widen Неделя column so week ranges stay on one line | Weekly-averages **Неделя** cells are `46%` + `white-space: nowrap`, so ranges like `7 сент. 2026 г. – 13 сент. 2026 г.` stay on one line. Awaiting on-device confirmation. |
 | [#943](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/943) | 🔍 Pending validation | Export: keep info icons tight beside buttons (CSV and other rows) | Shared `ControlWithInfo` row (`inline-flex w-fit gap-2`) so CSV and PDF-picker ⓘ sit ~8px after the control instead of stretching to the far edge. Awaiting on-device confirmation. |
+| [#944](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/944) | 🔍 Pending validation | Day: lighten Завершить день to match Начать сегодняшний день сейчас | Complete-day CTA now uses `variant="outline"` (`border-border bg-background`, dark text) — same chrome as Start today's log now. Awaiting on-device confirmation. |
