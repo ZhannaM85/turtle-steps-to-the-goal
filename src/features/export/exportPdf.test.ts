@@ -718,6 +718,22 @@ describe('buildSummaryPdf', () => {
     expect(html).toContain('font-size: 7pt')
   })
 
+  it('shows the water total beside the Water diary title (#930)', () => {
+    const entry = makeEntry({
+      waterEntries: [{ id: 'w1', amountMl: 250, timeDrunk: '09:15' }],
+    })
+    const data = buildPdfSummaryData([entry], entry.date, entry.date, 1)
+    const html = buildPdfDocumentHtml(data, t, 'en', 'kg', ALL_SECTIONS_EXCLUDED, [], { entries: [entry] })
+    const container = document.createElement('div')
+    container.innerHTML = html
+    const water = container.querySelectorAll('.pdf-page')[1]?.querySelector('.pdf-day-section-water')
+    const title = water?.querySelector('.pdf-day-section-title')
+    expect(title?.textContent).toContain('Water')
+    expect(title?.textContent).toContain('250')
+    expect(water?.querySelector('.pdf-day-section-content .pdf-line')).toBeNull()
+    expect(water?.querySelector('.pdf-day-item')?.textContent).toContain('09:15')
+  })
+
   it('uses two-column summary cards while charts and tables span the page (#921)', () => {
     const entries = [
       makeEntry({

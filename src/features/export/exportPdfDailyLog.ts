@@ -296,13 +296,15 @@ export function dailyLogPdfDayLines(
     const total = totalWaterMl(entry.waterEntries)
     const sips = entry.waterEntries ?? []
     if (total !== undefined || sips.length > 0) {
-      lines.push({ role: 'section', text: t.dailyEntry.waterLabel })
-      if (total !== undefined) {
-        lines.push({
-          role: 'body',
-          text: `${formatNumber(total, locale, 0)} ${t.dailyEntry.mlUnit}`,
-        })
-      }
+      lines.push({
+        role: 'section',
+        text: joinParts([
+          t.dailyEntry.waterLabel,
+          total !== undefined
+            ? `${formatNumber(total, locale, 0)} ${t.dailyEntry.mlUnit}`
+            : undefined,
+        ]),
+      })
       for (const sip of sips) {
         lines.push({
           role: 'item',

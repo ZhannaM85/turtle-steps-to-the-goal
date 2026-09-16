@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 890,
+    issue: 930,
+    date: '2026-09-16T18:45:00+03:00',
+    en: 'PDF diary now shows the total water amount next to the Water heading.',
+    ru: 'В дневнике PDF общее количество воды теперь показано рядом с заголовком Вода.',
+  },
+  {
     version: 889,
     issue: 929,
     date: '2026-09-16T18:35:00+03:00',

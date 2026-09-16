@@ -47,14 +47,18 @@ export function dailyLogPagesHtml(
         ? ' pdf-day-section-metrics'
         : sectionTitle.startsWith(t.pdfSummary.dailyLogFoodSectionTitle)
           ? ' pdf-day-section-food'
-          : sectionTitle === t.dailyEntry.waterLabel
+          : sectionTitle === t.dailyEntry.waterLabel ||
+              sectionTitle.startsWith(`${t.dailyEntry.waterLabel}  ·  `)
             ? ' pdf-day-section-water'
             : sectionTitle === t.pdfSummary.dailyLogNotesSectionTitle
               ? ' pdf-day-section-notes'
               : ''
+      const waterTitleParts = sectionTitle.split('  ·  ')
       const titleHtml = sectionTitle === t.pdfSummary.dailyLogMetricsSectionTitle
         ? `<span>${escapeHtml(sectionTitle)}</span><span class="pdf-day-section-title-metrics">${metricsHeaderValues.join('')}</span>`
-        : escapeHtml(sectionTitle)
+        : sectionClass.includes('pdf-day-section-water') && waterTitleParts.length > 1
+          ? `<span>${escapeHtml(waterTitleParts[0] ?? '')}</span><span class="pdf-day-section-title-metrics">${escapeHtml(waterTitleParts.slice(1).join('  ·  '))}</span>`
+          : escapeHtml(sectionTitle)
       sections.push(`<section class="pdf-day-section${sectionClass}">
   <h3 class="pdf-day-section-title">${titleHtml}</h3>
   <div class="pdf-day-section-content">${sectionContent.join('')}</div>
