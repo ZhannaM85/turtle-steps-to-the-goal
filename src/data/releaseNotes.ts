@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 874,
+    issue: 918,
+    date: '2026-09-16T10:39:00+03:00',
+    en: 'PDF diary export no longer adds a blank page between sections when a page is nearly full.',
+    ru: 'При экспорте PDF-дневника больше не добавляется пустая страница между разделами, когда лист почти заполнен.',
+  },
+  {
     version: 873,
     issue: 917,
     date: '2026-09-15T23:15:00+03:00',

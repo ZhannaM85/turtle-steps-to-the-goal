@@ -54,4 +54,37 @@ describe('explodeOverflowingPdfPages (#908)', () => {
       host.remove()
     }
   })
+
+  it('moves a card before a near-full page creates a blank image slice', () => {
+    vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockImplementation(
+      function (this: HTMLElement) {
+        if (!this.classList.contains('pdf-page')) return 0
+        const body = this.querySelector('.pdf-page-body')
+        let height = 40
+        for (const child of body?.children ?? []) {
+          height += Number.parseInt((child as HTMLElement).style.height, 10)
+        }
+        return height
+      },
+    )
+
+    const host = document.createElement('div')
+    host.innerHTML = `<div class="pdf-root"><section class="pdf-page">
+      <div class="pdf-page-body">
+        <section style="height:450px">Food</section>
+        <section style="height:500px">Water</section>
+      </div><footer class="pdf-footer">Disclaimer</footer>
+    </section></div>`
+    document.body.appendChild(host)
+    try {
+      explodeOverflowingPdfPagesForTest(host)
+      const pages = [...host.querySelectorAll<HTMLElement>('.pdf-page')]
+      expect(pages).toHaveLength(2)
+      expect(pages[0]?.textContent).toContain('Food')
+      expect(pages[1]?.textContent).toContain('Water')
+      expect(pages.every((page) => page.scrollHeight <= 980)).toBe(true)
+    } finally {
+      host.remove()
+    }
+  })
 })

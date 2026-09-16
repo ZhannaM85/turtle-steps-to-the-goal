@@ -174,11 +174,13 @@ function canvasScaleForElement(el: HTMLElement): number {
 }
 
 /**
- * #908 — ~A4 content height at the host’s 794px width. Pages taller than
- * this are split into multiple `.pdf-page` elements so html2canvas captures
- * full CSS chrome on every sheet.
+ * #918 — a `.pdf-page` is 180mm wide, then its image is scaled to the PDF's
+ * 190mm printable width. The 277mm printable height therefore fits at most
+ * 277 * 180 / 190 mm of source height (about 992px at 96dpi). Leave a small
+ * buffer for canvas rounding so a few blank pixels never become another PDF
+ * sheet in the fallback image slicer.
  */
-const MAX_STYLED_PAGE_PX = 1000
+const MAX_STYLED_PAGE_PX = 980
 
 function explodeOverflowingPdfPages(host: HTMLElement): void {
   const root = host.querySelector('.pdf-root')
