@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 904,
+    issue: 932,
+    date: '2026-09-17T00:15:00+03:00',
+    en: 'PDF pages now protect the footer with safe edge spacing and show a page number.',
+    ru: 'Страницы PDF теперь защищают футер безопасными отступами от краёв и показывают номер страницы.',
+  },
+  {
     version: 903,
     issue: 930,
     date: '2026-09-17T00:14:00+03:00',
