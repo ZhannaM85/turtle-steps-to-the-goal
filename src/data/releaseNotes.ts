@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 879,
+    issue: 923,
+    date: '2026-09-16T11:16:00+03:00',
+    en: 'PDF diary pages now include your Night food notes.',
+    ru: 'В страницах PDF-дневника теперь есть заметки о ночной еде.',
+  },
+  {
     version: 878,
     issue: 922,
     date: '2026-09-16T11:00:00+03:00',

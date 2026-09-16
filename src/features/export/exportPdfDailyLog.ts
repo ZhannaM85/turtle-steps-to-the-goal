@@ -208,7 +208,18 @@ export function dailyLogPdfDayLines(
     if (night !== undefined) {
       metrics.push(`${t.dailyEntry.nightEatingLabel()}: ${yesNo(night, t)}`)
       if (night && entry.nightEatingReason) {
-        metrics.push(entry.nightEatingReason)
+        metrics.push(
+          `${t.dailyEntry.nightEatingReasonLabel}: ${entry.nightEatingReason}`,
+        )
+      }
+      if (!night) {
+        const whatHelped =
+          entry.nightEatingNoWhatHelped ?? entry.nightEatingNoThoughts
+        if (whatHelped) {
+          metrics.push(
+            `${t.dailyEntry.nightEatingNoWhatHelpedLabel}: ${whatHelped}`,
+          )
+        }
       }
     }
   }

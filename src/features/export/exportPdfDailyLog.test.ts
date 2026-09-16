@@ -156,6 +156,46 @@ describe('dailyLogPdfDayLines (#891)', () => {
     expect(metricLines.find((line) => line.text.startsWith('Body composition:'))?.text).toContain('Bone: 2.7 kg')
     expect(metricLines.find((line) => line.text.startsWith('Body composition:'))?.text).toContain('Body fat: 24.0%')
   })
+
+  it('includes the saved Night food note for both Yes and No entries (#923)', () => {
+    const yesLines = dailyLogPdfDayLines(
+      makeEntry({
+        nightEatingOverride: true,
+        nightEatingReason: 'I could not sleep',
+      }),
+      t,
+      'en',
+      'kg',
+    ).map((line) => line.text)
+    const noLines = dailyLogPdfDayLines(
+      makeEntry({
+        nightEatingOverride: false,
+        nightEatingNoWhatHelped: 'Tea and an early bedtime',
+      }),
+      t,
+      'en',
+      'kg',
+    ).map((line) => line.text)
+    const legacyNoLines = dailyLogPdfDayLines(
+      makeEntry({
+        nightEatingOverride: false,
+        nightEatingNoThoughts: 'A walk helped',
+      }),
+      t,
+      'en',
+      'kg',
+    ).map((line) => line.text)
+
+    expect(yesLines).toContain(
+      `${t.dailyEntry.nightEatingReasonLabel}: I could not sleep`,
+    )
+    expect(noLines).toContain(
+      `${t.dailyEntry.nightEatingNoWhatHelpedLabel}: Tea and an early bedtime`,
+    )
+    expect(legacyNoLines).toContain(
+      `${t.dailyEntry.nightEatingNoWhatHelpedLabel}: A walk helped`,
+    )
+  })
 })
 
 describe('appendDailyLogPdfPages', () => {
