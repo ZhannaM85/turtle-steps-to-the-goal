@@ -59,10 +59,10 @@ _Reported from iPhone PDF previews and local Chrome._
 | [#937](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/937) | 🔍 Pending validation | Complete the day chart: lighten the dashed grid | Dashes use muted-foreground at 35% opacity, 1px. Awaiting on-device confirmation. |
 | [#938](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/938) | 🔍 Pending validation | Complete the day chart: x-axis labels are cut off | Today / 5 weeks now start- and end-anchored so they stay inside the plot. Awaiting on-device confirmation. |
 
-## Tier 165 — PDF page whitespace (2026-09-17)
+## Tier 165 — PDF footer whitespace (2026-09-17)
 
 _Reported from an iPhone PDF export._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#939](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/939) | 📋 Not started | PDF diary: excessive blank space at the bottom of short day pages | App-generated: fixed page height, footer auto-placement, and one date per page leave unused page space. Choose the intended pagination/footer behavior before implementation. |
+| [#939](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/939) | 📋 Not started | PDF diary: excessive blank band below the footer | App-generated: the PDF's `10 mm` outer margin plus `9 pt` page and footer bottom padding stack below the footer. Reduce the band without reintroducing device clipping. |
