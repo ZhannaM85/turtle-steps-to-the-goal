@@ -142,6 +142,11 @@ export const PDF_DOCUMENT_CSS = `
   .pdf-day-section-content .pdf-line {
     margin: 0 0 1pt 0;
   }
+  .pdf-day-section-metrics .pdf-day-section-content .pdf-line,
+  .pdf-day-section-notes .pdf-day-section-content .pdf-line {
+    font-size: 7pt;
+    line-height: 1.18;
+  }
   .pdf-day-section-food .pdf-day-section-content {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

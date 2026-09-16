@@ -43,11 +43,15 @@ export function dailyLogPagesHtml(
         sectionContent.push('</div>')
         mealOpen = false
       }
-      const sectionClass = sectionTitle === t.dailyEntry.waterLabel
-        ? ' pdf-day-section-water'
+      const sectionClass = sectionTitle === t.pdfSummary.dailyLogMetricsSectionTitle
+        ? ' pdf-day-section-metrics'
         : sectionTitle.startsWith(t.pdfSummary.dailyLogFoodSectionTitle)
           ? ' pdf-day-section-food'
-          : ''
+          : sectionTitle === t.dailyEntry.waterLabel
+            ? ' pdf-day-section-water'
+            : sectionTitle === t.pdfSummary.dailyLogNotesSectionTitle
+              ? ' pdf-day-section-notes'
+              : ''
       const titleHtml = sectionTitle === t.pdfSummary.dailyLogMetricsSectionTitle
         ? `<span>${escapeHtml(sectionTitle)}</span><span class="pdf-day-section-title-metrics">${metricsHeaderValues.join('')}</span>`
         : escapeHtml(sectionTitle)

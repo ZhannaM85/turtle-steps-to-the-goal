@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 889,
+    issue: 929,
+    date: '2026-09-16T18:35:00+03:00',
+    en: 'PDF diary Metrics and Notes text is now smaller so a day fits more compactly.',
+    ru: 'Текст в разделах Показатели и Заметки дневника PDF теперь меньше, чтобы день занимал меньше места.',
+  },
+  {
     version: 888,
     issue: 927,
     date: '2026-09-16T18:25:00+03:00',

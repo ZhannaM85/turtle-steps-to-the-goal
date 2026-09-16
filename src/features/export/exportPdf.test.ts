@@ -701,6 +701,23 @@ describe('buildSummaryPdf', () => {
     expect(html).toContain('grid-template-columns: repeat(2, minmax(0, 1fr))')
   })
 
+  it('uses smaller body text in Metrics and Notes diary cards (#929)', () => {
+    const entry = makeEntry({
+      waistCm: 80,
+      note: 'Felt lighter today',
+    })
+    const data = buildPdfSummaryData([entry], entry.date, entry.date, 1)
+    const html = buildPdfDocumentHtml(data, t, 'en', 'kg', ALL_SECTIONS_EXCLUDED, [], { entries: [entry] })
+    const container = document.createElement('div')
+    container.innerHTML = html
+    const day = container.querySelectorAll('.pdf-page')[1]!
+    expect(day.querySelector('.pdf-day-section-metrics')?.textContent).toContain('80')
+    expect(day.querySelector('.pdf-day-section-notes')?.textContent).toContain('Felt lighter today')
+    expect(html).toContain('.pdf-day-section-metrics .pdf-day-section-content .pdf-line')
+    expect(html).toContain('.pdf-day-section-notes .pdf-day-section-content .pdf-line')
+    expect(html).toContain('font-size: 7pt')
+  })
+
   it('uses two-column summary cards while charts and tables span the page (#921)', () => {
     const entries = [
       makeEntry({
