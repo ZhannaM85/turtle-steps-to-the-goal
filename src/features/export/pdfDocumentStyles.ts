@@ -95,7 +95,8 @@ export const PDF_DOCUMENT_CSS = `
   .pdf-day-start { break-inside: avoid; }
   .pdf-day-header {
     margin: 0 0 6pt 0;
-    padding: 6pt 9pt;
+    /* html2canvas paints this heading below the CSS line-box center. */
+    padding: 1pt 9pt 11pt;
     border: 1px solid #d6d3d1;
     border-left: 4pt solid #78716c;
     border-radius: 8pt;
