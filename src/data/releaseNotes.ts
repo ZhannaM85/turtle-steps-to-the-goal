@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 905,
+    issue: 921,
+    date: '2026-09-17T00:16:00+03:00',
+    en: 'PDF summary cards now keep even vertical spacing in their left and right columns.',
+    ru: 'Карточки сводки PDF теперь сохраняют ровные вертикальные интервалы в левом и правом столбцах.',
+  },
+  {
     version: 904,
     issue: 932,
     date: '2026-09-17T00:15:00+03:00',
