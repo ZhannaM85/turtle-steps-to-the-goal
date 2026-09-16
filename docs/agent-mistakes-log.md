@@ -35,6 +35,7 @@ by stripping every interior blank line back out).
 
 | # | Date | Type | What happened | Rule violated |
 |---|------|------|----------------|----------------|
+| 173 | 2026-09-16 | Instruction miss | Filed #927 and #928 with the retired GitHub `bug` label, then inspected #927 implementation files before adding the required priority rows. Corrected both issue labels to `chore` and logged each queue row before editing product code. | AGENT_WORKFLOW.md contract item 1, "Issue-first" — every new issue needs the repository label and a `docs/issues-priority.md` row before implementation work begins |
 | 1 | 2026-07-19 | Prompted | `cd "<wrong path>" 2>/dev/null; cd "<correct path>" && gh run view ... > file 2>&1; wc -l file` — chained `cd`, redirect, and `wc` in one call | AGENT_WORKFLOW.md "compound shell shapes trigger permission prompts" |
 | 2 | 2026-07-19 | Prompted | `cd /d/Projects/turtle-steps-to-the-goal 2>/dev/null; npx tsc -b 2>&1 \| tail -n 50` — unnecessary `cd` (cwd was already correct) plus pipe/redirect chaining | AGENT_WORKFLOW.md "Never prepend `cd`" + "compound shell shapes" |
 | 3 | 2026-07-19 | Prompted | Ran a bare `exit 0` as a placeholder "no-op while waiting" — a command with no reason to exist, novel enough to require its own allowlist entry | Not previously documented; added as the "no placeholder Bash calls while waiting" guidance this session |
