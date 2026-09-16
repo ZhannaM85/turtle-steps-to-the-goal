@@ -205,6 +205,12 @@ export const PDF_DOCUMENT_CSS = `
     overflow: hidden;
     overflow-wrap: anywhere;
   }
+  .pdf-meal-left { clear: left; }
+  .pdf-meal-right {
+    float: right;
+    clear: right;
+    margin-right: 0;
+  }
   .pdf-meal-card .pdf-line { font-weight: 600; font-size: 9.5pt; line-height: 1.18; }
   .pdf-meal-card .pdf-day-item {
     display: block;

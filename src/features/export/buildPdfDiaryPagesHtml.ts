@@ -45,6 +45,7 @@ export function dailyLogPagesHtml(
     let sectionTitle = ''
     let sectionContent: string[] = []
     let mealOpen = false
+    let mealIndex = 0
     const sections: string[] = []
     const finishSection = () => {
       if (!sectionTitle) return
@@ -97,7 +98,9 @@ export function dailyLogPagesHtml(
         : `<p class="pdf-line">${lineText}</p>`
       if (line.kind === 'meal') {
         if (mealOpen) sectionContent.push('</div>')
-        sectionContent.push(`<div class="pdf-meal-card">${lineHtml}`)
+        const mealColumn = mealIndex % 2 === 0 ? 'left' : 'right'
+        sectionContent.push(`<div class="pdf-meal-card pdf-meal-${mealColumn}">${lineHtml}`)
+        mealIndex += 1
         mealOpen = true
       } else {
         if (line.kind === 'dayTotal' && mealOpen) {

@@ -695,7 +695,11 @@ describe('buildSummaryPdf', () => {
     const metricsTitle = day.querySelector('.pdf-day-section-title-metrics')
     expect(metricsTitle?.querySelectorAll('.pdf-day-header-metric')).toHaveLength(4)
     expect(metricsTitle?.textContent).toContain('7h 30m')
-    expect(day.querySelectorAll('.pdf-meal-card')).toHaveLength(3)
+    const mealCards = [...day.querySelectorAll('.pdf-meal-card')]
+    expect(mealCards).toHaveLength(3)
+    expect(mealCards[0]?.classList.contains('pdf-meal-left')).toBe(true)
+    expect(mealCards[1]?.classList.contains('pdf-meal-right')).toBe(true)
+    expect(mealCards[2]?.classList.contains('pdf-meal-left')).toBe(true)
     expect(html).toContain('padding-left: 10pt')
     expect(html).toContain('padding-bottom: 9pt')
     expect(html).toContain('.pdf-meal-card .pdf-line + .pdf-day-item { margin-top: 4pt; }')
