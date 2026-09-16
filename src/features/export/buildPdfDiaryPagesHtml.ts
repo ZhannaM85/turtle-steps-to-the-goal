@@ -32,7 +32,7 @@ export function dailyLogPagesHtml(
   return entries.map((entry, index) => {
     const lines = dailyLogPdfDayLines(entry, t, locale, unit, dailyLog.extras)
     let header = ''
-    const headerMetrics: string[] = []
+    const metricsHeaderValues: string[] = []
     let sectionTitle = ''
     let sectionContent: string[] = []
     let mealOpen = false
@@ -48,8 +48,11 @@ export function dailyLogPagesHtml(
         : sectionTitle.startsWith(t.pdfSummary.dailyLogFoodSectionTitle)
           ? ' pdf-day-section-food'
           : ''
+      const titleHtml = sectionTitle === t.pdfSummary.dailyLogMetricsSectionTitle
+        ? `<span>${escapeHtml(sectionTitle)}</span><span class="pdf-day-section-title-metrics">${metricsHeaderValues.join('')}</span>`
+        : escapeHtml(sectionTitle)
       sections.push(`<section class="pdf-day-section${sectionClass}">
-  <h3 class="pdf-day-section-title">${escapeHtml(sectionTitle)}</h3>
+  <h3 class="pdf-day-section-title">${titleHtml}</h3>
   <div class="pdf-day-section-content">${sectionContent.join('')}</div>
 </section>`)
       sectionTitle = ''
@@ -61,7 +64,7 @@ export function dailyLogPagesHtml(
         continue
       }
       if (line.kind && line.kind in diaryHeaderIcons) {
-        headerMetrics.push(diaryHeaderMetricHtml(line.kind as keyof typeof diaryHeaderIcons, line.text))
+        metricsHeaderValues.push(diaryHeaderMetricHtml(line.kind as keyof typeof diaryHeaderIcons, line.text))
         continue
       }
       if (line.role === 'section') {
@@ -85,7 +88,7 @@ export function dailyLogPagesHtml(
       }
     }
     finishSection()
-    const dayStart = `${index === 0 ? `<h1 class="pdf-title">${escapeHtml(t.pdfSummary.dailyLogPagesTitle)}</h1>` : ''}${header}${headerMetrics.length ? `<div class="pdf-day-header-metrics">${headerMetrics.join('')}</div>` : ''}</div>`
+    const dayStart = `${index === 0 ? `<h1 class="pdf-title">${escapeHtml(t.pdfSummary.dailyLogPagesTitle)}</h1>` : ''}${header}</div>`
     const firstSection = sections.shift() ?? ''
     return `<section class="pdf-page">
   <div class="pdf-page-body"><div class="pdf-day-start">${dayStart}${firstSection}</div>${sections.join('')}</div>

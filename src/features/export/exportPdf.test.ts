@@ -671,7 +671,7 @@ describe('buildSummaryPdf', () => {
     expect(html).not.toContain('<article class="pdf-day">')
   })
 
-  it('packs diary signals into the header and meals into paired cards without losing the night food note (#925)', () => {
+  it('packs diary signals beside Metrics and meals into paired cards without losing the night food note (#925)', () => {
     const entry = makeEntry({
       sleepHours: 7.5,
       deepSleepHours: 2,
@@ -690,8 +690,10 @@ describe('buildSummaryPdf', () => {
     const container = document.createElement('div')
     container.innerHTML = html
     const day = container.querySelectorAll('.pdf-page')[1]!
-    expect(day.querySelectorAll('.pdf-day-header-metric')).toHaveLength(4)
-    expect(day.querySelector('.pdf-day-header')?.textContent).toContain('7h 30m')
+    expect(day.querySelector('.pdf-day-header')?.textContent).not.toContain('7h 30m')
+    const metricsTitle = day.querySelector('.pdf-day-section-title-metrics')
+    expect(metricsTitle?.querySelectorAll('.pdf-day-header-metric')).toHaveLength(4)
+    expect(metricsTitle?.textContent).toContain('7h 30m')
     expect(day.querySelectorAll('.pdf-meal-card')).toHaveLength(3)
     expect(day.querySelector('.pdf-day-section-food')?.textContent).toContain('Eggs')
     expect(day.querySelector('.pdf-day-section-food')?.textContent).toContain('Rice')

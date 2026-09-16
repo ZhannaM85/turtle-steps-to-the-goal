@@ -8,13 +8,14 @@ export const PDF_DOCUMENT_CSS = `
   .pdf-root {
     font-family: "Segoe UI", "Helvetica Neue", Arial, "Noto Sans", sans-serif;
     color: #1c1917;
-    font-size: 11pt;
-    line-height: 1.45;
+    font-size: 9pt;
+    line-height: 1.28;
     background: #fff;
   }
   .pdf-page {
     width: 180mm;
-    min-height: 258mm;
+    /* Leave room for the footer within the renderer's 980px one-page cap. */
+    min-height: 248mm;
     padding: 0;
     display: flex;
     flex-direction: column;
@@ -96,13 +97,10 @@ export const PDF_DOCUMENT_CSS = `
     background: #f5f5f4;
     line-height: 1.3;
   }
-  .pdf-day-header h2 { font-size: 12pt; font-weight: 600; margin: 0; }
-  .pdf-day-header-metrics { display: flex; flex-wrap: wrap; gap: 2pt 11pt; margin-top: 3pt; font-size: 8.5pt; font-weight: 400; }
-  .pdf-day-header-metric { display: inline-flex; align-items: center; gap: 3pt; white-space: nowrap; }
-  .pdf-day-header-metric svg { width: 11pt; height: 11pt; flex: none; }
+  .pdf-day-header h2 { font-size: 11pt; font-weight: 600; margin: 0; }
   .pdf-section .pdf-line { overflow-wrap: anywhere; }
   .pdf-day-section {
-    margin: 0 0 5pt 0;
+    margin: 0 0 3pt 0;
     padding: 0;
     border: 1px solid #e7e5e4;
     border-radius: 8pt;
@@ -111,48 +109,55 @@ export const PDF_DOCUMENT_CSS = `
     break-inside: avoid;
   }
   .pdf-day-section-title {
-    font-size: 10pt;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6pt;
+    font-size: 8.5pt;
     font-weight: 600;
     margin: 0;
-    padding: 4pt 8pt;
+    padding: 3pt 6pt;
     border-bottom: 1px solid #e7e5e4;
     background: #fafaf9;
     color: #44403c;
   }
+  .pdf-day-section-title-metrics { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 1pt 7pt; font-size: 7.5pt; font-weight: 400; }
+  .pdf-day-header-metric { display: inline-flex; align-items: center; gap: 2pt; white-space: nowrap; }
+  .pdf-day-header-metric svg { width: 9pt; height: 9pt; flex: none; }
   .pdf-day-section:nth-of-type(1) .pdf-day-section-title { background: #eef2ff; color: #3730a3; }
   .pdf-day-section:nth-of-type(2) .pdf-day-section-title { background: #fff7ed; color: #9a3412; }
   .pdf-day-section:nth-of-type(3) .pdf-day-section-title { background: #ecfeff; color: #155e75; }
   .pdf-day-section:nth-of-type(4) .pdf-day-section-title { background: #fdf2f8; color: #9d174d; }
   .pdf-day-section-content {
-    padding: 5pt 8pt;
+    padding: 4pt 6pt;
   }
   .pdf-day-section-content .pdf-line:last-child,
   .pdf-day-section-content .pdf-day-item:last-child {
     margin-bottom: 0;
   }
   .pdf-day-section-content .pdf-line {
-    margin: 0 0 2pt 0;
+    margin: 0 0 1pt 0;
   }
   .pdf-day-section-food .pdf-day-section-content {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 4pt;
+    gap: 3pt;
   }
   .pdf-day-section-food .pdf-day-section-content > .pdf-line { grid-column: 1 / -1; }
   .pdf-meal-card {
     min-width: 0;
-    padding: 4pt 5pt;
+    padding: 3pt 4pt;
     border: 1px solid #e7e5e4;
     border-radius: 5pt;
     background: #fff;
     overflow-wrap: anywhere;
   }
-  .pdf-meal-card .pdf-line { font-weight: 600; font-size: 9pt; line-height: 1.25; }
-  .pdf-meal-card .pdf-day-item { font-size: 8.5pt; line-height: 1.25; margin-top: 2pt; }
+  .pdf-meal-card .pdf-line { font-weight: 600; font-size: 7.5pt; line-height: 1.18; }
+  .pdf-meal-card .pdf-day-item { font-size: 7pt; line-height: 1.18; margin-top: 1pt; }
   .pdf-day-section-water .pdf-day-section-content {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    column-gap: 10pt;
+    column-gap: 6pt;
   }
   .pdf-day-section-water .pdf-day-section-content .pdf-line {
     grid-column: 1 / -1;
@@ -161,14 +166,15 @@ export const PDF_DOCUMENT_CSS = `
     margin-left: 0;
   }
   .pdf-day-item {
-    margin: 3pt 0 0 8pt;
-    padding-left: 8pt;
+    margin: 2pt 0 0 6pt;
+    padding-left: 6pt;
     border-left: 1.5pt solid #d6d3d1;
-    font-size: 9.5pt;
+    font-size: 7.5pt;
     color: #57534e;
   }
   .pdf-footer {
     margin-top: auto;
+    flex: none;
     padding-top: 4pt;
     border-top: 1px solid #e7e5e4;
     font-size: 6.5pt;

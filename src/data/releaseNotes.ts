@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 884,
+    issue: 925,
+    date: '2026-09-16T17:18:45+03:00',
+    en: 'PDF diary metrics now sit beside their section title, with smaller text and a complete footer on the same page.',
+    ru: 'Показатели в дневнике PDF теперь стоят рядом с заголовком раздела, а уменьшенный текст и полный футер помещаются на одной странице.',
+  },
+  {
     version: 883,
     issue: 926,
     date: '2026-09-16T17:01:52+03:00',

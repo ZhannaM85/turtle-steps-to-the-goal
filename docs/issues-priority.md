@@ -49,5 +49,5 @@ _Reported from iPhone PDF previews and local Chrome._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#925](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/925) | 🔍 Pending validation | PDF diary export: optimize spacing after Night food notes | Steps, sleep, deep sleep, and mood now appear as icon values in the date header; meals use compact two-column cards. Night food notes remain in the metrics card. Awaiting device PDF validation. |
+| [#925](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/925) | 🔍 Pending validation | PDF diary export: optimize spacing after Night food notes | Steps, sleep, deep sleep, and mood now appear as icon values beside the Metrics title; diary typography and spacing are smaller to keep each day and footer on one PDF page. Meals use compact two-column cards and Night food notes remain in the metrics card. Awaiting device PDF validation. |
 | [#926](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/926) | 🔍 Pending validation | Meal logging: choosing a label overrides the actual time | Meal templates no longer replace the current or chosen time. Untimed meals no longer display or feed analysis with a fabricated slot time. Awaiting device confirmation. |
