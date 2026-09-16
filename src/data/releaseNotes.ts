@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 902,
+    issue: 929,
+    date: '2026-09-17T00:13:00+03:00',
+    en: 'PDF Metrics and Notes now use compact text, bold metric labels, and safer inner spacing.',
+    ru: 'В разделах «Показатели» и «Заметки» PDF теперь компактный текст, жирные названия показателей и безопасные внутренние отступы.',
+  },
+  {
     version: 901,
     issue: 928,
     date: '2026-09-17T00:12:00+03:00',
