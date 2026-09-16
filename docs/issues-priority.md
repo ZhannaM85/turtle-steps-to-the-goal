@@ -50,4 +50,3 @@ _Reported from iPhone PDF previews and local Chrome._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#925](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/925) | 🔍 Pending validation | PDF diary export: optimize spacing after Night food notes | Steps, sleep, deep sleep, and mood now appear as icon values in the date header; meals use compact two-column cards. Night food notes remain in the metrics card. Awaiting device PDF validation. |
-| [#924](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/924) | 🔍 Pending validation | Chrome web: calendar date inputs do not open | Shared date inputs now explicitly open the native picker when clicked in Chrome. Awaiting a local Chrome check across the app. |
