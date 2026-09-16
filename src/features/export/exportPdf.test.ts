@@ -720,8 +720,10 @@ describe('buildSummaryPdf', () => {
   })
 
   it('pads day, section, and table headers so PDF text sits in the middle (#928)', () => {
-    expect(PDF_DOCUMENT_CSS).toContain('padding: 9pt 9pt 4pt')
-    expect(PDF_DOCUMENT_CSS).toContain('padding: 6pt 6pt 2pt')
+    expect(PDF_DOCUMENT_CSS).toContain('padding: 4pt 9pt')
+    expect(PDF_DOCUMENT_CSS).toContain('.pdf-day-section-title')
+    expect(PDF_DOCUMENT_CSS).toContain('font-size: 10.5pt')
+    expect(PDF_DOCUMENT_CSS).toContain('padding: 6pt')
     expect(PDF_DOCUMENT_CSS).toContain('padding: 8pt 6pt 2pt')
     expect(PDF_DOCUMENT_CSS).toContain(
       '.pdf-day-header h2 { font-size: 11pt; font-weight: 600; line-height: 1; margin: 0; }',

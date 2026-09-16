@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 894,
+    issue: 928,
+    date: '2026-09-16T21:20:00+03:00',
+    en: 'PDF diary day and section headers are vertically centered, and section titles are a bit larger.',
+    ru: 'В дневнике PDF заголовки дней и разделов выровнены по вертикали, а названия разделов стали крупнее.',
+  },
+  {
     version: 893,
     issue: 933,
     date: '2026-09-16T20:25:00+03:00',

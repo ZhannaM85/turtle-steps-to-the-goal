@@ -70,9 +70,9 @@ export const PDF_DOCUMENT_CSS = `
     border-collapse: collapse;
     font-size: 9pt;
   }
-  /* #928 — html2canvas paints glyphs high in the line box, so equal
-     padding still looks top-aligned in the PDF. line-height: 1 plus extra
-     padding-top shifts the ink into the visual middle of each cell. */
+  /* #928 — extra top padding made glyphs sit low in the HTML preview.
+     Equal top/bottom padding centers the day and section bars; table
+     cells still use the earlier asymmetric values until checked. */
   .pdf-table th,
   .pdf-table td {
     border: 1px solid #d6d3d1;
@@ -95,7 +95,7 @@ export const PDF_DOCUMENT_CSS = `
   .pdf-day-start { break-inside: avoid; }
   .pdf-day-header {
     margin: 0 0 6pt 0;
-    padding: 9pt 9pt 4pt;
+    padding: 4pt 9pt;
     border: 1px solid #d6d3d1;
     border-left: 4pt solid #78716c;
     border-radius: 8pt;
@@ -120,10 +120,10 @@ export const PDF_DOCUMENT_CSS = `
     align-items: center;
     justify-content: space-between;
     gap: 6pt;
-    font-size: 8.5pt;
+    font-size: 10.5pt;
     font-weight: 600;
     margin: 0;
-    padding: 6pt 6pt 2pt;
+    padding: 6pt;
     line-height: 1;
     border-bottom: 1px solid #e7e5e4;
     background: #fafaf9;
