@@ -197,13 +197,13 @@ export const PDF_DOCUMENT_CSS = `
     overflow: hidden;
     overflow-wrap: anywhere;
   }
-  .pdf-meal-card .pdf-line { font-weight: 600; font-size: 8.5pt; line-height: 1.18; }
+  .pdf-meal-card .pdf-line { font-weight: 600; font-size: 9.5pt; line-height: 1.18; }
   .pdf-meal-card .pdf-day-item {
     display: block;
     margin: 1pt 0 0;
     padding-left: 0;
     border-left: 0;
-    font-size: 8pt;
+    font-size: 9pt;
     line-height: 1.18;
   }
   .pdf-meal-card .pdf-line + .pdf-day-item { margin-top: 4pt; }

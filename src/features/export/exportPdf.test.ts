@@ -699,6 +699,9 @@ describe('buildSummaryPdf', () => {
     expect(html).toContain('padding-left: 10pt')
     expect(html).toContain('padding-bottom: 9pt')
     expect(html).toContain('.pdf-meal-card .pdf-line + .pdf-day-item { margin-top: 4pt; }')
+    expect(html).toContain('font-weight: 600; font-size: 9.5pt')
+    const mealItemRule = PDF_DOCUMENT_CSS.match(/\.pdf-meal-card \.pdf-day-item \{([^}]*)\}/)?.[1]
+    expect(mealItemRule).toContain('font-size: 9pt')
     expect(day.querySelector('.pdf-day-section-food')?.textContent).toContain('Eggs')
     expect(day.querySelector('.pdf-day-section-food')?.textContent).toContain('Rice')
     expect(day.textContent).toContain('Tea helped me sleep')
