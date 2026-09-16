@@ -30,6 +30,41 @@ import {
 import { useProfileStore, useUnitStore } from '@/stores'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
+export function CompleteDayWeekTick({
+  x,
+  y,
+  payload,
+  todayLabel,
+  endLabel,
+}: {
+  x?: number
+  y?: number
+  payload?: { value?: number }
+  todayLabel: string
+  endLabel: string
+}) {
+  const week = payload?.value
+  const label =
+    week === 0
+      ? todayLabel
+      : week === COMPLETE_DAY_HORIZON_WEEKS
+        ? endLabel
+        : ''
+  if (!label || x === undefined || y === undefined) return null
+  return (
+    <text
+      x={x}
+      y={y}
+      dy={14}
+      textAnchor={week === 0 ? 'start' : 'end'}
+      fontSize={12}
+      fill="var(--muted-foreground)"
+    >
+      {label}
+    </text>
+  )
+}
+
 /**
  * #934 — Day CTA + full-height sheet: if days like today became the usual
  * pattern, where weight might be in five weeks. Close with the X only.
@@ -154,7 +189,7 @@ export function CompleteDayProjectionDialog() {
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
                     data={chartData}
-                    margin={{ top: 12, right: 8, left: 8, bottom: 0 }}
+                    margin={{ top: 12, right: 8, left: 8, bottom: 8 }}
                   >
                     {weekTicks.map((week) => (
                       <ReferenceLine
@@ -182,16 +217,15 @@ export function CompleteDayProjectionDialog() {
                       domain={[0, COMPLETE_DAY_HORIZON_WEEKS]}
                       ticks={weekTicks}
                       interval={0}
-                      tickFormatter={(week: number) =>
-                        week === 0
-                          ? t.today.completeDayWeekNow
-                          : week === COMPLETE_DAY_HORIZON_WEEKS
-                            ? t.today.completeDayWeekEnd
-                            : ''
+                      tick={
+                        <CompleteDayWeekTick
+                          todayLabel={t.today.completeDayWeekNow}
+                          endLabel={t.today.completeDayWeekEnd}
+                        />
                       }
-                      tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
                       axisLine={{ stroke: 'var(--border)' }}
                       tickLine={false}
+                      height={28}
                     />
                     <YAxis
                       type="number"

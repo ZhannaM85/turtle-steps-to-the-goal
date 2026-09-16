@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 900,
+    issue: 938,
+    date: '2026-09-17T00:10:00+03:00',
+    en: 'Complete the day chart labels Today and 5 weeks are no longer cut off.',
+    ru: 'Подписи «Сегодня» и «5 недель» на графике «Завершить день» больше не обрезаются.',
+  },
+  {
     version: 899,
     issue: 937,
     date: '2026-09-17T00:05:00+03:00',

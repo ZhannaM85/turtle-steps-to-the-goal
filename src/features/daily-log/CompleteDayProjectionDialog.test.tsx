@@ -5,11 +5,14 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useProfileStore } from '@/stores'
-import { CompleteDayProjectionDialog } from './CompleteDayProjectionDialog'
+import {
+  CompleteDayProjectionDialog,
+  CompleteDayWeekTick,
+} from './CompleteDayProjectionDialog'
 import { DailyEntryFormStateProvider } from './DailyEntryFormStateContext'
 import { calories, now } from './dailyEntryFormTestUtils'
 
-describe('CompleteDayProjectionDialog (#934 / #936)', () => {
+describe('CompleteDayProjectionDialog (#934 / #936 / #938)', () => {
   beforeEach(() => {
     useProfileStore.setState({
       heightCm: 165,
@@ -131,5 +134,39 @@ describe('CompleteDayProjectionDialog (#934 / #936)', () => {
       screen.getByText(/isn't a good day to project from/),
     ).toBeInTheDocument()
     expect(screen.queryByText("Today's intake")).not.toBeInTheDocument()
+  })
+
+  it('anchors Today at the start and 5 weeks at the end (#938)', () => {
+    const { container } = render(
+      <svg>
+        <CompleteDayWeekTick
+          x={10}
+          y={20}
+          payload={{ value: 0 }}
+          todayLabel="Today"
+          endLabel="5 weeks"
+        />
+        <CompleteDayWeekTick
+          x={200}
+          y={20}
+          payload={{ value: 5 }}
+          todayLabel="Today"
+          endLabel="5 weeks"
+        />
+        <CompleteDayWeekTick
+          x={100}
+          y={20}
+          payload={{ value: 2 }}
+          todayLabel="Today"
+          endLabel="5 weeks"
+        />
+      </svg>,
+    )
+    const labels = container.querySelectorAll('text')
+    expect(labels).toHaveLength(2)
+    expect(labels[0]).toHaveAttribute('text-anchor', 'start')
+    expect(labels[0]).toHaveTextContent('Today')
+    expect(labels[1]).toHaveAttribute('text-anchor', 'end')
+    expect(labels[1]).toHaveTextContent('5 weeks')
   })
 })
