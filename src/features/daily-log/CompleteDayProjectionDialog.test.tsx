@@ -1,0 +1,135 @@
+import 'fake-indexeddb/auto'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
+import { db } from '@/infrastructure/persistence/indexeddb'
+import { useProfileStore } from '@/stores'
+import { CompleteDayProjectionDialog } from './CompleteDayProjectionDialog'
+import { DailyEntryFormStateProvider } from './DailyEntryFormStateContext'
+import { calories, now } from './dailyEntryFormTestUtils'
+
+describe('CompleteDayProjectionDialog (#934)', () => {
+  beforeEach(() => {
+    useProfileStore.setState({
+      heightCm: 165,
+      age: 41,
+      sex: 'female',
+      activityLevel: 'sedentary',
+    })
+  })
+
+  afterEach(async () => {
+    await db.dailyEntries.clear()
+    useProfileStore.setState({
+      heightCm: undefined,
+      age: undefined,
+      sex: undefined,
+      activityLevel: undefined,
+    })
+  })
+
+  it('opens a closable overlay with a 5-week estimate', async () => {
+    const user = userEvent.setup()
+    render(
+      <MemoryRouter>
+        <DailyEntryFormStateProvider
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            weightKg: 60.2,
+            calorieEntries: [calories(1200, 'm1')],
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        >
+          <CompleteDayProjectionDialog />
+        </DailyEntryFormStateProvider>
+      </MemoryRouter>,
+    )
+
+    await user.click(
+      screen.getByRole('button', { name: 'Complete the day' }),
+    )
+    expect(
+      screen.getByRole('heading', {
+        name: 'If days like today became your usual pattern…',
+      }),
+    ).toBeInTheDocument()
+    expect(screen.getByText("Today's intake")).toBeInTheDocument()
+    expect(screen.getByText('≈ 58.8 kg')).toBeInTheDocument()
+    expect(screen.getByText('Estimated maintenance')).toBeInTheDocument()
+    expect(screen.getByText('Estimated daily deficit')).toBeInTheDocument()
+    expect(screen.getByText(/About .+ lower over 5 weeks/)).toBeInTheDocument()
+    expect(
+      screen.getAllByText(/Daily scale weight will fluctuate/).length,
+    ).toBeGreaterThan(0)
+    expect(
+      screen.queryByRole('link', { name: 'Open Settings' }),
+    ).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Close' }))
+    expect(
+      screen.queryByRole('heading', {
+        name: 'If days like today became your usual pattern…',
+      }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('explains when weight is missing', async () => {
+    const user = userEvent.setup()
+    render(
+      <MemoryRouter>
+        <DailyEntryFormStateProvider
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            calorieEntries: [calories(1200, 'm1')],
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        >
+          <CompleteDayProjectionDialog />
+        </DailyEntryFormStateProvider>
+      </MemoryRouter>,
+    )
+
+    await user.click(
+      screen.getByRole('button', { name: 'Complete the day' }),
+    )
+    expect(screen.getByText(/weight first/)).toBeInTheDocument()
+  })
+
+  it('does not project from an unusually low calorie day', async () => {
+    const user = userEvent.setup()
+    render(
+      <MemoryRouter>
+        <DailyEntryFormStateProvider
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            weightKg: 60.2,
+            calorieEntries: [calories(600, 'm1')],
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        >
+          <CompleteDayProjectionDialog />
+        </DailyEntryFormStateProvider>
+      </MemoryRouter>,
+    )
+
+    await user.click(
+      screen.getByRole('button', { name: 'Complete the day' }),
+    )
+    expect(
+      screen.getByText(/isn't a good day to project from/),
+    ).toBeInTheDocument()
+    expect(screen.queryByText("Today's intake")).not.toBeInTheDocument()
+  })
+})

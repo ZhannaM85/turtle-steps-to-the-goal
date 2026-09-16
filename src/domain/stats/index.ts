@@ -213,6 +213,20 @@ export type {
   SuggestedDailyTargets,
 } from './targetCalculator'
 export {
+  COMPLETE_DAY_HORIZON_DAYS,
+  COMPLETE_DAY_HORIZON_WEEKS,
+  COMPLETE_DAY_HIGH_INTAKE_TDEE_FRACTION,
+  COMPLETE_DAY_LOW_INTAKE_TDEE_FRACTION,
+  completeDayProjectionBlocker,
+  projectWeightIfEatingLikeToday,
+} from './completeDayProjection'
+export type {
+  CompleteDayProjection,
+  CompleteDayProjectionBlocker,
+  CompleteDayProjectionInput,
+  CompleteDayProjectionPoint,
+} from './completeDayProjection'
+export {
   recommendedWaterMlRange,
   adjustWaterMlRange,
   waterRecommendationMidMl,

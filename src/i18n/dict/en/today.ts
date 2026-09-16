@@ -130,4 +130,27 @@ export const today: TodayDict = {
     'Congratulations! Ready to set the next tiny step?',
   celebrationCompleteCta: "Set next week's goal",
   deepSleepDescription: (hours) => `${hours} deep sleep`,
+  completeDayButton: 'Complete the day',
+  completeDayTitle: 'If days like today became your usual pattern…',
+  completeDayTodayLabel: 'Today',
+  completeDayEstimatedLabel: 'Estimated',
+  completeDayWeekNow: 'Today',
+  completeDayWeekEnd: '5 weeks',
+  completeDayIntakeLabel: "Today's intake",
+  completeDayMaintenanceLabel: 'Estimated maintenance',
+  completeDayDeficitLabel: 'Estimated daily deficit',
+  completeDayChangeLower: (amount) => `About ${amount} lower over 5 weeks`,
+  completeDayChangeHigher: (amount) => `About ${amount} higher over 5 weeks`,
+  completeDayChangeSame: 'About the same over 5 weeks',
+  completeDayMissingWeight: "Log today's weight first.",
+  completeDayMissingCalories: 'Log a meal (or day totals) first.',
+  completeDayMissingProfile:
+    'Add height, age, sex, and activity in Settings so maintenance calories can be estimated.',
+  completeDayProfileLink: 'Open Settings',
+  completeDayUnusualLow:
+    "Today isn't a good day to project from. Your intake was unusually low, so repeating it wouldn't make a useful five-week estimate.",
+  completeDayUnusualHigh:
+    "Today isn't a good day to project from. Your intake was unusually high, so repeating it wouldn't make a useful five-week estimate.",
+  completeDayDisclaimer:
+    'This is an estimate based on today’s calories and your estimated energy needs. Daily scale weight will fluctuate.',
 }

@@ -132,4 +132,27 @@ export const today: TodayDict = {
     'Поздравляем! Готовы поставить следующий маленький шаг?',
   celebrationCompleteCta: 'Задать цель на следующую неделю',
   deepSleepDescription: (hours) => `${hours} глубокого сна`,
+  completeDayButton: 'Завершить день',
+  completeDayTitle: 'Если дни как сегодня станут обычными…',
+  completeDayTodayLabel: 'Сегодня',
+  completeDayEstimatedLabel: 'Оценка',
+  completeDayWeekNow: 'Сегодня',
+  completeDayWeekEnd: '5 недель',
+  completeDayIntakeLabel: 'Сегодня съедено',
+  completeDayMaintenanceLabel: 'Оценка поддержания',
+  completeDayDeficitLabel: 'Оценка дневного дефицита',
+  completeDayChangeLower: (amount) => `Примерно на ${amount} ниже за 5 недель`,
+  completeDayChangeHigher: (amount) => `Примерно на ${amount} выше за 5 недель`,
+  completeDayChangeSame: 'Примерно так же через 5 недель',
+  completeDayMissingWeight: 'Сначала запишите сегодняшний вес.',
+  completeDayMissingCalories: 'Сначала запишите приём пищи (или итог за день).',
+  completeDayMissingProfile:
+    'Укажите рост, возраст, пол и активность в Настройках, чтобы оценить поддерживающую норму калорий.',
+  completeDayProfileLink: 'Открыть Настройки',
+  completeDayUnusualLow:
+    'Сегодня не лучший день для прогноза. Калорий необычно мало, поэтому повторять такой день пять недель не имеет смысла.',
+  completeDayUnusualHigh:
+    'Сегодня не лучший день для прогноза. Калорий необычно много, поэтому повторять такой день пять недель не имеет смысла.',
+  completeDayDisclaimer:
+    'Это оценка по сегодняшним калориям и примерной норме. Вес на весах каждый день будет колебаться.',
 }

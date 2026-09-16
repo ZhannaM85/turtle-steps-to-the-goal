@@ -1,5 +1,5 @@
 // Rough, non-medical approximation: ~7700 kcal per kg of body fat.
-const KCAL_PER_KG_FAT = 7700
+export const KCAL_PER_KG_FAT = 7700
 
 /** #529 — ± control step on the weekly-pace field (~100 g). */
 export const WEEKLY_PACE_STEP_KG = 0.1

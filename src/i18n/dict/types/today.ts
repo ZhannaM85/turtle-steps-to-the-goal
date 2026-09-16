@@ -221,4 +221,24 @@ export interface TodayDict {
    * sleep" — reported live as missing even though deep sleep is already
    * logged right below this card on the same form. */
   deepSleepDescription: (hours: string) => string
+  /** #934 — Day CTA that opens a 5-week calorie→weight overlay. */
+  completeDayButton: string
+  completeDayTitle: string
+  completeDayTodayLabel: string
+  completeDayEstimatedLabel: string
+  completeDayWeekNow: string
+  completeDayWeekEnd: string
+  completeDayIntakeLabel: string
+  completeDayMaintenanceLabel: string
+  completeDayDeficitLabel: string
+  completeDayChangeLower: (amount: string) => string
+  completeDayChangeHigher: (amount: string) => string
+  completeDayChangeSame: string
+  completeDayMissingWeight: string
+  completeDayMissingCalories: string
+  completeDayMissingProfile: string
+  completeDayProfileLink: string
+  completeDayUnusualLow: string
+  completeDayUnusualHigh: string
+  completeDayDisclaimer: string
 }

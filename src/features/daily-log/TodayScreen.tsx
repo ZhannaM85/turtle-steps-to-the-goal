@@ -29,6 +29,7 @@ import {
 import { DailyEntryFormBottom } from './DailyEntryFormBottom'
 import { DailyEntryFormMorning } from './DailyEntryFormMorning'
 import { DailyEntryFormNextMorningWeight } from './DailyEntryFormNextMorningWeight'
+import { CompleteDayProjectionDialog } from './CompleteDayProjectionDialog'
 import { DailyEntryFormNightFood } from './DailyEntryFormNightFood'
 import { DailyEntryFormStateProvider } from './DailyEntryFormStateContext'
 import { DailyEntryFormTop } from './DailyEntryFormTop'
@@ -288,6 +289,7 @@ export function TodayScreen() {
             <DailyEntryFormBottom />
             <DailyEntryFormNightFood />
             <DailyEntryFormNextMorningWeight />
+            <CompleteDayProjectionDialog />
           </DailyEntryFormStateProvider>
         </div>
       )}

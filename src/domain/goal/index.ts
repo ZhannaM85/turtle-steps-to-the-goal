@@ -3,6 +3,7 @@ export type { GoalRepository } from './GoalRepository'
 export {
   estimatedDailyCalorieDeficitKcal,
   estimatedWeeklyLossKgFromDailyDeficitKcal,
+  KCAL_PER_KG_FAT,
   WEEKLY_PACE_STEP_KG,
   WEEKLY_PACE_SOFT_WARN_KG,
 } from './calorieDeficit'

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 896,
+    issue: 934,
+    date: '2026-09-16T21:55:00+03:00',
+    en: 'Day has a Complete the day button: if days like today became your usual pattern, it estimates weight in 5 weeks.',
+    ru: 'На Дне есть кнопка «Завершить день»: если дни как сегодня станут обычными, оценка веса через 5 недель.',
+  },
+  {
     version: 895,
     issue: 933,
     date: '2026-09-16T21:40:00+03:00',
