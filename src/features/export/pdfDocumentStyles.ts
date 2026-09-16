@@ -119,7 +119,7 @@ export const PDF_DOCUMENT_CSS = `
     font-size: 10.5pt;
     font-weight: 600;
     margin: 0;
-    padding: 6pt;
+    padding: 1pt 6pt 11pt;
     line-height: 1.2;
     border-bottom: 1px solid #e7e5e4;
     background: #fafaf9;
@@ -131,7 +131,6 @@ export const PDF_DOCUMENT_CSS = `
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1pt 6pt 11pt;
   }
   .pdf-day-section-title-metrics {
     display: inline-flex;

@@ -736,7 +736,6 @@ describe('buildSummaryPdf', () => {
     expect(PDF_DOCUMENT_CSS).toContain('align-items: baseline')
     expect(PDF_DOCUMENT_CSS).toContain('vertical-align: -1.5pt')
     expect(PDF_DOCUMENT_CSS).toContain('transform: translateY(1pt)')
-    expect(PDF_DOCUMENT_CSS).toContain('padding: 6pt')
     expect(PDF_DOCUMENT_CSS).toContain('padding: 4pt 6pt')
     expect(PDF_DOCUMENT_CSS).not.toContain('padding: 8pt 6pt 2pt')
     expect(PDF_DOCUMENT_CSS).toContain(
