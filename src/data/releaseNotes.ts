@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 912,
+    issue: 942,
+    date: '2026-09-17T01:15:03+03:00',
+    en: 'PDF weekly averages now keep each week’s date range on one line.',
+    ru: 'В средних по неделям PDF диапазон дат каждой недели теперь остаётся в одной строке.',
+  },
+  {
     version: 911,
     issue: 939,
     date: '2026-09-17T01:09:08+03:00',

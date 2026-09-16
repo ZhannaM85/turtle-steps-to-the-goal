@@ -162,7 +162,7 @@ export function buildPdfDocumentHtml(
               ? '—'
               : formatNumber(week.averageCalories, locale, 0)
           return `<tr>
-  <td>${escapeHtml(`${formatDisplayDate(week.weekStart, locale)} – ${formatDisplayDate(week.weekEnd, locale)}`)}</td>
+  <td class="pdf-week-range">${escapeHtml(`${formatDisplayDate(week.weekStart, locale)} – ${formatDisplayDate(week.weekEnd, locale)}`)}</td>
   <td>${escapeHtml(avgWeight)}</td>
   <td>${escapeHtml(delta)}</td>
   <td>${escapeHtml(avgCal)}</td>
@@ -172,8 +172,8 @@ export function buildPdfDocumentHtml(
       parts.push(
         sectionHtml(
           t.pdfSummary.weeklyAveragesSectionTitle,
-          `<table class="pdf-table"><thead><tr>
-  <th>${escapeHtml(t.pdfSummary.weekColumnHeader)}</th>
+          `<table class="pdf-table pdf-weekly-averages"><thead><tr>
+  <th class="pdf-week-range">${escapeHtml(t.pdfSummary.weekColumnHeader)}</th>
   <th>${escapeHtml(t.pdfSummary.avgWeightColumnHeader(unitLabel(unit, t)))}</th>
   <th>${escapeHtml(t.pdfSummary.weightChangeColumnHeader)}</th>
   <th>${escapeHtml(t.pdfSummary.avgCaloriesColumnHeader)}</th>

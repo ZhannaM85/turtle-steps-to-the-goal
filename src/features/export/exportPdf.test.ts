@@ -888,6 +888,36 @@ describe('buildSummaryPdf', () => {
     expect(ruHtml).toContain('Шаги')
   })
 
+  it('keeps weekly-average week ranges on one line (#942)', () => {
+    const ru = getDictionary('ru')
+    const data = buildPdfSummaryData(
+      [makeEntry({ date: '2026-09-07', weightKg: 80 })],
+      '2026-09-07',
+      '2026-09-13',
+      1,
+    )
+    const html = buildPdfDocumentHtml(data, ru, 'ru', 'kg', {
+      ...ALL_SECTIONS_EXCLUDED,
+      weeklyAverages: true,
+    })
+    const container = document.createElement('div')
+    container.innerHTML = html
+    const table = container.querySelector('.pdf-weekly-averages')
+    expect(table).not.toBeNull()
+    expect(table?.classList.contains('pdf-table')).toBe(true)
+    const header = table?.querySelector('th.pdf-week-range')
+    expect(header?.textContent).toBe(ru.pdfSummary.weekColumnHeader)
+    const weekCell = table?.querySelector('tbody td.pdf-week-range')
+    expect(weekCell).not.toBeNull()
+    expect(weekCell?.textContent).toBe('7 сент. 2026 г. – 13 сент. 2026 г.')
+    expect(table?.querySelectorAll('tbody td:not(.pdf-week-range)')).toHaveLength(3)
+    const weekRule = PDF_DOCUMENT_CSS.match(
+      /\.pdf-weekly-averages \.pdf-week-range \{([^}]*)\}/,
+    )?.[1]
+    expect(weekRule).toContain('width: 46%')
+    expect(weekRule).toContain('white-space: nowrap')
+  })
+
   it('uses two-column summary cards while charts and tables span the page (#921)', () => {
     const entries = [
       makeEntry({

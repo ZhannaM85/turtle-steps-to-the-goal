@@ -106,6 +106,12 @@ export const PDF_DOCUMENT_CSS = `
     color: #fff;
     font-weight: 600;
   }
+  /* #942 — Russian week ranges (7 сент. 2026 г. – 13 сент. 2026 г.) wrap
+     unless the Неделя column is wide enough and nowrap. */
+  .pdf-weekly-averages .pdf-week-range {
+    width: 46%;
+    white-space: nowrap;
+  }
   .pdf-chart {
     width: 100%;
     height: 140px;
