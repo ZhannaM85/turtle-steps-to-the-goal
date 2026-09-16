@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 881,
+    issue: 925,
+    date: '2026-09-16T16:41:36+03:00',
+    en: 'PDF diary pages use compact meal cards and show sleep, steps, and mood beside the date.',
+    ru: 'Страницы дневника в PDF показывают приёмы пищи компактными карточками, а сон, шаги и настроение — рядом с датой.',
+  },
+  {
     version: 880,
     issue: 922,
     date: '2026-09-16T11:26:38+03:00',

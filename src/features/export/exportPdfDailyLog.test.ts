@@ -148,7 +148,8 @@ describe('dailyLogPdfDayLines (#891)', () => {
 
     const metricLines = lines.filter((line) => line.role === 'body')
     expect(metricLines.filter((line) => line.text.includes('Hours slept'))).toHaveLength(1)
-    expect(metricLines.find((line) => line.text.includes('Hours slept'))?.text).toContain('Deep sleep')
+    expect(metricLines.find((line) => line.kind === 'sleep')?.text).toContain('7h 30m')
+    expect(metricLines.find((line) => line.kind === 'deepSleep')?.text).toContain('2h')
     expect(metricLines.find((line) => line.text.includes('Acne'))?.text).toContain('Improving')
     expect(metricLines.find((line) => line.text.startsWith('Body composition:'))?.text).toContain('Muscle: 38.2 kg')
     expect(metricLines.find((line) => line.text.startsWith('Body composition:'))?.text).toContain('Visceral fat: 6')

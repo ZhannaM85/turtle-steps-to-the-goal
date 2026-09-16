@@ -88,19 +88,21 @@ export const PDF_DOCUMENT_CSS = `
   }
   .pdf-day-start { break-inside: avoid; }
   .pdf-day-header {
-    font-size: 13pt;
-    font-weight: 600;
-    margin: 0 0 10pt 0;
-    padding: 10pt 12pt;
+    margin: 0 0 6pt 0;
+    padding: 6pt 9pt;
     border: 1px solid #d6d3d1;
     border-left: 4pt solid #78716c;
     border-radius: 8pt;
     background: #f5f5f4;
     line-height: 1.3;
   }
+  .pdf-day-header h2 { font-size: 12pt; font-weight: 600; margin: 0; }
+  .pdf-day-header-metrics { display: flex; flex-wrap: wrap; gap: 2pt 11pt; margin-top: 3pt; font-size: 8.5pt; font-weight: 400; }
+  .pdf-day-header-metric { display: inline-flex; align-items: center; gap: 3pt; white-space: nowrap; }
+  .pdf-day-header-metric svg { width: 11pt; height: 11pt; flex: none; }
   .pdf-section .pdf-line { overflow-wrap: anywhere; }
   .pdf-day-section {
-    margin: 0 0 8pt 0;
+    margin: 0 0 5pt 0;
     padding: 0;
     border: 1px solid #e7e5e4;
     border-radius: 8pt;
@@ -112,7 +114,7 @@ export const PDF_DOCUMENT_CSS = `
     font-size: 10pt;
     font-weight: 600;
     margin: 0;
-    padding: 6pt 10pt;
+    padding: 4pt 8pt;
     border-bottom: 1px solid #e7e5e4;
     background: #fafaf9;
     color: #44403c;
@@ -122,15 +124,31 @@ export const PDF_DOCUMENT_CSS = `
   .pdf-day-section:nth-of-type(3) .pdf-day-section-title { background: #ecfeff; color: #155e75; }
   .pdf-day-section:nth-of-type(4) .pdf-day-section-title { background: #fdf2f8; color: #9d174d; }
   .pdf-day-section-content {
-    padding: 7pt 10pt 6pt;
+    padding: 5pt 8pt;
   }
   .pdf-day-section-content .pdf-line:last-child,
   .pdf-day-section-content .pdf-day-item:last-child {
     margin-bottom: 0;
   }
   .pdf-day-section-content .pdf-line {
-    margin: 0 0 3pt 0;
+    margin: 0 0 2pt 0;
   }
+  .pdf-day-section-food .pdf-day-section-content {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4pt;
+  }
+  .pdf-day-section-food .pdf-day-section-content > .pdf-line { grid-column: 1 / -1; }
+  .pdf-meal-card {
+    min-width: 0;
+    padding: 4pt 5pt;
+    border: 1px solid #e7e5e4;
+    border-radius: 5pt;
+    background: #fff;
+    overflow-wrap: anywhere;
+  }
+  .pdf-meal-card .pdf-line { font-weight: 600; font-size: 9pt; line-height: 1.25; }
+  .pdf-meal-card .pdf-day-item { font-size: 8.5pt; line-height: 1.25; margin-top: 2pt; }
   .pdf-day-section-water .pdf-day-section-content {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));

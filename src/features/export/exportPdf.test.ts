@@ -671,6 +671,34 @@ describe('buildSummaryPdf', () => {
     expect(html).not.toContain('<article class="pdf-day">')
   })
 
+  it('packs diary signals into the header and meals into paired cards without losing the night food note (#925)', () => {
+    const entry = makeEntry({
+      sleepHours: 7.5,
+      deepSleepHours: 2,
+      steps: 4200,
+      emotion: 'happy',
+      nightEatingOverride: false,
+      nightEatingNoWhatHelped: 'Tea helped me sleep',
+      calorieEntries: [
+        { id: 'breakfast', createdAt: '2026-08-01T08:00:00Z', label: 'Breakfast', items: [{ id: 'eggs', name: 'Eggs', amountKcal: 200 }] },
+        { id: 'lunch', createdAt: '2026-08-01T12:00:00Z', label: 'Lunch', items: [{ id: 'soup', name: 'Soup', amountKcal: 300 }] },
+        { id: 'dinner', createdAt: '2026-08-01T18:00:00Z', label: 'Dinner', items: [{ id: 'rice', name: 'Rice', amountKcal: 400 }] },
+      ],
+    })
+    const data = buildPdfSummaryData([entry], entry.date, entry.date, 1)
+    const html = buildPdfDocumentHtml(data, t, 'en', 'kg', ALL_SECTIONS_EXCLUDED, [], { entries: [entry] })
+    const container = document.createElement('div')
+    container.innerHTML = html
+    const day = container.querySelectorAll('.pdf-page')[1]!
+    expect(day.querySelectorAll('.pdf-day-header-metric')).toHaveLength(4)
+    expect(day.querySelector('.pdf-day-header')?.textContent).toContain('7h 30m')
+    expect(day.querySelectorAll('.pdf-meal-card')).toHaveLength(3)
+    expect(day.querySelector('.pdf-day-section-food')?.textContent).toContain('Eggs')
+    expect(day.querySelector('.pdf-day-section-food')?.textContent).toContain('Rice')
+    expect(day.textContent).toContain('Tea helped me sleep')
+    expect(html).toContain('grid-template-columns: repeat(2, minmax(0, 1fr))')
+  })
+
   it('uses two-column summary cards while charts and tables span the page (#921)', () => {
     const entries = [
       makeEntry({

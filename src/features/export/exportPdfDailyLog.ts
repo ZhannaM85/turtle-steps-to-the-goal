@@ -43,6 +43,7 @@ export type DailyLogPdfLineRole = 'header' | 'section' | 'body' | 'item'
 export interface DailyLogPdfLine {
   role: DailyLogPdfLineRole
   text: string
+  kind?: 'sleep' | 'deepSleep' | 'steps' | 'mood' | 'meal' | 'dayTotal'
 }
 
 function trackingOn(
@@ -137,18 +138,14 @@ export function dailyLogPdfDayLines(
             t.dailyEntry.hoursUnit,
             t.dailyEntry.minutesUnit,
           )}`
-    const sleepLine = joinParts([sleep, deepSleep])
-    if (sleepLine) metrics.push(sleepLine)
+    if (sleep) lines.push({ role: 'body', text: sleep, kind: 'sleep' })
+    if (deepSleep) lines.push({ role: 'body', text: deepSleep, kind: 'deepSleep' })
   }
   if (trackingOn(extras, 'steps') && entry.steps !== undefined) {
-    metrics.push(
-      `${t.dailyEntry.stepsLabel}: ${formatNumber(entry.steps, locale, 0)}`,
-    )
+    lines.push({ role: 'body', text: `${t.dailyEntry.stepsLabel}: ${formatNumber(entry.steps, locale, 0)}`, kind: 'steps' })
   }
   if (trackingOn(extras, 'mood') && entry.emotion) {
-    metrics.push(
-      `${t.dailyEntry.dayMoodLabel}: ${t.dailyEntry.emotionLabel(entry.emotion)}`,
-    )
+    lines.push({ role: 'body', text: `${t.dailyEntry.dayMoodLabel}: ${t.dailyEntry.emotionLabel(entry.emotion)}`, kind: 'mood' })
   }
   if (trackingOn(extras, 'bodyMeasurements') && entry.waistCm !== undefined) {
     metrics.push(
@@ -271,6 +268,7 @@ export function dailyLogPdfDayLines(
       lines.push({
         role: 'body',
         text: mealHeading(meal, index + 1, t, locale, extras),
+        kind: 'meal',
       })
       for (const item of meal.items) {
         const itemLine = joinParts([
@@ -289,6 +287,7 @@ export function dailyLogPdfDayLines(
           t.dailyEntry.dayTotalsLabel,
           formatKcal(entry.dayTotals.amountKcal, locale, t),
         ]),
+        kind: 'dayTotal',
       })
     }
   }

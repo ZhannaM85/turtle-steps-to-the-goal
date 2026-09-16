@@ -10,10 +10,8 @@ import {
 } from '@/i18n'
 import { formatSleepDuration } from '@/shared/lib/sleepDuration'
 import type { Unit } from '@/stores/unitStore'
-import {
-  dailyLogPdfDayLines,
-  type DailyLogPdfInput,
-} from './exportPdfDailyLog'
+import type { DailyLogPdfInput } from './exportPdfDailyLog'
+import { dailyLogPagesHtml } from './buildPdfDiaryPagesHtml'
 import type {
   CustomMetricPdfSummary,
   PdfSections,
@@ -95,81 +93,6 @@ function footerHtml(t: Dictionary, generatedOn: string): string {
   <p>${escapeHtml(t.pdfSummary.disclaimer)}</p>
   <p>${escapeHtml(generatedOn)}</p>
 </footer>`
-}
-
-function dailyLogPagesHtml(
-  dailyLog: DailyLogPdfInput,
-  t: Dictionary,
-  locale: Locale,
-  unit: Unit,
-  generatedOn: string,
-): string {
-  const entries = [...dailyLog.entries].sort((a, b) =>
-    a.date.localeCompare(b.date),
-  )
-  if (entries.length === 0) return ''
-
-  // #920 — each new date starts a fresh sheet. Within a day the renderer
-  // can still move complete section cards to continuation sheets; keeping
-  // the heading with its first card avoids an orphaned date at the bottom.
-  return entries
-    .map((entry, index) => {
-      const lines = dailyLogPdfDayLines(
-        entry,
-        t,
-        locale,
-        unit,
-        dailyLog.extras,
-      )
-      let header = ''
-      let sectionTitle = ''
-      let sectionContent: string[] = []
-      const sections: string[] = []
-      const finishSection = () => {
-        if (!sectionTitle) return
-        const sectionClass =
-          sectionTitle === t.dailyEntry.waterLabel
-            ? ' pdf-day-section-water'
-            : ''
-        sections.push(`<section class="pdf-day-section${sectionClass}">
-  <h3 class="pdf-day-section-title">${escapeHtml(sectionTitle)}</h3>
-  <div class="pdf-day-section-content">${sectionContent.join('')}</div>
-</section>`)
-        sectionTitle = ''
-        sectionContent = []
-      }
-      for (const line of lines) {
-        if (line.role === 'header') {
-          header = `<h2 class="pdf-day-header">${escapeHtml(line.text)}</h2>`
-          continue
-        }
-        if (line.role === 'section') {
-          finishSection()
-          sectionTitle = line.text
-          continue
-        }
-        const lineHtml =
-          line.role === 'item'
-            ? `<p class="pdf-day-item">${escapeHtml(line.text)}</p>`
-            : `<p class="pdf-line">${escapeHtml(line.text)}</p>`
-        sectionContent.push(lineHtml)
-      }
-      finishSection()
-      // Keep the diary title and first date together, but leave each card
-      // as a direct page-body child. The HTML renderer can then move a card
-      // to the next styled sheet instead of image-slicing a whole day and
-      // creating an almost-empty tail page.
-      const dayStart =
-        index === 0
-          ? `<h1 class="pdf-title">${escapeHtml(t.pdfSummary.dailyLogPagesTitle)}</h1>${header}`
-          : header
-      const firstSection = sections.shift() ?? ''
-      return `<section class="pdf-page">
-  <div class="pdf-page-body"><div class="pdf-day-start">${dayStart}${firstSection}</div>${sections.join('')}</div>
-  ${footerHtml(t, generatedOn)}
-</section>`
-    })
-    .join('\n')
 }
 
 /**
@@ -476,7 +399,7 @@ export function buildPdfDocumentHtml(
 
   const dailyPages =
     dailyLog && dailyLog.entries.length > 0
-      ? dailyLogPagesHtml(dailyLog, t, locale, unit, generatedOn)
+      ? dailyLogPagesHtml(dailyLog, t, locale, unit, footerHtml(t, generatedOn))
       : ''
 
   return `<!DOCTYPE html><html><head><meta charset="utf-8" /><style>${PDF_DOCUMENT_CSS}</style></head><body><div class="pdf-root">${summaryPage}${dailyPages}</div></body></html>`
@@ -490,5 +413,5 @@ export function buildSingleDayPdfDocumentHtml(
   unit: Unit,
   generatedOn: string,
 ): string {
-  return `<!DOCTYPE html><html><head><meta charset="utf-8" /><style>${PDF_DOCUMENT_CSS}</style></head><body><div class="pdf-root">${dailyLogPagesHtml(dailyLog, t, locale, unit, generatedOn)}</div></body></html>`
+  return `<!DOCTYPE html><html><head><meta charset="utf-8" /><style>${PDF_DOCUMENT_CSS}</style></head><body><div class="pdf-root">${dailyLogPagesHtml(dailyLog, t, locale, unit, footerHtml(t, generatedOn))}</div></body></html>`
 }
