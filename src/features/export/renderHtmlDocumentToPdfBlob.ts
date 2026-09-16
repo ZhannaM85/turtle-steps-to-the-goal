@@ -8,7 +8,21 @@
  * drops section-card chrome after page 2).
  *
  * #935 — the layout preview uses the same html2canvas pass as the download.
+ *
+ * #939 — when `?pdfDebug=1` or localStorage `pdfDebug=1`, log layout/capture
+ * numbers to the console and a phone-readable overlay. Debug only; no extra
+ * capture-height CSS change.
  */
+import {
+  applyPdfDebugOutlines,
+  collectPdfPageLayoutSnapshot,
+  isPdfDebugEnabled,
+  isPdfDebugOverlayElement,
+  persistPdfDebugFlagFromLocation,
+  publishPdfDebugReport,
+  type PdfPageLayoutSnapshot,
+} from './pdfDebug'
+
 const TEST_PREVIEW_IMAGE =
   'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='
 
@@ -156,23 +170,46 @@ async function paintPdfPages(html: string): Promise<{
   }
 
   try {
+    persistPdfDebugFlagFromLocation()
+    const debug = isPdfDebugEnabled()
+    const debugSnapshots: PdfPageLayoutSnapshot[] = []
+
     void host.offsetHeight
     explodeOverflowingPdfPages(host)
-    // After split: in-flow pixel fill. CSS min-height + flex footer pinning
-    // are ignored by html2canvas on iOS WebKit, so scrollHeight stays
-    // content-sized and the PDF shows a blank band below the footer (#939).
-    fillPdfPagesToCaptureHeight(host)
-    void host.offsetHeight
 
-    const { default: html2canvas } = await import('html2canvas')
     const pages = [...host.querySelectorAll<HTMLElement>('.pdf-page')]
     const targets =
       pages.length > 0
         ? pages
         : [host.querySelector<HTMLElement>('.pdf-root') ?? host]
 
+    if (debug) {
+      targets.forEach((page, index) => {
+        debugSnapshots.push(
+          collectPdfPageLayoutSnapshot(page, index, 'beforeFill'),
+        )
+      })
+    }
+
+    // After split: in-flow pixel fill. CSS min-height + flex footer pinning
+    // are ignored by html2canvas on iOS WebKit, so scrollHeight stays
+    // content-sized and the PDF shows a blank band below the footer (#939).
+    fillPdfPagesToCaptureHeight(host)
+    void host.offsetHeight
+
+    if (debug) {
+      applyPdfDebugOutlines(host)
+      targets.forEach((page, index) => {
+        debugSnapshots.push(
+          collectPdfPageLayoutSnapshot(page, index, 'beforeCapture'),
+        )
+      })
+    }
+
+    const { default: html2canvas } = await import('html2canvas')
     const canvases: HTMLCanvasElement[] = []
-    for (const target of targets) {
+    const contentWidthMm = 190
+    for (const [index, target] of targets.entries()) {
       const scale = canvasScaleForElement(target)
       const captureHeightPx = pdfCaptureHeightPx(target)
       const canvas = await html2canvas(target, {
@@ -205,7 +242,41 @@ async function paintPdfPages(html: string): Promise<{
         throw new Error('html2canvas produced an empty canvas')
       }
       canvases.push(canvas)
+      if (debug) {
+        const after = collectPdfPageLayoutSnapshot(target, index, 'afterCapture')
+        after.canvasWidth = canvas.width
+        after.canvasHeight = canvas.height
+        after.captureHeightPx = captureHeightPx
+        after.scale = scale
+        after.imgHeightMm = (canvas.height * contentWidthMm) / canvas.width
+        debugSnapshots.push(after)
+      }
     }
+
+    if (debug) {
+      try {
+        publishPdfDebugReport({
+          maxStyledPagePx: MAX_STYLED_PAGE_PX,
+          a4FillTargetPx: MAX_STYLED_PAGE_PX,
+          hostWidthPx: host.offsetWidth || 794,
+          marginMm: 10,
+          contentWidthMm,
+          pageHeightMm: 297,
+          userAgent:
+            typeof navigator === 'undefined' ? '' : navigator.userAgent,
+          viewport:
+            typeof window === 'undefined'
+              ? ''
+              : `${window.innerWidth}x${window.innerHeight}`,
+          devicePixelRatio:
+            typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1,
+          pages: debugSnapshots,
+        })
+      } catch (error) {
+        console.warn('[pdfDebug #939] overlay failed', error)
+      }
+    }
+
     return { canvases, cleanup }
   } catch (error) {
     cleanup()
@@ -226,6 +297,7 @@ export function shouldIgnorePdfRenderElement(
   element: Element,
   host: HTMLElement,
 ): boolean {
+  if (isPdfDebugOverlayElement(element)) return true
   const { documentElement, head, body } = element.ownerDocument
   return (
     element !== documentElement &&

@@ -1,0 +1,443 @@
+/**
+ * #939 — temporary on-device PDF capture debug for iPhone Safari / WebView.
+ *
+ * Enable either way, then export a PDF or open the layout preview:
+ *   - query: `?pdfDebug=1` (kept in localStorage so later navigations still debug)
+ *   - storage: `localStorage.setItem('pdfDebug', '1')`
+ * Disable: `?pdfDebug=0` or `localStorage.removeItem('pdfDebug')`.
+ *
+ * Pages example:
+ *   https://zhannam85.github.io/turtle-steps-to-the-goal/settings/pdf-layout?pdfDebug=1
+ */
+
+export const PDF_DEBUG_QUERY_PARAM = 'pdfDebug'
+export const PDF_DEBUG_STORAGE_KEY = 'pdfDebug'
+export const PDF_DEBUG_OVERLAY_ID = 'pdf-debug-overlay'
+
+export interface PdfDebugFlagSource {
+  search?: string
+  hash?: string
+  href?: string
+  storage?: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> | null
+}
+
+export interface PdfPageLayoutSnapshot {
+  index: number
+  phase: 'beforeFill' | 'beforeCapture' | 'afterCapture'
+  className: string
+  offsetHeight: number
+  scrollHeight: number
+  clientHeight: number
+  computedHeight: string
+  computedMinHeight: string
+  inlineHeight: string
+  inlineMinHeight: string
+  overflow: string
+  overflowX: string
+  overflowY: string
+  clip: string
+  clipPath: string
+  contain: string
+  fillExists: boolean
+  fillHeight: string | null
+  fillMinHeight: string | null
+  fillOffsetHeight: number | null
+  fillScrollHeight: number | null
+  fillComputedHeight: string | null
+  footerExists: boolean
+  footerOffsetHeight: number | null
+  canvasWidth?: number
+  canvasHeight?: number
+  captureHeightPx?: number
+  scale?: number
+  imgHeightMm?: number
+}
+
+export interface PdfDebugReport {
+  maxStyledPagePx: number
+  a4FillTargetPx: number
+  hostWidthPx: number
+  marginMm: number
+  contentWidthMm: number
+  pageHeightMm: number
+  userAgent: string
+  viewport: string
+  devicePixelRatio: number
+  pages: PdfPageLayoutSnapshot[]
+}
+
+function parsePdfDebugFlag(raw: string | null | undefined): boolean | undefined {
+  if (raw == null) return undefined
+  const value = raw.trim().toLowerCase()
+  if (value === '1' || value === 'true' || value === 'yes') return true
+  if (value === '0' || value === 'false' || value === 'no') return false
+  return undefined
+}
+
+function queryValue(search: string, key: string): string | null {
+  const trimmed = search.startsWith('?') ? search.slice(1) : search
+  if (!trimmed) return null
+  try {
+    return new URLSearchParams(trimmed).get(key)
+  } catch {
+    return null
+  }
+}
+
+function queryValueFromHash(hash: string, key: string): string | null {
+  const question = hash.indexOf('?')
+  if (question < 0) return null
+  return queryValue(hash.slice(question), key)
+}
+
+function liveLocation(): { search: string; hash: string; href: string } {
+  if (typeof window === 'undefined') {
+    return { search: '', hash: '', href: '' }
+  }
+  return {
+    search: window.location.search,
+    hash: window.location.hash,
+    href: window.location.href,
+  }
+}
+
+function liveStorage(): Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> | null {
+  if (typeof window === 'undefined') return null
+  try {
+    return window.localStorage
+  } catch {
+    return null
+  }
+}
+
+function resolveSource(source: PdfDebugFlagSource = {}): {
+  search: string
+  hash: string
+  href: string
+  storage: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> | null
+} {
+  const live = liveLocation()
+  return {
+    search: source.search ?? live.search,
+    hash: source.hash ?? live.hash,
+    href: source.href ?? live.href,
+    storage: source.storage === undefined ? liveStorage() : source.storage,
+  }
+}
+
+function flagFromUrl(search: string, hash: string, href: string): boolean | undefined {
+  const fromSearch = parsePdfDebugFlag(queryValue(search, PDF_DEBUG_QUERY_PARAM))
+  if (fromSearch !== undefined) return fromSearch
+  const fromHash = parsePdfDebugFlag(queryValueFromHash(hash, PDF_DEBUG_QUERY_PARAM))
+  if (fromHash !== undefined) return fromHash
+  if (href) {
+    try {
+      const url = new URL(href)
+      const fromHref = parsePdfDebugFlag(url.searchParams.get(PDF_DEBUG_QUERY_PARAM))
+      if (fromHref !== undefined) return fromHref
+      return parsePdfDebugFlag(queryValueFromHash(url.hash, PDF_DEBUG_QUERY_PARAM))
+    } catch {
+      return undefined
+    }
+  }
+  return undefined
+}
+
+/** True when `?pdfDebug=1` (or hash/href) or localStorage `pdfDebug=1`. */
+export function isPdfDebugEnabled(source: PdfDebugFlagSource = {}): boolean {
+  const resolved = resolveSource(source)
+  const fromUrl = flagFromUrl(resolved.search, resolved.hash, resolved.href)
+  if (fromUrl !== undefined) return fromUrl
+  try {
+    return parsePdfDebugFlag(resolved.storage?.getItem(PDF_DEBUG_STORAGE_KEY)) === true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Keep debug on after the query drops (in-app navigation). `?pdfDebug=0`
+ * clears the stored flag.
+ */
+export function persistPdfDebugFlagFromLocation(
+  source: PdfDebugFlagSource = {},
+): void {
+  const resolved = resolveSource(source)
+  const fromUrl = flagFromUrl(resolved.search, resolved.hash, resolved.href)
+  if (fromUrl === undefined || !resolved.storage) return
+  try {
+    if (fromUrl) resolved.storage.setItem(PDF_DEBUG_STORAGE_KEY, '1')
+    else resolved.storage.removeItem(PDF_DEBUG_STORAGE_KEY)
+  } catch {
+    // Safari private mode / blocked storage — query flag still works.
+  }
+}
+
+export function isPdfDebugOverlayElement(element: Element): boolean {
+  return Boolean(
+    element.id === PDF_DEBUG_OVERLAY_ID ||
+      element.closest(`#${PDF_DEBUG_OVERLAY_ID}`),
+  )
+}
+
+function computed(el: Element): CSSStyleDeclaration | null {
+  if (typeof window === 'undefined' || typeof window.getComputedStyle !== 'function') {
+    return null
+  }
+  try {
+    return window.getComputedStyle(el)
+  } catch {
+    return null
+  }
+}
+
+export function collectPdfPageLayoutSnapshot(
+  page: HTMLElement,
+  index: number,
+  phase: PdfPageLayoutSnapshot['phase'],
+): PdfPageLayoutSnapshot {
+  const style = computed(page)
+  const fill = page.querySelector<HTMLElement>('.pdf-page-fill')
+  const fillStyle = fill ? computed(fill) : null
+  const footer = page.querySelector<HTMLElement>('.pdf-footer')
+  return {
+    index,
+    phase,
+    className: page.className,
+    offsetHeight: page.offsetHeight,
+    scrollHeight: page.scrollHeight,
+    clientHeight: page.clientHeight,
+    computedHeight: style?.height ?? '',
+    computedMinHeight: style?.minHeight ?? '',
+    inlineHeight: page.style.height,
+    inlineMinHeight: page.style.minHeight,
+    overflow: style?.overflow ?? '',
+    overflowX: style?.overflowX ?? '',
+    overflowY: style?.overflowY ?? '',
+    clip: style?.clip ?? '',
+    clipPath: style?.clipPath ?? '',
+    contain: style?.contain ?? '',
+    fillExists: Boolean(fill),
+    fillHeight: fill?.style.height ?? null,
+    fillMinHeight: fill?.style.minHeight ?? null,
+    fillOffsetHeight: fill?.offsetHeight ?? null,
+    fillScrollHeight: fill?.scrollHeight ?? null,
+    fillComputedHeight: fillStyle?.height ?? null,
+    footerExists: Boolean(footer),
+    footerOffsetHeight: footer?.offsetHeight ?? null,
+  }
+}
+
+export function applyPdfDebugOutlines(host: HTMLElement): void {
+  for (const page of host.querySelectorAll<HTMLElement>('.pdf-page')) {
+    page.style.outline = '3px solid #ff2bd6'
+    page.style.outlineOffset = '-3px'
+  }
+  for (const footer of host.querySelectorAll<HTMLElement>('.pdf-footer')) {
+    footer.style.outline = '3px solid #00e5ff'
+    footer.style.outlineOffset = '-3px'
+  }
+  for (const fill of host.querySelectorAll<HTMLElement>('.pdf-page-fill')) {
+    fill.style.outline = '3px solid #b8ff00'
+    fill.style.outlineOffset = '-3px'
+  }
+}
+
+function round1(value: number): string {
+  return Number.isFinite(value) ? value.toFixed(1) : String(value)
+}
+
+export function formatPdfDebugReport(report: PdfDebugReport): string {
+  const lines = [
+    'PDF debug #939 (temporary, not a layout fix)',
+    `UA: ${report.userAgent}`,
+    `viewport: ${report.viewport} dpr=${report.devicePixelRatio}`,
+    `MAX_STYLED_PAGE_PX: ${report.maxStyledPagePx}`,
+    `A4 fill target used: ${report.a4FillTargetPx}px`,
+    `host width: ${report.hostWidthPx}px`,
+    `PDF page: ${report.pageHeightMm}mm, margin ${report.marginMm}mm, content width ${report.contentWidthMm}mm`,
+    '',
+  ]
+
+  const byPage = new Map<number, PdfPageLayoutSnapshot[]>()
+  for (const page of report.pages) {
+    const list = byPage.get(page.index) ?? []
+    list.push(page)
+    byPage.set(page.index, list)
+  }
+
+  for (const [index, snapshots] of byPage) {
+    lines.push(`=== page ${index + 1} ===`)
+    for (const snap of snapshots) {
+      lines.push(`-- ${snap.phase} --`)
+      lines.push(
+        `offset/scroll/client: ${snap.offsetHeight} / ${snap.scrollHeight} / ${snap.clientHeight}`,
+      )
+      lines.push(
+        `computed height/min-height: ${snap.computedHeight} / ${snap.computedMinHeight}`,
+      )
+      lines.push(
+        `inline height/min-height: ${snap.inlineHeight || '(empty)'} / ${snap.inlineMinHeight || '(empty)'}`,
+      )
+      lines.push(
+        `overflow/x/y: ${snap.overflow} / ${snap.overflowX} / ${snap.overflowY}`,
+      )
+      lines.push(
+        `clip/clipPath/contain: ${snap.clip} / ${snap.clipPath} / ${snap.contain}`,
+      )
+      lines.push(
+        `.pdf-page-fill: ${
+          snap.fillExists
+            ? `yes height=${snap.fillHeight} min=${snap.fillMinHeight} offset=${snap.fillOffsetHeight} scroll=${snap.fillScrollHeight} computed=${snap.fillComputedHeight}`
+            : 'NO'
+        }`,
+      )
+      lines.push(
+        `.pdf-footer: ${
+          snap.footerExists ? `yes offset=${snap.footerOffsetHeight}` : 'NO'
+        }`,
+      )
+      if (snap.phase === 'afterCapture') {
+        lines.push(
+          `canvas: ${snap.canvasWidth} x ${snap.canvasHeight} (scale=${snap.scale}, captureHeightPx=${snap.captureHeightPx})`,
+        )
+        if (snap.imgHeightMm != null) {
+          const leftoverMm =
+            report.pageHeightMm - report.marginMm - snap.imgHeightMm
+          lines.push(
+            `placed image height: ${round1(snap.imgHeightMm)}mm at y=${report.marginMm}mm`,
+          )
+          lines.push(
+            `gap below image to page bottom: ${round1(leftoverMm)}mm`,
+          )
+        }
+      }
+      lines.push('')
+    }
+  }
+
+  return lines.join('\n').trimEnd()
+}
+
+function copyDebugText(text: string): void {
+  void navigator.clipboard?.writeText(text).catch(() => {
+    const area = document.createElement('textarea')
+    area.value = text
+    area.setAttribute('readonly', 'true')
+    area.style.position = 'fixed'
+    area.style.left = '0'
+    area.style.top = '0'
+    document.body.appendChild(area)
+    area.select()
+    try {
+      document.execCommand('copy')
+    } catch {
+      // Overlay text remains selectable.
+    }
+    area.remove()
+  })
+}
+
+/** Fixed, high-contrast, scrollable dump for iPhone (no desktop console). */
+export function showPdfDebugOverlay(text: string): void {
+  if (typeof document === 'undefined' || !document.body) return
+
+  let root = document.getElementById(PDF_DEBUG_OVERLAY_ID)
+  if (!root) {
+    root = document.createElement('div')
+    root.id = PDF_DEBUG_OVERLAY_ID
+    document.body.appendChild(root)
+  }
+
+  root.setAttribute('data-pdf-debug-overlay', 'true')
+  Object.assign(root.style, {
+    position: 'fixed',
+    left: '8px',
+    right: '8px',
+    bottom: '8px',
+    maxHeight: '48vh',
+    zIndex: '2147483647',
+    background: '#111',
+    color: '#ffe566',
+    border: '2px solid #ffe566',
+    borderRadius: '10px',
+    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+    fontSize: '12px',
+    lineHeight: '1.35',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    boxShadow: '0 8px 24px rgba(0,0,0,0.45)',
+  })
+
+  root.replaceChildren()
+
+  const header = document.createElement('div')
+  Object.assign(header.style, {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '8px 10px',
+    background: '#000',
+    color: '#fff',
+    flex: '0 0 auto',
+  })
+
+  const title = document.createElement('strong')
+  title.textContent = 'PDF debug #939'
+  title.style.flex = '1 1 auto'
+  header.appendChild(title)
+
+  const copyBtn = document.createElement('button')
+  copyBtn.type = 'button'
+  copyBtn.textContent = 'Copy'
+  Object.assign(copyBtn.style, {
+    background: '#ffe566',
+    color: '#111',
+    border: '0',
+    borderRadius: '6px',
+    padding: '6px 10px',
+    fontWeight: '700',
+    fontSize: '13px',
+  })
+  copyBtn.addEventListener('click', () => copyDebugText(text))
+  header.appendChild(copyBtn)
+
+  const closeBtn = document.createElement('button')
+  closeBtn.type = 'button'
+  closeBtn.textContent = 'Close'
+  Object.assign(closeBtn.style, {
+    background: '#333',
+    color: '#fff',
+    border: '1px solid #ffe566',
+    borderRadius: '6px',
+    padding: '6px 10px',
+    fontWeight: '700',
+    fontSize: '13px',
+  })
+  closeBtn.addEventListener('click', () => root?.remove())
+  header.appendChild(closeBtn)
+
+  const body = document.createElement('pre')
+  body.textContent = text
+  Object.assign(body.style, {
+    margin: '0',
+    padding: '10px',
+    overflow: 'auto',
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-word',
+    userSelect: 'text',
+    flex: '1 1 auto',
+  })
+  body.style.setProperty('-webkit-overflow-scrolling', 'touch')
+
+  root.append(header, body)
+}
+
+export function publishPdfDebugReport(report: PdfDebugReport): string {
+  const text = formatPdfDebugReport(report)
+  console.log('[pdfDebug #939]', text)
+  console.log('[pdfDebug #939 json]', report)
+  showPdfDebugOverlay(text)
+  return text
+}

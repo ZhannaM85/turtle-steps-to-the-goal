@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 911,
+    issue: 939,
+    date: '2026-09-17T01:09:08+03:00',
+    en: 'PDF export can show on-screen layout numbers when debug is turned on, to help check the blank band below the footer.',
+    ru: 'При включённой отладке экспорт PDF может показать на экране числа вёрстки, чтобы проверить пустую полосу под футером.',
+  },
+  {
     version: 910,
     issue: 941,
     date: '2026-09-17T01:03:29+03:00',

@@ -126,6 +126,15 @@ describe('shouldIgnorePdfRenderElement (#922)', () => {
       expect(shouldIgnorePdfRenderElement(host.querySelector('p')!, host)).toBe(false)
       expect(shouldIgnorePdfRenderElement(liveApp, host)).toBe(true)
       expect(shouldIgnorePdfRenderElement(liveApp.querySelector('dialog')!, host)).toBe(true)
+
+      const overlay = document.createElement('div')
+      overlay.id = 'pdf-debug-overlay'
+      const overlayBody = document.createElement('pre')
+      overlay.appendChild(overlayBody)
+      document.body.appendChild(overlay)
+      expect(shouldIgnorePdfRenderElement(overlay, host)).toBe(true)
+      expect(shouldIgnorePdfRenderElement(overlayBody, host)).toBe(true)
+      overlay.remove()
     } finally {
       host.remove()
       liveApp.remove()
