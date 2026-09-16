@@ -150,10 +150,17 @@ export const PDF_DOCUMENT_CSS = `
     border: 1px solid #e7e5e4;
     border-radius: 5pt;
     background: #fff;
+    overflow: hidden;
     overflow-wrap: anywhere;
   }
   .pdf-meal-card .pdf-line { font-weight: 600; font-size: 7.5pt; line-height: 1.18; }
-  .pdf-meal-card .pdf-day-item { font-size: 7pt; line-height: 1.18; margin-top: 1pt; }
+  .pdf-meal-card .pdf-day-item {
+    display: flow-root;
+    margin: 1pt 0 0;
+    padding-left: 5pt;
+    font-size: 7pt;
+    line-height: 1.18;
+  }
   .pdf-day-section-water .pdf-day-section-content {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));

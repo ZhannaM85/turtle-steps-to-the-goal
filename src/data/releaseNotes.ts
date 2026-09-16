@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 885,
+    issue: 927,
+    date: '2026-09-16T17:45:00+03:00',
+    en: 'PDF meal-item dividers now stay aligned inside their own cards.',
+    ru: 'Разделители позиций в карточках приёмов пищи PDF теперь остаются внутри своих карточек.',
+  },
+  {
     version: 884,
     issue: 925,
     date: '2026-09-16T17:18:45+03:00',
