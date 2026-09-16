@@ -763,6 +763,7 @@ describe('buildSummaryPdf', () => {
     expect(pageRule).toContain('min-height: 259mm')
     expect(pageRule).toContain('padding-right: 9pt')
     expect(pageRule).toContain('padding-bottom: 9pt')
+    expect(PDF_DOCUMENT_CSS).toContain('.pdf-page-fill {')
     expect(PDF_DOCUMENT_CSS).toContain(
       '.pdf-day-header h2 { font-size: 11pt; font-weight: 600; line-height: 1.2; margin: 0; }',
     )

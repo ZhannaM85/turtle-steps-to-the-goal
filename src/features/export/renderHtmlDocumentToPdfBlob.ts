@@ -158,6 +158,11 @@ async function paintPdfPages(html: string): Promise<{
   try {
     void host.offsetHeight
     explodeOverflowingPdfPages(host)
+    // After split: in-flow pixel fill. CSS min-height + flex footer pinning
+    // are ignored by html2canvas on iOS WebKit, so scrollHeight stays
+    // content-sized and the PDF shows a blank band below the footer (#939).
+    fillPdfPagesToCaptureHeight(host)
+    void host.offsetHeight
 
     const { default: html2canvas } = await import('html2canvas')
     const pages = [...host.querySelectorAll<HTMLElement>('.pdf-page')]
@@ -169,6 +174,7 @@ async function paintPdfPages(html: string): Promise<{
     const canvases: HTMLCanvasElement[] = []
     for (const target of targets) {
       const scale = canvasScaleForElement(target)
+      const captureHeightPx = pdfCaptureHeightPx(target)
       const canvas = await html2canvas(target, {
         scale,
         useCORS: true,
@@ -184,11 +190,16 @@ async function paintPdfPages(html: string): Promise<{
             .forEach((el) => {
               el.style.lineHeight = '1'
             })
+          if (target.style.height) {
+            clonedElement.style.height = target.style.height
+            clonedElement.style.minHeight = target.style.minHeight
+          }
         },
         scrollX: 0,
         scrollY: 0,
         windowWidth: Math.max(target.scrollWidth, host.clientWidth),
-        windowHeight: target.scrollHeight,
+        windowHeight: captureHeightPx,
+        height: captureHeightPx,
       })
       if (canvas.width === 0 || canvas.height === 0) {
         throw new Error('html2canvas produced an empty canvas')
@@ -253,6 +264,83 @@ export function canvasScaleForDimensions(width: number, height: number): number 
  */
 export const MAX_STYLED_PAGE_PX = 980
 
+const PDF_PAGE_FILL_CLASS = 'pdf-page-fill'
+
+function pdfCaptureHeightPx(target: HTMLElement): number {
+  const pinned = Number.parseInt(target.style.height, 10)
+  return Math.max(
+    target.scrollHeight,
+    target.offsetHeight,
+    Number.isFinite(pinned) ? pinned : 0,
+    1,
+  )
+}
+
+/**
+ * #939 — html2canvas (iOS WebKit especially) ignores CSS min-height and flex
+ * `margin-top: auto`, so the captured page stays content-tall (~248 mm) and
+ * the PDF shows a large blank band below the footer. Insert an in-flow pixel
+ * strut after splitting, without exceeding the 980 px one-page cap.
+ */
+function fillPdfPagesToCaptureHeight(host: HTMLElement): void {
+  for (const page of host.querySelectorAll<HTMLElement>('.pdf-page')) {
+    fillPdfPageToCaptureHeight(page)
+  }
+}
+
+function measurePdfPageContentHeightPx(page: HTMLElement): number {
+  const prevHeight = page.style.height
+  const prevMinHeight = page.style.minHeight
+  page.style.height = 'auto'
+  page.style.minHeight = '0px'
+  void page.offsetHeight
+  const height = page.scrollHeight
+  page.style.height = prevHeight
+  page.style.minHeight = prevMinHeight
+  return height
+}
+
+function fillPdfPageToCaptureHeight(page: HTMLElement): void {
+  if (page.querySelector(`.${PDF_PAGE_FILL_CLASS}`)) return
+
+  const contentHeight = measurePdfPageContentHeightPx(page)
+  if (contentHeight >= MAX_STYLED_PAGE_PX) return
+
+  const gapPx = MAX_STYLED_PAGE_PX - contentHeight
+  const spacer = page.ownerDocument.createElement('div')
+  spacer.className = PDF_PAGE_FILL_CLASS
+  spacer.setAttribute('aria-hidden', 'true')
+  spacer.style.height = `${gapPx}px`
+  spacer.style.minHeight = `${gapPx}px`
+  spacer.style.flexGrow = '0'
+  spacer.style.flexShrink = '0'
+  spacer.style.flexBasis = `${gapPx}px`
+
+  // Real in-flow box: empty flex spacers collapse in html2canvas.
+  const strut = page.ownerDocument.createElement('div')
+  strut.style.height = `${gapPx}px`
+  strut.style.width = '1px'
+  spacer.appendChild(strut)
+
+  const body = page.querySelector<HTMLElement>('.pdf-page-body')
+  if (body) {
+    body.style.flexGrow = '0'
+    body.style.flexShrink = '0'
+    body.style.flexBasis = 'auto'
+  }
+
+  const footer = page.querySelector('.pdf-footer')
+  if (footer instanceof HTMLElement) {
+    footer.style.marginTop = '0'
+    page.insertBefore(spacer, footer)
+  } else {
+    page.appendChild(spacer)
+  }
+
+  page.style.height = `${MAX_STYLED_PAGE_PX}px`
+  page.style.minHeight = `${MAX_STYLED_PAGE_PX}px`
+}
+
 function explodeOverflowingPdfPages(host: HTMLElement): void {
   const root = host.querySelector('.pdf-root')
   if (!root) return
@@ -314,4 +402,9 @@ function makeEmptyPdfPage(footerHtml: string, bodyClassName: string): HTMLElemen
 /** Exported for unit tests (#908 packing). */
 export function explodeOverflowingPdfPagesForTest(host: HTMLElement): void {
   explodeOverflowingPdfPages(host)
+}
+
+/** Exported for unit tests (#939 capture-height fill). */
+export function fillPdfPagesToCaptureHeightForTest(host: HTMLElement): void {
+  fillPdfPagesToCaptureHeight(host)
 }

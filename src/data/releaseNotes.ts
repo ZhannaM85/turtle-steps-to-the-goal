@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 908,
+    issue: 939,
+    date: '2026-09-17T00:55:00+03:00',
+    en: 'PDF diary pages now fill down to a normal bottom margin, so the large blank band below the footer is gone.',
+    ru: 'Страницы дневника PDF теперь доходят до обычного нижнего поля, поэтому большая пустая полоса под футером исчезла.',
+  },
+  {
     version: 907,
     issue: 939,
     date: '2026-09-17T00:22:00+03:00',

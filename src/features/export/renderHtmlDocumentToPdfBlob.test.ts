@@ -3,6 +3,8 @@ import {
   canvasScaleForDimensions,
   capturePdfPageDataUrls,
   explodeOverflowingPdfPagesForTest,
+  fillPdfPagesToCaptureHeightForTest,
+  MAX_STYLED_PAGE_PX,
   shouldIgnorePdfRenderElement,
 } from './renderHtmlDocumentToPdfBlob'
 
@@ -138,5 +140,108 @@ describe('capturePdfPageDataUrls (#935)', () => {
     )
     expect(urls).toHaveLength(1)
     expect(urls[0]).toMatch(/^data:image\//)
+  })
+})
+
+describe('fillPdfPagesToCaptureHeight (#939)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('inserts a pixel strut so html2canvas can honor the 980px capture floor', () => {
+    vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockImplementation(
+      function (this: HTMLElement) {
+        if (!this.classList.contains('pdf-page')) return 0
+        const fill = this.querySelector('.pdf-page-fill') as HTMLElement | null
+        const fillPx = fill ? Number.parseInt(fill.style.height, 10) || 0 : 0
+        return 400 + fillPx
+      },
+    )
+
+    const host = document.createElement('div')
+    host.innerHTML = `<div class="pdf-root"><section class="pdf-page">
+      <div class="pdf-page-body"><p>short day</p></div>
+      <footer class="pdf-footer">Disclaimer</footer>
+    </section></div>`
+    document.body.appendChild(host)
+    try {
+      fillPdfPagesToCaptureHeightForTest(host)
+      const page = host.querySelector<HTMLElement>('.pdf-page')
+      const fill = page?.querySelector<HTMLElement>('.pdf-page-fill')
+      const footer = page?.querySelector('.pdf-footer')
+      expect(fill).not.toBeNull()
+      expect(fill?.style.height).toBe(`${MAX_STYLED_PAGE_PX - 400}px`)
+      expect(page?.style.height).toBe(`${MAX_STYLED_PAGE_PX}px`)
+      expect(page?.style.minHeight).toBe(`${MAX_STYLED_PAGE_PX}px`)
+      expect(fill?.nextElementSibling).toBe(footer)
+      expect(fill?.querySelector('div')?.style.height).toBe(
+        `${MAX_STYLED_PAGE_PX - 400}px`,
+      )
+    } finally {
+      host.remove()
+    }
+  })
+
+  it('does not add a fill strut when the page already meets the capture height', () => {
+    vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockImplementation(
+      function (this: HTMLElement) {
+        return this.classList.contains('pdf-page') ? MAX_STYLED_PAGE_PX : 0
+      },
+    )
+
+    const host = document.createElement('div')
+    host.innerHTML = `<div class="pdf-root"><section class="pdf-page">
+      <div class="pdf-page-body"><section style="height:980px">full</section></div>
+      <footer class="pdf-footer">Disclaimer</footer>
+    </section></div>`
+    document.body.appendChild(host)
+    try {
+      fillPdfPagesToCaptureHeightForTest(host)
+      expect(host.querySelector('.pdf-page-fill')).toBeNull()
+      expect(host.querySelector<HTMLElement>('.pdf-page')?.style.height).toBe('')
+    } finally {
+      host.remove()
+    }
+  })
+
+  it('fills short leftover pages after a split without exceeding the cap', () => {
+    vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockImplementation(
+      function (this: HTMLElement) {
+        if (!this.classList.contains('pdf-page')) return 0
+        const body = this.querySelector('.pdf-page-body')
+        let height = 40
+        for (const child of body?.children ?? []) {
+          height += Number.parseInt((child as HTMLElement).style.height, 10) || 0
+        }
+        const fill = this.querySelector('.pdf-page-fill') as HTMLElement | null
+        if (fill) height += Number.parseInt(fill.style.height, 10) || 0
+        return height
+      },
+    )
+
+    const host = document.createElement('div')
+    host.innerHTML = `<div class="pdf-root"><section class="pdf-page">
+      <div class="pdf-page-body">
+        <section style="height:600px">Food</section>
+        <section style="height:600px">Water</section>
+      </div><footer class="pdf-footer"><p class="pdf-page-number"></p></footer>
+    </section></div>`
+    document.body.appendChild(host)
+    try {
+      explodeOverflowingPdfPagesForTest(host)
+      fillPdfPagesToCaptureHeightForTest(host)
+      const pages = [...host.querySelectorAll<HTMLElement>('.pdf-page')]
+      expect(pages).toHaveLength(2)
+      for (const page of pages) {
+        const fill = page.querySelector<HTMLElement>('.pdf-page-fill')
+        expect(fill).not.toBeNull()
+        const fillPx = Number.parseInt(fill?.style.height ?? '', 10)
+        expect(fillPx).toBeGreaterThan(0)
+        expect(page.scrollHeight).toBe(MAX_STYLED_PAGE_PX)
+        expect(page.style.height).toBe(`${MAX_STYLED_PAGE_PX}px`)
+      }
+    } finally {
+      host.remove()
+    }
   })
 })

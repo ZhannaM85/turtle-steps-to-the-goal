@@ -65,4 +65,4 @@ _Reported from an iPhone PDF export._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#939](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/939) | 🔍 Pending validation | PDF diary: excessive blank band below the footer | Increased captured page height from `248 mm` to `259 mm`, reducing the post-capture A4 band while staying below the `980 px` split limit and retaining footer safety padding. Awaiting on-device confirmation. |
+| [#939](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/939) | 🔍 Pending validation | PDF diary: excessive blank band below the footer | CSS `min-height: 259 mm` alone was ignored by iOS html2canvas. After page split, each `.pdf-page` now gets an in-flow pixel strut (and a 980 px height pin) so the capture reaches the A4 fill target without exceeding `MAX_STYLED_PAGE_PX`. Awaiting on-device confirmation. |

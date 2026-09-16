@@ -18,7 +18,7 @@ export const PDF_DOCUMENT_CSS = `
   }
   .pdf-page {
     width: 180mm;
-    /* Fill A4 after scaling while staying below the renderer's 980px cap. */
+    /* Desktop fallback only — iOS html2canvas ignores min-height (#939). */
     min-height: 259mm;
     padding: 0;
     padding-right: 9pt;
@@ -34,6 +34,17 @@ export const PDF_DOCUMENT_CSS = `
     break-after: auto;
   }
   .pdf-page-body { flex: 1 1 auto; }
+  /* Pixel height is set in JS after page split so html2canvas cannot collapse it. */
+  .pdf-page-fill {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    flex: 0 0 auto;
+    pointer-events: none;
+  }
   .pdf-summary-body { overflow: hidden; }
   .pdf-title {
     font-size: 18pt;
