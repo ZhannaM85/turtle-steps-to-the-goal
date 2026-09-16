@@ -50,5 +50,4 @@ _Reported from iPhone PDF previews; logging only, with no implementation yet._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#919](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/919) | 🔍 Pending validation | PDF diary export: reduce or remove repeated page disclaimer | Chose the requested smaller-footer option: the disclaimer and creation date now sit near the bottom of each styled sheet at 6.5pt. Awaiting on-device PDF confirmation. |
 | [#923](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/923) | 🔍 Pending validation | PDF diary export: include Night food notes | Diary pages now include the saved reason for Yes and What helped note for No, including older saved thoughts. Awaiting on-device PDF confirmation. |
