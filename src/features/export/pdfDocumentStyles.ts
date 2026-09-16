@@ -188,6 +188,8 @@ export const PDF_DOCUMENT_CSS = `
     width: 48.5%;
     margin: 0 1.5% 3pt 0;
     padding: 3pt 4pt;
+    padding-left: 10pt;
+    padding-bottom: 9pt;
     border: 1px solid #e7e5e4;
     border-radius: 5pt;
     background: #fff;
