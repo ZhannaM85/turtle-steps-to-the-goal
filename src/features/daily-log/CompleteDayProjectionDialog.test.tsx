@@ -9,7 +9,7 @@ import { CompleteDayProjectionDialog } from './CompleteDayProjectionDialog'
 import { DailyEntryFormStateProvider } from './DailyEntryFormStateContext'
 import { calories, now } from './dailyEntryFormTestUtils'
 
-describe('CompleteDayProjectionDialog (#934)', () => {
+describe('CompleteDayProjectionDialog (#934 / #936)', () => {
   beforeEach(() => {
     useProfileStore.setState({
       heightCm: 165,

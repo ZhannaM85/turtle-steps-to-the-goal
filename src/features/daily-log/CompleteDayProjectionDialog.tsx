@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import {
+  CartesianGrid,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -13,6 +14,8 @@ import { kgToLb } from '@/domain/goal'
 import {
   COMPLETE_DAY_HORIZON_WEEKS,
   completeDayProjectionBlocker,
+  completeDayWeekGridTicks,
+  completeDayWeightGridTicksKg,
   projectWeightIfEatingLikeToday,
 } from '@/domain/stats'
 import { formatNumber, unitLabel, useLocale } from '@/i18n'
@@ -76,6 +79,13 @@ export function CompleteDayProjectionDialog() {
       week: point.week,
       weight: toDisplay(point.weightKg),
     })) ?? []
+  const weekTicks = completeDayWeekGridTicks()
+  const weightTicks = projection
+    ? completeDayWeightGridTicksKg(
+        Math.min(...projection.points.map((point) => point.weightKg)),
+        Math.max(...projection.points.map((point) => point.weightKg)),
+      ).map(toDisplay)
+    : []
 
   const changeText = (totalChangeKg: number) => {
     const amount = `${formatNumber(Math.abs(toDisplay(totalChangeKg)), locale)} ${unitText}`
@@ -146,21 +156,42 @@ export function CompleteDayProjectionDialog() {
                     data={chartData}
                     margin={{ top: 12, right: 8, left: 8, bottom: 0 }}
                   >
+                    <CartesianGrid
+                      strokeDasharray="4 4"
+                      stroke="var(--border)"
+                    />
                     <XAxis
                       dataKey="week"
                       type="number"
                       domain={[0, COMPLETE_DAY_HORIZON_WEEKS]}
-                      ticks={[0, COMPLETE_DAY_HORIZON_WEEKS]}
+                      ticks={weekTicks}
                       tickFormatter={(week: number) =>
                         week === 0
                           ? t.today.completeDayWeekNow
-                          : t.today.completeDayWeekEnd
+                          : week === COMPLETE_DAY_HORIZON_WEEKS
+                            ? t.today.completeDayWeekEnd
+                            : ''
                       }
                       tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
                       axisLine={{ stroke: 'var(--border)' }}
                       tickLine={false}
                     />
-                    <YAxis hide domain={['auto', 'auto']} />
+                    <YAxis
+                      type="number"
+                      domain={
+                        weightTicks.length > 1
+                          ? [
+                              weightTicks[0]!,
+                              weightTicks[weightTicks.length - 1]!,
+                            ]
+                          : ['auto', 'auto']
+                      }
+                      ticks={weightTicks}
+                      tick={false}
+                      axisLine={false}
+                      tickLine={false}
+                      width={0}
+                    />
                     <Line
                       type="monotone"
                       dataKey="weight"

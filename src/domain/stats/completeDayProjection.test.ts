@@ -3,9 +3,12 @@ import { calculateBmr } from './bodyComposition'
 import { calculateTdee } from './targetCalculator'
 import { KCAL_PER_KG_FAT } from '@/domain/goal'
 import {
+  COMPLETE_DAY_GRID_KG,
   COMPLETE_DAY_HORIZON_DAYS,
   COMPLETE_DAY_HORIZON_WEEKS,
   completeDayProjectionBlocker,
+  completeDayWeekGridTicks,
+  completeDayWeightGridTicksKg,
   projectWeightIfEatingLikeToday,
 } from './completeDayProjection'
 
@@ -100,5 +103,19 @@ describe('completeDayProjectionBlocker (#934)', () => {
 
   it('allows a moderate deficit like 1200 kcal', () => {
     expect(completeDayProjectionBlocker(sample)).toBeUndefined()
+  })
+})
+
+describe('complete-the-day chart grid (#936)', () => {
+  it('places a vertical line at each of the six week marks', () => {
+    expect(completeDayWeekGridTicks()).toEqual([0, 1, 2, 3, 4, 5])
+    expect(completeDayWeekGridTicks()).toHaveLength(COMPLETE_DAY_HORIZON_WEEKS + 1)
+  })
+
+  it('places a horizontal line every 500 g covering the projected range', () => {
+    expect(COMPLETE_DAY_GRID_KG).toBe(0.5)
+    expect(completeDayWeightGridTicksKg(60.2, 58.8)).toEqual([
+      58.5, 59, 59.5, 60, 60.5,
+    ])
   })
 })

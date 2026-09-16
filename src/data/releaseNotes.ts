@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 898,
+    issue: 936,
+    date: '2026-09-16T22:50:00+03:00',
+    en: 'The Complete the day chart now has a dashed week and 500 g grid.',
+    ru: 'На графике «Завершить день» теперь пунктирная сетка: неделя и каждые 500 г.',
+  },
+  {
     version: 897,
     issue: 935,
     date: '2026-09-16T22:30:00+03:00',

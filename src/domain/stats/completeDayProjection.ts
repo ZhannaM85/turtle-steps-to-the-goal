@@ -10,6 +10,34 @@ export const COMPLETE_DAY_HORIZON_DAYS = COMPLETE_DAY_HORIZON_WEEKS * 7
 export const COMPLETE_DAY_LOW_INTAKE_TDEE_FRACTION = 0.5
 /** Skip the 5-week line when today's intake is above 1.5× estimated TDEE. */
 export const COMPLETE_DAY_HIGH_INTAKE_TDEE_FRACTION = 1.5
+/** #936 — horizontal dashed mesh every 500 g. */
+export const COMPLETE_DAY_GRID_KG = 0.5
+
+export function completeDayWeekGridTicks(): number[] {
+  return Array.from(
+    { length: COMPLETE_DAY_HORIZON_WEEKS + 1 },
+    (_, week) => week,
+  )
+}
+
+export function completeDayWeightGridTicksKg(
+  minKg: number,
+  maxKg: number,
+): number[] {
+  const lo = Math.min(minKg, maxKg)
+  const hi = Math.max(minKg, maxKg)
+  const start =
+    Math.floor(lo / COMPLETE_DAY_GRID_KG) * COMPLETE_DAY_GRID_KG
+  const end = Math.ceil(hi / COMPLETE_DAY_GRID_KG) * COMPLETE_DAY_GRID_KG
+  const ticks: number[] = []
+  for (let kg = start; kg <= end + 1e-9; kg += COMPLETE_DAY_GRID_KG) {
+    ticks.push(Math.round(kg * 10) / 10)
+  }
+  if (ticks.length < 2) {
+    ticks.push(Math.round((start + COMPLETE_DAY_GRID_KG) * 10) / 10)
+  }
+  return ticks
+}
 
 export interface CompleteDayProjectionInput {
   weightKg: number
