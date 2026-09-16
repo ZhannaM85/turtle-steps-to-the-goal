@@ -720,6 +720,8 @@ describe('buildSummaryPdf', () => {
     expect(html).toContain('.pdf-day-section-metrics .pdf-day-section-content .pdf-line')
     expect(html).toContain('.pdf-day-section-notes .pdf-day-section-content .pdf-line')
     expect(html).toContain('font-size: 9pt')
+    expect(html).toContain('.pdf-day-section-water .pdf-day-section-content')
+    expect(html).toContain('.pdf-day-section-notes .pdf-day-section-content')
     expect(html).toContain('padding-left: 9pt')
     expect(html).toContain('padding-bottom: 12pt')
   })
