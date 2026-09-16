@@ -683,3 +683,4 @@ _Found while validating Settings groups / Day accordion / DateInput follow-ups o
 |---|--------|-------|-------|
 | [#918](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/918) | ✅ Done | PDF diary export: blank page appears between Food and Water | Confirmed on-device 2026-09-16 — no empty pages; diary content fits cleanly on the day page. |
 | [#920](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/920) | ✅ Done | PDF diary export: day starts partway down a page | Confirmed on-device 2026-09-16 — each date starts on its own PDF page; diary content fits cleanly on the day page. |
+| [#922](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/922) | ✅ Done | PDF diary export: improve local generation speed for weekly diaries | Confirmed locally in Chrome on 2026-09-16 — weekly PDF downloads within one second. |
