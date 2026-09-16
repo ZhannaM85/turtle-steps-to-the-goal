@@ -7,7 +7,11 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/shared/ui/dialog'
-import { InfoTooltip } from '@/shared/ui/info-tooltip'
+import {
+  CONTROL_INFO_TOOLTIP_CLASS,
+  ControlWithInfo,
+  InfoTooltip,
+} from '@/shared/ui/info-tooltip'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import {
   pdfSectionDisabledReason,
@@ -188,7 +192,7 @@ export function PdfSectionsDialog({
             aria-label={t.export.pdfSectionsDialogTitle}
             value={builtinSelected}
             onValueChange={handleBuiltinValueChange}
-            className="flex-wrap"
+            className="w-fit flex-wrap justify-start"
           >
             {builtinSections.map(({ key, label }) => {
               const disabled = !availability[key]
@@ -196,7 +200,7 @@ export function PdfSectionsDialog({
                 ? pdfSectionDisabledReason(key, rawAvailability, trackingGate)
                 : null
               return (
-                <span key={key} className="inline-flex items-center gap-1">
+                <ControlWithInfo key={key}>
                   <ToggleGroupItem
                     value={key}
                     className={reason ? 'h-12 pr-1.5' : 'h-12'}
@@ -208,10 +212,10 @@ export function PdfSectionsDialog({
                     <InfoTooltip
                       text={disabledReasonText(t, reason)}
                       label={t.export.pdfSectionDisabledTooltipLabel}
-                      className="size-6 -ml-2"
+                      className={CONTROL_INFO_TOOLTIP_CLASS}
                     />
                   )}
-                </span>
+                </ControlWithInfo>
               )
             })}
           </ToggleGroup>
@@ -225,13 +229,10 @@ export function PdfSectionsDialog({
                 aria-label={t.export.pdfSectionsCustomMetricsGroupLabel}
                 value={customSelected}
                 onValueChange={handleCustomValueChange}
-                className="flex-wrap"
+                className="w-fit flex-wrap justify-start"
               >
                 {customMetrics.map((metric) => (
-                  <span
-                    key={metric.id}
-                    className="inline-flex items-center gap-1"
-                  >
+                  <ControlWithInfo key={metric.id}>
                     <ToggleGroupItem
                       value={`${CUSTOM_METRIC_PREFIX}${metric.id}`}
                       className={
@@ -248,10 +249,10 @@ export function PdfSectionsDialog({
                       <InfoTooltip
                         text={t.export.pdfSectionDisabledNoDataTooltip}
                         label={t.export.pdfSectionDisabledTooltipLabel}
-                        className="size-6 -ml-2"
+                        className={CONTROL_INFO_TOOLTIP_CLASS}
                       />
                     )}
-                  </span>
+                  </ControlWithInfo>
                 ))}
               </ToggleGroup>
             </div>
@@ -264,9 +265,9 @@ export function PdfSectionsDialog({
               onValueChange={(values) =>
                 setIncludeDailyLogPages(values.includes('dailyLogPages'))
               }
-              className="flex-wrap"
+              className="w-fit flex-wrap justify-start"
             >
-              <span className="inline-flex items-center gap-1">
+              <ControlWithInfo>
                 <ToggleGroupItem
                   value="dailyLogPages"
                   className={
@@ -280,10 +281,10 @@ export function PdfSectionsDialog({
                   <InfoTooltip
                     text={t.export.pdfSectionDisabledNoDataTooltip}
                     label={t.export.pdfSectionDisabledTooltipLabel}
-                    className="size-6 -ml-2"
+                    className={CONTROL_INFO_TOOLTIP_CLASS}
                   />
                 )}
-              </span>
+              </ControlWithInfo>
             </ToggleGroup>
             <p className="text-sm text-muted-foreground">
               {t.export.pdfSectionDailyLogPagesHint}

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 913,
+    issue: 943,
+    date: '2026-09-17T01:24:00+03:00',
+    en: 'Export info icons now stay next to their buttons, instead of sitting at the far edge of the row.',
+    ru: 'Значки «i» на экране экспорта теперь остаются рядом с кнопками, а не у дальнего края строки.',
+  },
+  {
     version: 912,
     issue: 942,
     date: '2026-09-17T01:15:03+03:00',

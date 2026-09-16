@@ -9,7 +9,11 @@ import { Button } from '@/shared/ui/button'
 import { DateInput } from '@/shared/ui/date-input'
 import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
-import { InfoTooltip } from '@/shared/ui/info-tooltip'
+import {
+  CONTROL_INFO_TOOLTIP_CLASS,
+  ControlWithInfo,
+  InfoTooltip,
+} from '@/shared/ui/info-tooltip'
 import { currentAnalysisExportTracking } from './analysisExportTracking'
 import { exportAllData } from './exportActions'
 import { buildDailyLogCsv, CSV_BOM } from './exportCsv'
@@ -346,7 +350,7 @@ export function AnalysisExportSection({ children }: { children?: ReactNode }) {
         <p className="text-sm text-muted-foreground">
           {t.export.exportCsvBlurb}
         </p>
-        <div className="flex items-center gap-1.5 self-start">
+        <ControlWithInfo>
           <Button
             variant="outline"
             onClick={handleExportCsv}
@@ -359,8 +363,9 @@ export function AnalysisExportSection({ children }: { children?: ReactNode }) {
           <InfoTooltip
             text={t.export.exportCsvLlmTooltip}
             label={t.export.exportCsvLlmTooltipLabel}
+            className={CONTROL_INFO_TOOLTIP_CLASS}
           />
-        </div>
+        </ControlWithInfo>
         {status.kind === 'exportedCsv' && (
           <SectionStatus>
             {t.export.exportedCsvSummary(status.entries)}

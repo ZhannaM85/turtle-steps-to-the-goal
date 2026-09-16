@@ -4,6 +4,30 @@ import { Popover as PopoverPrimitive } from 'radix-ui'
 
 import { cn } from '@/shared/lib/utils'
 
+/** #943 — button/chip + ⓘ : icon follows the control at a fixed 8px gap. */
+export const CONTROL_WITH_INFO_CLASS =
+  'inline-flex w-fit max-w-full items-center justify-start gap-2'
+
+/** Compact ⓘ so the glyph sits ~8–12px beside the control, not a 44px box. */
+export const CONTROL_INFO_TOOLTIP_CLASS = 'size-6'
+
+export function ControlWithInfo({
+  children,
+  className,
+}: {
+  children: ReactNode
+  className?: string
+}) {
+  return (
+    <span
+      data-slot="control-with-info"
+      className={cn(CONTROL_WITH_INFO_CLASS, className)}
+    >
+      {children}
+    </span>
+  )
+}
+
 export interface InfoTooltipProps {
   text: string
   label: string

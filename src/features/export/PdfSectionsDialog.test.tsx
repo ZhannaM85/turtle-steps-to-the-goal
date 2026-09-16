@@ -31,9 +31,20 @@ function availability(
  * aria-label, so an unscoped query would match more than one. */
 function tooltipTriggerFor(toggleName: string) {
   const toggle = screen.getByRole('button', { name: toggleName })
-  const wrapper = toggle.closest('span')
-  if (!wrapper) throw new Error(`no wrapper span found for "${toggleName}"`)
+  const wrapper = toggle.closest('[data-slot="control-with-info"]')
+  if (!(wrapper instanceof HTMLElement)) {
+    throw new Error(`no wrapper found for "${toggleName}"`)
+  }
   return within(wrapper).getByRole('button', { name: 'Why this is disabled' })
+}
+
+function controlWithInfoFor(toggleName: string) {
+  const toggle = screen.getByRole('button', { name: toggleName })
+  const wrapper = toggle.closest('[data-slot="control-with-info"]')
+  if (!(wrapper instanceof HTMLElement)) {
+    throw new Error(`no wrapper found for "${toggleName}"`)
+  }
+  return wrapper
 }
 
 // #634 — a disabled toggle can be disabled for one of two reasons (off in
@@ -108,10 +119,34 @@ describe('PdfSectionsDialog', () => {
 
     const toggle = screen.getByRole('button', { name: 'Weight trend' })
     expect(toggle).not.toBeDisabled()
-    const wrapper = toggle.closest('span')!
+    const wrapper = controlWithInfoFor('Weight trend')
     expect(
       within(wrapper).queryByRole('button', { name: 'Why this is disabled' }),
     ).not.toBeInTheDocument()
+  })
+
+  it('keeps short and long section chips in the same tight info-icon row (#943)', () => {
+    render(
+      <PdfSectionsDialog
+        open
+        onOpenChange={vi.fn()}
+        onSubmit={vi.fn()}
+        submitting={false}
+        availability={availability()}
+        rawAvailability={availability()}
+        trackingGate={ALL_TRACKED}
+        customMetrics={[{ id: 'm1', name: 'Acne', available: false }]}
+        dailyLogAvailable={false}
+      />,
+    )
+
+    for (const name of ['Alcohol', 'Body measurements', 'Acne', 'Daily log pages']) {
+      const row = controlWithInfoFor(name)
+      expect(row).toHaveClass('inline-flex', 'w-fit', 'justify-start', 'gap-2')
+      expect(row).not.toHaveClass('justify-between')
+      expect(tooltipTriggerFor(name)).toHaveClass('size-6')
+      expect(tooltipTriggerFor(name)).not.toHaveClass('size-11')
+    }
   })
 
   it('reduces only a tooltip-bearing option’s right padding', () => {
