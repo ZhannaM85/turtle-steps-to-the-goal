@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import {
-  CartesianGrid,
   Line,
   LineChart,
+  ReferenceLine,
   ResponsiveContainer,
   XAxis,
   YAxis,
@@ -156,15 +156,30 @@ export function CompleteDayProjectionDialog() {
                     data={chartData}
                     margin={{ top: 12, right: 8, left: 8, bottom: 0 }}
                   >
-                    <CartesianGrid
-                      strokeDasharray="4 4"
-                      stroke="var(--border)"
-                    />
+                    {weekTicks.map((week) => (
+                      <ReferenceLine
+                        key={`week-${week}`}
+                        x={week}
+                        stroke="var(--muted-foreground)"
+                        strokeDasharray="5 4"
+                        strokeWidth={1.5}
+                      />
+                    ))}
+                    {weightTicks.map((weight) => (
+                      <ReferenceLine
+                        key={`kg-${weight}`}
+                        y={weight}
+                        stroke="var(--muted-foreground)"
+                        strokeDasharray="5 4"
+                        strokeWidth={1.5}
+                      />
+                    ))}
                     <XAxis
                       dataKey="week"
                       type="number"
                       domain={[0, COMPLETE_DAY_HORIZON_WEEKS]}
                       ticks={weekTicks}
+                      interval={0}
                       tickFormatter={(week: number) =>
                         week === 0
                           ? t.today.completeDayWeekNow
@@ -187,6 +202,7 @@ export function CompleteDayProjectionDialog() {
                           : ['auto', 'auto']
                       }
                       ticks={weightTicks}
+                      interval={0}
                       tick={false}
                       axisLine={false}
                       tickLine={false}

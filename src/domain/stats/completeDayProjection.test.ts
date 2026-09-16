@@ -117,5 +117,8 @@ describe('complete-the-day chart grid (#936)', () => {
     expect(completeDayWeightGridTicksKg(60.2, 58.8)).toEqual([
       58.5, 59, 59.5, 60, 60.5,
     ])
+    expect(completeDayWeightGridTicksKg(60.2, 58.2)).toEqual([
+      58, 58.5, 59, 59.5, 60, 60.5,
+    ])
   })
 })
