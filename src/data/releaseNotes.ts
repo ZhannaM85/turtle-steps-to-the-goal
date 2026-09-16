@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 878,
+    issue: 922,
+    date: '2026-09-16T11:00:00+03:00',
+    en: 'Weekly PDF diary exports now generate faster while keeping text and cards clear.',
+    ru: 'Недельные PDF-дневники теперь формируются быстрее, сохраняя чёткость текста и карточек.',
+  },
+  {
     version: 877,
     issue: 921,
     date: '2026-09-16T10:46:00+03:00',

@@ -166,10 +166,20 @@ function splitHtmlDocument(html: string): { styleCss: string; bodyHtml: string }
 
 /** Keep canvas under iOS Safari’s ~4096² limit (html2canvas blank-page bug). */
 function canvasScaleForElement(el: HTMLElement): number {
-  const w = Math.max(1, el.scrollWidth)
-  const h = Math.max(1, el.scrollHeight)
+  return canvasScaleForDimensions(el.scrollWidth, el.scrollHeight)
+}
+
+/**
+ * #922 — 1.5x gives a crisp ~144dpi PDF image while reducing each canvas
+ * from about 3.1 to 1.8 million pixels for a standard diary sheet. Rendering
+ * several weekly pages becomes substantially faster without sacrificing
+ * readable text or card borders.
+ */
+export function canvasScaleForDimensions(width: number, height: number): number {
+  const w = Math.max(1, width)
+  const h = Math.max(1, height)
   const maxEdge = 4096
-  const maxScale = Math.min(maxEdge / w, maxEdge / h, 2)
+  const maxScale = Math.min(maxEdge / w, maxEdge / h, 1.5)
   return Math.max(1, Math.floor(maxScale * 10) / 10)
 }
 

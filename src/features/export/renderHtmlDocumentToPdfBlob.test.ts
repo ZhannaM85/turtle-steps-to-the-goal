@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { explodeOverflowingPdfPagesForTest } from './renderHtmlDocumentToPdfBlob'
+import {
+  canvasScaleForDimensions,
+  explodeOverflowingPdfPagesForTest,
+} from './renderHtmlDocumentToPdfBlob'
 
 describe('explodeOverflowingPdfPages (#908)', () => {
   afterEach(() => {
@@ -87,5 +90,15 @@ describe('explodeOverflowingPdfPages (#908)', () => {
     } finally {
       host.remove()
     }
+  })
+})
+
+describe('canvasScaleForDimensions (#922)', () => {
+  it('uses a 1.5x canvas for a standard PDF page to speed up diary exports', () => {
+    expect(canvasScaleForDimensions(794, 980)).toBe(1.5)
+  })
+
+  it('still reduces the scale for unusually tall content that approaches Safari canvas limits', () => {
+    expect(canvasScaleForDimensions(794, 4000)).toBe(1)
   })
 })
