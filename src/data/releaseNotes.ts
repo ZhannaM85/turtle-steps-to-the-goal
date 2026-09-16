@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 903,
+    issue: 930,
+    date: '2026-09-17T00:14:00+03:00',
+    en: 'The PDF Water total stays beside its heading with roomier, device-safe content spacing.',
+    ru: 'Объём воды в PDF остаётся рядом с заголовком, а содержимое получило более просторные безопасные отступы.',
+  },
+  {
     version: 902,
     issue: 929,
     date: '2026-09-17T00:13:00+03:00',
