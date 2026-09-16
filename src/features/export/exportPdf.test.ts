@@ -700,6 +700,8 @@ describe('buildSummaryPdf', () => {
     expect(day.querySelector('.pdf-day-section-food')?.textContent).toContain('Rice')
     expect(day.textContent).toContain('Tea helped me sleep')
     expect(html).toContain('float: left')
+    expect(html).toContain('display: inline-flex')
+    expect(html).toContain('white-space: nowrap')
     expect(html).not.toContain('grid-template-columns')
   })
 

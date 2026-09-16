@@ -129,6 +129,10 @@ export const PDF_DOCUMENT_CSS = `
   .pdf-day-section-title > span { line-height: 1.2; }
   .pdf-day-section-title-metrics {
     float: right;
+    display: inline-flex;
+    align-items: center;
+    gap: 7pt;
+    white-space: nowrap;
     font-size: 7.5pt;
     font-weight: 400;
     line-height: 1.2;
@@ -136,8 +140,8 @@ export const PDF_DOCUMENT_CSS = `
   .pdf-day-section-title-lead { display: inline; }
   .pdf-day-section-water-total { font-weight: 400; padding-left: 4pt; }
   .pdf-day-header-metric {
-    display: inline;
-    margin-left: 7pt;
+    display: inline-flex;
+    align-items: center;
     white-space: nowrap;
     line-height: 1.2;
   }
