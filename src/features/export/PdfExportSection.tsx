@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { format, subDays } from 'date-fns'
 import { useLocale, useTranslation } from '@/i18n'
 import {
@@ -289,6 +290,13 @@ export function PdfExportSection() {
           {status.kind === 'exportingPdf'
             ? t.export.exportingPdfButton
             : t.export.exportPdfButton}
+        </Button>
+        <Button variant="outline" className="self-start" asChild>
+          <Link
+            to={`/settings/pdf-layout?start=${pdfPeriodStart}&end=${pdfPeriodEnd}`}
+          >
+            {t.export.pdfLayoutPreviewButton}
+          </Link>
         </Button>
         {status.kind === 'exportedPdf' && (
           <SectionStatus>{t.export.exportedPdfSummary}</SectionStatus>

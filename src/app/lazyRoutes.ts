@@ -57,3 +57,8 @@ export const PrivacyScreen = lazy(() =>
 export const FeaturesScreen = lazy(() =>
   import('@/features/about').then((m) => ({ default: m.FeaturesScreen })),
 )
+export const PdfLayoutPreviewScreen = lazy(() =>
+  import('@/features/export/PdfLayoutPreviewScreen').then((m) => ({
+    default: m.PdfLayoutPreviewScreen,
+  })),
+)

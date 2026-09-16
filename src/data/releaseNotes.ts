@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 893,
+    issue: 933,
+    date: '2026-09-16T20:25:00+03:00',
+    en: 'Settings now has a Preview layout page that shows the PDF as HTML in the browser.',
+    ru: 'В Настройках теперь есть страница «Посмотреть макет», где PDF показывается как HTML в браузере.',
+  },
+  {
     version: 892,
     issue: 928,
     date: '2026-09-16T18:55:00+03:00',

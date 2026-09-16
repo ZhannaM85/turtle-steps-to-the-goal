@@ -114,6 +114,12 @@ export const exportCopy: ExportDict = {
     exportPdfRangeLabel: 'Сводка охватывает',
     exportPdfRange30Label: 'Последние 30 дней',
     exportPdfRange90Label: 'Последние 90 дней',
+    pdfLayoutPreviewTitle: 'Макет PDF',
+    pdfLayoutPreviewBlurb:
+      'Это HTML, из которого собирается PDF. Проверьте отступы и шрифты здесь; файл создаётся отдельно.',
+    pdfLayoutPreviewButton: 'Посмотреть макет',
+    pdfLayoutPreviewLoading: 'Загрузка макета…',
+    pdfLayoutPreviewFailed: 'Не удалось показать макет.',
     pdfSectionsDialogTitle: 'Выберите, что включить',
     pdfSectionsDialogDescription:
       'Выберите, какие разделы войдут в PDF. Отказ от медицинской ответственности включается всегда.',

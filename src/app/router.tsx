@@ -1,7 +1,9 @@
+import { Suspense } from 'react'
 import type { RouteObject } from 'react-router-dom'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppShell } from '@/app/AppShell'
 import { RouteErrorFallback } from '@/app/RouteErrorFallback'
+import { RouteLoadingFallback } from '@/app/RouteLoadingFallback'
 import { TodayScreen } from '@/features/daily-log'
 import {
   AboutScreen,
@@ -11,6 +13,7 @@ import {
   FoodListSettingsScreen,
   GoalScreen,
   HistoryScreen,
+  PdfLayoutPreviewScreen,
   PrivacyScreen,
   RecipesSettingsScreen,
   SettingsScreen,
@@ -18,6 +21,15 @@ import {
 } from './lazyRoutes'
 
 export const routes: RouteObject[] = [
+  {
+    path: '/settings/pdf-layout',
+    element: (
+      <Suspense fallback={<RouteLoadingFallback />}>
+        <PdfLayoutPreviewScreen />
+      </Suspense>
+    ),
+    errorElement: <RouteErrorFallback />,
+  },
   {
     element: <AppShell />,
     // #102: catches uncaught render errors anywhere below AppShell — React

@@ -143,6 +143,12 @@ export interface ExportDict {
     exportPdfRangeLabel: string
     exportPdfRange30Label: string
     exportPdfRange90Label: string
+    /** #933 — HTML layout preview of the PDF document, no file download. */
+    pdfLayoutPreviewTitle: string
+    pdfLayoutPreviewBlurb: string
+    pdfLayoutPreviewButton: string
+    pdfLayoutPreviewLoading: string
+    pdfLayoutPreviewFailed: string
     /** #629 — lets the user pick which optional sections (below) go into
      * the PDF before it's generated. The disclaimer stays unconditional,
      * so it has no corresponding toggle here. */
