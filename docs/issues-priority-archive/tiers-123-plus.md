@@ -689,3 +689,4 @@ _Found while validating Settings groups / Day accordion / DateInput follow-ups o
 | [#923](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/923) | ✅ Done | PDF diary export: include Night food notes | Confirmed on-device 2026-09-16. |
 | [#924](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/924) | ✅ Done | Chrome web: calendar date inputs do not open | Confirmed on-device 2026-09-16 — date calendars open and dates can be changed. |
 | [#925](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/925) | ✅ Done | PDF diary export: optimize spacing after Night food notes | Confirmed on-device 2026-09-16. |
+| [#926](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/926) | ✅ Done | Meal logging: choosing a label overrides the actual time | Confirmed on-device 2026-09-16 — choosing a meal label no longer overwrites the actual time. |

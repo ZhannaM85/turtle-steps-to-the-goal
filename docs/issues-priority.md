@@ -49,7 +49,6 @@ _Reported from iPhone PDF previews and local Chrome._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#926](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/926) | 🔍 Pending validation | Meal logging: choosing a label overrides the actual time | Meal templates no longer replace the current or chosen time. Untimed meals no longer display or feed analysis with a fabricated slot time. Awaiting device confirmation. |
 | [#927](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/927) | 🔍 Pending validation | PDF diary: align meal card dividers within each card | Replaced the overlapping meal-item divider with an em dash before each item. Awaiting device PDF validation. |
 | [#928](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/928) | 🔍 Pending validation | PDF export: vertically center page, section, and table headers | Flex/vertical-align did not move PDF glyphs. Re-fixed with line-height 1 and extra top padding so day, section, and table text sit in the visual middle. Awaiting device PDF validation. |
 | [#929](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/929) | 🔍 Pending validation | PDF diary: reduce Metrics and Notes body text size | Metrics and Notes diary body text is now 7pt. Awaiting device PDF validation. |
