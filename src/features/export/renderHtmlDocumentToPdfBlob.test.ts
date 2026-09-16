@@ -37,7 +37,7 @@ describe('explodeOverflowingPdfPages (#908)', () => {
             <div class="block" style="height:600px">b</div>
             <div class="block" style="height:600px">c</div>
           </div>
-          <footer class="pdf-footer"><p>foot</p></footer>
+          <footer class="pdf-footer"><p>foot</p><p class="pdf-page-number"></p></footer>
         </section>
       </div>
     `
@@ -46,8 +46,11 @@ describe('explodeOverflowingPdfPages (#908)', () => {
       explodeOverflowingPdfPagesForTest(host)
       const pages = host.querySelectorAll('.pdf-page')
       expect(pages.length).toBeGreaterThan(1)
-      for (const page of pages) {
+      for (const [index, page] of [...pages].entries()) {
         expect(page.querySelector('.pdf-footer')).not.toBeNull()
+        expect(page.querySelector('.pdf-page-number')?.textContent).toBe(
+          `${index + 1}`,
+        )
         expect(page.querySelector('.pdf-summary-body')).not.toBeNull()
         expect(
           page.querySelector('.pdf-page-body')?.children.length,

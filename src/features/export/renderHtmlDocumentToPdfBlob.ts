@@ -294,6 +294,14 @@ function explodeOverflowingPdfPages(host: HTMLElement): void {
       }
     }
   }
+
+  const pages = [
+    ...root.querySelectorAll<HTMLElement>(':scope > .pdf-page'),
+  ]
+  pages.forEach((page, index) => {
+    const pageNumber = page.querySelector<HTMLElement>('.pdf-page-number')
+    if (pageNumber) pageNumber.textContent = `${index + 1}`
+  })
 }
 
 function makeEmptyPdfPage(footerHtml: string, bodyClassName: string): HTMLElement {

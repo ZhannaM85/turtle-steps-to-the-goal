@@ -35,9 +35,15 @@ function toDisplayWeight(kg: number, unit: Unit): number {
   return unit === 'lb' ? kgToLb(kg) : kg
 }
 
-function sectionHtml(title: string, body: string, wide = false): string {
+function sectionHtml(
+  title: string,
+  body: string,
+  wide = false,
+  column?: 'left' | 'right',
+): string {
   if (!body.trim()) return ''
-  return `<section class="pdf-section${wide ? ' pdf-section-wide' : ''}"><h2 class="pdf-section-title">${escapeHtml(title)}</h2>${body}</section>`
+  const columnClass = column ? ` pdf-summary-${column}` : ''
+  return `<section class="pdf-section${wide ? ' pdf-section-wide' : ''}${columnClass}"><h2 class="pdf-section-title">${escapeHtml(title)}</h2>${body}</section>`
 }
 
 function linesHtml(lines: string[]): string {
@@ -92,6 +98,7 @@ function footerHtml(t: Dictionary, generatedOn: string): string {
   return `<footer class="pdf-footer">
   <p>${escapeHtml(t.pdfSummary.disclaimer)}</p>
   <p>${escapeHtml(generatedOn)}</p>
+  <p class="pdf-page-number"></p>
 </footer>`
 }
 
@@ -200,6 +207,8 @@ export function buildPdfDocumentHtml(
         sectionHtml(
           t.pdfSummary.bodyMeasurementsSectionTitle,
           linesHtml(lines),
+          false,
+          'left',
         ),
       )
     }
@@ -252,6 +261,8 @@ export function buildPdfDocumentHtml(
         sectionHtml(
           t.pdfSummary.bodyCompositionSectionTitle,
           linesHtml(lines),
+          false,
+          'left',
         ),
       )
     }
@@ -286,7 +297,7 @@ export function buildPdfDocumentHtml(
       )
     }
     if (lines.length > 0) {
-      parts.push(sectionHtml(t.dailyEntry.sleepLabel, linesHtml(lines)))
+      parts.push(sectionHtml(t.dailyEntry.sleepLabel, linesHtml(lines), false, 'right'))
     }
   }
 
@@ -300,6 +311,8 @@ export function buildPdfDocumentHtml(
             data.averageSteps.loggedDays,
           ),
         ]),
+        false,
+        'right',
       ),
     )
   }
@@ -314,6 +327,8 @@ export function buildPdfDocumentHtml(
             data.averageWaterMl.loggedDays,
           ),
         ]),
+        false,
+        'left',
       ),
     )
   }
@@ -357,7 +372,12 @@ export function buildPdfDocumentHtml(
   }
   if (daySignalLines.length > 0) {
     parts.push(
-      sectionHtml(t.pdfSummary.daySignalsSectionTitle, linesHtml(daySignalLines)),
+      sectionHtml(
+        t.pdfSummary.daySignalsSectionTitle,
+        linesHtml(daySignalLines),
+        false,
+        'right',
+      ),
     )
   }
 
@@ -379,6 +399,8 @@ export function buildPdfDocumentHtml(
             ),
           ),
         ),
+        false,
+        'left',
       ),
     )
   }

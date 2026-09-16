@@ -21,6 +21,8 @@ export const PDF_DOCUMENT_CSS = `
     /* Leave room for the footer within the renderer's 980px one-page cap. */
     min-height: 248mm;
     padding: 0;
+    padding-right: 9pt;
+    padding-bottom: 9pt;
     display: flex;
     flex-direction: column;
     page-break-after: always;
@@ -56,6 +58,12 @@ export const PDF_DOCUMENT_CSS = `
     border-radius: 8pt;
     background: #fafaf9;
   }
+  .pdf-summary-left { clear: left; }
+  .pdf-summary-right {
+    float: right;
+    clear: right;
+    margin-right: 0;
+  }
   .pdf-summary-body > .pdf-section-wide {
     float: none;
     clear: both;
@@ -77,7 +85,7 @@ export const PDF_DOCUMENT_CSS = `
   .pdf-table th,
   .pdf-table td {
     border: 1px solid #d6d3d1;
-    padding: 4pt 6pt;
+    padding: 0 6pt 8pt;
     text-align: left;
     vertical-align: middle;
     line-height: 1.2;
@@ -240,4 +248,9 @@ export const PDF_DOCUMENT_CSS = `
     color: #78716c;
   }
   .pdf-footer p { margin: 0 0 2pt 0; }
+  .pdf-footer .pdf-page-number {
+    margin: 0;
+    text-align: right;
+    font-weight: 600;
+  }
 `
