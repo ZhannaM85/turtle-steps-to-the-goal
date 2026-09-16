@@ -698,6 +698,7 @@ describe('buildSummaryPdf', () => {
     expect(day.querySelectorAll('.pdf-meal-card')).toHaveLength(3)
     expect(html).toContain('padding-left: 10pt')
     expect(html).toContain('padding-bottom: 9pt')
+    expect(html).toContain('.pdf-meal-card .pdf-line + .pdf-day-item { margin-top: 4pt; }')
     expect(day.querySelector('.pdf-day-section-food')?.textContent).toContain('Eggs')
     expect(day.querySelector('.pdf-day-section-food')?.textContent).toContain('Rice')
     expect(day.textContent).toContain('Tea helped me sleep')

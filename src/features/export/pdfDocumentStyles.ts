@@ -205,6 +205,7 @@ export const PDF_DOCUMENT_CSS = `
     font-size: 8pt;
     line-height: 1.18;
   }
+  .pdf-meal-card .pdf-line + .pdf-day-item { margin-top: 4pt; }
   .pdf-meal-card .pdf-day-item::before {
     content: "— ";
     color: #a8a29e;
