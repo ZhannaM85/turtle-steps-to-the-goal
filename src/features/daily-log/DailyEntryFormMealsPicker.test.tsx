@@ -19,6 +19,22 @@ describe('DailyEntryForm', () => {
       // form — see MealList.test.tsx / AddMealDialog.test.tsx.
 
       describe('time eaten (#65)', () => {
+        it('saves the user-selected time after choosing the Lunch label (#926)', async () => {
+          const user = userEvent.setup()
+          const onSave = vi.fn()
+          render(<DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />)
+
+          await user.click(screen.getByRole('button', { name: '+ Add a meal' }))
+          fireEvent.change(screen.getByLabelText('Time'), { target: { value: '14:00' } })
+          await user.click(screen.getByRole('button', { name: 'Lunch' }))
+          expect(screen.getByLabelText('Time')).toHaveValue('14:00')
+          await openAddItemFlow(user)
+          await user.type(screen.getByLabelText('kcal/100g'), '200')
+          await user.click(screen.getByRole('button', { name: 'Save' }))
+
+          expect(onSave.mock.calls[0][0].calorieEntries[0].timeEaten).toBe('14:00')
+        })
+
         it('saves the time set in the Add flow, shown next to the meal', async () => {
           const user = userEvent.setup()
           const onSave = vi.fn()

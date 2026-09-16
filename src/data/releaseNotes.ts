@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 883,
+    issue: 926,
+    date: '2026-09-16T17:01:52+03:00',
+    en: 'Choosing a meal name now keeps the actual meal time instead of replacing it with a default.',
+    ru: 'Выбор названия приёма пищи теперь сохраняет фактическое время, не заменяя его временем по умолчанию.',
+  },
+  {
     version: 882,
     issue: 924,
     date: '2026-09-16T16:51:48+03:00',

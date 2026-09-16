@@ -129,11 +129,11 @@ describe('mealLabel helpers', () => {
     expect(defaultTimeEatenForMealLabel('Ужин', prefs)).toBe('21:00')
   })
 
-  it('effectiveTimeEaten prefers a recorded time over the slot default (#580)', () => {
+  it('effectiveTimeEaten reports only a recorded time, never a slot default (#926)', () => {
     expect(effectiveTimeEaten({ label: 'Breakfast', timeEaten: '07:15' })).toBe(
       '07:15',
     )
-    expect(effectiveTimeEaten({ label: 'Breakfast' })).toBe('08:00')
+    expect(effectiveTimeEaten({ label: 'Breakfast' })).toBeUndefined()
     expect(
       effectiveTimeEaten(
         { label: 'Breakfast' },
@@ -144,7 +144,7 @@ describe('mealLabel helpers', () => {
           snack: '18:00',
         },
       ),
-    ).toBe('12:00')
+    ).toBeUndefined()
   })
 
   it('coerces numeric meal labels instead of throwing (#579/#587)', () => {
@@ -167,13 +167,13 @@ describe('mealLabel helpers', () => {
     expect(sorted.map((m) => m.id)).toEqual(['b', 'l', 'd', 'x'])
   })
 
-  it('sortCalorieEntriesByLoggedTime uses slot defaults when time is missing (#597)', () => {
+  it('keeps untimed meals in their entered order instead of assigning slot times (#926)', () => {
     const sorted = sortCalorieEntriesByLoggedTime([
       { id: 'd', label: 'Dinner' },
       { id: 'b', label: 'Breakfast' },
       { id: 'l', label: 'Lunch' },
     ])
-    expect(sorted.map((m) => m.id)).toEqual(['b', 'l', 'd'])
+    expect(sorted.map((m) => m.id)).toEqual(['d', 'b', 'l'])
   })
 
   it('sorts a past-midnight meal after the evening it followed, given a real day-start time (#621)', () => {

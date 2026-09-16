@@ -645,6 +645,8 @@ shadcn-style primitives (Nova preset, `radix-ui` primitives, `cva` variants, ali
 
 ---
 
+**#926 current meal-time behavior:** Choosing or changing a meal label never stamps a slot clock. New manual meals start with the current clock, which the user can edit or clear; only a recorded `timeEaten` appears in Day, History, exports, sorting, and time-based analysis. `defaultTimeEatenForMealLabel` remains for explicit import choices, such as MyFitnessPal, where selected clocks are stored on imported meals.
+
 ### Tests
 
 Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/user-event`. **435 tests across 62 files**, all passing as of issue #90. `FoodPickerDialog.test.tsx` and `FoodListSettingsScreen.test.tsx` both set a 15s file-level `testTimeout` (`vi.setConfig`) — every test in either renders the 300+ item curated list, fast in isolation but flaky under full-suite parallel load at the default 5s. **#512** adds a second, distinct flake pattern worth recognizing: when the text being awaited can render in *either* of two mutually exclusive branches (e.g. `AddMealDialog`'s `activeItem ? <quantity-confirm> : <search + Recent>`), `findByText` can resolve against the branch that is about to unmount, and the assertion then fails on a detached node — reported as `toBeInTheDocument()` "element could not be found in the document" a few hundred ms in, *not* as a timeout. Await something that only exists in the branch under test (there, the `+ Add item` button) instead of raising timeouts.

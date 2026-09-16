@@ -199,9 +199,9 @@ export function mealSlotKeyForLabel(
 }
 
 /**
- * #580/#588 — default HH:MM for a known meal-slot label when `timeEaten`
- * is blank. Pass remembered prefs from `useMealSlotDefaultTimesStore`;
- * omit to use the built-in clocks.
+ * #580/#588 — a chosen import clock for a known meal-slot label. Pass
+ * remembered prefs from `useMealSlotDefaultTimesStore`; omit to use the
+ * built-in clocks. #926: never use this as an implicit display time.
  */
 export function defaultTimeEatenForMealLabel(
   label: string | number | undefined,
@@ -211,15 +211,17 @@ export function defaultTimeEatenForMealLabel(
   return slot ? slotTimes[slot] : undefined
 }
 
-/** Recorded time, else a slot default from the meal label (#580/#588). */
+/** Only a recorded time is an actual meal time (#926). Slot defaults remain
+ * available for explicit import decisions, never for display or analysis. */
 export function effectiveTimeEaten(
   meal: {
     timeEaten?: string
     label?: string | number
   },
-  slotTimes: MealSlotDefaultTimes = BUILTIN_MEAL_SLOT_DEFAULT_TIMES,
+  _slotTimes: MealSlotDefaultTimes = BUILTIN_MEAL_SLOT_DEFAULT_TIMES,
 ): string | undefined {
-  return meal.timeEaten ?? defaultTimeEatenForMealLabel(meal.label, slotTimes)
+  void _slotTimes // Preserve existing call sites while ignoring slot defaults.
+  return meal.timeEaten || undefined
 }
 
 function timeToMinutes(hhmm: string): number {
@@ -228,7 +230,7 @@ function timeToMinutes(hhmm: string): number {
 }
 
 /**
- * #597 — Day meal cards: earliest effective clock first; meals with no
+ * #597/#926 — Day meal cards: earliest recorded clock first; meals with no
  * resolvable time stay at the end (stable among ties). #621: reported
  * live — a meal logged at 01:00 sorted *first*, ahead of the same day's
  * 14:09/15:23 meals, when it was actually the last meal of a late-night

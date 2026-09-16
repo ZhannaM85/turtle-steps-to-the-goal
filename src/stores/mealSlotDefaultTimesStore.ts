@@ -8,7 +8,7 @@ import {
 
 interface MealSlotDefaultTimesStoreState {
   /** #588 — remembered Breakfast/Lunch/Dinner/Snack HH:MM defaults for
-   * MyFitnessPal imports (and display fallbacks via `effectiveTimeEaten`).
+   * MyFitnessPal imports and explicit stamping of untimed imported meals.
    * Built-in clocks match #580 until the user changes them on import or in
    * Settings. */
   times: MealSlotDefaultTimes

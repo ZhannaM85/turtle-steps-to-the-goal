@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto'
 import { useState } from 'react'
-import { act, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -428,11 +428,11 @@ describe('MealList', () => {
     )
 
     expect(screen.getByLabelText('Meal name')).toHaveValue('Night food')
-    // #862 — custom seed stamps nearest unused slot (all four used → 13:00).
-    expect(screen.getByLabelText('Time')).toHaveValue('13:00')
+    expect(screen.getByLabelText('Time')).toHaveValue('12:00')
   })
 
-  it('stamps a built-in slot time when a name chip is picked (#862)', async () => {
+  it('keeps the actual time when a built-in name chip is picked (#926)', async () => {
+    vi.setSystemTime(new Date(2026, 2, 1, 14, 0, 0))
     const user = userEvent.setup()
     render(
       <ControlledMealList calorieEntries={[]} date="2026-03-01" />,
@@ -440,13 +440,13 @@ describe('MealList', () => {
     )
 
     await user.click(screen.getByRole('button', { name: '+ Add a meal' }))
-    expect(screen.getByLabelText('Time')).toHaveValue('12:00')
+    expect(screen.getByLabelText('Time')).toHaveValue('14:00')
     await user.click(screen.getByRole('button', { name: 'Lunch' }))
     expect(screen.getByLabelText('Meal name')).toHaveValue('Lunch')
-    expect(screen.getByLabelText('Time')).toHaveValue('13:00')
+    expect(screen.getByLabelText('Time')).toHaveValue('14:00')
   })
 
-  it('stamps the nearest unused slot time on a custom template chip (#862)', async () => {
+  it('keeps the actual time on a custom template chip (#926)', async () => {
     useMealLabelPresetStore.setState({ presets: ['Second breakfast'] })
     const user = userEvent.setup()
     render(
@@ -477,8 +477,18 @@ describe('MealList', () => {
     )
     await user.click(screen.getByRole('button', { name: 'Second breakfast' }))
     expect(screen.getByLabelText('Meal name')).toHaveValue('Second breakfast')
-    // 12:00 now; breakfast+lunch used → snack 16:00 is the nearest unused.
-    expect(screen.getByLabelText('Time')).toHaveValue('16:00')
+    expect(screen.getByLabelText('Time')).toHaveValue('12:00')
+  })
+
+  it('keeps a time chosen in the field when the meal label changes (#926)', async () => {
+    const user = userEvent.setup()
+    render(<ControlledMealList calorieEntries={[]} date="2026-03-01" />, { wrapper: MemoryRouter })
+
+    await user.click(screen.getByRole('button', { name: '+ Add a meal' }))
+    fireEvent.change(screen.getByLabelText('Time'), { target: { value: '14:00' } })
+    await user.click(screen.getByRole('button', { name: 'Lunch' }))
+
+    expect(screen.getByLabelText('Time')).toHaveValue('14:00')
   })
 
   it('does not rewrite an already-timed meal when its name chip changes (#862)', async () => {
