@@ -60,7 +60,7 @@ export function dailyLogPagesHtml(
       const titleHtml = sectionTitle === t.pdfSummary.dailyLogMetricsSectionTitle
         ? `<span>${escapeHtml(sectionTitle)}</span><span class="pdf-day-section-title-metrics">${metricsHeaderValues.join('')}</span>`
         : sectionClass.includes('pdf-day-section-water') && waterTitleParts.length > 1
-          ? `<span>${escapeHtml(waterTitleParts[0] ?? '')}</span><span class="pdf-day-section-title-metrics">${escapeHtml(waterTitleParts.slice(1).join('  ·  '))}</span>`
+          ? `<span class="pdf-day-section-title-lead"><span>${escapeHtml(waterTitleParts[0] ?? '')}</span> <span class="pdf-day-section-water-total">${escapeHtml(waterTitleParts.slice(1).join('  ·  '))}</span></span>`
           : `<span>${escapeHtml(sectionTitle)}</span>`
       sections.push(`<section class="pdf-day-section${sectionClass}">
   <h3 class="pdf-day-section-title">${titleHtml}</h3>

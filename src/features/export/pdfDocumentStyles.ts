@@ -131,6 +131,9 @@ export const PDF_DOCUMENT_CSS = `
   }
   .pdf-day-section-title > span { line-height: 1; }
   .pdf-day-section-title-metrics { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 1pt 7pt; font-size: 7.5pt; font-weight: 400; line-height: 1; }
+  .pdf-day-section-title-lead { display: inline-flex; align-items: center; min-width: 0; }
+  .pdf-day-section-water-total { font-weight: 400; padding-left: 4pt; }
+  .pdf-day-section-water .pdf-day-section-title { justify-content: flex-start; }
   .pdf-day-header-metric { display: inline-flex; align-items: center; gap: 2pt; white-space: nowrap; line-height: 1; }
   .pdf-day-header-metric svg { width: 9pt; height: 9pt; flex: none; }
   .pdf-day-section:nth-of-type(1) .pdf-day-section-title { background: #eef2ff; color: #3730a3; }
@@ -149,7 +152,7 @@ export const PDF_DOCUMENT_CSS = `
   }
   .pdf-day-section-metrics .pdf-day-section-content .pdf-line,
   .pdf-day-section-notes .pdf-day-section-content .pdf-line {
-    font-size: 7pt;
+    font-size: 9pt;
     line-height: 1.18;
   }
   .pdf-day-section-food .pdf-day-section-content {
@@ -167,13 +170,13 @@ export const PDF_DOCUMENT_CSS = `
     overflow: hidden;
     overflow-wrap: anywhere;
   }
-  .pdf-meal-card .pdf-line { font-weight: 600; font-size: 7.5pt; line-height: 1.18; }
+  .pdf-meal-card .pdf-line { font-weight: 600; font-size: 8.5pt; line-height: 1.18; }
   .pdf-meal-card .pdf-day-item {
     display: flow-root;
     margin: 1pt 0 0;
     padding-left: 0;
     border-left: 0;
-    font-size: 7pt;
+    font-size: 8pt;
     line-height: 1.18;
   }
   .pdf-meal-card .pdf-day-item::before {

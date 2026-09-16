@@ -702,7 +702,7 @@ describe('buildSummaryPdf', () => {
     expect(html).toContain('grid-template-columns: repeat(2, minmax(0, 1fr))')
   })
 
-  it('uses smaller body text in Metrics and Notes diary cards (#929)', () => {
+  it('uses 9pt body text in Metrics and Notes diary cards (#929)', () => {
     const entry = makeEntry({
       waistCm: 80,
       note: 'Felt lighter today',
@@ -716,7 +716,7 @@ describe('buildSummaryPdf', () => {
     expect(day.querySelector('.pdf-day-section-notes')?.textContent).toContain('Felt lighter today')
     expect(html).toContain('.pdf-day-section-metrics .pdf-day-section-content .pdf-line')
     expect(html).toContain('.pdf-day-section-notes .pdf-day-section-content .pdf-line')
-    expect(html).toContain('font-size: 7pt')
+    expect(html).toContain('font-size: 9pt')
   })
 
   it('pads day, section, and table headers so PDF text sits in the middle (#928)', () => {
@@ -750,6 +750,11 @@ describe('buildSummaryPdf', () => {
     const title = water?.querySelector('.pdf-day-section-title')
     expect(title?.textContent).toContain('Water')
     expect(title?.textContent).toContain('250')
+    expect(title?.textContent).not.toContain('Water250')
+    expect(title?.querySelector('.pdf-day-section-title-lead')).not.toBeNull()
+    expect(title?.querySelector('.pdf-day-section-water-total')?.textContent).toContain('250')
+    expect(title?.querySelector('.pdf-day-section-title-metrics')).toBeNull()
+    expect(html).toContain('justify-content: flex-start')
     expect(water?.querySelector('.pdf-day-section-content .pdf-line')).toBeNull()
     expect(water?.querySelector('.pdf-day-item')?.textContent).toContain('09:15')
   })
