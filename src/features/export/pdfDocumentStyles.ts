@@ -75,6 +75,7 @@ export const PDF_DOCUMENT_CSS = `
     border: 1px solid #d6d3d1;
     padding: 4pt 6pt;
     text-align: left;
+    vertical-align: middle;
   }
   .pdf-table th {
     background: #57534e;
@@ -96,8 +97,10 @@ export const PDF_DOCUMENT_CSS = `
     border-radius: 8pt;
     background: #f5f5f4;
     line-height: 1.3;
+    display: flex;
+    align-items: center;
   }
-  .pdf-day-header h2 { font-size: 11pt; font-weight: 600; margin: 0; }
+  .pdf-day-header h2 { font-size: 11pt; font-weight: 600; line-height: 1.2; margin: 0; }
   .pdf-section .pdf-line { overflow-wrap: anywhere; }
   .pdf-day-section {
     margin: 0 0 3pt 0;
@@ -117,6 +120,7 @@ export const PDF_DOCUMENT_CSS = `
     font-weight: 600;
     margin: 0;
     padding: 3pt 6pt;
+    line-height: 1.2;
     border-bottom: 1px solid #e7e5e4;
     background: #fafaf9;
     color: #44403c;

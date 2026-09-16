@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 886,
+    issue: 928,
+    date: '2026-09-16T17:55:00+03:00',
+    en: 'PDF page and section headings, plus table content, are now vertically centered.',
+    ru: 'Заголовки страниц и разделов PDF, а также содержимое таблиц теперь выровнены по вертикальному центру.',
+  },
+  {
     version: 885,
     issue: 927,
     date: '2026-09-16T17:45:00+03:00',
