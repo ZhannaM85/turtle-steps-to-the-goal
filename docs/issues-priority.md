@@ -43,9 +43,11 @@ _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS sta
 
 ---
 
-## Tier 164 — PDF diary export feedback (2026-09-16)
+## Tier 164 — PDF diary export and browser feedback (2026-09-16)
 
-_Reported from iPhone PDF previews; logging only, with no implementation yet._
+_Reported from iPhone PDF previews and local Chrome; logging only, with no implementation yet._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#925](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/925) | 📋 Not started | PDF diary export: optimize spacing after Night food notes | Including the Night food note made most diary days span two PDF pages again. Optimize spacing: move steps, sleep, deep sleep, and mood into the section header with icons instead of labels; consider separate compact meal cards in a two-per-row layout. |
+| [#924](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/924) | 📋 Not started | Chrome web: calendar date inputs do not open | In local Chrome, date/calendar inputs do not open, so the user cannot change dates. Reported as happening across date inputs throughout the app, not just the Day screen. |
