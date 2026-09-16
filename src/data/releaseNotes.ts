@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 882,
+    issue: 924,
+    date: '2026-09-16T16:51:48+03:00',
+    en: 'Date fields now open the calendar when clicked in Chrome.',
+    ru: 'Поля даты теперь открывают календарь по нажатию в Chrome.',
+  },
+  {
     version: 881,
     issue: 925,
     date: '2026-09-16T16:41:36+03:00',

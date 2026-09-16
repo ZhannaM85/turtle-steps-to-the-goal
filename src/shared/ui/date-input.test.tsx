@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { useLocaleStore } from '@/i18n'
 import { DateInput } from './date-input'
 
@@ -13,6 +13,28 @@ describe('DateInput', () => {
     const input = screen.getByLabelText('Day')
     expect(input).toHaveAttribute('type', 'date')
     expect(input).toHaveValue('2026-09-13')
+  })
+
+  it('opens the native calendar when its invisible date field is clicked in Chrome (#924)', () => {
+    render(<DateInput aria-label="Day" value="2026-09-13" />)
+    const input = screen.getByLabelText('Day') as HTMLInputElement
+    const showPicker = vi.fn()
+    input.showPicker = showPicker
+
+    fireEvent.click(input)
+
+    expect(showPicker).toHaveBeenCalledOnce()
+  })
+
+  it('does not open a disabled date picker (#924)', () => {
+    render(<DateInput aria-label="Day" value="2026-09-13" disabled />)
+    const input = screen.getByLabelText('Day') as HTMLInputElement
+    const showPicker = vi.fn()
+    input.showPicker = showPicker
+
+    fireEvent.click(input)
+
+    expect(showPicker).not.toHaveBeenCalled()
   })
 
   it('shows a Russian closed-state label when the app is Russian', () => {

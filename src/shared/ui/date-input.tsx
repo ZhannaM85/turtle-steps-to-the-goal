@@ -18,7 +18,7 @@ function isoFromProp(value: React.ComponentProps<'input'>['value']): string {
  * field into a tall thin pill (`min-w-0` + no text).
  */
 export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
-  ({ className, value, defaultValue, onChange, ...props }, ref) => {
+  ({ className, value, defaultValue, onChange, onClick, ...props }, ref) => {
     const locale = useLocale()
     const isControlled = value !== undefined
     const inputRef = React.useRef<HTMLInputElement | null>(null)
@@ -59,6 +59,18 @@ export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
           onChange={(event) => {
             if (!isControlled) setUncontrolledIso(event.target.value)
             onChange?.(event)
+          }}
+          onClick={(event) => {
+            onClick?.(event)
+            if (event.defaultPrevented || event.currentTarget.disabled) return
+            try {
+              // Desktop Chrome focuses the invisible date text on click but
+              // only opens its calendar from the equally invisible icon.
+              // Keep this in the user click so showPicker has activation.
+              event.currentTarget.showPicker?.()
+            } catch {
+              // Browsers that disallow programmatic opening retain native input.
+            }
           }}
           className="absolute inset-0 h-full min-h-0 w-full cursor-pointer opacity-0 text-transparent [-webkit-text-fill-color:transparent] [&::-webkit-datetime-edit]:opacity-0 [&::-webkit-date-and-time-value]:opacity-0"
         />
