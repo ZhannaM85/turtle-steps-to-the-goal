@@ -641,7 +641,7 @@ describe('buildSummaryPdf', () => {
     expect(summaryOnly).not.toContain('class="pdf-day-header"')
   })
 
-  it('packs diary sections across pages without orphaning a date header (#917)', () => {
+  it('starts each diary date on a new page while keeping its first card (#920)', () => {
     const entries = [
       makeEntry({ date: '2026-08-01', weightKg: 80, note: 'One' }),
       makeEntry({ date: '2026-08-02', weightKg: 79, note: 'Two' }),
@@ -657,12 +657,17 @@ describe('buildSummaryPdf', () => {
       [],
       { entries },
     )
-    // One summary page plus one packable diary-page stream. The renderer
-    // splits that stream at complete section cards when it reaches a sheet.
-    expect(html.match(/class="pdf-page"/g)?.length).toBe(2)
-    expect(html.match(/class="pdf-day-header"/g)?.length).toBe(3)
-    expect(html.match(/class="pdf-day-section"/g)?.length).toBeGreaterThan(0)
-    expect(html.match(/class="pdf-day-start"/g)?.length).toBe(3)
+    const container = document.createElement('div')
+    container.innerHTML = html
+    const pages = [...container.querySelectorAll('.pdf-page')]
+    expect(pages).toHaveLength(4) // Summary, then one start page per date.
+    for (const page of pages.slice(1)) {
+      const start = page.querySelector('.pdf-day-start')
+      expect(page.querySelectorAll('.pdf-day-header')).toHaveLength(1)
+      expect(start?.querySelector('.pdf-day-header')).not.toBeNull()
+      expect(start?.querySelector('.pdf-day-section')).not.toBeNull()
+    }
+    expect(container.querySelectorAll('.pdf-day-header')).toHaveLength(3)
     expect(html).not.toContain('<article class="pdf-day">')
   })
 })

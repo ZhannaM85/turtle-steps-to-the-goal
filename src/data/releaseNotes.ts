@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 876,
+    issue: 920,
+    date: '2026-09-16T10:42:00+03:00',
+    en: 'Each date in the PDF diary now begins on a new page.',
+    ru: 'Каждая дата в PDF-дневнике теперь начинается с новой страницы.',
+  },
+  {
     version: 875,
     issue: 919,
     date: '2026-09-16T10:40:00+03:00',
