@@ -61,7 +61,7 @@ export function dailyLogPagesHtml(
         ? `<span>${escapeHtml(sectionTitle)}</span><span class="pdf-day-section-title-metrics">${metricsHeaderValues.join('')}</span>`
         : sectionClass.includes('pdf-day-section-water') && waterTitleParts.length > 1
           ? `<span>${escapeHtml(waterTitleParts[0] ?? '')}</span><span class="pdf-day-section-title-metrics">${escapeHtml(waterTitleParts.slice(1).join('  ·  '))}</span>`
-          : escapeHtml(sectionTitle)
+          : `<span>${escapeHtml(sectionTitle)}</span>`
       sections.push(`<section class="pdf-day-section${sectionClass}">
   <h3 class="pdf-day-section-title">${titleHtml}</h3>
   <div class="pdf-day-section-content">${sectionContent.join('')}</div>

@@ -79,6 +79,15 @@ export async function renderHtmlDocumentToPdfBlob(
         // dialog and the rest of the live app can make capture stall before
         // the first PDF page is painted.
         ignoreElements: (element) => shouldIgnorePdfRenderElement(element, host),
+        onclone: (_clonedDoc, clonedElement) => {
+          clonedElement
+            .querySelectorAll<HTMLElement>(
+              '.pdf-day-header, .pdf-day-header h2, .pdf-day-section-title, .pdf-table th, .pdf-table td',
+            )
+            .forEach((el) => {
+              el.style.lineHeight = '1'
+            })
+        },
         scrollX: 0,
         scrollY: 0,
         windowWidth: Math.max(target.scrollWidth, host.clientWidth),

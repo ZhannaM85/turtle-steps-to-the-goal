@@ -3,6 +3,7 @@ import type { CustomMetric, CustomMetricEntry } from '@/domain/customMetric'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { getDictionary } from '@/i18n'
 import { buildPdfDocumentHtml } from './buildPdfDocumentHtml'
+import { PDF_DOCUMENT_CSS } from './pdfDocumentStyles'
 import {
   buildCustomMetricPdfSummaries,
   buildPdfSummaryData,
@@ -716,6 +717,23 @@ describe('buildSummaryPdf', () => {
     expect(html).toContain('.pdf-day-section-metrics .pdf-day-section-content .pdf-line')
     expect(html).toContain('.pdf-day-section-notes .pdf-day-section-content .pdf-line')
     expect(html).toContain('font-size: 7pt')
+  })
+
+  it('pads day, section, and table headers so PDF text sits in the middle (#928)', () => {
+    expect(PDF_DOCUMENT_CSS).toContain('padding: 9pt 9pt 4pt')
+    expect(PDF_DOCUMENT_CSS).toContain('padding: 6pt 6pt 2pt')
+    expect(PDF_DOCUMENT_CSS).toContain('padding: 8pt 6pt 2pt')
+    expect(PDF_DOCUMENT_CSS).toContain(
+      '.pdf-day-header h2 { font-size: 11pt; font-weight: 600; line-height: 1; margin: 0; }',
+    )
+    const entry = makeEntry({ note: 'Centered headers', waistCm: 80 })
+    const data = buildPdfSummaryData([entry], entry.date, entry.date, 1)
+    const html = buildPdfDocumentHtml(data, t, 'en', 'kg', ALL_SECTIONS_EXCLUDED, [], { entries: [entry] })
+    const container = document.createElement('div')
+    container.innerHTML = html
+    const day = container.querySelectorAll('.pdf-page')[1]!
+    expect(day.querySelector('.pdf-day-header h2')).not.toBeNull()
+    expect(day.querySelector('.pdf-day-section-title > span')).not.toBeNull()
   })
 
   it('shows the water total beside the Water diary title (#930)', () => {

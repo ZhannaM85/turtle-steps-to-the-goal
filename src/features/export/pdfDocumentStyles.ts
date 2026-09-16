@@ -70,12 +70,16 @@ export const PDF_DOCUMENT_CSS = `
     border-collapse: collapse;
     font-size: 9pt;
   }
+  /* #928 — html2canvas paints glyphs high in the line box, so equal
+     padding still looks top-aligned in the PDF. line-height: 1 plus extra
+     padding-top shifts the ink into the visual middle of each cell. */
   .pdf-table th,
   .pdf-table td {
     border: 1px solid #d6d3d1;
-    padding: 4pt 6pt;
+    padding: 8pt 6pt 2pt;
     text-align: left;
     vertical-align: middle;
+    line-height: 1;
   }
   .pdf-table th {
     background: #57534e;
@@ -91,16 +95,16 @@ export const PDF_DOCUMENT_CSS = `
   .pdf-day-start { break-inside: avoid; }
   .pdf-day-header {
     margin: 0 0 6pt 0;
-    padding: 6pt 9pt;
+    padding: 9pt 9pt 4pt;
     border: 1px solid #d6d3d1;
     border-left: 4pt solid #78716c;
     border-radius: 8pt;
     background: #f5f5f4;
-    line-height: 1.3;
+    line-height: 1;
     display: flex;
     align-items: center;
   }
-  .pdf-day-header h2 { font-size: 11pt; font-weight: 600; line-height: 1.2; margin: 0; }
+  .pdf-day-header h2 { font-size: 11pt; font-weight: 600; line-height: 1; margin: 0; }
   .pdf-section .pdf-line { overflow-wrap: anywhere; }
   .pdf-day-section {
     margin: 0 0 3pt 0;
@@ -119,14 +123,15 @@ export const PDF_DOCUMENT_CSS = `
     font-size: 8.5pt;
     font-weight: 600;
     margin: 0;
-    padding: 3pt 6pt;
-    line-height: 1.2;
+    padding: 6pt 6pt 2pt;
+    line-height: 1;
     border-bottom: 1px solid #e7e5e4;
     background: #fafaf9;
     color: #44403c;
   }
-  .pdf-day-section-title-metrics { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 1pt 7pt; font-size: 7.5pt; font-weight: 400; }
-  .pdf-day-header-metric { display: inline-flex; align-items: center; gap: 2pt; white-space: nowrap; }
+  .pdf-day-section-title > span { line-height: 1; }
+  .pdf-day-section-title-metrics { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 1pt 7pt; font-size: 7.5pt; font-weight: 400; line-height: 1; }
+  .pdf-day-header-metric { display: inline-flex; align-items: center; gap: 2pt; white-space: nowrap; line-height: 1; }
   .pdf-day-header-metric svg { width: 9pt; height: 9pt; flex: none; }
   .pdf-day-section:nth-of-type(1) .pdf-day-section-title { background: #eef2ff; color: #3730a3; }
   .pdf-day-section:nth-of-type(2) .pdf-day-section-title { background: #fff7ed; color: #9a3412; }

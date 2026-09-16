@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 892,
+    issue: 928,
+    date: '2026-09-16T18:55:00+03:00',
+    en: 'PDF day headings, section headings, and table cells now sit in the middle of their boxes.',
+    ru: 'Заголовки дней и разделов PDF, а также ячейки таблиц теперь стоят по центру своих блоков.',
+  },
+  {
     version: 891,
     issue: 931,
     date: '2026-09-16T18:50:00+03:00',
