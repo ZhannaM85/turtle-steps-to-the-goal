@@ -23,6 +23,12 @@ function diaryHeaderMetricHtml(kind: keyof typeof diaryHeaderIcons, text: string
   return `<span class="pdf-day-header-metric" title="${escapeHtml(label)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${diaryHeaderIcons[kind]}</svg>${escapeHtml(value)}</span>`
 }
 
+function diaryMetricLineHtml(text: string): string {
+  const separator = text.indexOf(':')
+  if (separator < 0) return escapeHtml(text)
+  return `<strong class="pdf-day-line-label">${escapeHtml(text.slice(0, separator + 1))}</strong>${escapeHtml(text.slice(separator + 1))}`
+}
+
 /** One dated diary page; the PDF renderer may move whole section cards to a continuation sheet. */
 export function dailyLogPagesHtml(
   dailyLog: DailyLogPdfInput,
@@ -83,9 +89,12 @@ export function dailyLogPagesHtml(
         sectionTitle = line.text
         continue
       }
+      const lineText = sectionTitle === t.pdfSummary.dailyLogMetricsSectionTitle
+        ? diaryMetricLineHtml(line.text)
+        : escapeHtml(line.text)
       const lineHtml = line.role === 'item'
         ? `<p class="pdf-day-item">${escapeHtml(line.text)}</p>`
-        : `<p class="pdf-line">${escapeHtml(line.text)}</p>`
+        : `<p class="pdf-line">${lineText}</p>`
       if (line.kind === 'meal') {
         if (mealOpen) sectionContent.push('</div>')
         sectionContent.push(`<div class="pdf-meal-card">${lineHtml}`)

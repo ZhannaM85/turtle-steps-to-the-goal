@@ -720,6 +720,10 @@ describe('buildSummaryPdf', () => {
     const day = container.querySelectorAll('.pdf-page')[1]!
     expect(day.querySelector('.pdf-day-section-metrics')?.textContent).toContain('80')
     expect(day.querySelector('.pdf-day-section-notes')?.textContent).toContain('Felt lighter today')
+    const metricsLabel = day.querySelector('.pdf-day-section-metrics .pdf-day-line-label')
+    expect(metricsLabel?.textContent).toMatch(/:$/)
+    expect(metricsLabel?.parentElement?.textContent).toContain('80')
+    expect(metricsLabel?.textContent).not.toContain('80')
     expect(html).toContain('.pdf-day-section-metrics .pdf-day-section-content .pdf-line')
     expect(html).toContain('.pdf-day-section-notes .pdf-day-section-content .pdf-line')
     expect(html).toContain('font-size: 9pt')

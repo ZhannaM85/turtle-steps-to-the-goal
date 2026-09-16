@@ -182,6 +182,7 @@ export const PDF_DOCUMENT_CSS = `
     font-size: 9pt;
     line-height: 1.18;
   }
+  .pdf-day-section-metrics .pdf-day-line-label { font-weight: 700; }
   .pdf-day-section-food .pdf-day-section-content > .pdf-line { clear: both; }
   .pdf-meal-card {
     float: left;
