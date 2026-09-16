@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 910,
+    issue: 941,
+    date: '2026-09-17T01:03:29+03:00',
+    en: 'The PDF Metrics heading now matches the size and weight of the Food, Water, and Notes headings.',
+    ru: 'Заголовок «Показатели» в PDF теперь совпадает по размеру и насыщенности с заголовками «Еда», «Вода» и «Заметки».',
+  },
+  {
     version: 909,
     issue: 940,
     date: '2026-09-17T00:57:22+03:00',

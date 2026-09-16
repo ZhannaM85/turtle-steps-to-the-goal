@@ -803,6 +803,55 @@ describe('buildSummaryPdf', () => {
     expect(waterItemRule).toContain('font-size: 9.5pt')
   })
 
+  it('matches Metrics header typography to other diary section titles (#941)', () => {
+    const entry = makeEntry({
+      sleepHours: 7.5,
+      steps: 4200,
+      waistCm: 80,
+      note: 'Header match',
+      calorieEntries: [
+        { id: 'breakfast', createdAt: '2026-08-01T08:00:00Z', label: 'Breakfast', items: [{ id: 'eggs', name: 'Eggs', amountKcal: 200 }] },
+      ],
+    })
+    const data = buildPdfSummaryData([entry], entry.date, entry.date, 1)
+    const ru = getDictionary('ru')
+    const enHtml = buildPdfDocumentHtml(data, t, 'en', 'kg', ALL_SECTIONS_EXCLUDED, [], { entries: [entry] })
+    const ruHtml = buildPdfDocumentHtml(data, ru, 'ru', 'kg', ALL_SECTIONS_EXCLUDED, [], { entries: [entry] })
+    const container = document.createElement('div')
+    container.innerHTML = ruHtml
+    const day = container.querySelectorAll('.pdf-page')[1]!
+    const metricsTitle = day.querySelector('.pdf-day-section-metrics .pdf-day-section-title')
+    const lead = metricsTitle?.querySelector(':scope > .pdf-day-section-title-lead')
+    const chips = metricsTitle?.querySelector(':scope > .pdf-day-section-title-metrics')
+    expect(lead?.textContent).toBe(ru.pdfSummary.dailyLogMetricsSectionTitle)
+    expect(lead?.textContent).toBe('Показатели')
+    expect(lead?.querySelector('.pdf-day-section-title-metrics')).toBeNull()
+    expect(chips?.querySelectorAll('.pdf-day-header-metric').length).toBeGreaterThan(0)
+    expect(enHtml).toContain(`class="pdf-day-section-title-lead">${t.pdfSummary.dailyLogMetricsSectionTitle}<`)
+    const titleRule = PDF_DOCUMENT_CSS.match(/\.pdf-day-section-title \{([^}]*)\}/)?.[1]
+    const metricsTitleRule = PDF_DOCUMENT_CSS.match(
+      /\.pdf-day-section-metrics \.pdf-day-section-title \{([^}]*)\}/,
+    )?.[1]
+    const leadRule = PDF_DOCUMENT_CSS.match(/\.pdf-day-section-title-lead \{([^}]*)\}/)?.[1]
+    const chipsRule = PDF_DOCUMENT_CSS.match(/\.pdf-day-section-title-metrics \{([^}]*)\}/)?.[1]
+    expect(titleRule).toContain('font-size: 10.5pt')
+    expect(titleRule).toContain('font-weight: 600')
+    expect(metricsTitleRule).toContain('font-size: 10.5pt')
+    expect(metricsTitleRule).toContain('font-weight: 600')
+    expect(metricsTitleRule).toContain('display: flex')
+    expect(metricsTitleRule).toContain('justify-content: space-between')
+    expect(leadRule).toContain('font-size: 10.5pt')
+    expect(leadRule).toContain('font-weight: 600')
+    expect(leadRule).toContain('color: inherit')
+    expect(chipsRule).toContain('font-size: 7.5pt')
+    expect(chipsRule).toContain('font-weight: 400')
+    expect(chipsRule).toContain('display: inline-flex')
+    expect(day.querySelector('.pdf-day-section-food .pdf-day-section-title')).not.toBeNull()
+    expect(day.querySelector('.pdf-day-section-food .pdf-day-section-title-lead')).toBeNull()
+    expect(day.querySelector('.pdf-day-section-notes .pdf-day-section-title')).not.toBeNull()
+    expect(day.querySelector('.pdf-day-section-notes .pdf-day-section-title-lead')).toBeNull()
+  })
+
   it('uses larger body text for meal items and water log lines (#940)', () => {
     const mealItemRule = PDF_DOCUMENT_CSS.match(/\.pdf-meal-card \.pdf-day-item \{([^}]*)\}/)?.[1]
     expect(mealItemRule).toContain('font-size: 11pt')

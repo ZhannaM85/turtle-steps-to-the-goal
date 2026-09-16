@@ -146,10 +146,13 @@ export const PDF_DOCUMENT_CSS = `
     overflow: hidden;
   }
   .pdf-day-section-title > span { line-height: 1.2; }
+  /* #941 — restating size/weight so html2canvas does not pick up the compact chip font. */
   .pdf-day-section-metrics .pdf-day-section-title {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    font-size: 10.5pt;
+    font-weight: 600;
   }
   .pdf-day-section-title-metrics {
     display: inline-flex;
@@ -160,7 +163,13 @@ export const PDF_DOCUMENT_CSS = `
     font-weight: 400;
     line-height: 1.2;
   }
-  .pdf-day-section-title-lead { display: inline; }
+  /* #941 — Metrics/Water title labels must match .pdf-day-section-title, not chip type. */
+  .pdf-day-section-title-lead {
+    display: inline;
+    font-size: 10.5pt;
+    font-weight: 600;
+    color: inherit;
+  }
   .pdf-day-section-water-total { font-weight: 400; padding-left: 4pt; }
   .pdf-day-header-metric {
     display: inline;
