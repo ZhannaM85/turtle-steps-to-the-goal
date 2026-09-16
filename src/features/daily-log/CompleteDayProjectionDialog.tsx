@@ -13,12 +13,14 @@ import { totalCalories } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
 import {
   COMPLETE_DAY_HORIZON_WEEKS,
+  completeDayChartEndAxisLabel,
   completeDayProjectionBlocker,
+  completeDayProjectionEndIso,
   completeDayWeekGridTicks,
   completeDayWeightGridTicksKg,
   projectWeightIfEatingLikeToday,
 } from '@/domain/stats'
-import { formatNumber, unitLabel, useLocale } from '@/i18n'
+import { formatLocalizedDate, formatNumber, unitLabel, useLocale } from '@/i18n'
 import { formatKcal } from '@/shared/lib/macroDisplay'
 import { Button } from '@/shared/ui/button'
 import {
@@ -124,6 +126,11 @@ export function CompleteDayProjectionDialog() {
       ).map(toDisplay)
     : []
 
+  const weekEndLabel = completeDayChartEndAxisLabel(
+    t.today.completeDayWeekEnd,
+    formatLocalizedDate(completeDayProjectionEndIso(state.date), locale),
+  )
+
   const changeText = (totalChangeKg: number) => {
     const amount = `${formatNumber(Math.abs(toDisplay(totalChangeKg)), locale)} ${unitText}`
     if (Math.abs(totalChangeKg) < 0.05) return t.today.completeDayChangeSame
@@ -223,7 +230,7 @@ export function CompleteDayProjectionDialog() {
                       tick={
                         <CompleteDayWeekTick
                           todayLabel={t.today.completeDayWeekNow}
-                          endLabel={t.today.completeDayWeekEnd}
+                          endLabel={weekEndLabel}
                         />
                       }
                       axisLine={{ stroke: 'var(--border)' }}

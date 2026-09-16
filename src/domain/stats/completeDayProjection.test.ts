@@ -2,11 +2,14 @@ import { describe, expect, it } from 'vitest'
 import { calculateBmr } from './bodyComposition'
 import { calculateTdee } from './targetCalculator'
 import { KCAL_PER_KG_FAT } from '@/domain/goal'
+import { formatLocalizedDate } from '@/i18n'
 import {
   COMPLETE_DAY_GRID_KG,
   COMPLETE_DAY_HORIZON_DAYS,
   COMPLETE_DAY_HORIZON_WEEKS,
+  completeDayChartEndAxisLabel,
   completeDayProjectionBlocker,
+  completeDayProjectionEndIso,
   completeDayWeekGridTicks,
   completeDayWeightGridTicksKg,
   projectWeightIfEatingLikeToday,
@@ -103,6 +106,25 @@ describe('completeDayProjectionBlocker (#934)', () => {
 
   it('allows a moderate deficit like 1200 kcal', () => {
     expect(completeDayProjectionBlocker(sample)).toBeUndefined()
+  })
+})
+
+describe('complete-the-day chart end date (#945)', () => {
+  it('names week 5 as a real calendar date, paired with the 5-week span', () => {
+    const endIso = completeDayProjectionEndIso('2026-03-01')
+    expect(endIso).toBe('2026-04-05')
+    expect(
+      completeDayChartEndAxisLabel(
+        '5 weeks',
+        formatLocalizedDate(endIso, 'en'),
+      ),
+    ).toBe('5 weeks · Apr 5, 2026')
+    expect(
+      completeDayChartEndAxisLabel(
+        '5 недель',
+        formatLocalizedDate(endIso, 'ru'),
+      ),
+    ).toBe('5 недель · 5 апр. 2026 г.')
   })
 })
 

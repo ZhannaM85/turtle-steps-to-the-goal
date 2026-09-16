@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 915,
+    issue: 945,
+    date: '2026-09-17T01:32:21+03:00',
+    en: 'The Complete the day projection chart now shows the calendar date at the end of the line, not only “5 weeks”.',
+    ru: 'На графике «Завершить день» в конце линии теперь видна календарная дата, а не только «5 недель».',
+  },
+  {
     version: 914,
     issue: 944,
     date: '2026-09-17T01:26:00+03:00',

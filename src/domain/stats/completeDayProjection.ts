@@ -1,3 +1,4 @@
+import { addDays, format, parseISO } from 'date-fns'
 import { KCAL_PER_KG_FAT } from '@/domain/goal'
 import { calculateBmr, type Sex } from './bodyComposition'
 import { calculateTdee, type ActivityLevel } from './targetCalculator'
@@ -18,6 +19,22 @@ export function completeDayWeekGridTicks(): number[] {
     { length: COMPLETE_DAY_HORIZON_WEEKS + 1 },
     (_, week) => week,
   )
+}
+
+/** Calendar day of week 5 if every day from `startIso` matched today. */
+export function completeDayProjectionEndIso(startIso: string): string {
+  return format(
+    addDays(parseISO(startIso), COMPLETE_DAY_HORIZON_DAYS),
+    'yyyy-MM-dd',
+  )
+}
+
+/** #945 — axis end label: keep the 5-week span and show the real date. */
+export function completeDayChartEndAxisLabel(
+  durationLabel: string,
+  formattedDate: string,
+): string {
+  return formattedDate ? `${durationLabel} · ${formattedDate}` : durationLabel
 }
 
 export function completeDayWeightGridTicksKg(

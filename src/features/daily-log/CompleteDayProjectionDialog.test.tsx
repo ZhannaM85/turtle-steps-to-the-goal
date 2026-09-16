@@ -3,6 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
+import {
+  completeDayChartEndAxisLabel,
+  completeDayProjectionEndIso,
+} from '@/domain/stats'
+import { formatLocalizedDate } from '@/i18n'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useProfileStore } from '@/stores'
 import {
@@ -12,7 +17,7 @@ import {
 import { DailyEntryFormStateProvider } from './DailyEntryFormStateContext'
 import { calories, now } from './dailyEntryFormTestUtils'
 
-describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944)', () => {
+describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945)', () => {
   beforeEach(() => {
     useProfileStore.setState({
       heightCm: 165,
@@ -195,5 +200,27 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944)', () => {
     expect(labels[0]).toHaveTextContent('Today')
     expect(labels[1]).toHaveAttribute('text-anchor', 'end')
     expect(labels[1]).toHaveTextContent('5 weeks')
+  })
+
+  it('puts the calendar end date in the week-5 axis label (#945)', () => {
+    const endLabel = completeDayChartEndAxisLabel(
+      '5 weeks',
+      formatLocalizedDate(completeDayProjectionEndIso('2026-03-01'), 'en'),
+    )
+    const { container } = render(
+      <svg>
+        <CompleteDayWeekTick
+          x={200}
+          y={20}
+          payload={{ value: 5 }}
+          todayLabel="Today"
+          endLabel={endLabel}
+        />
+      </svg>,
+    )
+    expect(endLabel).toBe('5 weeks · Apr 5, 2026')
+    expect(container.querySelector('text')).toHaveTextContent(
+      '5 weeks · Apr 5, 2026',
+    )
   })
 })
