@@ -127,10 +127,15 @@ export const PDF_DOCUMENT_CSS = `
     overflow: hidden;
   }
   .pdf-day-section-title > span { line-height: 1.2; }
-  .pdf-day-section-title-metrics {
-    float: right;
-    display: inline-flex;
+  .pdf-day-section-metrics .pdf-day-section-title {
+    display: flex;
     align-items: center;
+    justify-content: space-between;
+    padding: 1pt 6pt 11pt;
+  }
+  .pdf-day-section-title-metrics {
+    display: inline-flex;
+    align-items: baseline;
     gap: 7pt;
     white-space: nowrap;
     font-size: 7.5pt;
@@ -140,15 +145,16 @@ export const PDF_DOCUMENT_CSS = `
   .pdf-day-section-title-lead { display: inline; }
   .pdf-day-section-water-total { font-weight: 400; padding-left: 4pt; }
   .pdf-day-header-metric {
-    display: inline-flex;
-    align-items: center;
+    display: inline;
     white-space: nowrap;
     line-height: 1.2;
   }
   .pdf-day-header-metric svg {
+    display: inline-block;
     width: 9pt;
     height: 9pt;
     vertical-align: -1.5pt;
+    transform: translateY(1pt);
     margin-right: 2pt;
   }
   .pdf-day-section:nth-of-type(1) .pdf-day-section-title { background: #eef2ff; color: #3730a3; }
