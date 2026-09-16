@@ -116,7 +116,7 @@ export const exportCopy: ExportDict = {
     exportPdfRange90Label: 'Last 90 days',
     pdfLayoutPreviewTitle: 'PDF layout',
     pdfLayoutPreviewBlurb:
-      'This is the HTML used to build the PDF. Check spacing and type here; generating the file is a separate step.',
+      'This is the HTML used to build the PDF. Each white sheet is one page. The dashed line is the bottom the PDF can paint; generating the file is a separate step.',
     pdfLayoutPreviewButton: 'Preview layout',
     pdfLayoutPreviewLoading: 'Loading layout…',
     pdfLayoutPreviewFailed: 'Could not build the layout preview.',

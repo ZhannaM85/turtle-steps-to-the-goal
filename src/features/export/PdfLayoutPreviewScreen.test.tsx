@@ -20,5 +20,6 @@ describe('PdfLayoutPreviewScreen (#933)', () => {
       expect(frame.getAttribute('srcdoc')).toContain('class="pdf-root"')
     })
     expect(frame.getAttribute('srcdoc')).toContain('pdf-footer')
+    expect(frame.getAttribute('srcdoc')).toContain('pdf-layout-preview-chrome')
   })
 })

@@ -116,7 +116,7 @@ export const exportCopy: ExportDict = {
     exportPdfRange90Label: 'Последние 90 дней',
     pdfLayoutPreviewTitle: 'Макет PDF',
     pdfLayoutPreviewBlurb:
-      'Это HTML, из которого собирается PDF. Проверьте отступы и шрифты здесь; файл создаётся отдельно.',
+      'Это HTML, из которого собирается PDF. Каждый белый лист — одна страница. Пунктир — нижний край, который попадёт в файл; сам файл создаётся отдельно.',
     pdfLayoutPreviewButton: 'Посмотреть макет',
     pdfLayoutPreviewLoading: 'Загрузка макета…',
     pdfLayoutPreviewFailed: 'Не удалось показать макет.',

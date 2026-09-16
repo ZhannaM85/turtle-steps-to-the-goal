@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 895,
+    issue: 933,
+    date: '2026-09-16T21:40:00+03:00',
+    en: 'The PDF layout preview now shows each page as a separate sheet so you can see where a page ends.',
+    ru: 'В макете PDF каждая страница теперь отдельный лист, чтобы было видно, где она заканчивается.',
+  },
+  {
     version: 894,
     issue: 928,
     date: '2026-09-16T21:20:00+03:00',

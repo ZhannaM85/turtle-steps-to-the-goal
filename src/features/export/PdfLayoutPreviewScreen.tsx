@@ -25,6 +25,41 @@ import {
   type PdfSections,
 } from './exportPdf'
 import { filterByExportPeriod } from './filterByExportPeriod'
+import { MAX_STYLED_PAGE_PX } from './renderHtmlDocumentToPdfBlob'
+
+function withPdfLayoutPreviewChrome(documentHtml: string): string {
+  const chrome = `<style id="pdf-layout-preview-chrome">
+    html, body { background: #d6d3d1; margin: 0; }
+    .pdf-root { background: transparent; }
+    .pdf-page {
+      position: relative;
+      outline: 1px solid #57534e;
+      margin: 0 0 20px 0;
+      box-shadow: 0 2px 8px rgba(28, 25, 23, 0.18);
+      background: #fff;
+    }
+    .pdf-page::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: ${MAX_STYLED_PAGE_PX}px;
+      border-top: 2px dashed #b91c1c;
+      pointer-events: none;
+      z-index: 4;
+    }
+    .pdf-page::after {
+      content: "";
+      display: block;
+      flex: none;
+      border-top: 2px dashed #c2410c;
+    }
+  </style>`
+  if (documentHtml.includes('</head>')) {
+    return documentHtml.replace('</head>', `${chrome}</head>`)
+  }
+  return chrome + documentHtml
+}
 
 function defaultPeriodStart(): string {
   return format(subDays(new Date(), 89), 'yyyy-MM-dd')
@@ -162,7 +197,7 @@ export function PdfLayoutPreviewScreen() {
         )
         if (!cancelled) {
           setFailed(false)
-          setHtml(documentHtml)
+          setHtml(withPdfLayoutPreviewChrome(documentHtml))
         }
       } catch {
         if (!cancelled) {
@@ -229,7 +264,7 @@ export function PdfLayoutPreviewScreen() {
           <iframe
             title={t.export.pdfLayoutPreviewTitle}
             srcDoc={html}
-            className="mx-auto block bg-white shadow-sm"
+            className="mx-auto block bg-transparent"
             style={{ width: '180mm', border: 0 }}
             onLoad={(event) => resizePdfLayoutFrame(event.currentTarget)}
           />

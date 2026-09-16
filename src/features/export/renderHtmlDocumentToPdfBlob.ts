@@ -219,7 +219,7 @@ export function canvasScaleForDimensions(width: number, height: number): number 
  * buffer for canvas rounding so a few blank pixels never become another PDF
  * sheet in the fallback image slicer.
  */
-const MAX_STYLED_PAGE_PX = 980
+export const MAX_STYLED_PAGE_PX = 980
 
 function explodeOverflowingPdfPages(host: HTMLElement): void {
   const root = host.querySelector('.pdf-root')
