@@ -705,7 +705,7 @@ describe('buildSummaryPdf', () => {
     expect(html).toContain('.pdf-meal-card .pdf-line + .pdf-day-item { margin-top: 4pt; }')
     expect(html).toContain('font-weight: 600; font-size: 9.5pt')
     const mealItemRule = PDF_DOCUMENT_CSS.match(/\.pdf-meal-card \.pdf-day-item \{([^}]*)\}/)?.[1]
-    expect(mealItemRule).toContain('font-size: 9pt')
+    expect(mealItemRule).toContain('font-size: 11pt')
     expect(day.querySelector('.pdf-day-section-food')?.textContent).toContain('Eggs')
     expect(day.querySelector('.pdf-day-section-food')?.textContent).toContain('Rice')
     expect(day.textContent).toContain('Tea helped me sleep')
@@ -797,6 +797,25 @@ describe('buildSummaryPdf', () => {
     expect(html).not.toContain('justify-content: flex-start')
     expect(water?.querySelector('.pdf-day-section-content .pdf-line')).toBeNull()
     expect(water?.querySelector('.pdf-day-item')?.textContent).toContain('09:15')
+    const waterItemRule = PDF_DOCUMENT_CSS.match(
+      /\.pdf-day-section-water \.pdf-day-section-content \.pdf-day-item \{([^}]*)\}/,
+    )?.[1]
+    expect(waterItemRule).toContain('font-size: 9.5pt')
+  })
+
+  it('uses larger body text for meal items and water log lines (#940)', () => {
+    const mealItemRule = PDF_DOCUMENT_CSS.match(/\.pdf-meal-card \.pdf-day-item \{([^}]*)\}/)?.[1]
+    expect(mealItemRule).toContain('font-size: 11pt')
+    expect(mealItemRule).not.toContain('font-size: 9pt')
+    const waterItemRule = PDF_DOCUMENT_CSS.match(
+      /\.pdf-day-section-water \.pdf-day-section-content \.pdf-day-item \{([^}]*)\}/,
+    )?.[1]
+    expect(waterItemRule).toContain('font-size: 9.5pt')
+    const metricsNotesRule = PDF_DOCUMENT_CSS.match(
+      /\.pdf-day-section-metrics \.pdf-day-section-content \.pdf-line,\s*\.pdf-day-section-notes \.pdf-day-section-content \.pdf-line \{([^}]*)\}/,
+    )?.[1]
+    expect(metricsNotesRule).toContain('font-size: 9pt')
+    expect(PDF_DOCUMENT_CSS).toContain('.pdf-meal-card .pdf-line { font-weight: 600; font-size: 9.5pt')
   })
 
   it('shows a Steps text label instead of the walking icon (#931)', () => {

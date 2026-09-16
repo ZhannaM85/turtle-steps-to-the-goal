@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 909,
+    issue: 940,
+    date: '2026-09-17T00:57:22+03:00',
+    en: 'PDF diary meal items and water log lines now use larger text so they are easier to read.',
+    ru: 'В дневнике PDF строки блюд и записи воды теперь крупнее, поэтому их легче читать.',
+  },
+  {
     version: 908,
     issue: 939,
     date: '2026-09-17T00:55:00+03:00',

@@ -228,7 +228,7 @@ export const PDF_DOCUMENT_CSS = `
     margin: 1pt 0 0;
     padding-left: 0;
     border-left: 0;
-    font-size: 9pt;
+    font-size: 11pt;
     line-height: 1.18;
   }
   .pdf-meal-card .pdf-line + .pdf-day-item { margin-top: 4pt; }
@@ -245,6 +245,7 @@ export const PDF_DOCUMENT_CSS = `
     margin: 0 1% 2pt 0;
     padding-left: 0;
     border-left: 0;
+    font-size: 9.5pt;
   }
   .pdf-day-item {
     margin: 2pt 0 0 6pt;

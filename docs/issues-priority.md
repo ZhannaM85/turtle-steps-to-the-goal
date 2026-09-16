@@ -66,3 +66,4 @@ _Reported from an iPhone PDF export._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#939](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/939) | 🔍 Pending validation | PDF diary: excessive blank band below the footer | CSS `min-height: 259 mm` alone was ignored by iOS html2canvas. After page split, each `.pdf-page` now gets an in-flow pixel strut (and a 980 px height pin) so the capture reaches the A4 fill target without exceeding `MAX_STYLED_PAGE_PX`. Awaiting on-device confirmation. |
+| [#940](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/940) | 🔍 Pending validation | PDF diary: increase meal item and water log fonts by 2pt | Meal item lines in Еда cards are `11pt` (was `9pt`); water log lines are `9.5pt` (was `7.5pt`). Meal titles and Metrics/Notes body are unchanged. Awaiting on-device confirmation. |
