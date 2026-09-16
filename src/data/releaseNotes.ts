@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 906,
+    issue: 925,
+    date: '2026-09-17T00:17:00+03:00',
+    en: 'PDF meal cards now have larger text, roomier padding, and even spacing in two columns.',
+    ru: 'В карточках приёмов пищи PDF теперь крупнее текст, просторнее отступы и ровнее интервалы в двух столбцах.',
+  },
+  {
     version: 905,
     issue: 921,
     date: '2026-09-17T00:16:00+03:00',
