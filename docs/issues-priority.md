@@ -41,3 +41,13 @@ _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS sta
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+
+---
+
+## Tier 164 — PDF diary export feedback (2026-09-16)
+
+_Reported from iPhone PDF previews; logging only, with no implementation yet._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#918](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/918) | 🔲 Open | PDF diary export: blank page appears between Food and Water | An entirely empty page separates Food and Water for one day. Screenshot: `photo_2026-09-16_10-26-27.jpg`. Root cause not investigated. |
