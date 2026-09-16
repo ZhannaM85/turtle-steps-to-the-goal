@@ -171,6 +171,10 @@ export const PDF_DOCUMENT_CSS = `
   .pdf-day-section-content .pdf-line {
     margin: 0 0 1pt 0;
   }
+  .pdf-day-section-metrics .pdf-day-section-content {
+    padding-left: 9pt;
+    padding-bottom: 12pt;
+  }
   .pdf-day-section-metrics .pdf-day-section-content .pdf-line,
   .pdf-day-section-notes .pdf-day-section-content .pdf-line {
     font-size: 9pt;
