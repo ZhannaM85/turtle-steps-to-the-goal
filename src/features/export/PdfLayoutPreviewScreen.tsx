@@ -25,41 +25,7 @@ import {
   type PdfSections,
 } from './exportPdf'
 import { filterByExportPeriod } from './filterByExportPeriod'
-import { MAX_STYLED_PAGE_PX } from './renderHtmlDocumentToPdfBlob'
-
-function withPdfLayoutPreviewChrome(documentHtml: string): string {
-  const chrome = `<style id="pdf-layout-preview-chrome">
-    html, body { background: #d6d3d1; margin: 0; }
-    .pdf-root { background: transparent; }
-    .pdf-page {
-      position: relative;
-      outline: 1px solid #57534e;
-      margin: 0 0 20px 0;
-      box-shadow: 0 2px 8px rgba(28, 25, 23, 0.18);
-      background: #fff;
-    }
-    .pdf-page::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: ${MAX_STYLED_PAGE_PX}px;
-      border-top: 2px dashed #b91c1c;
-      pointer-events: none;
-      z-index: 4;
-    }
-    .pdf-page::after {
-      content: "";
-      display: block;
-      flex: none;
-      border-top: 2px dashed #c2410c;
-    }
-  </style>`
-  if (documentHtml.includes('</head>')) {
-    return documentHtml.replace('</head>', `${chrome}</head>`)
-  }
-  return chrome + documentHtml
-}
+import { capturePdfPageDataUrls } from './renderHtmlDocumentToPdfBlob'
 
 function defaultPeriodStart(): string {
   return format(subDays(new Date(), 89), 'yyyy-MM-dd')
@@ -69,15 +35,9 @@ function defaultPeriodEnd(): string {
   return format(new Date(), 'yyyy-MM-dd')
 }
 
-function resizePdfLayoutFrame(frame: HTMLIFrameElement): void {
-  const root = frame.contentDocument?.documentElement
-  if (!root) return
-  frame.style.height = `${Math.max(root.scrollHeight, root.offsetHeight)}px`
-}
-
 /**
- * #933 — same HTML+CSS document as the PDF pipeline, shown in the browser
- * so layout can be inspected without html2canvas.
+ * #935 — same html2canvas pages as the downloaded PDF, so the mock can
+ * be checked on the device that will paint the file.
  */
 export function PdfLayoutPreviewScreen() {
   const t = useTranslation()
@@ -107,7 +67,7 @@ export function PdfLayoutPreviewScreen() {
   const [searchParams] = useSearchParams()
   const periodStart = searchParams.get('start') || defaultPeriodStart()
   const periodEnd = searchParams.get('end') || defaultPeriodEnd()
-  const [html, setHtml] = useState<string | null>(null)
+  const [images, setImages] = useState<string[] | null>(null)
   const [failed, setFailed] = useState(false)
 
   useEffect(() => {
@@ -195,13 +155,14 @@ export function PdfLayoutPreviewScreen() {
             sex,
           },
         )
+        const pageImages = await capturePdfPageDataUrls(documentHtml)
         if (!cancelled) {
           setFailed(false)
-          setHtml(withPdfLayoutPreviewChrome(documentHtml))
+          setImages(pageImages)
         }
       } catch {
         if (!cancelled) {
-          setHtml(null)
+          setImages(null)
           setFailed(true)
         }
       }
@@ -255,20 +216,20 @@ export function PdfLayoutPreviewScreen() {
         {failed && (
           <p className="text-sm text-destructive">{t.export.pdfLayoutPreviewFailed}</p>
         )}
-        {!html && !failed && (
+        {!images && !failed && (
           <p className="text-sm text-muted-foreground">
             {t.export.pdfLayoutPreviewLoading}
           </p>
         )}
-        {html && (
-          <iframe
-            title={t.export.pdfLayoutPreviewTitle}
-            srcDoc={html}
-            className="mx-auto block bg-transparent"
-            style={{ width: '180mm', border: 0 }}
-            onLoad={(event) => resizePdfLayoutFrame(event.currentTarget)}
+        {images?.map((src, index) => (
+          <img
+            key={`${index}-${src.slice(0, 24)}`}
+            src={src}
+            alt={t.export.pdfLayoutPreviewPageLabel(index + 1)}
+            className="mx-auto mb-5 block bg-white shadow-lg"
+            style={{ width: '180mm' }}
           />
-        )}
+        ))}
       </div>
     </div>
   )

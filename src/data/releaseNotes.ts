@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 897,
+    issue: 935,
+    date: '2026-09-16T22:30:00+03:00',
+    en: 'PDF layout preview now shows the same photographed pages as the downloaded file, so you can check iPhone layout before exporting.',
+    ru: 'Макет PDF теперь показывает те же сфотографированные страницы, что и скачанный файл — можно проверить вёрстку на iPhone до экспорта.',
+  },
+  {
     version: 896,
     issue: 934,
     date: '2026-09-16T21:55:00+03:00',

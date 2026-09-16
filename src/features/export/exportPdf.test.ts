@@ -699,7 +699,8 @@ describe('buildSummaryPdf', () => {
     expect(day.querySelector('.pdf-day-section-food')?.textContent).toContain('Eggs')
     expect(day.querySelector('.pdf-day-section-food')?.textContent).toContain('Rice')
     expect(day.textContent).toContain('Tea helped me sleep')
-    expect(html).toContain('grid-template-columns: repeat(2, minmax(0, 1fr))')
+    expect(html).toContain('float: left')
+    expect(html).not.toContain('grid-template-columns')
   })
 
   it('uses 9pt body text in Metrics and Notes diary cards (#929)', () => {
@@ -720,13 +721,14 @@ describe('buildSummaryPdf', () => {
   })
 
   it('pads day, section, and table headers so PDF text sits in the middle (#928)', () => {
-    expect(PDF_DOCUMENT_CSS).toContain('padding: 4pt 9pt')
+    expect(PDF_DOCUMENT_CSS).toContain('padding: 6pt 9pt')
     expect(PDF_DOCUMENT_CSS).toContain('.pdf-day-section-title')
     expect(PDF_DOCUMENT_CSS).toContain('font-size: 10.5pt')
     expect(PDF_DOCUMENT_CSS).toContain('padding: 6pt')
-    expect(PDF_DOCUMENT_CSS).toContain('padding: 8pt 6pt 2pt')
+    expect(PDF_DOCUMENT_CSS).toContain('padding: 4pt 6pt')
+    expect(PDF_DOCUMENT_CSS).not.toContain('padding: 8pt 6pt 2pt')
     expect(PDF_DOCUMENT_CSS).toContain(
-      '.pdf-day-header h2 { font-size: 11pt; font-weight: 600; line-height: 1; margin: 0; }',
+      '.pdf-day-header h2 { font-size: 11pt; font-weight: 600; line-height: 1.2; margin: 0; }',
     )
     const entry = makeEntry({ note: 'Centered headers', waistCm: 80 })
     const data = buildPdfSummaryData([entry], entry.date, entry.date, 1)
@@ -754,7 +756,8 @@ describe('buildSummaryPdf', () => {
     expect(title?.querySelector('.pdf-day-section-title-lead')).not.toBeNull()
     expect(title?.querySelector('.pdf-day-section-water-total')?.textContent).toContain('250')
     expect(title?.querySelector('.pdf-day-section-title-metrics')).toBeNull()
-    expect(html).toContain('justify-content: flex-start')
+    expect(html).toContain('pdf-day-section-water-total')
+    expect(html).not.toContain('justify-content: flex-start')
     expect(water?.querySelector('.pdf-day-section-content .pdf-line')).toBeNull()
     expect(water?.querySelector('.pdf-day-item')?.textContent).toContain('09:15')
   })

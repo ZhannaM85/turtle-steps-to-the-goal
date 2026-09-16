@@ -116,10 +116,11 @@ export const exportCopy: ExportDict = {
     exportPdfRange90Label: 'Last 90 days',
     pdfLayoutPreviewTitle: 'PDF layout',
     pdfLayoutPreviewBlurb:
-      'This is the HTML used to build the PDF. Each white sheet is one page. The dashed line is the bottom the PDF can paint; generating the file is a separate step.',
+      'These pages are painted the same way the PDF file is. Open this on the iPhone to see what iOS will put in the file.',
     pdfLayoutPreviewButton: 'Preview layout',
-    pdfLayoutPreviewLoading: 'Loading layout…',
+    pdfLayoutPreviewLoading: 'Painting pages the same way the PDF is built…',
     pdfLayoutPreviewFailed: 'Could not build the layout preview.',
+    pdfLayoutPreviewPageLabel: (page) => `Page ${page}`,
     pdfSectionsDialogTitle: 'Choose what to include',
     pdfSectionsDialogDescription:
       'Pick which sections go into the PDF. The non-medical disclaimer is always included.',

@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   canvasScaleForDimensions,
+  capturePdfPageDataUrls,
   explodeOverflowingPdfPagesForTest,
   shouldIgnorePdfRenderElement,
 } from './renderHtmlDocumentToPdfBlob'
@@ -124,5 +125,15 @@ describe('shouldIgnorePdfRenderElement (#922)', () => {
       host.remove()
       liveApp.remove()
     }
+  })
+})
+
+describe('capturePdfPageDataUrls (#935)', () => {
+  it('returns a stub image in the test environment', async () => {
+    const urls = await capturePdfPageDataUrls(
+      '<html><body><div class="pdf-root"></div></body></html>',
+    )
+    expect(urls).toHaveLength(1)
+    expect(urls[0]).toMatch(/^data:image\//)
   })
 })

@@ -6,98 +6,42 @@
  * #908 — before capture, split overflowing `.pdf-page` nodes so each PDF
  * sheet is a full styled HTML page (not a raw mid-canvas JPEG band that
  * drops section-card chrome after page 2).
+ *
+ * #935 — the layout preview uses the same html2canvas pass as the download.
  */
+const TEST_PREVIEW_IMAGE =
+  'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='
+
+function isPdfRenderTestEnv(): boolean {
+  return (
+    import.meta.env.MODE === 'test' ||
+    typeof document === 'undefined' ||
+    !document.body
+  )
+}
+
 export async function renderHtmlDocumentToPdfBlob(
   html: string,
 ): Promise<Blob> {
   // Vitest/jsdom has no usable canvas layout — return a minimal PDF so
   // callers can still assert a Blob without pulling in Playwright here.
-  if (
-    import.meta.env.MODE === 'test' ||
-    typeof document === 'undefined' ||
-    !document.body
-  ) {
+  if (isPdfRenderTestEnv()) {
     return new Blob(['%PDF-1.4\n%html2pdf-stub\n'], {
       type: 'application/pdf',
     })
   }
 
-  const { styleCss, bodyHtml } = splitHtmlDocument(html)
-  const host = document.createElement('div')
-  host.setAttribute('data-pdf-render-root', 'true')
-  // On-screen but invisible — off-left mounts often produce blank canvases
-  // on iOS Safari (html2canvas).
-  host.style.position = 'fixed'
-  host.style.left = '0'
-  host.style.top = '0'
-  host.style.width = '794px' // ~A4 @ 96dpi
-  host.style.opacity = '0'
-  host.style.pointerEvents = 'none'
-  host.style.zIndex = '-1'
-  host.style.background = '#fff'
-  host.innerHTML = `<style>${styleCss}</style>${bodyHtml}`
-  document.body.appendChild(host)
-
-  const scrollX = window.scrollX
-  const scrollY = window.scrollY
-  window.scrollTo(0, 0)
-
+  const painted = await paintPdfPages(html)
   try {
-    // Let layout settle, then pack tall pages into multiple styled pages.
-    void host.offsetHeight
-    explodeOverflowingPdfPages(host)
-
-    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-      import('html2canvas'),
-      import('jspdf'),
-    ])
-
-    const pages = [
-      ...host.querySelectorAll<HTMLElement>('.pdf-page'),
-    ]
-    const targets =
-      pages.length > 0
-        ? pages
-        : [host.querySelector<HTMLElement>('.pdf-root') ?? host]
-
+    const { jsPDF } = await import('jspdf')
     const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' })
     const pageWidthMm = pdf.internal.pageSize.getWidth()
     const pageHeightMm = pdf.internal.pageSize.getHeight()
     const marginMm = 10
     const contentWidthMm = pageWidthMm - marginMm * 2
 
-    for (let i = 0; i < targets.length; i++) {
-      const target = targets[i]!
-      const scale = canvasScaleForElement(target)
-      const canvas = await html2canvas(target, {
-        scale,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        // html2canvas first clones the target's whole owner document. Keep
-        // only this render host in that clone: otherwise an open Settings
-        // dialog and the rest of the live app can make capture stall before
-        // the first PDF page is painted.
-        ignoreElements: (element) => shouldIgnorePdfRenderElement(element, host),
-        onclone: (_clonedDoc, clonedElement) => {
-          clonedElement
-            .querySelectorAll<HTMLElement>(
-              '.pdf-day-header, .pdf-day-header h2, .pdf-day-section-title, .pdf-table th, .pdf-table td',
-            )
-            .forEach((el) => {
-              el.style.lineHeight = '1'
-            })
-        },
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: Math.max(target.scrollWidth, host.clientWidth),
-        windowHeight: target.scrollHeight,
-      })
-
-      if (canvas.width === 0 || canvas.height === 0) {
-        throw new Error('html2canvas produced an empty canvas')
-      }
-
+    for (let i = 0; i < painted.canvases.length; i++) {
+      const canvas = painted.canvases[i]!
       const imgHeightMm = (canvas.height * contentWidthMm) / canvas.width
       if (i > 0) pdf.addPage()
 
@@ -165,8 +109,96 @@ export async function renderHtmlDocumentToPdfBlob(
       ? blob
       : new Blob([await blob.arrayBuffer()], { type: 'application/pdf' })
   } finally {
+    painted.cleanup()
+  }
+}
+
+/** #935 — JPEG data URLs from the same html2canvas pages the PDF file uses. */
+export async function capturePdfPageDataUrls(html: string): Promise<string[]> {
+  if (isPdfRenderTestEnv()) return [TEST_PREVIEW_IMAGE]
+  const painted = await paintPdfPages(html)
+  try {
+    return painted.canvases.map((canvas) =>
+      canvas.toDataURL('image/jpeg', 0.92),
+    )
+  } finally {
+    painted.cleanup()
+  }
+}
+
+async function paintPdfPages(html: string): Promise<{
+  canvases: HTMLCanvasElement[]
+  cleanup: () => void
+}> {
+  const { styleCss, bodyHtml } = splitHtmlDocument(html)
+  const host = document.createElement('div')
+  host.setAttribute('data-pdf-render-root', 'true')
+  // On-screen but invisible — off-left mounts often produce blank canvases
+  // on iOS Safari (html2canvas).
+  host.style.position = 'fixed'
+  host.style.left = '0'
+  host.style.top = '0'
+  host.style.width = '794px' // ~A4 @ 96dpi
+  host.style.opacity = '0'
+  host.style.pointerEvents = 'none'
+  host.style.zIndex = '-1'
+  host.style.background = '#fff'
+  host.innerHTML = `<style>${styleCss}</style>${bodyHtml}`
+  document.body.appendChild(host)
+
+  const scrollX = window.scrollX
+  const scrollY = window.scrollY
+  window.scrollTo(0, 0)
+
+  const cleanup = () => {
     host.remove()
     window.scrollTo(scrollX, scrollY)
+  }
+
+  try {
+    void host.offsetHeight
+    explodeOverflowingPdfPages(host)
+
+    const { default: html2canvas } = await import('html2canvas')
+    const pages = [...host.querySelectorAll<HTMLElement>('.pdf-page')]
+    const targets =
+      pages.length > 0
+        ? pages
+        : [host.querySelector<HTMLElement>('.pdf-root') ?? host]
+
+    const canvases: HTMLCanvasElement[] = []
+    for (const target of targets) {
+      const scale = canvasScaleForElement(target)
+      const canvas = await html2canvas(target, {
+        scale,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        ignoreElements: (element) =>
+          shouldIgnorePdfRenderElement(element, host),
+        onclone: (_clonedDoc, clonedElement) => {
+          clonedElement
+            .querySelectorAll<HTMLElement>(
+              '.pdf-day-header, .pdf-day-header h2, .pdf-day-section-title, .pdf-table th, .pdf-table td',
+            )
+            .forEach((el) => {
+              el.style.lineHeight = '1'
+            })
+        },
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: Math.max(target.scrollWidth, host.clientWidth),
+        windowHeight: target.scrollHeight,
+      })
+      if (canvas.width === 0 || canvas.height === 0) {
+        throw new Error('html2canvas produced an empty canvas')
+      }
+      canvases.push(canvas)
+    }
+    return { canvases, cleanup }
+  } catch (error) {
+    cleanup()
+    throw error
   }
 }
 

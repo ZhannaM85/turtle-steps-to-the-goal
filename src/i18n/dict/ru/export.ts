@@ -116,10 +116,11 @@ export const exportCopy: ExportDict = {
     exportPdfRange90Label: 'Последние 90 дней',
     pdfLayoutPreviewTitle: 'Макет PDF',
     pdfLayoutPreviewBlurb:
-      'Это HTML, из которого собирается PDF. Каждый белый лист — одна страница. Пунктир — нижний край, который попадёт в файл; сам файл создаётся отдельно.',
+      'Страницы рисуются так же, как файл PDF. Откройте это на iPhone, чтобы увидеть, что попадёт в файл.',
     pdfLayoutPreviewButton: 'Посмотреть макет',
-    pdfLayoutPreviewLoading: 'Загрузка макета…',
+    pdfLayoutPreviewLoading: 'Рисуем страницы тем же способом, что и PDF…',
     pdfLayoutPreviewFailed: 'Не удалось показать макет.',
+    pdfLayoutPreviewPageLabel: (page) => `Страница ${page}`,
     pdfSectionsDialogTitle: 'Выберите, что включить',
     pdfSectionsDialogDescription:
       'Выберите, какие разделы войдут в PDF. Отказ от медицинской ответственности включается всегда.',

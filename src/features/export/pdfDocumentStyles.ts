@@ -2,6 +2,10 @@
  * #905 — print stylesheet for the HTML→PDF pipeline. Kept as a string so
  * the off-DOM document does not depend on the app's Tailwind runtime.
  * Calm typography / section cards; footer padding matches #892 clearance.
+ *
+ * #935 — html2canvas (especially iOS WebKit) mishandles CSS Grid, flex
+ * `gap` / `space-between`, and asymmetric table padding. Use floats,
+ * inline flow, and equal cell padding so the canvas matches the layout.
  */
 export const PDF_DOCUMENT_CSS = `
   * { box-sizing: border-box; }
@@ -28,35 +32,34 @@ export const PDF_DOCUMENT_CSS = `
     break-after: auto;
   }
   .pdf-page-body { flex: 1 1 auto; }
-  .pdf-summary-body {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 10pt;
-    align-content: start;
-  }
-  .pdf-summary-body > .pdf-title,
-  .pdf-summary-body > .pdf-range,
-  .pdf-summary-body > .pdf-section-wide {
-    grid-column: 1 / -1;
-  }
+  .pdf-summary-body { overflow: hidden; }
   .pdf-title {
     font-size: 18pt;
     font-weight: 600;
     margin: 0 0 4pt 0;
     letter-spacing: -0.02em;
+    clear: both;
   }
   .pdf-range {
     font-size: 10pt;
     color: #78716c;
     margin: 0 0 14pt 0;
+    clear: both;
   }
   .pdf-section {
-    min-width: 0;
-    margin: 0 0 12pt 0;
+    float: left;
+    width: 48%;
+    margin: 0 2% 12pt 0;
     padding: 10pt 12pt;
     border: 1px solid #e7e5e4;
     border-radius: 8pt;
     background: #fafaf9;
+  }
+  .pdf-summary-body > .pdf-section-wide {
+    float: none;
+    clear: both;
+    width: 100%;
+    margin-right: 0;
   }
   .pdf-section-title {
     font-size: 12pt;
@@ -70,16 +73,13 @@ export const PDF_DOCUMENT_CSS = `
     border-collapse: collapse;
     font-size: 9pt;
   }
-  /* #928 — extra top padding made glyphs sit low in the HTML preview.
-     Equal top/bottom padding centers the day and section bars; table
-     cells still use the earlier asymmetric values until checked. */
   .pdf-table th,
   .pdf-table td {
     border: 1px solid #d6d3d1;
-    padding: 8pt 6pt 2pt;
+    padding: 4pt 6pt;
     text-align: left;
     vertical-align: middle;
-    line-height: 1;
+    line-height: 1.2;
   }
   .pdf-table th {
     background: #57534e;
@@ -95,16 +95,14 @@ export const PDF_DOCUMENT_CSS = `
   .pdf-day-start { break-inside: avoid; }
   .pdf-day-header {
     margin: 0 0 6pt 0;
-    padding: 4pt 9pt;
+    padding: 6pt 9pt;
     border: 1px solid #d6d3d1;
     border-left: 4pt solid #78716c;
     border-radius: 8pt;
     background: #f5f5f4;
-    line-height: 1;
-    display: flex;
-    align-items: center;
+    line-height: 1.2;
   }
-  .pdf-day-header h2 { font-size: 11pt; font-weight: 600; line-height: 1; margin: 0; }
+  .pdf-day-header h2 { font-size: 11pt; font-weight: 600; line-height: 1.2; margin: 0; }
   .pdf-section .pdf-line { overflow-wrap: anywhere; }
   .pdf-day-section {
     margin: 0 0 3pt 0;
@@ -116,32 +114,44 @@ export const PDF_DOCUMENT_CSS = `
     break-inside: avoid;
   }
   .pdf-day-section-title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6pt;
     font-size: 10.5pt;
     font-weight: 600;
     margin: 0;
     padding: 6pt;
-    line-height: 1;
+    line-height: 1.2;
     border-bottom: 1px solid #e7e5e4;
     background: #fafaf9;
     color: #44403c;
+    overflow: hidden;
   }
-  .pdf-day-section-title > span { line-height: 1; }
-  .pdf-day-section-title-metrics { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 1pt 7pt; font-size: 7.5pt; font-weight: 400; line-height: 1; }
-  .pdf-day-section-title-lead { display: inline-flex; align-items: center; min-width: 0; }
+  .pdf-day-section-title > span { line-height: 1.2; }
+  .pdf-day-section-title-metrics {
+    float: right;
+    font-size: 7.5pt;
+    font-weight: 400;
+    line-height: 1.2;
+  }
+  .pdf-day-section-title-lead { display: inline; }
   .pdf-day-section-water-total { font-weight: 400; padding-left: 4pt; }
-  .pdf-day-section-water .pdf-day-section-title { justify-content: flex-start; }
-  .pdf-day-header-metric { display: inline-flex; align-items: center; gap: 2pt; white-space: nowrap; line-height: 1; }
-  .pdf-day-header-metric svg { width: 9pt; height: 9pt; flex: none; }
+  .pdf-day-header-metric {
+    display: inline;
+    margin-left: 7pt;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+  .pdf-day-header-metric svg {
+    width: 9pt;
+    height: 9pt;
+    vertical-align: -1.5pt;
+    margin-right: 2pt;
+  }
   .pdf-day-section:nth-of-type(1) .pdf-day-section-title { background: #eef2ff; color: #3730a3; }
   .pdf-day-section:nth-of-type(2) .pdf-day-section-title { background: #fff7ed; color: #9a3412; }
   .pdf-day-section:nth-of-type(3) .pdf-day-section-title { background: #ecfeff; color: #155e75; }
   .pdf-day-section:nth-of-type(4) .pdf-day-section-title { background: #fdf2f8; color: #9d174d; }
   .pdf-day-section-content {
     padding: 4pt 6pt;
+    overflow: hidden;
   }
   .pdf-day-section-content .pdf-line:last-child,
   .pdf-day-section-content .pdf-day-item:last-child {
@@ -155,14 +165,11 @@ export const PDF_DOCUMENT_CSS = `
     font-size: 9pt;
     line-height: 1.18;
   }
-  .pdf-day-section-food .pdf-day-section-content {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 3pt;
-  }
-  .pdf-day-section-food .pdf-day-section-content > .pdf-line { grid-column: 1 / -1; }
+  .pdf-day-section-food .pdf-day-section-content > .pdf-line { clear: both; }
   .pdf-meal-card {
-    min-width: 0;
+    float: left;
+    width: 48.5%;
+    margin: 0 1.5% 3pt 0;
     padding: 3pt 4pt;
     border: 1px solid #e7e5e4;
     border-radius: 5pt;
@@ -172,7 +179,7 @@ export const PDF_DOCUMENT_CSS = `
   }
   .pdf-meal-card .pdf-line { font-weight: 600; font-size: 8.5pt; line-height: 1.18; }
   .pdf-meal-card .pdf-day-item {
-    display: flow-root;
+    display: block;
     margin: 1pt 0 0;
     padding-left: 0;
     border-left: 0;
@@ -180,20 +187,18 @@ export const PDF_DOCUMENT_CSS = `
     line-height: 1.18;
   }
   .pdf-meal-card .pdf-day-item::before {
-    content: "—";
-    margin-right: 3pt;
+    content: "— ";
     color: #a8a29e;
   }
-  .pdf-day-section-water .pdf-day-section-content {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    column-gap: 6pt;
-  }
   .pdf-day-section-water .pdf-day-section-content .pdf-line {
-    grid-column: 1 / -1;
+    clear: both;
   }
   .pdf-day-section-water .pdf-day-section-content .pdf-day-item {
-    margin-left: 0;
+    float: left;
+    width: 32%;
+    margin: 0 1% 2pt 0;
+    padding-left: 0;
+    border-left: 0;
   }
   .pdf-day-item {
     margin: 2pt 0 0 6pt;
