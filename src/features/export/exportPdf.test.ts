@@ -745,6 +745,9 @@ describe('buildSummaryPdf', () => {
     expect(PDF_DOCUMENT_CSS).toContain('transform: translateY(1pt)')
     expect(PDF_DOCUMENT_CSS).toContain('padding: 4pt 6pt')
     expect(PDF_DOCUMENT_CSS).not.toContain('padding: 8pt 6pt 2pt')
+    const footerRule = PDF_DOCUMENT_CSS.match(/\.pdf-footer \{([^}]*)\}/)?.[1]
+    expect(footerRule).toContain('padding-left: 9pt')
+    expect(footerRule).toContain('padding-bottom: 9pt')
     expect(PDF_DOCUMENT_CSS).toContain(
       '.pdf-day-header h2 { font-size: 11pt; font-weight: 600; line-height: 1.2; margin: 0; }',
     )

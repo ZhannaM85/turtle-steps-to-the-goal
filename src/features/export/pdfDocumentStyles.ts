@@ -231,6 +231,8 @@ export const PDF_DOCUMENT_CSS = `
     margin-top: auto;
     flex: none;
     padding-top: 4pt;
+    padding-left: 9pt;
+    padding-bottom: 9pt;
     border-top: 1px solid #e7e5e4;
     font-size: 6.5pt;
     line-height: 1.25;
