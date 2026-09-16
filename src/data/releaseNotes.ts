@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 891,
+    issue: 931,
+    date: '2026-09-16T18:50:00+03:00',
+    en: 'PDF diary now labels step count with the word Steps instead of an unclear icon.',
+    ru: 'В дневнике PDF шаги теперь подписаны словом Шаги вместо непонятной иконки.',
+  },
+  {
     version: 890,
     issue: 930,
     date: '2026-09-16T18:45:00+03:00',

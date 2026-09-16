@@ -734,6 +734,27 @@ describe('buildSummaryPdf', () => {
     expect(water?.querySelector('.pdf-day-item')?.textContent).toContain('09:15')
   })
 
+  it('shows a Steps text label instead of the walking icon (#931)', () => {
+    const entry = makeEntry({
+      steps: 4200,
+      waistCm: 80,
+    })
+    const data = buildPdfSummaryData([entry], entry.date, entry.date, 1)
+    const enHtml = buildPdfDocumentHtml(data, t, 'en', 'kg', ALL_SECTIONS_EXCLUDED, [], { entries: [entry] })
+    const ru = getDictionary('ru')
+    const ruHtml = buildPdfDocumentHtml(data, ru, 'ru', 'kg', ALL_SECTIONS_EXCLUDED, [], { entries: [entry] })
+    const container = document.createElement('div')
+    container.innerHTML = enHtml
+    const metricsTitle = container.querySelectorAll('.pdf-page')[1]?.querySelector('.pdf-day-section-title-metrics')
+    const stepsMetric = [...(metricsTitle?.querySelectorAll('.pdf-day-header-metric') ?? [])].find((el) =>
+      el.textContent?.includes('Steps'),
+    )
+    expect(stepsMetric?.textContent).toContain('Steps')
+    expect(stepsMetric?.querySelector('svg')).toBeNull()
+    expect(enHtml).not.toContain('M8 3v5l3 2')
+    expect(ruHtml).toContain('Шаги')
+  })
+
   it('uses two-column summary cards while charts and tables span the page (#921)', () => {
     const entries = [
       makeEntry({

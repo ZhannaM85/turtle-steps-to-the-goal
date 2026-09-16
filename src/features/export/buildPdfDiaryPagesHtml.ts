@@ -17,6 +17,9 @@ function diaryHeaderMetricHtml(kind: keyof typeof diaryHeaderIcons, text: string
   const separator = text.indexOf(': ')
   const label = separator < 0 ? text : text.slice(0, separator)
   const value = separator < 0 ? text : text.slice(separator + 2)
+  if (kind === 'steps') {
+    return `<span class="pdf-day-header-metric">${escapeHtml(text)}</span>`
+  }
   return `<span class="pdf-day-header-metric" title="${escapeHtml(label)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${diaryHeaderIcons[kind]}</svg>${escapeHtml(value)}</span>`
 }
 
