@@ -166,6 +166,11 @@ export const PDF_DOCUMENT_CSS = `
     font-size: 7pt;
     line-height: 1.18;
   }
+  .pdf-meal-card .pdf-day-item::before {
+    content: "—";
+    margin-right: 3pt;
+    color: #a8a29e;
+  }
   .pdf-day-section-water .pdf-day-section-content {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));

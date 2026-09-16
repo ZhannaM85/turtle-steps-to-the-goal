@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 888,
+    issue: 927,
+    date: '2026-09-16T18:25:00+03:00',
+    en: 'PDF meal items now use a simple dash instead of a vertical divider.',
+    ru: 'Позиции в карточках приёмов пищи PDF теперь отделяются простым тире вместо вертикального разделителя.',
+  },
+  {
     version: 887,
     issue: 927,
     date: '2026-09-16T18:20:00+03:00',
