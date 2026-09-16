@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 901,
+    issue: 928,
+    date: '2026-09-17T00:12:00+03:00',
+    en: 'PDF day, section, and weekly table text now stays vertically centered in captured pages.',
+    ru: 'Текст дат, разделов и недельной таблицы PDF теперь остаётся выровненным по вертикальному центру на готовых страницах.',
+  },
+  {
     version: 900,
     issue: 938,
     date: '2026-09-17T00:10:00+03:00',
