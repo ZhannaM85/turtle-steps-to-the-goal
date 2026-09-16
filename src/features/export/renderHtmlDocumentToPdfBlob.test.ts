@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   canvasScaleForDimensions,
   explodeOverflowingPdfPagesForTest,
+  shouldIgnorePdfRenderElement,
 } from './renderHtmlDocumentToPdfBlob'
 
 describe('explodeOverflowingPdfPages (#908)', () => {
@@ -100,5 +101,28 @@ describe('canvasScaleForDimensions (#922)', () => {
 
   it('still reduces the scale for unusually tall content that approaches Safari canvas limits', () => {
     expect(canvasScaleForDimensions(794, 4000)).toBe(1)
+  })
+})
+
+describe('shouldIgnorePdfRenderElement (#922)', () => {
+  it('keeps only the document shell and PDF render host during canvas cloning', () => {
+    const host = document.createElement('div')
+    host.innerHTML = '<section><p>PDF page</p></section>'
+    const liveApp = document.createElement('div')
+    liveApp.innerHTML = '<dialog>Settings</dialog>'
+    document.body.append(host, liveApp)
+
+    try {
+      expect(shouldIgnorePdfRenderElement(document.documentElement, host)).toBe(false)
+      expect(shouldIgnorePdfRenderElement(document.head, host)).toBe(false)
+      expect(shouldIgnorePdfRenderElement(document.body, host)).toBe(false)
+      expect(shouldIgnorePdfRenderElement(host, host)).toBe(false)
+      expect(shouldIgnorePdfRenderElement(host.querySelector('p')!, host)).toBe(false)
+      expect(shouldIgnorePdfRenderElement(liveApp, host)).toBe(true)
+      expect(shouldIgnorePdfRenderElement(liveApp.querySelector('dialog')!, host)).toBe(true)
+    } finally {
+      host.remove()
+      liveApp.remove()
+    }
   })
 })

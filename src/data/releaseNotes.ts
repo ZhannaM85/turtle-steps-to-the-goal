@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 880,
+    issue: 922,
+    date: '2026-09-16T11:26:38+03:00',
+    en: 'Weekly PDF exports now avoid getting stuck while the settings dialog is open.',
+    ru: 'Недельный PDF-экспорт теперь не зависает при открытом окне настроек.',
+  },
+  {
     version: 879,
     issue: 923,
     date: '2026-09-16T11:16:00+03:00',

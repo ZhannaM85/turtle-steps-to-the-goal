@@ -74,6 +74,11 @@ export async function renderHtmlDocumentToPdfBlob(
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
+        // html2canvas first clones the target's whole owner document. Keep
+        // only this render host in that clone: otherwise an open Settings
+        // dialog and the rest of the live app can make capture stall before
+        // the first PDF page is painted.
+        ignoreElements: (element) => shouldIgnorePdfRenderElement(element, host),
         scrollX: 0,
         scrollY: 0,
         windowWidth: Math.max(target.scrollWidth, host.clientWidth),
@@ -162,6 +167,21 @@ function splitHtmlDocument(html: string): { styleCss: string; bodyHtml: string }
   const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i)
   const bodyHtml = bodyMatch?.[1] ?? html
   return { styleCss, bodyHtml }
+}
+
+/** Keep the document shell and the isolated PDF host when html2canvas clones. */
+export function shouldIgnorePdfRenderElement(
+  element: Element,
+  host: HTMLElement,
+): boolean {
+  const { documentElement, head, body } = element.ownerDocument
+  return (
+    element !== documentElement &&
+    element !== head &&
+    element !== body &&
+    element !== host &&
+    !host.contains(element)
+  )
 }
 
 /** Keep canvas under iOS Safari’s ~4096² limit (html2canvas blank-page bug). */
