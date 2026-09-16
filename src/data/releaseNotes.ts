@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 899,
+    issue: 937,
+    date: '2026-09-17T00:05:00+03:00',
+    en: 'The Complete the day chart grid is a little lighter.',
+    ru: 'Сетка на графике «Завершить день» стала чуть светлее.',
+  },
+  {
     version: 898,
     issue: 936,
     date: '2026-09-16T22:50:00+03:00',

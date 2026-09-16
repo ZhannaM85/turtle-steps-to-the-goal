@@ -161,8 +161,9 @@ export function CompleteDayProjectionDialog() {
                         key={`week-${week}`}
                         x={week}
                         stroke="var(--muted-foreground)"
+                        strokeOpacity={0.35}
                         strokeDasharray="5 4"
-                        strokeWidth={1.5}
+                        strokeWidth={1}
                       />
                     ))}
                     {weightTicks.map((weight) => (
@@ -170,8 +171,9 @@ export function CompleteDayProjectionDialog() {
                         key={`kg-${weight}`}
                         y={weight}
                         stroke="var(--muted-foreground)"
+                        strokeOpacity={0.35}
                         strokeDasharray="5 4"
-                        strokeWidth={1.5}
+                        strokeWidth={1}
                       />
                     ))}
                     <XAxis
