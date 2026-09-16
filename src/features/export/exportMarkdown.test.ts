@@ -109,7 +109,7 @@ describe('buildDailyLogMarkdown', () => {
     expect(row2.startsWith('| 2026-03-02 | 79')).toBe(true)
   })
 
-  it('appends a Meals table after the Daily Log (#743)', () => {
+  it('appends a Meals table with a blank Time when it was not recorded (#926)', () => {
     const entry = makeEntry({
       calorieEntries: [
         {
@@ -127,7 +127,7 @@ describe('buildDailyLogMarkdown', () => {
     expect(meals.startsWith(MEALS_HEADER)).toBe(true)
     expect(row).toContain('| Breakfast | Toast |')
     expect(row).toContain('| 150 |')
-    expect(row).toContain('| 08:00 |')
+    expect(row).toContain('| Breakfast | Toast |  | 150 |')
   })
 
   it('appends a Water table with amount and time per entry (#849)', () => {

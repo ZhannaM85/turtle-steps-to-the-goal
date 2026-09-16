@@ -619,7 +619,7 @@ describe('buildDailyLogCsv', () => {
     expect(row).toContain('"Hunger, Lonely"')
   })
 
-  it('fills meal Time from the Breakfast slot default when timeEaten is missing (#754)', () => {
+  it('leaves meal Time blank when timeEaten is missing (#926)', () => {
     const entry = makeEntry({
       calorieEntries: [
         {
@@ -634,10 +634,10 @@ describe('buildDailyLogCsv', () => {
     const [, meals] = csv.split('\r\n\r\n')
     const [header, row] = meals.split('\r\n')
 
-    expect(row.split(',')[header.split(',').indexOf('Time')]).toBe('08:00')
+    expect(row.split(',')[header.split(',').indexOf('Time')]).toBe('')
   })
 
-  it('uses remembered slot clocks for meal Time when passed (#754)', () => {
+  it('does not use remembered slot clocks when timeEaten is missing (#926)', () => {
     const entry = makeEntry({
       calorieEntries: [
         {
@@ -659,7 +659,7 @@ describe('buildDailyLogCsv', () => {
     const [, meals] = csv.split('\r\n\r\n')
     const [header, row] = meals.split('\r\n')
 
-    expect(row.split(',')[header.split(',').indexOf('Time')]).toBe('09:15')
+    expect(row.split(',')[header.split(',').indexOf('Time')]).toBe('')
   })
 
   it('appends a Water table with amount and time per entry (#849)', () => {
