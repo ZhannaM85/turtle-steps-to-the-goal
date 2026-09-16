@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 875,
+    issue: 919,
+    date: '2026-09-16T10:40:00+03:00',
+    en: 'PDF export now keeps its disclaimer in smaller text at the bottom of each page.',
+    ru: 'В PDF-экспорте предупреждение теперь размещается мелким шрифтом внизу каждой страницы.',
+  },
+  {
     version: 874,
     issue: 918,
     date: '2026-09-16T10:39:00+03:00',

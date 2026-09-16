@@ -14,8 +14,8 @@ export const PDF_DOCUMENT_CSS = `
   }
   .pdf-page {
     width: 180mm;
-    min-height: 0;
-    padding: 0 0 18mm 0;
+    min-height: 258mm;
+    padding: 0;
     display: flex;
     flex-direction: column;
     page-break-after: always;
@@ -137,11 +137,12 @@ export const PDF_DOCUMENT_CSS = `
     color: #57534e;
   }
   .pdf-footer {
-    margin-top: 12pt;
-    padding-top: 8pt;
+    margin-top: auto;
+    padding-top: 4pt;
     border-top: 1px solid #e7e5e4;
-    font-size: 8pt;
+    font-size: 6.5pt;
+    line-height: 1.25;
     color: #78716c;
   }
-  .pdf-footer p { margin: 0 0 4pt 0; }
+  .pdf-footer p { margin: 0 0 2pt 0; }
 `
