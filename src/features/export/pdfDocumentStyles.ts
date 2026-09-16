@@ -161,7 +161,8 @@ export const PDF_DOCUMENT_CSS = `
   .pdf-meal-card .pdf-day-item {
     display: flow-root;
     margin: 1pt 0 0;
-    padding-left: 5pt;
+    padding-left: 0;
+    border-left: 0;
     font-size: 7pt;
     line-height: 1.18;
   }

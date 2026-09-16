@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 887,
+    issue: 927,
+    date: '2026-09-16T18:20:00+03:00',
+    en: 'PDF meal cards no longer show the item divider that could overlap adjacent rows.',
+    ru: 'В карточках приёмов пищи PDF больше нет разделителя позиций, который мог накладываться на соседние строки.',
+  },
+  {
     version: 886,
     issue: 928,
     date: '2026-09-16T17:55:00+03:00',
