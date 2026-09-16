@@ -193,6 +193,7 @@ function explodeOverflowingPdfPages(host: HTMLElement): void {
 
     const body = page.querySelector<HTMLElement>('.pdf-page-body')
     if (!body) continue
+    const bodyClassName = body.className
     const kids = [...body.children] as HTMLElement[]
     if (kids.length < 2) continue
 
@@ -203,7 +204,7 @@ function explodeOverflowingPdfPages(host: HTMLElement): void {
     // Detach original; rebuild as one or more fitting pages.
     page.remove()
 
-    let current = makeEmptyPdfPage(footerHtml)
+    let current = makeEmptyPdfPage(footerHtml, bodyClassName)
     let currentBody = current.querySelector<HTMLElement>('.pdf-page-body')!
     root.insertBefore(current, insertBefore)
 
@@ -215,7 +216,7 @@ function explodeOverflowingPdfPages(host: HTMLElement): void {
       ) {
         const overflow = currentBody.lastElementChild!
         overflow.remove()
-        current = makeEmptyPdfPage(footerHtml)
+        current = makeEmptyPdfPage(footerHtml, bodyClassName)
         currentBody = current.querySelector<HTMLElement>('.pdf-page-body')!
         currentBody.appendChild(overflow)
         root.insertBefore(current, insertBefore)
@@ -224,10 +225,10 @@ function explodeOverflowingPdfPages(host: HTMLElement): void {
   }
 }
 
-function makeEmptyPdfPage(footerHtml: string): HTMLElement {
+function makeEmptyPdfPage(footerHtml: string, bodyClassName: string): HTMLElement {
   const page = document.createElement('section')
   page.className = 'pdf-page'
-  page.innerHTML = `<div class="pdf-page-body"></div>${footerHtml}`
+  page.innerHTML = `<div class="${bodyClassName}"></div>${footerHtml}`
   return page
 }
 

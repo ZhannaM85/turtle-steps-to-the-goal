@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 877,
+    issue: 921,
+    date: '2026-09-16T10:46:00+03:00',
+    en: 'PDF summary cards now fit two per row where space allows.',
+    ru: 'Карточки в сводном PDF теперь размещаются по две в строке, если хватает места.',
+  },
+  {
     version: 876,
     issue: 920,
     date: '2026-09-16T10:42:00+03:00',

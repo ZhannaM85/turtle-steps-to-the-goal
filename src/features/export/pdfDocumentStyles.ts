@@ -27,6 +27,17 @@ export const PDF_DOCUMENT_CSS = `
     break-after: auto;
   }
   .pdf-page-body { flex: 1 1 auto; }
+  .pdf-summary-body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 10pt;
+    align-content: start;
+  }
+  .pdf-summary-body > .pdf-title,
+  .pdf-summary-body > .pdf-range,
+  .pdf-summary-body > .pdf-section-wide {
+    grid-column: 1 / -1;
+  }
   .pdf-title {
     font-size: 18pt;
     font-weight: 600;
@@ -39,6 +50,7 @@ export const PDF_DOCUMENT_CSS = `
     margin: 0 0 14pt 0;
   }
   .pdf-section {
+    min-width: 0;
     margin: 0 0 12pt 0;
     padding: 10pt 12pt;
     border: 1px solid #e7e5e4;
@@ -86,6 +98,7 @@ export const PDF_DOCUMENT_CSS = `
     background: #f5f5f4;
     line-height: 1.3;
   }
+  .pdf-section .pdf-line { overflow-wrap: anywhere; }
   .pdf-day-section {
     margin: 0 0 8pt 0;
     padding: 0;

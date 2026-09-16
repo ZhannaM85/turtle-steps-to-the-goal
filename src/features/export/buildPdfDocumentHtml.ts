@@ -37,9 +37,9 @@ function toDisplayWeight(kg: number, unit: Unit): number {
   return unit === 'lb' ? kgToLb(kg) : kg
 }
 
-function sectionHtml(title: string, body: string): string {
+function sectionHtml(title: string, body: string, wide = false): string {
   if (!body.trim()) return ''
-  return `<section class="pdf-section"><h2 class="pdf-section-title">${escapeHtml(title)}</h2>${body}</section>`
+  return `<section class="pdf-section${wide ? ' pdf-section-wide' : ''}"><h2 class="pdf-section-title">${escapeHtml(title)}</h2>${body}</section>`
 }
 
 function linesHtml(lines: string[]): string {
@@ -199,6 +199,7 @@ export function buildPdfDocumentHtml(
         data.weightPoints.length === 0
           ? `<p class="pdf-muted">${escapeHtml(t.pdfSummary.noWeightDataMessage)}</p>`
           : weightTrendSvg(data.weightPoints, unit, locale),
+        true,
       ),
     )
   }
@@ -209,6 +210,7 @@ export function buildPdfDocumentHtml(
         sectionHtml(
           t.pdfSummary.weeklyAveragesSectionTitle,
           `<p class="pdf-muted">${escapeHtml(t.pdfSummary.noWeeklyDataMessage)}</p>`,
+          true,
         ),
       )
     } else {
@@ -246,6 +248,7 @@ export function buildPdfDocumentHtml(
   <th>${escapeHtml(t.pdfSummary.weightChangeColumnHeader)}</th>
   <th>${escapeHtml(t.pdfSummary.avgCaloriesColumnHeader)}</th>
 </tr></thead><tbody>${rows}</tbody></table>`,
+          true,
         ),
       )
     }
@@ -458,7 +461,7 @@ export function buildPdfDocumentHtml(
   }
 
   const summaryPage = `<section class="pdf-page">
-  <div class="pdf-page-body">
+  <div class="pdf-page-body pdf-summary-body">
     <h1 class="pdf-title">${escapeHtml(t.pdfSummary.documentTitle)}</h1>
     <p class="pdf-range">${escapeHtml(
       t.pdfSummary.rangeLabel(

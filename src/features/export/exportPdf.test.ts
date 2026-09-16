@@ -670,4 +670,32 @@ describe('buildSummaryPdf', () => {
     expect(container.querySelectorAll('.pdf-day-header')).toHaveLength(3)
     expect(html).not.toContain('<article class="pdf-day">')
   })
+
+  it('uses two-column summary cards while charts and tables span the page (#921)', () => {
+    const entries = [
+      makeEntry({
+        weightKg: 80,
+        sleepHours: 8,
+        steps: 6000,
+        waterEntries: [{ id: 'water-1', amountMl: 1500 }],
+      }),
+    ]
+    const data = buildPdfSummaryData(entries, '2026-08-01', '2026-08-01', 1)
+    const html = buildPdfDocumentHtml(data, t, 'en', 'kg', {
+      ...ALL_SECTIONS_EXCLUDED,
+      weightTrend: true,
+      weeklyAverages: true,
+      sleep: true,
+      steps: true,
+      water: true,
+    })
+    const container = document.createElement('div')
+    container.innerHTML = html
+    const body = container.querySelector('.pdf-summary-body')
+    expect(body).not.toBeNull()
+    const cards = [...(body?.querySelectorAll(':scope > .pdf-section') ?? [])]
+    expect(cards).toHaveLength(5)
+    expect(cards.slice(0, 2).every((card) => card.classList.contains('pdf-section-wide'))).toBe(true)
+    expect(cards.slice(2).every((card) => !card.classList.contains('pdf-section-wide'))).toBe(true)
+  })
 })
