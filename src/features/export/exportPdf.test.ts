@@ -722,6 +722,9 @@ describe('buildSummaryPdf', () => {
 
   it('pads day, section, and table headers so PDF text sits in the middle (#928)', () => {
     expect(PDF_DOCUMENT_CSS).toContain('padding: 1pt 9pt 11pt')
+    expect(PDF_DOCUMENT_CSS).toContain(
+      '.pdf-day-start > .pdf-title { margin-bottom: 12pt; }',
+    )
     expect(PDF_DOCUMENT_CSS).toContain('.pdf-day-section-title')
     expect(PDF_DOCUMENT_CSS).toContain('font-size: 10.5pt')
     expect(PDF_DOCUMENT_CSS).toContain('padding: 6pt')

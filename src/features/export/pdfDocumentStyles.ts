@@ -40,6 +40,7 @@ export const PDF_DOCUMENT_CSS = `
     letter-spacing: -0.02em;
     clear: both;
   }
+  .pdf-day-start > .pdf-title { margin-bottom: 12pt; }
   .pdf-range {
     font-size: 10pt;
     color: #78716c;
