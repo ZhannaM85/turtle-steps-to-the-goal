@@ -123,8 +123,9 @@ export function completeDayAxisTickLabel(
 }
 
 /**
- * #949 — labeled Y-axis weights. Same 500 g mesh when the range is small;
- * larger nice steps when a Year-scale span would crowd the axis.
+ * #949/#954 — labeled Y-axis weights and the matching full-width
+ * horizontal dashed grid. Same 500 g mesh when the range is small;
+ * larger nice steps when a Year-scale span would crowd the plot.
  */
 export function completeDayWeightAxisTicks(
   min: number,

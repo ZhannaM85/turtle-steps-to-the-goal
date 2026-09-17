@@ -41,7 +41,7 @@ function renderProjectionDialog() {
   )
 }
 
-describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 / #948 / #949 / #953)', () => {
+describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 / #948 / #949 / #953 / #954)', () => {
   beforeEach(() => {
     useProfileStore.setState({
       heightCm: 165,
@@ -409,7 +409,7 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 /
     expect(screen.getByText('7-day average')).toBeInTheDocument()
   })
 
-  it('keeps oscillating legend, date-only end, and start/end ticks after axis ticks (#949 / #953)', async () => {
+  it('keeps oscillating legend, date-only end, and start/end ticks after axis ticks (#949 / #953 / #954)', async () => {
     const user = userEvent.setup()
     renderProjectionDialog()
     await user.click(screen.getByRole('button', { name: 'Complete the day' }))

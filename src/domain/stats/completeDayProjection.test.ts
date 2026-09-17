@@ -379,7 +379,7 @@ describe('complete-the-day horizons (#948)', () => {
   })
 })
 
-describe('complete-the-day axis ticks (#949 / #953)', () => {
+describe('complete-the-day axis ticks (#949 / #953 / #954)', () => {
   it('labels X ticks as short dates under the same positions as the grid', () => {
     const formatDate = (iso: string) => formatLocalizedShortDate(iso, 'en')
     const monthTicks = completeDayWeekGridTicks('month')
@@ -448,5 +448,15 @@ describe('complete-the-day axis ticks (#949 / #953)', () => {
     )
     expect(ticks[0]).toBeLessThanOrEqual(45)
     expect(ticks.at(-1)).toBeGreaterThanOrEqual(60.2)
+  })
+
+  it('uses those same Y ticks for the Year horizontal grid, not every 500 g (#954)', () => {
+    const weekGrid = completeDayWeightAxisTicks(59.8, 60.3)
+    expect(weekGrid).toEqual(completeDayWeightGridTicksKg(59.8, 60.3))
+    const yearGrid = completeDayWeightAxisTicks(40, 65)
+    expect(yearGrid).toEqual([40, 45, 50, 55, 60, 65])
+    expect(completeDayWeightGridTicksKg(40, 65).length).toBeGreaterThan(
+      yearGrid.length * 4,
+    )
   })
 })

@@ -19,7 +19,6 @@ import {
   completeDayProjectionBlocker,
   completeDayWeekGridTicks,
   completeDayWeightAxisTicks,
-  completeDayWeightGridTicksKg,
   projectWeightIfEatingLikeToday,
   type CompleteDayHorizon,
 } from '@/domain/stats'
@@ -174,22 +173,12 @@ export function CompleteDayProjectionDialog() {
     completeDayAxisTickLabel(week, state.date, (iso) =>
       formatLocalizedShortDate(iso, locale),
     )
-  const chartKg =
-    projection?.chartPoints.flatMap((point) => [
-      point.weightKg,
-      point.averageKg,
-    ]) ?? []
-  const weightTicks =
-    chartKg.length > 0
-      ? completeDayWeightGridTicksKg(
-          Math.min(...chartKg),
-          Math.max(...chartKg),
-        ).map(toDisplay)
-      : []
   const displayWeights = chartData.flatMap((point) => [
     point.weight,
     point.average,
   ])
+  // #954 — full-width horizontal dashed grid at the labeled Y ticks
+  // (500 g on Week/Month; thinned on Year so lines stay readable).
   const weightAxisTicks =
     displayWeights.length > 0
       ? completeDayWeightAxisTicks(
@@ -307,7 +296,7 @@ export function CompleteDayProjectionDialog() {
                         strokeWidth={1}
                       />
                     ))}
-                    {weightTicks.map((weight) => (
+                    {weightAxisTicks.map((weight) => (
                       <ReferenceLine
                         key={`kg-${weight}`}
                         y={weight}

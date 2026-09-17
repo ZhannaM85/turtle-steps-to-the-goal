@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 923,
+    issue: 954,
+    date: '2026-09-17T07:11:30+00:00',
+    en: 'The Complete the day Year chart now draws full dashed weight lines across the plot, like Week and Month.',
+    ru: 'На графике «Завершить день» во вкладке Год теперь полные пунктирные линии веса по всей ширине, как на Неделе и Месяце.',
+  },
+  {
     version: 922,
     issue: 953,
     date: '2026-09-17T07:08:00+00:00',
