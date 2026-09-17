@@ -17,7 +17,7 @@ import {
 import { DailyEntryFormStateProvider } from './DailyEntryFormStateContext'
 import { calories, now } from './dailyEntryFormTestUtils'
 
-describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945)', () => {
+describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #946)', () => {
   beforeEach(() => {
     useProfileStore.setState({
       heightCm: 165,
@@ -98,6 +98,8 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945)', () =>
     expect(screen.getByText('Estimated maintenance')).toBeInTheDocument()
     expect(screen.getByText('Estimated daily deficit')).toBeInTheDocument()
     expect(screen.getByText(/About .+ lower over 5 weeks/)).toBeInTheDocument()
+    expect(screen.getByText('weight')).toBeInTheDocument()
+    expect(screen.getByText('7-day average')).toBeInTheDocument()
     expect(
       screen.getAllByText(/Daily scale weight will fluctuate/).length,
     ).toBeGreaterThan(0)
@@ -222,5 +224,33 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945)', () =>
     expect(container.querySelector('text')).toHaveTextContent(
       '5 weeks · Apr 5, 2026',
     )
+  })
+
+  it('shows the About-style dual-series legend and keeps the end date (#946)', async () => {
+    const user = userEvent.setup()
+    render(
+      <MemoryRouter>
+        <DailyEntryFormStateProvider
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            weightKg: 60.2,
+            calorieEntries: [calories(1200, 'm1')],
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={vi.fn()}
+        >
+          <CompleteDayProjectionDialog />
+        </DailyEntryFormStateProvider>
+      </MemoryRouter>,
+    )
+
+    await user.click(
+      screen.getByRole('button', { name: 'Complete the day' }),
+    )
+    expect(screen.getByText('weight')).toBeInTheDocument()
+    expect(screen.getByText('7-day average')).toBeInTheDocument()
   })
 })

@@ -218,8 +218,10 @@ export {
   COMPLETE_DAY_GRID_KG,
   COMPLETE_DAY_HIGH_INTAKE_TDEE_FRACTION,
   COMPLETE_DAY_LOW_INTAKE_TDEE_FRACTION,
+  COMPLETE_DAY_TREND_WINDOW_DAYS,
   completeDayChartEndAxisLabel,
   completeDayProjectionBlocker,
+  completeDayProjectionChartPoints,
   completeDayProjectionEndIso,
   completeDayWeekGridTicks,
   completeDayWeightGridTicksKg,
@@ -228,6 +230,7 @@ export {
 export type {
   CompleteDayProjection,
   CompleteDayProjectionBlocker,
+  CompleteDayProjectionChartPoint,
   CompleteDayProjectionInput,
   CompleteDayProjectionPoint,
 } from './completeDayProjection'

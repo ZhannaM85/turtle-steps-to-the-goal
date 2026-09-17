@@ -13,6 +13,8 @@ export const COMPLETE_DAY_LOW_INTAKE_TDEE_FRACTION = 0.5
 export const COMPLETE_DAY_HIGH_INTAKE_TDEE_FRACTION = 1.5
 /** #936 — horizontal dashed mesh every 500 g. */
 export const COMPLETE_DAY_GRID_KG = 0.5
+/** #946 — same 7-day companion window as the About/Dashboard weight trend. */
+export const COMPLETE_DAY_TREND_WINDOW_DAYS = 7
 
 export function completeDayWeekGridTicks(): number[] {
   return Array.from(
@@ -70,6 +72,13 @@ export interface CompleteDayProjectionPoint {
   weightKg: number
 }
 
+/** #946 — daily projected path + lagged 7-day companion (About dual-series). */
+export interface CompleteDayProjectionChartPoint {
+  week: number
+  weightKg: number
+  averageKg: number
+}
+
 export interface CompleteDayProjection {
   tdeeKcal: number
   dailyDeficitKcal: number
@@ -77,6 +86,31 @@ export interface CompleteDayProjection {
   totalChangeKg: number
   projectedWeightKg: number
   points: CompleteDayProjectionPoint[]
+  chartPoints: CompleteDayProjectionChartPoint[]
+}
+
+/**
+ * #946 — trailing-window companion for the daily projection, matching
+ * Dashboard `rollingAverage` (partial window at the start, then a full
+ * 7-day mean so the dashed line lags the solid path).
+ */
+export function completeDayProjectionChartPoints(
+  dailyKg: number[],
+  windowDays: number = COMPLETE_DAY_TREND_WINDOW_DAYS,
+): CompleteDayProjectionChartPoint[] {
+  let sum = 0
+  return dailyKg.map((weightKg, day) => {
+    sum += weightKg
+    const start = Math.max(0, day - windowDays + 1)
+    if (start > 0) {
+      sum -= dailyKg[start - 1]!
+    }
+    return {
+      week: day / 7,
+      weightKg,
+      averageKg: sum / (day - start + 1),
+    }
+  })
 }
 
 /**
@@ -96,10 +130,12 @@ export function projectWeightIfEatingLikeToday(
   const tdeeKcal = Math.round(calculateTdee(startBmr, input.activityLevel))
   let weightKg = input.weightKg
   const points: CompleteDayProjectionPoint[] = [{ week: 0, weightKg }]
+  const dailyKg: number[] = [weightKg]
   for (let day = 1; day <= COMPLETE_DAY_HORIZON_DAYS; day += 1) {
     const bmr = calculateBmr(weightKg, input.heightCm, input.age, input.sex)
     const tdee = calculateTdee(bmr, input.activityLevel)
     weightKg -= (tdee - input.dailyKcal) / KCAL_PER_KG_FAT
+    dailyKg.push(weightKg)
     if (day % 7 === 0) {
       points.push({ week: day / 7, weightKg })
     }
@@ -111,6 +147,7 @@ export function projectWeightIfEatingLikeToday(
     totalChangeKg: input.weightKg - projectedWeightKg,
     projectedWeightKg,
     points,
+    chartPoints: completeDayProjectionChartPoints(dailyKg),
   }
 }
 

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 916,
+    issue: 946,
+    date: '2026-09-17T03:18:01+03:00',
+    en: 'The Complete the day projection now shows two lines, like the weight trend: a solid path and a dashed 7-day companion.',
+    ru: 'График прогноза «Завершить день» теперь с двумя линиями, как график веса: сплошная и пунктирное среднее за 7 дней.',
+  },
+  {
     version: 915,
     issue: 945,
     date: '2026-09-17T01:32:21+03:00',

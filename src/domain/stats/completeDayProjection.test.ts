@@ -7,8 +7,10 @@ import {
   COMPLETE_DAY_GRID_KG,
   COMPLETE_DAY_HORIZON_DAYS,
   COMPLETE_DAY_HORIZON_WEEKS,
+  COMPLETE_DAY_TREND_WINDOW_DAYS,
   completeDayChartEndAxisLabel,
   completeDayProjectionBlocker,
+  completeDayProjectionChartPoints,
   completeDayProjectionEndIso,
   completeDayWeekGridTicks,
   completeDayWeightGridTicksKg,
@@ -55,6 +57,30 @@ describe('projectWeightIfEatingLikeToday (#934)', () => {
     })
     expect(result.projectedWeightKg).toBeGreaterThan(60.2)
     expect(result.totalChangeKg).toBeLessThan(0)
+  })
+})
+
+describe('complete-the-day dual series (#946)', () => {
+  it('pairs a daily solid path with a lagged 7-day companion', () => {
+    const result = projectWeightIfEatingLikeToday(sample)
+    expect(COMPLETE_DAY_TREND_WINDOW_DAYS).toBe(7)
+    expect(result.chartPoints).toHaveLength(COMPLETE_DAY_HORIZON_DAYS + 1)
+    expect(result.chartPoints[0]).toEqual({
+      week: 0,
+      weightKg: 60.2,
+      averageKg: 60.2,
+    })
+    expect(result.chartPoints.at(-1)?.week).toBe(COMPLETE_DAY_HORIZON_WEEKS)
+    const later = result.chartPoints[14]!
+    expect(later.averageKg).toBeGreaterThan(later.weightKg)
+    expect(later.averageKg).toBeLessThan(result.chartPoints[0]!.weightKg)
+  })
+
+  it('lags the companion behind a rising path too', () => {
+    const rising = completeDayProjectionChartPoints([60, 61, 62, 63, 64, 65, 66, 67])
+    expect(rising[7]?.weightKg).toBe(67)
+    expect(rising[7]?.averageKg).toBeCloseTo((61 + 62 + 63 + 64 + 65 + 66 + 67) / 7)
+    expect(rising[7]!.averageKg).toBeLessThan(rising[7]!.weightKg)
   })
 })
 

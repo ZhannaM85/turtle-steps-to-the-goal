@@ -114,9 +114,10 @@ export function CompleteDayProjectionDialog() {
   const toDisplay = (kg: number) => (unit === 'lb' ? kgToLb(kg) : kg)
   const unitText = unitLabel(unit, t)
   const chartData =
-    projection?.points.map((point) => ({
+    projection?.chartPoints.map((point) => ({
       week: point.week,
       weight: toDisplay(point.weightKg),
+      average: toDisplay(point.averageKg),
     })) ?? []
   const weekTicks = completeDayWeekGridTicks()
   const weightTicks = projection
@@ -259,6 +260,8 @@ export function CompleteDayProjectionDialog() {
                       dataKey="weight"
                       stroke="var(--chart-weight)"
                       strokeWidth={2.5}
+                      connectNulls={false}
+                      isAnimationActive={false}
                       activeDot={false}
                       dot={(props) => {
                         const week = (
@@ -286,9 +289,40 @@ export function CompleteDayProjectionDialog() {
                         )
                       }}
                     />
+                    {/* #946: dashed muted companion — same tokens as
+                     * WeightTrendChart's 7-day average (#214). */}
+                    <Line
+                      type="monotone"
+                      dataKey="average"
+                      stroke="var(--muted-foreground)"
+                      strokeWidth={1.5}
+                      strokeDasharray="4 3"
+                      dot={false}
+                      connectNulls={false}
+                      isAnimationActive={false}
+                      activeDot={false}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
+              <span className="flex gap-3 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <span
+                    aria-hidden="true"
+                    className="size-2 rounded-sm"
+                    style={{ background: 'var(--chart-weight)' }}
+                  />
+                  {t.dashboard.weightLegend}
+                </span>
+                <span className="flex items-center gap-1">
+                  <span
+                    aria-hidden="true"
+                    className="size-2 rounded-sm"
+                    style={{ background: 'var(--muted-foreground)' }}
+                  />
+                  {t.dashboard.rollingAverageLegend}
+                </span>
+              </span>
               <div className="text-right">
                 <p className="text-3xl font-semibold">
                   ≈ {formatNumber(toDisplay(projection.projectedWeightKg), locale)}{' '}
