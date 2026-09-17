@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 934,
+    issue: 961,
+    date: '2026-09-17T21:56:31+03:00',
+    en: 'PDF exports now open a preview first, where you can share or save the document.',
+    ru: 'Экспорт PDF теперь сначала открывает предпросмотр, где документ можно отправить или сохранить.',
+  },
+  {
     version: 933,
     issue: 958,
     date: '2026-09-17T17:12:00+00:00',
