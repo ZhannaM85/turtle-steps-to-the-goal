@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto'
-import { render as rtlRender, screen } from '@testing-library/react'
+import { render as rtlRender, screen, within } from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
@@ -21,6 +21,18 @@ describe('AnalysisExportSection layout', () => {
     expect(row).toContainElement(info)
     expect(info).toHaveClass('size-6')
     expect(info).not.toHaveClass('size-11')
+  })
+
+  it('uses the shared period segmented-control chrome (#951)', () => {
+    render(<AnalysisExportSection />)
+
+    const period = screen.getByRole('radiogroup', { name: 'Export period' })
+    expect(period).toHaveClass('flex', 'flex-wrap', 'justify-start')
+    expect(period).toHaveClass('rounded-lg', 'bg-muted', 'p-1')
+    const week = within(period).getByRole('radio', { name: 'Week' })
+    expect(week).toHaveClass('h-12', 'rounded-md', 'text-sm', 'font-medium')
+    expect(week.className).toContain('data-[state=on]:bg-card')
+    expect(week.className).toContain('data-[state=on]:shadow-sm')
   })
 
   it('shows the temporary PDF layout debug toggle in the PDF export area (#952)', () => {

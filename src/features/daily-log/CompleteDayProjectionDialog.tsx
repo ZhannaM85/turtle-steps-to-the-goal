@@ -37,7 +37,10 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/shared/ui/dialog'
-import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import {
+  PeriodToggleGroup,
+  PeriodToggleGroupItem,
+} from '@/shared/ui/toggle-group'
 import { useProfileStore, useUnitStore } from '@/stores'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
@@ -74,6 +77,12 @@ export function CompleteDayWeekTick({
     </text>
   )
 }
+
+/**
+ * #951 — Pond `--card` === `--muted`, so Export's muted track only reads on
+ * the Settings page fill. This fullscreen sheet uses the same fill.
+ */
+export const COMPLETE_DAY_PROJECTION_DIALOG_CLASS = 'bg-background'
 
 /** #955 — compact sheet so Year fits one typical iPhone viewport without scroll. */
 export const COMPLETE_DAY_PROJECTION_SHEET_CLASS = 'mt-3 flex flex-col gap-3'
@@ -122,7 +131,8 @@ function CompleteDayLegendLineSample({
  * Close with the X only.
  * #944 — outline chrome matches "Start today's log now" (beige fill, thin
  * border, dark text) so the full-width CTA is not a solid olive block.
- * #948 — segmented horizon tabs match Settings export period pills.
+ * #948 / #951 — Week/Month/Year uses the shared Export period
+ * `PeriodToggleGroup` (muted track, card pill, shadow, 48px type).
  */
 export function CompleteDayProjectionDialog() {
   const state = useDailyEntryFormStateContext()
@@ -219,6 +229,7 @@ export function CompleteDayProjectionDialog() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
           size="fullscreen"
+          className={COMPLETE_DAY_PROJECTION_DIALOG_CLASS}
           closeLabel={t.today.celebrationCloseLabel}
         >
           <DialogTitle className="pr-10 text-xl leading-snug">
@@ -264,7 +275,7 @@ export function CompleteDayProjectionDialog() {
                   {formatNumber(toDisplay(state.weightKg), locale)} {unitText}
                 </p>
               </div>
-              <ToggleGroup
+              <PeriodToggleGroup
                 type="single"
                 aria-label={t.today.completeDayHorizonLabel}
                 value={horizon}
@@ -277,10 +288,9 @@ export function CompleteDayProjectionDialog() {
                     setHorizon(value)
                   }
                 }}
-                className="flex flex-wrap justify-start"
               >
                 {COMPLETE_DAY_HORIZONS.map((id) => (
-                  <ToggleGroupItem key={id} value={id} className="h-12">
+                  <PeriodToggleGroupItem key={id} value={id}>
                     {
                       {
                         week: t.export.exportRangeWeek,
@@ -288,9 +298,9 @@ export function CompleteDayProjectionDialog() {
                         year: t.export.exportRangeYear,
                       }[id]
                     }
-                  </ToggleGroupItem>
+                  </PeriodToggleGroupItem>
                 ))}
-              </ToggleGroup>
+              </PeriodToggleGroup>
               <div
                 data-complete-day-chart
                 className={COMPLETE_DAY_PROJECTION_CHART_CLASS}

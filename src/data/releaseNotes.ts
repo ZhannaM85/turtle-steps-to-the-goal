@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 926,
+    issue: 951,
+    date: '2026-09-17T07:35:00+00:00',
+    en: 'The Complete the day Week / Month / Year tabs now use the same segmented control as Settings → Export.',
+    ru: 'Вкладки Неделя / Месяц / Год в «Завершить день» теперь выглядят так же, как сегменты периода в Настройки → Экспорт.',
+  },
+  {
     version: 925,
     issue: 939,
     date: '2026-09-17T07:27:16+00:00',

@@ -8,7 +8,10 @@ import {
 import { Button } from '@/shared/ui/button'
 import { DateInput } from '@/shared/ui/date-input'
 import { Input } from '@/shared/ui/input'
-import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import {
+  PeriodToggleGroup,
+  PeriodToggleGroupItem,
+} from '@/shared/ui/toggle-group'
 import {
   CONTROL_INFO_TOOLTIP_CLASS,
   ControlWithInfo,
@@ -229,31 +232,30 @@ export function AnalysisExportSection({ children }: { children?: ReactNode }) {
         <p className="text-sm text-muted-foreground">
           {t.export.exportPeriodDescription}
         </p>
-        <ToggleGroup
+        <PeriodToggleGroup
           type="single"
           aria-label={t.export.exportPeriodLabel}
           value={rangePreset}
           onValueChange={(value) => {
             if (value) applyRangePreset(value as ExportRangePreset)
           }}
-          className="flex flex-wrap justify-start"
         >
-          <ToggleGroupItem value="week" className="h-12">
+          <PeriodToggleGroupItem value="week">
             {t.export.exportRangeWeek}
-          </ToggleGroupItem>
-          <ToggleGroupItem value="month" className="h-12">
+          </PeriodToggleGroupItem>
+          <PeriodToggleGroupItem value="month">
             {t.export.exportRangeMonth}
-          </ToggleGroupItem>
-          <ToggleGroupItem value="year" className="h-12">
+          </PeriodToggleGroupItem>
+          <PeriodToggleGroupItem value="year">
             {t.export.exportRangeYear}
-          </ToggleGroupItem>
-          <ToggleGroupItem value="all" className="h-12">
+          </PeriodToggleGroupItem>
+          <PeriodToggleGroupItem value="all">
             {t.export.exportRangeAll}
-          </ToggleGroupItem>
-          <ToggleGroupItem value="custom" className="h-12">
+          </PeriodToggleGroupItem>
+          <PeriodToggleGroupItem value="custom">
             {t.export.exportRangeCustom}
-          </ToggleGroupItem>
-        </ToggleGroup>
+          </PeriodToggleGroupItem>
+        </PeriodToggleGroup>
         <div className="flex items-center gap-2">
           <DateInput
             aria-label={`${t.export.exportPeriodLabel} — ${t.dashboard.rangeStartLabel}`}

@@ -45,7 +45,7 @@ function renderProjectionDialog() {
   )
 }
 
-describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 / #948 / #949 / #953 / #954 / #955)', () => {
+describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 / #948 / #949 / #951 / #953 / #954 / #955)', () => {
   beforeEach(() => {
     useProfileStore.setState({
       heightCm: 165,
