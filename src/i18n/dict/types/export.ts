@@ -143,6 +143,11 @@ export interface ExportDict {
     exportPdfRangeLabel: string
     exportPdfRange30Label: string
     exportPdfRange90Label: string
+    /** #952 — Settings toggle for the temporary #939 PDF capture overlay. */
+    pdfDebugToggleLabel: string
+    pdfDebugToggleHelp: string
+    pdfDebugToggleOn: string
+    pdfDebugToggleOff: string
     /** #933 / #935 — html2canvas layout preview of the PDF document. */
     pdfLayoutPreviewTitle: string
     pdfLayoutPreviewBlurb: string

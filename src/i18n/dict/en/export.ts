@@ -114,6 +114,11 @@ export const exportCopy: ExportDict = {
     exportPdfRangeLabel: 'Summary covers',
     exportPdfRange30Label: 'Last 30 days',
     exportPdfRange90Label: 'Last 90 days',
+    pdfDebugToggleLabel: 'Temporary PDF layout debug',
+    pdfDebugToggleHelp:
+      'Shows a yellow overlay and outlines when you export a PDF, so layout numbers can be checked on this device. Turn this off when you are done.',
+    pdfDebugToggleOn: 'On',
+    pdfDebugToggleOff: 'Off',
     pdfLayoutPreviewTitle: 'PDF layout',
     pdfLayoutPreviewBlurb:
       'These pages are painted the same way the PDF file is. Open this on the iPhone to see what iOS will put in the file.',

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 921,
+    issue: 952,
+    date: '2026-09-17T07:01:00+00:00',
+    en: 'Settings now has a switch for temporary PDF layout debug, so the installed app can show the yellow overlay without a special URL.',
+    ru: 'В настройках появился переключатель временной отладки макета PDF — установленное приложение может показать жёлтую подложку без специальной ссылки.',
+  },
+  {
     version: 920,
     issue: 950,
     date: '2026-09-17T06:56:00+00:00',

@@ -4,6 +4,7 @@ import {
   formatPdfDebugReport,
   isPdfDebugEnabled,
   persistPdfDebugFlagFromLocation,
+  setPdfDebugEnabled,
   type PdfDebugReport,
 } from './pdfDebug'
 
@@ -86,6 +87,22 @@ describe('persistPdfDebugFlagFromLocation (#939)', () => {
     persistPdfDebugFlagFromLocation({ search: '?pdfDebug=0', storage })
     expect(storage.getItem('pdfDebug')).toBeNull()
     expect(isPdfDebugEnabled({ search: '', storage })).toBe(false)
+  })
+})
+
+describe('setPdfDebugEnabled (#952)', () => {
+  it('writes pdfDebug=1 so isPdfDebugEnabled is true without a query', () => {
+    const storage = memoryStorage()
+    setPdfDebugEnabled(true, { search: '', hash: '', storage })
+    expect(storage.getItem('pdfDebug')).toBe('1')
+    expect(isPdfDebugEnabled({ search: '', hash: '', storage })).toBe(true)
+  })
+
+  it('removes the stored flag so isPdfDebugEnabled is false', () => {
+    const storage = memoryStorage({ pdfDebug: '1' })
+    setPdfDebugEnabled(false, { search: '', hash: '', storage })
+    expect(storage.getItem('pdfDebug')).toBeNull()
+    expect(isPdfDebugEnabled({ search: '', hash: '', storage })).toBe(false)
   })
 })
 

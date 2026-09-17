@@ -114,6 +114,11 @@ export const exportCopy: ExportDict = {
     exportPdfRangeLabel: 'Сводка охватывает',
     exportPdfRange30Label: 'Последние 30 дней',
     exportPdfRange90Label: 'Последние 90 дней',
+    pdfDebugToggleLabel: 'Временная отладка макета PDF',
+    pdfDebugToggleHelp:
+      'При экспорте PDF показывает жёлтую подложку и контуры, чтобы на этом устройстве можно было снять числа вёрстки. Выключите, когда закончите.',
+    pdfDebugToggleOn: 'Вкл',
+    pdfDebugToggleOff: 'Выкл',
     pdfLayoutPreviewTitle: 'Макет PDF',
     pdfLayoutPreviewBlurb:
       'Страницы рисуются так же, как файл PDF. Откройте это на iPhone, чтобы увидеть, что попадёт в файл.',

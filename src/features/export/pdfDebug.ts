@@ -1,10 +1,11 @@
 /**
- * #939 — temporary on-device PDF capture debug for iPhone Safari / WebView.
+ * #939 / #952 — temporary on-device PDF capture debug for iPhone Safari / PWA.
  *
- * Enable either way, then export a PDF or open the layout preview:
+ * Enable, then export a PDF or open the layout preview:
+ *   - Settings → Export PDF: temporary layout debug toggle (#952)
  *   - query: `?pdfDebug=1` (kept in localStorage so later navigations still debug)
  *   - storage: `localStorage.setItem('pdfDebug', '1')`
- * Disable: `?pdfDebug=0` or `localStorage.removeItem('pdfDebug')`.
+ * Disable: Settings toggle Off, `?pdfDebug=0`, or `localStorage.removeItem('pdfDebug')`.
  *
  * Pages example:
  *   https://zhannam85.github.io/turtle-steps-to-the-goal/settings/pdf-layout?pdfDebug=1
@@ -156,6 +157,24 @@ export function isPdfDebugEnabled(source: PdfDebugFlagSource = {}): boolean {
 }
 
 /**
+ * #952 — Settings toggle. Same localStorage key as `?pdfDebug=1`.
+ * Enable writes `pdfDebug=1`; disable removes the key.
+ */
+export function setPdfDebugEnabled(
+  enabled: boolean,
+  source: PdfDebugFlagSource = {},
+): void {
+  const resolved = resolveSource(source)
+  if (!resolved.storage) return
+  try {
+    if (enabled) resolved.storage.setItem(PDF_DEBUG_STORAGE_KEY, '1')
+    else resolved.storage.removeItem(PDF_DEBUG_STORAGE_KEY)
+  } catch {
+    // Safari private mode / blocked storage — query flag still works.
+  }
+}
+
+/**
  * Keep debug on after the query drops (in-app navigation). `?pdfDebug=0`
  * clears the stored flag.
  */
@@ -164,13 +183,8 @@ export function persistPdfDebugFlagFromLocation(
 ): void {
   const resolved = resolveSource(source)
   const fromUrl = flagFromUrl(resolved.search, resolved.hash, resolved.href)
-  if (fromUrl === undefined || !resolved.storage) return
-  try {
-    if (fromUrl) resolved.storage.setItem(PDF_DEBUG_STORAGE_KEY, '1')
-    else resolved.storage.removeItem(PDF_DEBUG_STORAGE_KEY)
-  } catch {
-    // Safari private mode / blocked storage — query flag still works.
-  }
+  if (fromUrl === undefined) return
+  setPdfDebugEnabled(fromUrl, { ...source, storage: resolved.storage })
 }
 
 export function isPdfDebugOverlayElement(element: Element): boolean {

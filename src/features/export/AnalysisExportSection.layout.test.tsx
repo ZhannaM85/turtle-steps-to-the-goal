@@ -22,4 +22,17 @@ describe('AnalysisExportSection layout', () => {
     expect(info).toHaveClass('size-6')
     expect(info).not.toHaveClass('size-11')
   })
+
+  it('shows the temporary PDF layout debug toggle in the PDF export area (#952)', () => {
+    render(<AnalysisExportSection />)
+
+    expect(
+      screen.getByRole('radiogroup', { name: 'Temporary PDF layout debug' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Shows a yellow overlay and outlines when you export a PDF, so layout numbers can be checked on this device. Turn this off when you are done.',
+      ),
+    ).toBeInTheDocument()
+  })
 })
