@@ -34,17 +34,6 @@ export const PDF_DOCUMENT_CSS = `
     break-after: auto;
   }
   .pdf-page-body { flex: 1 1 auto; }
-  /* Pixel height is set in JS after page split so html2canvas cannot collapse it. */
-  .pdf-page-fill {
-    display: block;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    overflow: hidden;
-    flex: 0 0 auto;
-    pointer-events: none;
-  }
   .pdf-summary-body { overflow: hidden; }
   .pdf-title {
     font-size: 18pt;

@@ -3,10 +3,14 @@ import {
   canvasScaleForDimensions,
   capturePdfPageDataUrls,
   explodeOverflowingPdfPagesForTest,
-  fillPdfPagesToCaptureHeightForTest,
   MAX_STYLED_PAGE_PX,
   shouldIgnorePdfRenderElement,
 } from './renderHtmlDocumentToPdfBlob'
+import {
+  a4ContentCanvasHeightPx,
+  pinPdfFooterToCanvasBottom,
+  preparePdfPagesForCapture,
+} from './pinPdfFooterToCanvas'
 
 describe('explodeOverflowingPdfPages (#908)', () => {
   afterEach(() => {
@@ -119,13 +123,19 @@ describe('shouldIgnorePdfRenderElement (#922)', () => {
     document.body.append(host, liveApp)
 
     try {
-      expect(shouldIgnorePdfRenderElement(document.documentElement, host)).toBe(false)
+      expect(shouldIgnorePdfRenderElement(document.documentElement, host)).toBe(
+        false,
+      )
       expect(shouldIgnorePdfRenderElement(document.head, host)).toBe(false)
       expect(shouldIgnorePdfRenderElement(document.body, host)).toBe(false)
       expect(shouldIgnorePdfRenderElement(host, host)).toBe(false)
-      expect(shouldIgnorePdfRenderElement(host.querySelector('p')!, host)).toBe(false)
+      expect(shouldIgnorePdfRenderElement(host.querySelector('p')!, host)).toBe(
+        false,
+      )
       expect(shouldIgnorePdfRenderElement(liveApp, host)).toBe(true)
-      expect(shouldIgnorePdfRenderElement(liveApp.querySelector('dialog')!, host)).toBe(true)
+      expect(
+        shouldIgnorePdfRenderElement(liveApp.querySelector('dialog')!, host),
+      ).toBe(true)
 
       const overlay = document.createElement('div')
       overlay.id = 'pdf-debug-overlay'
@@ -152,78 +162,41 @@ describe('capturePdfPageDataUrls (#935)', () => {
   })
 })
 
-describe('fillPdfPagesToCaptureHeight (#939)', () => {
+describe('preparePdfPagesForCapture (#939)', () => {
   afterEach(() => {
     vi.restoreAllMocks()
   })
 
-  it('inserts a pixel strut so html2canvas can honor the 980px capture floor', () => {
-    vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockImplementation(
-      function (this: HTMLElement) {
-        if (!this.classList.contains('pdf-page')) return 0
-        const fill = this.querySelector('.pdf-page-fill') as HTMLElement | null
-        const fillPx = fill ? Number.parseInt(fill.style.height, 10) || 0 : 0
-        return 400 + fillPx
-      },
-    )
-
+  it('removes a leftover fill strut and unpins forced 980px height', () => {
     const host = document.createElement('div')
-    host.innerHTML = `<div class="pdf-root"><section class="pdf-page">
+    host.innerHTML = `<div class="pdf-root"><section class="pdf-page" style="height:980px;min-height:980px">
       <div class="pdf-page-body"><p>short day</p></div>
+      <div class="pdf-page-fill" style="height:200px"></div>
       <footer class="pdf-footer">Disclaimer</footer>
     </section></div>`
     document.body.appendChild(host)
     try {
-      fillPdfPagesToCaptureHeightForTest(host)
+      preparePdfPagesForCapture(host)
       const page = host.querySelector<HTMLElement>('.pdf-page')
-      const fill = page?.querySelector<HTMLElement>('.pdf-page-fill')
-      const footer = page?.querySelector('.pdf-footer')
-      expect(fill).not.toBeNull()
-      expect(fill?.style.height).toBe(`${MAX_STYLED_PAGE_PX - 400}px`)
-      expect(page?.style.height).toBe(`${MAX_STYLED_PAGE_PX}px`)
-      expect(page?.style.minHeight).toBe(`${MAX_STYLED_PAGE_PX}px`)
-      expect(fill?.nextElementSibling).toBe(footer)
-      expect(fill?.querySelector('div')?.style.height).toBe(
-        `${MAX_STYLED_PAGE_PX - 400}px`,
-      )
-    } finally {
-      host.remove()
-    }
-  })
-
-  it('does not add a fill strut when the page already meets the capture height', () => {
-    vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockImplementation(
-      function (this: HTMLElement) {
-        return this.classList.contains('pdf-page') ? MAX_STYLED_PAGE_PX : 0
-      },
-    )
-
-    const host = document.createElement('div')
-    host.innerHTML = `<div class="pdf-root"><section class="pdf-page">
-      <div class="pdf-page-body"><section style="height:980px">full</section></div>
-      <footer class="pdf-footer">Disclaimer</footer>
-    </section></div>`
-    document.body.appendChild(host)
-    try {
-      fillPdfPagesToCaptureHeightForTest(host)
       expect(host.querySelector('.pdf-page-fill')).toBeNull()
-      expect(host.querySelector<HTMLElement>('.pdf-page')?.style.height).toBe('')
+      expect(page?.style.height).toBe('auto')
+      expect(page?.style.minHeight).toBe('0px')
+      expect(page?.querySelector('.pdf-footer')).not.toBeNull()
     } finally {
       host.remove()
     }
   })
 
-  it('fills short leftover pages after a split without exceeding the cap', () => {
+  it('does not insert a fill strut after a short leftover split page', () => {
     vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockImplementation(
       function (this: HTMLElement) {
         if (!this.classList.contains('pdf-page')) return 0
         const body = this.querySelector('.pdf-page-body')
         let height = 40
         for (const child of body?.children ?? []) {
-          height += Number.parseInt((child as HTMLElement).style.height, 10) || 0
+          height +=
+            Number.parseInt((child as HTMLElement).style.height, 10) || 0
         }
-        const fill = this.querySelector('.pdf-page-fill') as HTMLElement | null
-        if (fill) height += Number.parseInt(fill.style.height, 10) || 0
         return height
       },
     )
@@ -238,19 +211,127 @@ describe('fillPdfPagesToCaptureHeight (#939)', () => {
     document.body.appendChild(host)
     try {
       explodeOverflowingPdfPagesForTest(host)
-      fillPdfPagesToCaptureHeightForTest(host)
+      preparePdfPagesForCapture(host)
       const pages = [...host.querySelectorAll<HTMLElement>('.pdf-page')]
       expect(pages).toHaveLength(2)
+      expect(host.querySelector('.pdf-page-fill')).toBeNull()
       for (const page of pages) {
-        const fill = page.querySelector<HTMLElement>('.pdf-page-fill')
-        expect(fill).not.toBeNull()
-        const fillPx = Number.parseInt(fill?.style.height ?? '', 10)
-        expect(fillPx).toBeGreaterThan(0)
-        expect(page.scrollHeight).toBe(MAX_STYLED_PAGE_PX)
-        expect(page.style.height).toBe(`${MAX_STYLED_PAGE_PX}px`)
+        expect(page.style.height).toBe('auto')
+        expect(page.scrollHeight).toBeLessThan(MAX_STYLED_PAGE_PX)
       }
     } finally {
       host.remove()
     }
+  })
+})
+
+describe('pinPdfFooterToCanvasBottom (#939)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  function rect(top: number, height: number, width = 100): DOMRect {
+    return {
+      x: 0,
+      y: top,
+      top,
+      bottom: top + height,
+      left: 0,
+      right: width,
+      width,
+      height,
+      toJSON() {
+        return {}
+      },
+    }
+  }
+
+  it('pins the footer slice to the bottom of an A4-tall canvas', () => {
+    const page = document.createElement('section')
+    page.className = 'pdf-page'
+    page.innerHTML =
+      '<div class="pdf-page-body">body</div><footer class="pdf-footer">Disclaimer</footer>'
+    document.body.appendChild(page)
+    const footer = page.querySelector('.pdf-footer')!
+    vi.spyOn(page, 'getBoundingClientRect').mockReturnValue(rect(0, 400))
+    vi.spyOn(footer, 'getBoundingClientRect').mockReturnValue(rect(360, 40))
+    vi.spyOn(page, 'scrollHeight', 'get').mockReturnValue(400)
+    vi.spyOn(page, 'offsetHeight', 'get').mockReturnValue(400)
+    Object.defineProperty(footer, 'offsetTop', {
+      configurable: true,
+      value: 360,
+    })
+
+    try {
+      const canvas = document.createElement('canvas')
+      canvas.width = 100
+      canvas.height = 400
+      const ctx = {
+        fillStyle: '',
+        fillRect: vi.fn(),
+        drawImage: vi.fn(),
+      }
+      vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
+        ctx as unknown as CanvasRenderingContext2D,
+      )
+      const dest = pinPdfFooterToCanvasBottom(canvas, page, 980)
+      expect(dest).not.toBe(canvas)
+      expect(dest.width).toBe(100)
+      expect(dest.height).toBe(980)
+      expect(ctx.drawImage).toHaveBeenCalledWith(
+        canvas,
+        0,
+        360,
+        100,
+        40,
+        0,
+        940,
+        100,
+        40,
+      )
+    } finally {
+      page.remove()
+    }
+  })
+
+  it('leaves a full-height capture unchanged', () => {
+    const page = document.createElement('section')
+    page.className = 'pdf-page'
+    page.innerHTML = '<footer class="pdf-footer">Disclaimer</footer>'
+    document.body.appendChild(page)
+    try {
+      const canvas = document.createElement('canvas')
+      canvas.width = 100
+      canvas.height = 980
+      expect(pinPdfFooterToCanvasBottom(canvas, page, 980)).toBe(canvas)
+    } finally {
+      page.remove()
+    }
+  })
+
+  it('leaves a page without a footer unchanged', () => {
+    const page = document.createElement('section')
+    page.className = 'pdf-page'
+    page.innerHTML = '<div class="pdf-page-body">body</div>'
+    document.body.appendChild(page)
+    try {
+      const canvas = document.createElement('canvas')
+      canvas.width = 100
+      canvas.height = 400
+      expect(pinPdfFooterToCanvasBottom(canvas, page, 980)).toBe(canvas)
+    } finally {
+      page.remove()
+    }
+  })
+})
+
+describe('a4ContentCanvasHeightPx (#939)', () => {
+  it('sizes the placed image for a ~10mm PDF bottom margin', () => {
+    const heightPx = a4ContentCanvasHeightPx(1021, 190)
+    const imgHeightMm = (heightPx * 190) / 1021
+    expect(imgHeightMm).toBeGreaterThan(276)
+    expect(imgHeightMm).toBeLessThanOrEqual(277)
+    expect(297 - 10 - imgHeightMm).toBeGreaterThan(10)
+    expect(297 - 10 - imgHeightMm).toBeLessThan(11)
   })
 })

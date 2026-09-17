@@ -129,6 +129,8 @@ describe('collectPdfPageLayoutSnapshot / formatPdfDebugReport (#939)', () => {
     expect(snap.footerExists).toBe(true)
     expect(snap.inlineHeight).toBe('980px')
     expect(snap.inlineMinHeight).toBe('980px')
+    expect(snap.fillOffsetTop).not.toBeUndefined()
+    expect(snap.footerOffsetTop).not.toBeUndefined()
   })
 
   it('includes capture constants and canvas size in the overlay text', () => {
@@ -166,8 +168,10 @@ describe('collectPdfPageLayoutSnapshot / formatPdfDebugReport (#939)', () => {
           fillOffsetHeight: 200,
           fillScrollHeight: 200,
           fillComputedHeight: '200px',
+          fillOffsetTop: 740,
           footerExists: true,
           footerOffsetHeight: 40,
+          footerOffsetTop: 700,
         },
         {
           index: 0,
@@ -192,13 +196,17 @@ describe('collectPdfPageLayoutSnapshot / formatPdfDebugReport (#939)', () => {
           fillOffsetHeight: 200,
           fillScrollHeight: 200,
           fillComputedHeight: '200px',
+          fillOffsetTop: 740,
           footerExists: true,
           footerOffsetHeight: 40,
+          footerOffsetTop: 700,
           canvasWidth: 1191,
           canvasHeight: 1470,
-          captureHeightPx: 980,
+          captureHeightPx: 780,
           scale: 1.5,
           imgHeightMm: 234.4,
+          sourceCanvasHeight: 1170,
+          pinnedFooter: true,
         },
       ],
     }
@@ -207,7 +215,9 @@ describe('collectPdfPageLayoutSnapshot / formatPdfDebugReport (#939)', () => {
     expect(text).toContain('MAX_STYLED_PAGE_PX: 980')
     expect(text).toContain('A4 fill target used: 980px')
     expect(text).toContain('.pdf-page-fill: yes')
+    expect(text).toContain('.pdf-page-fill vs footer: BELOW footer')
     expect(text).toContain('canvas: 1191 x 1470')
+    expect(text).toContain('pinnedFooter=yes')
     expect(text).toContain('placed image height:')
   })
 })

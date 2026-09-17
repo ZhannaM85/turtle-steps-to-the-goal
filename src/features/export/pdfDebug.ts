@@ -45,13 +45,17 @@ export interface PdfPageLayoutSnapshot {
   fillOffsetHeight: number | null
   fillScrollHeight: number | null
   fillComputedHeight: string | null
+  fillOffsetTop?: number | null
   footerExists: boolean
   footerOffsetHeight: number | null
+  footerOffsetTop?: number | null
   canvasWidth?: number
   canvasHeight?: number
   captureHeightPx?: number
   scale?: number
   imgHeightMm?: number
+  sourceCanvasHeight?: number
+  pinnedFooter?: boolean
 }
 
 export interface PdfDebugReport {
@@ -67,7 +71,9 @@ export interface PdfDebugReport {
   pages: PdfPageLayoutSnapshot[]
 }
 
-function parsePdfDebugFlag(raw: string | null | undefined): boolean | undefined {
+function parsePdfDebugFlag(
+  raw: string | null | undefined,
+): boolean | undefined {
   if (raw == null) return undefined
   const value = raw.trim().toLowerCase()
   if (value === '1' || value === 'true' || value === 'yes') return true
@@ -102,7 +108,10 @@ function liveLocation(): { search: string; hash: string; href: string } {
   }
 }
 
-function liveStorage(): Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> | null {
+function liveStorage(): Pick<
+  Storage,
+  'getItem' | 'setItem' | 'removeItem'
+> | null {
   if (typeof window === 'undefined') return null
   try {
     return window.localStorage
@@ -126,17 +135,29 @@ function resolveSource(source: PdfDebugFlagSource = {}): {
   }
 }
 
-function flagFromUrl(search: string, hash: string, href: string): boolean | undefined {
-  const fromSearch = parsePdfDebugFlag(queryValue(search, PDF_DEBUG_QUERY_PARAM))
+function flagFromUrl(
+  search: string,
+  hash: string,
+  href: string,
+): boolean | undefined {
+  const fromSearch = parsePdfDebugFlag(
+    queryValue(search, PDF_DEBUG_QUERY_PARAM),
+  )
   if (fromSearch !== undefined) return fromSearch
-  const fromHash = parsePdfDebugFlag(queryValueFromHash(hash, PDF_DEBUG_QUERY_PARAM))
+  const fromHash = parsePdfDebugFlag(
+    queryValueFromHash(hash, PDF_DEBUG_QUERY_PARAM),
+  )
   if (fromHash !== undefined) return fromHash
   if (href) {
     try {
       const url = new URL(href)
-      const fromHref = parsePdfDebugFlag(url.searchParams.get(PDF_DEBUG_QUERY_PARAM))
+      const fromHref = parsePdfDebugFlag(
+        url.searchParams.get(PDF_DEBUG_QUERY_PARAM),
+      )
       if (fromHref !== undefined) return fromHref
-      return parsePdfDebugFlag(queryValueFromHash(url.hash, PDF_DEBUG_QUERY_PARAM))
+      return parsePdfDebugFlag(
+        queryValueFromHash(url.hash, PDF_DEBUG_QUERY_PARAM),
+      )
     } catch {
       return undefined
     }
@@ -150,7 +171,10 @@ export function isPdfDebugEnabled(source: PdfDebugFlagSource = {}): boolean {
   const fromUrl = flagFromUrl(resolved.search, resolved.hash, resolved.href)
   if (fromUrl !== undefined) return fromUrl
   try {
-    return parsePdfDebugFlag(resolved.storage?.getItem(PDF_DEBUG_STORAGE_KEY)) === true
+    return (
+      parsePdfDebugFlag(resolved.storage?.getItem(PDF_DEBUG_STORAGE_KEY)) ===
+      true
+    )
   } catch {
     return false
   }
@@ -190,12 +214,15 @@ export function persistPdfDebugFlagFromLocation(
 export function isPdfDebugOverlayElement(element: Element): boolean {
   return Boolean(
     element.id === PDF_DEBUG_OVERLAY_ID ||
-      element.closest(`#${PDF_DEBUG_OVERLAY_ID}`),
+    element.closest(`#${PDF_DEBUG_OVERLAY_ID}`),
   )
 }
 
 function computed(el: Element): CSSStyleDeclaration | null {
-  if (typeof window === 'undefined' || typeof window.getComputedStyle !== 'function') {
+  if (
+    typeof window === 'undefined' ||
+    typeof window.getComputedStyle !== 'function'
+  ) {
     return null
   }
   try {
@@ -214,6 +241,11 @@ export function collectPdfPageLayoutSnapshot(
   const fill = page.querySelector<HTMLElement>('.pdf-page-fill')
   const fillStyle = fill ? computed(fill) : null
   const footer = page.querySelector<HTMLElement>('.pdf-footer')
+  const pageTop = page.getBoundingClientRect().top
+  const fillOffsetTop = fill ? fill.getBoundingClientRect().top - pageTop : null
+  const footerOffsetTop = footer
+    ? footer.getBoundingClientRect().top - pageTop
+    : null
   return {
     index,
     phase,
@@ -237,8 +269,10 @@ export function collectPdfPageLayoutSnapshot(
     fillOffsetHeight: fill?.offsetHeight ?? null,
     fillScrollHeight: fill?.scrollHeight ?? null,
     fillComputedHeight: fillStyle?.height ?? null,
+    fillOffsetTop,
     footerExists: Boolean(footer),
     footerOffsetHeight: footer?.offsetHeight ?? null,
+    footerOffsetTop,
   }
 }
 
@@ -302,28 +336,48 @@ export function formatPdfDebugReport(report: PdfDebugReport): string {
       lines.push(
         `.pdf-page-fill: ${
           snap.fillExists
-            ? `yes height=${snap.fillHeight} min=${snap.fillMinHeight} offset=${snap.fillOffsetHeight} scroll=${snap.fillScrollHeight} computed=${snap.fillComputedHeight}`
+            ? `yes height=${snap.fillHeight} min=${snap.fillMinHeight} offset=${snap.fillOffsetHeight} scroll=${snap.fillScrollHeight} computed=${snap.fillComputedHeight} top=${snap.fillOffsetTop ?? '?'}`
             : 'NO'
         }`,
       )
+      if (
+        snap.fillExists &&
+        snap.fillOffsetTop != null &&
+        snap.footerOffsetTop != null
+      ) {
+        lines.push(
+          `.pdf-page-fill vs footer: ${
+            snap.fillOffsetTop >= snap.footerOffsetTop
+              ? 'BELOW footer'
+              : 'above footer'
+          }`,
+        )
+      }
       lines.push(
         `.pdf-footer: ${
-          snap.footerExists ? `yes offset=${snap.footerOffsetHeight}` : 'NO'
+          snap.footerExists
+            ? `yes offset=${snap.footerOffsetHeight} top=${snap.footerOffsetTop ?? '?'}`
+            : 'NO'
         }`,
       )
       if (snap.phase === 'afterCapture') {
         lines.push(
           `canvas: ${snap.canvasWidth} x ${snap.canvasHeight} (scale=${snap.scale}, captureHeightPx=${snap.captureHeightPx})`,
         )
+        if (snap.sourceCanvasHeight != null) {
+          lines.push(
+            `source canvas height: ${snap.sourceCanvasHeight}px, pinnedFooter=${
+              snap.pinnedFooter ? 'yes' : 'no'
+            }`,
+          )
+        }
         if (snap.imgHeightMm != null) {
           const leftoverMm =
             report.pageHeightMm - report.marginMm - snap.imgHeightMm
           lines.push(
             `placed image height: ${round1(snap.imgHeightMm)}mm at y=${report.marginMm}mm`,
           )
-          lines.push(
-            `gap below image to page bottom: ${round1(leftoverMm)}mm`,
-          )
+          lines.push(`gap below image to page bottom: ${round1(leftoverMm)}mm`)
         }
       }
       lines.push('')
@@ -331,127 +385,4 @@ export function formatPdfDebugReport(report: PdfDebugReport): string {
   }
 
   return lines.join('\n').trimEnd()
-}
-
-function copyDebugText(text: string): void {
-  void navigator.clipboard?.writeText(text).catch(() => {
-    const area = document.createElement('textarea')
-    area.value = text
-    area.setAttribute('readonly', 'true')
-    area.style.position = 'fixed'
-    area.style.left = '0'
-    area.style.top = '0'
-    document.body.appendChild(area)
-    area.select()
-    try {
-      document.execCommand('copy')
-    } catch {
-      // Overlay text remains selectable.
-    }
-    area.remove()
-  })
-}
-
-/** Fixed, high-contrast, scrollable dump for iPhone (no desktop console). */
-export function showPdfDebugOverlay(text: string): void {
-  if (typeof document === 'undefined' || !document.body) return
-
-  let root = document.getElementById(PDF_DEBUG_OVERLAY_ID)
-  if (!root) {
-    root = document.createElement('div')
-    root.id = PDF_DEBUG_OVERLAY_ID
-    document.body.appendChild(root)
-  }
-
-  root.setAttribute('data-pdf-debug-overlay', 'true')
-  Object.assign(root.style, {
-    position: 'fixed',
-    left: '8px',
-    right: '8px',
-    bottom: '8px',
-    maxHeight: '48vh',
-    zIndex: '2147483647',
-    background: '#111',
-    color: '#ffe566',
-    border: '2px solid #ffe566',
-    borderRadius: '10px',
-    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
-    fontSize: '12px',
-    lineHeight: '1.35',
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-    boxShadow: '0 8px 24px rgba(0,0,0,0.45)',
-  })
-
-  root.replaceChildren()
-
-  const header = document.createElement('div')
-  Object.assign(header.style, {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '8px 10px',
-    background: '#000',
-    color: '#fff',
-    flex: '0 0 auto',
-  })
-
-  const title = document.createElement('strong')
-  title.textContent = 'PDF debug #939'
-  title.style.flex = '1 1 auto'
-  header.appendChild(title)
-
-  const copyBtn = document.createElement('button')
-  copyBtn.type = 'button'
-  copyBtn.textContent = 'Copy'
-  Object.assign(copyBtn.style, {
-    background: '#ffe566',
-    color: '#111',
-    border: '0',
-    borderRadius: '6px',
-    padding: '6px 10px',
-    fontWeight: '700',
-    fontSize: '13px',
-  })
-  copyBtn.addEventListener('click', () => copyDebugText(text))
-  header.appendChild(copyBtn)
-
-  const closeBtn = document.createElement('button')
-  closeBtn.type = 'button'
-  closeBtn.textContent = 'Close'
-  Object.assign(closeBtn.style, {
-    background: '#333',
-    color: '#fff',
-    border: '1px solid #ffe566',
-    borderRadius: '6px',
-    padding: '6px 10px',
-    fontWeight: '700',
-    fontSize: '13px',
-  })
-  closeBtn.addEventListener('click', () => root?.remove())
-  header.appendChild(closeBtn)
-
-  const body = document.createElement('pre')
-  body.textContent = text
-  Object.assign(body.style, {
-    margin: '0',
-    padding: '10px',
-    overflow: 'auto',
-    whiteSpace: 'pre-wrap',
-    wordBreak: 'break-word',
-    userSelect: 'text',
-    flex: '1 1 auto',
-  })
-  body.style.setProperty('-webkit-overflow-scrolling', 'touch')
-
-  root.append(header, body)
-}
-
-export function publishPdfDebugReport(report: PdfDebugReport): string {
-  const text = formatPdfDebugReport(report)
-  console.log('[pdfDebug #939]', text)
-  console.log('[pdfDebug #939 json]', report)
-  showPdfDebugOverlay(text)
-  return text
 }
