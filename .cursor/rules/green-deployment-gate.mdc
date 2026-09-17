@@ -1,0 +1,25 @@
+---
+description: Require green deployment before declaring source changes done
+alwaysApply: true
+---
+
+# Hard deploy gate
+
+Before every push that touches `src/`, run `npx tsc -b` and `npm run lint`.
+Run `npx vitest run` on every changed test file and on consumer tests that
+mention any removed or renamed symbol, UI string, export, component, label,
+or test ID. Search the repository with `zm-index search` or `rg` to find them.
+
+For every deletion, rename, or API swap, search `src/` for the removed name,
+label, and test ID. Update or remove stale tests asserting the old UI/API
+(including layout, parent-section, and i18n tests) and old imports. Also run
+`npx vitest run src/features/<area>/` for the affected feature area.
+
+If any unit test fails locally or in CI, fix every reported failure before
+pushing again, even if it seems unrelated. Any red test blocks Pages deploy.
+Commit subjects must name the parent issue (`#N: ...`); CI fixes caused by
+that change are follow-up commits under the same issue, not new issues.
+
+After each push, provide the Actions run URL. Inspect its result and fix
+failures from the log until the deployment build is green. Do not call the
+work done or validated while its deployment is red or still running.
