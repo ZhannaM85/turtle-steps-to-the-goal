@@ -266,7 +266,7 @@ export const PDF_DOCUMENT_CSS = `
     margin: 0 1% 2pt 0;
     padding-left: 0;
     border-left: 0;
-    font-size: 9.5pt;
+    font-size: 11.5pt;
     height: auto;
     min-height: 0;
     vertical-align: top;

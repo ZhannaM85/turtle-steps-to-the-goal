@@ -897,7 +897,7 @@ describe('buildSummaryPdf', () => {
     const waterItemRule = PDF_DOCUMENT_CSS.match(
       /\.pdf-day-section-water \.pdf-day-section-content \.pdf-day-item \{([^}]*)\}/,
     )?.[1]
-    expect(waterItemRule).toContain('font-size: 9.5pt')
+    expect(waterItemRule).toContain('font-size: 11.5pt')
   })
 
   it('matches Metrics header typography to other diary section titles (#941)', () => {
@@ -1004,7 +1004,7 @@ describe('buildSummaryPdf', () => {
     const waterItemRule = PDF_DOCUMENT_CSS.match(
       /\.pdf-day-section-water \.pdf-day-section-content \.pdf-day-item \{([^}]*)\}/,
     )?.[1]
-    expect(waterItemRule).toContain('font-size: 9.5pt')
+    expect(waterItemRule).toContain('font-size: 11.5pt')
     const metricsNotesRule = PDF_DOCUMENT_CSS.match(
       /\.pdf-day-section-metrics \.pdf-day-section-content \.pdf-line,\s*\.pdf-day-section-notes \.pdf-day-section-content \.pdf-line \{([^}]*)\}/,
     )?.[1]
