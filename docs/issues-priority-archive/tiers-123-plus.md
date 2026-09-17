@@ -702,6 +702,7 @@ _Reported from an iPhone PDF export and the Day screen._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#953](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/953) | ✅ Done | Projection X-axis: date labels under grid lines only (no day numbers) | Confirmed on-device 2026-09-17 — localized dates sit under the projection grid lines without extra day-number labels. |
 | [#954](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/954) | ✅ Done | Projection Year view: restore full horizontal weight grid | Confirmed on-device 2026-09-17 — Year view shows the full horizontal weight grid. |
 | [#955](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/955) | ✅ Done | Projection modal: move estimate up so content fits without scroll | Confirmed on-device 2026-09-17 — the projection sheet fits without scrolling. |
 | [#956](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/956) | ✅ Done | PDF share to Telegram: send PDF file, not blob: URL text | Confirmed on-device 2026-09-17 — sharing sends the actual PDF file. Preview-first flow follow-up to be tracked separately. |
