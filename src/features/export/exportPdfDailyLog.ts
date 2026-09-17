@@ -249,7 +249,6 @@ export function dailyLogPdfDayLines(
     const consumedSummary =
       dayTotalKcal !== undefined && meals.length > 0
         ? joinParts([
-            t.dailyEntry.consumedMacrosLabel,
             formatKcal(dayTotalKcal, locale, t),
             macrosSummaryTextCompact(
               totalProtein(meals, entry.dayTotals),

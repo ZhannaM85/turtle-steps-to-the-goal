@@ -101,7 +101,7 @@ describe('dailyLogPdfDayLines (#891)', () => {
       lines.some(
         (line) =>
           line.text.includes('Food') &&
-          line.text.includes('Consumed') &&
+          !line.text.includes('Consumed') &&
           line.text.includes('500 kcal') &&
           line.text.includes('P 30g') &&
           line.text.includes('F 20g') &&
