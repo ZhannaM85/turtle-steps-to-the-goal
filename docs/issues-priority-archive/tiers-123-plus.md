@@ -702,6 +702,7 @@ _Reported from an iPhone PDF export and the Day screen._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#948](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/948) | ✅ Done | Complete-day projection: Week/Month/Year tab bar (not fixed 5 weeks) | Confirmed on-device 2026-09-17 — Week, Month, and Year tabs switch the projection horizon correctly. |
 | [#949](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/949) | ✅ Done | Complete-day projection: X/Y axis ticks (days and weight) | Confirmed on-device 2026-09-17 — projection axes show readable date and weight ticks. |
 | [#950](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/950) | ✅ Done | Projection chart: balance вес oscillation equally above/below average | Confirmed on-device 2026-09-17 — projected weight oscillates evenly around the average line. |
 | [#951](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/951) | ✅ Done | Projection tab bar: match Settings Export segment styling | Confirmed on-device 2026-09-17 — projection tabs match the Settings Export segmented control. |
