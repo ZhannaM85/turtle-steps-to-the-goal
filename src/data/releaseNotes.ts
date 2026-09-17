@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 924,
+    issue: 955,
+    date: '2026-09-17T07:18:00+00:00',
+    en: 'The Complete the day estimate now sits next to the chart legend, so the whole sheet fits on the phone without scrolling.',
+    ru: 'Оценка в «Завершить день» теперь рядом с легендой графика, поэтому весь экран помещается на телефоне без прокрутки.',
+  },
+  {
     version: 923,
     issue: 954,
     date: '2026-09-17T07:11:30+00:00',

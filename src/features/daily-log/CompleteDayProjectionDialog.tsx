@@ -75,6 +75,14 @@ export function CompleteDayWeekTick({
   )
 }
 
+/** #955 — compact sheet so Year fits one typical iPhone viewport without scroll. */
+export const COMPLETE_DAY_PROJECTION_SHEET_CLASS = 'mt-3 flex flex-col gap-3'
+export const COMPLETE_DAY_PROJECTION_CHART_CLASS = 'h-56 w-full'
+export const COMPLETE_DAY_PROJECTION_ESTIMATE_ROW_CLASS =
+  'flex items-end justify-between gap-2'
+export const COMPLETE_DAY_PROJECTION_ESTIMATE_VALUE_CLASS =
+  'text-xl font-semibold'
+
 /** #947 — line samples, not identical solid dots. */
 function CompleteDayLegendLineSample({
   series,
@@ -213,7 +221,7 @@ export function CompleteDayProjectionDialog() {
           size="fullscreen"
           closeLabel={t.today.celebrationCloseLabel}
         >
-          <DialogTitle className="pr-10 text-2xl leading-snug">
+          <DialogTitle className="pr-10 text-xl leading-snug">
             {t.today.completeDayTitle}
           </DialogTitle>
           <DialogDescription className="sr-only">
@@ -244,12 +252,15 @@ export function CompleteDayProjectionDialog() {
             </p>
           )}
           {projection && state.weightKg !== undefined && (
-            <div className="mt-6 flex flex-col gap-6">
-              <div>
+            <div
+              data-complete-day-sheet
+              className={COMPLETE_DAY_PROJECTION_SHEET_CLASS}
+            >
+              <div className="flex items-baseline gap-2">
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">
                   {t.today.completeDayTodayLabel}
                 </p>
-                <p className="text-2xl font-semibold">
+                <p className="text-lg font-semibold">
                   {formatNumber(toDisplay(state.weightKg), locale)} {unitText}
                 </p>
               </div>
@@ -280,7 +291,10 @@ export function CompleteDayProjectionDialog() {
                   </ToggleGroupItem>
                 ))}
               </ToggleGroup>
-              <div className="h-56 w-full">
+              <div
+                data-complete-day-chart
+                className={COMPLETE_DAY_PROJECTION_CHART_CLASS}
+              >
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
                     data={chartData}
@@ -394,47 +408,61 @@ export function CompleteDayProjectionDialog() {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-              <span className="flex gap-3 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <CompleteDayLegendLineSample series="weight" />
-                  {t.dashboard.weightLegend}
+              <div
+                data-complete-day-estimate-row
+                className={COMPLETE_DAY_PROJECTION_ESTIMATE_ROW_CLASS}
+              >
+                <span className="flex min-w-0 flex-wrap gap-3 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <CompleteDayLegendLineSample series="weight" />
+                    {t.dashboard.weightLegend}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <CompleteDayLegendLineSample series="average" />
+                    {t.dashboard.rollingAverageLegend}
+                  </span>
                 </span>
-                <span className="flex items-center gap-1">
-                  <CompleteDayLegendLineSample series="average" />
-                  {t.dashboard.rollingAverageLegend}
-                </span>
-              </span>
-              <div className="text-right">
-                <p className="text-3xl font-semibold">
-                  ≈{' '}
-                  {formatNumber(
-                    toDisplay(projection.projectedWeightKg),
-                    locale,
-                  )}{' '}
-                  {unitText}
-                </p>
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                  {t.today.completeDayEstimatedLabel}
-                </p>
+                <div
+                  data-complete-day-estimate
+                  className="shrink-0 text-right leading-none"
+                >
+                  <p className={COMPLETE_DAY_PROJECTION_ESTIMATE_VALUE_CLASS}>
+                    ≈{' '}
+                    {formatNumber(
+                      toDisplay(projection.projectedWeightKg),
+                      locale,
+                    )}{' '}
+                    {unitText}
+                  </p>
+                  <p className="mt-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                    {t.today.completeDayEstimatedLabel}
+                  </p>
+                </div>
               </div>
-              <div className="rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm">
-                <p className="text-muted-foreground">
-                  {t.today.completeDayIntakeLabel}
+              <div className="rounded-xl border border-border bg-muted/40 px-3 py-2 text-sm leading-snug">
+                <p className="flex items-baseline justify-between gap-3">
+                  <span className="text-muted-foreground">
+                    {t.today.completeDayIntakeLabel}
+                  </span>
+                  <span className="font-medium">
+                    {formatKcal(dailyKcal, locale, t)}
+                  </span>
                 </p>
-                <p className="mb-3 font-medium">
-                  {formatKcal(dailyKcal, locale, t)}
+                <p className="mt-1 flex items-baseline justify-between gap-3">
+                  <span className="text-muted-foreground">
+                    {t.today.completeDayMaintenanceLabel}
+                  </span>
+                  <span className="font-medium">
+                    ~{formatKcal(projection.tdeeKcal, locale, t)}
+                  </span>
                 </p>
-                <p className="text-muted-foreground">
-                  {t.today.completeDayMaintenanceLabel}
-                </p>
-                <p className="mb-3 font-medium">
-                  ~{formatKcal(projection.tdeeKcal, locale, t)}
-                </p>
-                <p className="text-muted-foreground">
-                  {t.today.completeDayDeficitLabel}
-                </p>
-                <p className="font-medium">
-                  ~{formatKcal(projection.dailyDeficitKcal, locale, t)}
+                <p className="mt-1 flex items-baseline justify-between gap-3">
+                  <span className="text-muted-foreground">
+                    {t.today.completeDayDeficitLabel}
+                  </span>
+                  <span className="font-medium">
+                    ~{formatKcal(projection.dailyDeficitKcal, locale, t)}
+                  </span>
                 </p>
               </div>
               <p className="text-sm">{changeText(projection.totalChangeKg)}</p>

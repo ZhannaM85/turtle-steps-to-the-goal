@@ -14,6 +14,10 @@ import { formatLocalizedDate, formatLocalizedShortDate } from '@/i18n'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useProfileStore } from '@/stores'
 import {
+  COMPLETE_DAY_PROJECTION_CHART_CLASS,
+  COMPLETE_DAY_PROJECTION_ESTIMATE_ROW_CLASS,
+  COMPLETE_DAY_PROJECTION_ESTIMATE_VALUE_CLASS,
+  COMPLETE_DAY_PROJECTION_SHEET_CLASS,
   CompleteDayProjectionDialog,
   CompleteDayWeekTick,
 } from './CompleteDayProjectionDialog'
@@ -41,7 +45,7 @@ function renderProjectionDialog() {
   )
 }
 
-describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 / #948 / #949 / #953 / #954)', () => {
+describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 / #948 / #949 / #953 / #954 / #955)', () => {
   beforeEach(() => {
     useProfileStore.setState({
       heightCm: 165,
@@ -427,5 +431,56 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 /
     expect(screen.getByText(/About .+ lower over 1 year/)).toBeInTheDocument()
     expect(screen.getByText('weight')).toBeInTheDocument()
     expect(screen.getByText('7-day average')).toBeInTheDocument()
+  })
+
+  it('keeps compact layout tokens that leave the chart readable (#955)', () => {
+    expect(COMPLETE_DAY_PROJECTION_SHEET_CLASS).toContain('gap-3')
+    expect(COMPLETE_DAY_PROJECTION_SHEET_CLASS).not.toContain('gap-6')
+    expect(COMPLETE_DAY_PROJECTION_CHART_CLASS).toContain('h-56')
+    expect(COMPLETE_DAY_PROJECTION_ESTIMATE_ROW_CLASS).toContain('flex')
+    expect(COMPLETE_DAY_PROJECTION_ESTIMATE_ROW_CLASS).toContain(
+      'justify-between',
+    )
+    expect(COMPLETE_DAY_PROJECTION_ESTIMATE_VALUE_CLASS).toContain('text-xl')
+    expect(COMPLETE_DAY_PROJECTION_ESTIMATE_VALUE_CLASS).not.toContain(
+      'text-3xl',
+    )
+  })
+
+  it('places the estimate beside the legend, above the kcal card (#955)', async () => {
+    const user = userEvent.setup()
+    renderProjectionDialog()
+    await user.click(screen.getByRole('button', { name: 'Complete the day' }))
+
+    const sheet = document.querySelector('[data-complete-day-sheet]')
+    const chart = document.querySelector('[data-complete-day-chart]')
+    const row = document.querySelector('[data-complete-day-estimate-row]')
+    const estimate = screen.getByText(/^≈ /)
+    const intake = screen.getByText("Today's intake")
+
+    expect(sheet).toHaveClass('mt-3', 'gap-3')
+    expect(sheet).not.toHaveClass('gap-6')
+    expect(chart).toHaveClass('h-56')
+    expect(row).toHaveClass('flex', 'items-end', 'justify-between')
+    expect(row).toContainElement(screen.getByText('weight'))
+    expect(row).toContainElement(screen.getByText('7-day average'))
+    expect(row).toContainElement(estimate)
+    expect(estimate).toHaveClass('text-xl')
+    expect(estimate).not.toHaveClass('text-3xl')
+    expect(
+      chart!.compareDocumentPosition(row!) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    expect(
+      row!.compareDocumentPosition(intake) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+
+    const tabs = screen.getByLabelText('Projection period')
+    await user.click(within(tabs).getByRole('radio', { name: 'Year' }))
+    expect(screen.getByText(/^≈ /)).toBeInTheDocument()
+    expect(screen.getByText(/About .+ lower over 1 year/)).toBeInTheDocument()
+    expect(screen.getByText("Today's intake")).toBeInTheDocument()
+    expect(
+      screen.getAllByText(/Daily scale weight will fluctuate/).length,
+    ).toBeGreaterThan(0)
   })
 })
