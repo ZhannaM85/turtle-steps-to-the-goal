@@ -49,7 +49,6 @@ _Reported from iPhone PDF previews and local Chrome._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#932](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/932) | ⬜ Open | PDF diary: footer still cut off, generated date not visible | Failed on-device validation 2026-09-17: the requested result is not fully addressed. Needs correction before another device check. |
 
 ## Tier 165 — PDF footer whitespace and Day chrome (2026-09-17)
 
