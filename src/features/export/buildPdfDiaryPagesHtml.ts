@@ -13,9 +13,16 @@ const diaryHeaderMetricKinds = {
 } as const
 
 function diaryMetricLineHtml(text: string): string {
-  const separator = text.indexOf(':')
-  if (separator < 0) return escapeHtml(text)
-  return `<strong class="pdf-day-line-label">${escapeHtml(text.slice(0, separator + 1))}</strong>${escapeHtml(text.slice(separator + 1))}`
+  // Bold every "Label:" segment (e.g. Night food · Mood on one row — #962).
+  // joinParts uses two spaces around the middot.
+  return text
+    .split('  ·  ')
+    .map((part) => {
+      const separator = part.indexOf(':')
+      if (separator < 0) return escapeHtml(part)
+      return `<strong class="pdf-day-line-label">${escapeHtml(part.slice(0, separator + 1))}</strong>${escapeHtml(part.slice(separator + 1))}`
+    })
+    .join('  ·  ')
 }
 
 /** One dated diary page; the PDF renderer may move whole section cards to a continuation sheet. */

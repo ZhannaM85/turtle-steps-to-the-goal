@@ -733,6 +733,11 @@ describe('buildSummaryPdf', () => {
       .find((line) => line.textContent?.startsWith(t.dailyEntry.nightEatingLabel()))
     expect(nightFoodLine?.textContent).toContain(`${t.exportXlsx.moodColumn}:`)
     expect(nightFoodLine?.textContent).toContain('Happy')
+    const moodLabel = [
+      ...(nightFoodLine?.querySelectorAll('.pdf-day-line-label') ?? []),
+    ].find((el) => el.textContent?.startsWith(`${t.exportXlsx.moodColumn}:`))
+    expect(moodLabel?.tagName).toBe('STRONG')
+    expect(moodLabel?.textContent).toBe(`${t.exportXlsx.moodColumn}:`)
     const mealCards = [...day.querySelectorAll('.pdf-meal-card')]
     const mealColumns = [...day.querySelectorAll('.pdf-meal-column')]
     expect(mealCards).toHaveLength(3)
