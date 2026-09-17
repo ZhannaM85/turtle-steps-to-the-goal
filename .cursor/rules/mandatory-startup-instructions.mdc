@@ -1,0 +1,21 @@
+---
+description: Require startup guidance before any new-chat task work
+alwaysApply: true
+---
+
+# Mandatory New-Chat Startup Read
+
+At the start of every new chat in this repository, read these sources in full
+before searching code, editing files, running validation, creating commits, or
+calling GitHub:
+
+1. `CLAUDE.md`
+2. `docs/AGENT_WORKFLOW.md`
+3. Every `.cursor/rules/*.mdc` rule file
+4. Any applicable `AGENTS.md` found from the repository root to the target
+   directory
+
+Do not treat prior chat memory, a short request, or an apparently routine task
+as permission to skip this read. Follow the resulting workflow in order,
+including pull-before-change, release notes, push, queue status, and
+`validation` labels for work awaiting on-device confirmation.

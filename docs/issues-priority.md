@@ -57,7 +57,6 @@ _Reported from an iPhone PDF export and the Day screen._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#939](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/939) | ⬜ Open | PDF diary: excessive blank band below the footer | Failed on-device validation again 2026-09-17 after `c7629f41a`: a large white patch splits Water rows and pushes Notes down. Reproduces in Макет PDF, proving the captured app layout—not Safari or the PDF viewer—contains the gap. Screenshots and generated PDF supplied. |
 | [#961](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/961) | 🔍 Pending validation | PDF export: restore preview before Save or Share | Implemented in `aa757e6e4`: export opens the PDF preview first, where the device viewer can share or save the actual document. Awaiting on-device confirmation. |
 | [#962](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/962) | 🔍 Pending validation | PDF diary: move mood out of Показатели header onto the late-evening row | Implemented in `aa1f77f0b`: Mood moved out of the header and onto the Night food body row; Sleep, Deep sleep, and Steps remain in the title. Awaiting on-device confirmation. |
 | [#963](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/963) | ⬜ Open | PDF: remove temporary pdfDebug overlay and Settings toggle | Cleanup after #939/#952/#958/#960 diagnostics. Remove Settings debug toggle, `?pdfDebug` / localStorage flag, overlay report, and render-path hooks that exist only to feed it — once the layout bugs are settled. |
