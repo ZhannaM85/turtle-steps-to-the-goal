@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 917,
+    issue: 947,
+    date: '2026-09-17T09:16:01+03:00',
+    en: 'The Complete the day projection now looks like the weight trend: a jagged daily line, a dashed 7-day average of that line, matching line samples in the legend, and the calendar date alone at the end of the axis.',
+    ru: 'График прогноза «Завершить день» теперь как график веса: ломаная дневная линия, пунктирное среднее за 7 дней по ней, образцы линий в легенде и только календарная дата в конце оси.',
+  },
+  {
     version: 916,
     issue: 946,
     date: '2026-09-17T03:18:01+03:00',

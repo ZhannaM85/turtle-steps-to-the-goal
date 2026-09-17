@@ -17,7 +17,7 @@ import {
 import { DailyEntryFormStateProvider } from './DailyEntryFormStateContext'
 import { calories, now } from './dailyEntryFormTestUtils'
 
-describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #946)', () => {
+describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947)', () => {
   beforeEach(() => {
     useProfileStore.setState({
       heightCm: 165,
@@ -85,9 +85,7 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #946)'
       </MemoryRouter>,
     )
 
-    await user.click(
-      screen.getByRole('button', { name: 'Complete the day' }),
-    )
+    await user.click(screen.getByRole('button', { name: 'Complete the day' }))
     expect(
       screen.getByRole('heading', {
         name: 'If days like today became your usual pattern…',
@@ -134,9 +132,7 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #946)'
       </MemoryRouter>,
     )
 
-    await user.click(
-      screen.getByRole('button', { name: 'Complete the day' }),
-    )
+    await user.click(screen.getByRole('button', { name: 'Complete the day' }))
     expect(screen.getByText(/weight first/)).toBeInTheDocument()
   })
 
@@ -161,9 +157,7 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #946)'
       </MemoryRouter>,
     )
 
-    await user.click(
-      screen.getByRole('button', { name: 'Complete the day' }),
-    )
+    await user.click(screen.getByRole('button', { name: 'Complete the day' }))
     expect(
       screen.getByText(/isn't a good day to project from/),
     ).toBeInTheDocument()
@@ -204,9 +198,8 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #946)'
     expect(labels[1]).toHaveTextContent('5 weeks')
   })
 
-  it('puts the calendar end date in the week-5 axis label (#945)', () => {
+  it('puts the calendar end date only in the week-5 axis label (#945 / #947)', () => {
     const endLabel = completeDayChartEndAxisLabel(
-      '5 weeks',
       formatLocalizedDate(completeDayProjectionEndIso('2026-03-01'), 'en'),
     )
     const { container } = render(
@@ -220,13 +213,12 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #946)'
         />
       </svg>,
     )
-    expect(endLabel).toBe('5 weeks · Apr 5, 2026')
-    expect(container.querySelector('text')).toHaveTextContent(
-      '5 weeks · Apr 5, 2026',
-    )
+    expect(endLabel).toBe('Apr 5, 2026')
+    expect(endLabel).not.toMatch(/5 weeks/)
+    expect(container.querySelector('text')).toHaveTextContent('Apr 5, 2026')
   })
 
-  it('shows the About-style dual-series legend and keeps the end date (#946)', async () => {
+  it('shows oscillating dual-series legend line samples and keeps the end date (#947)', async () => {
     const user = userEvent.setup()
     render(
       <MemoryRouter>
@@ -247,10 +239,22 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #946)'
       </MemoryRouter>,
     )
 
-    await user.click(
-      screen.getByRole('button', { name: 'Complete the day' }),
-    )
+    await user.click(screen.getByRole('button', { name: 'Complete the day' }))
     expect(screen.getByText('weight')).toBeInTheDocument()
     expect(screen.getByText('7-day average')).toBeInTheDocument()
+    expect(screen.getByText(/About .+ lower over 5 weeks/)).toBeInTheDocument()
+    expect(screen.queryByText(/5 weeks ·/)).not.toBeInTheDocument()
+
+    const weightLine = document.querySelector(
+      '[data-legend-series="weight"] line',
+    )
+    const averageLine = document.querySelector(
+      '[data-legend-series="average"] line',
+    )
+    expect(weightLine).toHaveAttribute('stroke-width', '2.5')
+    expect(weightLine).not.toHaveAttribute('stroke-dasharray')
+    expect(averageLine).toHaveAttribute('stroke-width', '1.5')
+    expect(averageLine).toHaveAttribute('stroke-dasharray', '4 3')
+    expect(document.querySelector('.size-2.rounded-sm')).not.toBeInTheDocument()
   })
 })

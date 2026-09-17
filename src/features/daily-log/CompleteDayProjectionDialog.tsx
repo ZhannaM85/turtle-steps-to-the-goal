@@ -67,6 +67,39 @@ export function CompleteDayWeekTick({
   )
 }
 
+/** #947 — line samples, not identical solid dots. */
+function CompleteDayLegendLineSample({
+  series,
+}: {
+  series: 'weight' | 'average'
+}) {
+  return (
+    <svg
+      data-legend-series={series}
+      width="18"
+      height="8"
+      viewBox="0 0 18 8"
+      aria-hidden="true"
+      className="shrink-0"
+    >
+      <line
+        x1="0"
+        y1="4"
+        x2="18"
+        y2="4"
+        stroke={
+          series === 'weight'
+            ? 'var(--chart-weight)'
+            : 'var(--muted-foreground)'
+        }
+        strokeWidth={series === 'weight' ? 2.5 : 1.5}
+        strokeDasharray={series === 'average' ? '4 3' : undefined}
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
 /**
  * #934 — Day CTA + full-height sheet: if days like today became the usual
  * pattern, where weight might be in five weeks. Close with the X only.
@@ -108,6 +141,7 @@ export function CompleteDayProjectionDialog() {
           age,
           sex,
           activityLevel,
+          logDate: state.date,
         })
       : null
 
@@ -120,15 +154,20 @@ export function CompleteDayProjectionDialog() {
       average: toDisplay(point.averageKg),
     })) ?? []
   const weekTicks = completeDayWeekGridTicks()
-  const weightTicks = projection
-    ? completeDayWeightGridTicksKg(
-        Math.min(...projection.points.map((point) => point.weightKg)),
-        Math.max(...projection.points.map((point) => point.weightKg)),
-      ).map(toDisplay)
-    : []
+  const chartKg =
+    projection?.chartPoints.flatMap((point) => [
+      point.weightKg,
+      point.averageKg,
+    ]) ?? []
+  const weightTicks =
+    chartKg.length > 0
+      ? completeDayWeightGridTicksKg(
+          Math.min(...chartKg),
+          Math.max(...chartKg),
+        ).map(toDisplay)
+      : []
 
   const weekEndLabel = completeDayChartEndAxisLabel(
-    t.today.completeDayWeekEnd,
     formatLocalizedDate(completeDayProjectionEndIso(state.date), locale),
   )
 
@@ -256,7 +295,7 @@ export function CompleteDayProjectionDialog() {
                       width={0}
                     />
                     <Line
-                      type="monotone"
+                      type="linear"
                       dataKey="weight"
                       stroke="var(--chart-weight)"
                       strokeWidth={2.5}
@@ -264,13 +303,9 @@ export function CompleteDayProjectionDialog() {
                       isAnimationActive={false}
                       activeDot={false}
                       dot={(props) => {
-                        const week = (
-                          props as { payload?: { week?: number } }
-                        ).payload?.week
-                        if (
-                          week !== 0 &&
-                          week !== COMPLETE_DAY_HORIZON_WEEKS
-                        ) {
+                        const week = (props as { payload?: { week?: number } })
+                          .payload?.week
+                        if (week !== 0 && week !== COMPLETE_DAY_HORIZON_WEEKS) {
                           return false
                         }
                         const { cx, cy, index } = props as {
@@ -289,8 +324,8 @@ export function CompleteDayProjectionDialog() {
                         )
                       }}
                     />
-                    {/* #946: dashed muted companion — same tokens as
-                     * WeightTrendChart's 7-day average (#214). */}
+                    {/* #946/#947: dashed muted companion — trailing average
+                     * of the oscillating daily series (#214 tokens). */}
                     <Line
                       type="monotone"
                       dataKey="average"
@@ -307,25 +342,21 @@ export function CompleteDayProjectionDialog() {
               </div>
               <span className="flex gap-3 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
-                  <span
-                    aria-hidden="true"
-                    className="size-2 rounded-sm"
-                    style={{ background: 'var(--chart-weight)' }}
-                  />
+                  <CompleteDayLegendLineSample series="weight" />
                   {t.dashboard.weightLegend}
                 </span>
                 <span className="flex items-center gap-1">
-                  <span
-                    aria-hidden="true"
-                    className="size-2 rounded-sm"
-                    style={{ background: 'var(--muted-foreground)' }}
-                  />
+                  <CompleteDayLegendLineSample series="average" />
                   {t.dashboard.rollingAverageLegend}
                 </span>
               </span>
               <div className="text-right">
                 <p className="text-3xl font-semibold">
-                  ≈ {formatNumber(toDisplay(projection.projectedWeightKg), locale)}{' '}
+                  ≈{' '}
+                  {formatNumber(
+                    toDisplay(projection.projectedWeightKg),
+                    locale,
+                  )}{' '}
                   {unitText}
                 </p>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">

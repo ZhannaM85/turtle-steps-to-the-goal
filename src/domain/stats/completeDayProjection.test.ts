@@ -7,8 +7,11 @@ import {
   COMPLETE_DAY_GRID_KG,
   COMPLETE_DAY_HORIZON_DAYS,
   COMPLETE_DAY_HORIZON_WEEKS,
+  COMPLETE_DAY_OSCILLATION_KG,
   COMPLETE_DAY_TREND_WINDOW_DAYS,
   completeDayChartEndAxisLabel,
+  completeDayOscillatingDailyKg,
+  completeDayOscillationSeed,
   completeDayProjectionBlocker,
   completeDayProjectionChartPoints,
   completeDayProjectionEndIso,
@@ -60,26 +63,96 @@ describe('projectWeightIfEatingLikeToday (#934)', () => {
   })
 })
 
-describe('complete-the-day dual series (#946)', () => {
-  it('pairs a daily solid path with a lagged 7-day companion', () => {
-    const result = projectWeightIfEatingLikeToday(sample)
+describe('complete-the-day oscillating dual series (#947)', () => {
+  const logged = { ...sample, logDate: '2026-03-01' }
+
+  it('builds a jagged daily path around the trend, not a straight primary', () => {
+    const result = projectWeightIfEatingLikeToday(logged)
     expect(COMPLETE_DAY_TREND_WINDOW_DAYS).toBe(7)
+    expect(COMPLETE_DAY_OSCILLATION_KG).toBe(0.4)
     expect(result.chartPoints).toHaveLength(COMPLETE_DAY_HORIZON_DAYS + 1)
-    expect(result.chartPoints[0]).toEqual({
-      week: 0,
-      weightKg: 60.2,
-      averageKg: 60.2,
-    })
+    expect(result.chartPoints[0]?.weightKg).toBe(60.2)
+    expect(result.chartPoints.at(-1)?.weightKg).toBeCloseTo(
+      result.projectedWeightKg,
+    )
     expect(result.chartPoints.at(-1)?.week).toBe(COMPLETE_DAY_HORIZON_WEEKS)
-    const later = result.chartPoints[14]!
-    expect(later.averageKg).toBeGreaterThan(later.weightKg)
-    expect(later.averageKg).toBeLessThan(result.chartPoints[0]!.weightKg)
+
+    const weights = result.chartPoints.map((point) => point.weightKg)
+    let signFlips = 0
+    let previousDelta = 0
+    for (let i = 1; i < weights.length; i += 1) {
+      const delta = weights[i]! - weights[i - 1]!
+      if (
+        previousDelta !== 0 &&
+        delta !== 0 &&
+        Math.sign(delta) !== Math.sign(previousDelta)
+      ) {
+        signFlips += 1
+      }
+      if (delta !== 0) previousDelta = delta
+    }
+    expect(signFlips).toBeGreaterThan(3)
+
+    const start = weights[0]!
+    const end = weights[weights.length - 1]!
+    const last = weights.length - 1
+    let maxDeviation = 0
+    for (let i = 1; i < last; i += 1) {
+      const linear = start + ((end - start) * i) / last
+      maxDeviation = Math.max(maxDeviation, Math.abs(weights[i]! - linear))
+    }
+    expect(maxDeviation).toBeGreaterThan(0.15)
   })
 
-  it('lags the companion behind a rising path too', () => {
-    const rising = completeDayProjectionChartPoints([60, 61, 62, 63, 64, 65, 66, 67])
+  it('uses the trailing 7-day average of that oscillating series', () => {
+    const result = projectWeightIfEatingLikeToday(logged)
+    const rebuilt = completeDayProjectionChartPoints(
+      result.chartPoints.map((point) => point.weightKg),
+    )
+    expect(result.chartPoints.map((point) => point.averageKg)).toEqual(
+      rebuilt.map((point) => point.averageKg),
+    )
+    const later = result.chartPoints[14]!
+    const window = result.chartPoints
+      .slice(14 - 6, 15)
+      .map((point) => point.weightKg)
+    expect(later.averageKg).toBeCloseTo(
+      window.reduce((sum, kg) => sum + kg, 0) / 7,
+    )
+  })
+
+  it('is deterministic for the same log day and inputs', () => {
+    const first = projectWeightIfEatingLikeToday(logged)
+    const second = projectWeightIfEatingLikeToday(logged)
+    expect(first.chartPoints).toEqual(second.chartPoints)
+    const otherDay = projectWeightIfEatingLikeToday({
+      ...logged,
+      logDate: '2026-03-02',
+    })
+    expect(otherDay.chartPoints[10]?.weightKg).not.toBe(
+      first.chartPoints[10]?.weightKg,
+    )
+  })
+
+  it('pins start and end of a synthetic series to the trend', () => {
+    const trend = [60, 59.8, 59.6, 59.4, 59.2, 59, 58.8]
+    const seed = completeDayOscillationSeed(logged)
+    const a = completeDayOscillatingDailyKg(trend, seed)
+    const b = completeDayOscillatingDailyKg(trend, seed)
+    expect(a).toEqual(b)
+    expect(a[0]).toBe(60)
+    expect(a.at(-1)).toBe(58.8)
+    expect(a[3]).not.toBe(trend[3])
+  })
+
+  it('lags the companion behind a rising oscillating path too', () => {
+    const rising = completeDayProjectionChartPoints([
+      60, 61, 62, 63, 64, 65, 66, 67,
+    ])
     expect(rising[7]?.weightKg).toBe(67)
-    expect(rising[7]?.averageKg).toBeCloseTo((61 + 62 + 63 + 64 + 65 + 66 + 67) / 7)
+    expect(rising[7]?.averageKg).toBeCloseTo(
+      (61 + 62 + 63 + 64 + 65 + 66 + 67) / 7,
+    )
     expect(rising[7]!.averageKg).toBeLessThan(rising[7]!.weightKg)
   })
 })
@@ -135,29 +208,31 @@ describe('completeDayProjectionBlocker (#934)', () => {
   })
 })
 
-describe('complete-the-day chart end date (#945)', () => {
-  it('names week 5 as a real calendar date, paired with the 5-week span', () => {
+describe('complete-the-day chart end date (#945 / #947)', () => {
+  it('names week 5 as a calendar date only, without the duration prefix', () => {
     const endIso = completeDayProjectionEndIso('2026-03-01')
     expect(endIso).toBe('2026-04-05')
     expect(
-      completeDayChartEndAxisLabel(
-        '5 weeks',
-        formatLocalizedDate(endIso, 'en'),
-      ),
-    ).toBe('5 weeks · Apr 5, 2026')
+      completeDayChartEndAxisLabel(formatLocalizedDate(endIso, 'en')),
+    ).toBe('Apr 5, 2026')
     expect(
-      completeDayChartEndAxisLabel(
-        '5 недель',
-        formatLocalizedDate(endIso, 'ru'),
-      ),
-    ).toBe('5 недель · 5 апр. 2026 г.')
+      completeDayChartEndAxisLabel(formatLocalizedDate(endIso, 'ru')),
+    ).toBe('5 апр. 2026 г.')
+    expect(
+      completeDayChartEndAxisLabel(formatLocalizedDate(endIso, 'en')),
+    ).not.toMatch(/5 weeks/)
+    expect(
+      completeDayChartEndAxisLabel(formatLocalizedDate(endIso, 'ru')),
+    ).not.toMatch(/5 недель/)
   })
 })
 
 describe('complete-the-day chart grid (#936)', () => {
   it('places a vertical line at each of the six week marks', () => {
     expect(completeDayWeekGridTicks()).toEqual([0, 1, 2, 3, 4, 5])
-    expect(completeDayWeekGridTicks()).toHaveLength(COMPLETE_DAY_HORIZON_WEEKS + 1)
+    expect(completeDayWeekGridTicks()).toHaveLength(
+      COMPLETE_DAY_HORIZON_WEEKS + 1,
+    )
   })
 
   it('places a horizontal line every 500 g covering the projected range', () => {
