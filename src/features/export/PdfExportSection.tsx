@@ -26,7 +26,6 @@ import type { DailyLogExportExtras } from './dailyLogExport'
 import { filterByExportPeriod } from './filterByExportPeriod'
 import {
   exportPeriodForPreset,
-  exportPeriodFileStamp,
 } from './exportPeriodFileStamp'
 import {
   buildCustomMetricPdfSummaries,
@@ -47,7 +46,7 @@ import { PdfDebugToggle } from './PdfDebugToggle'
 import { PdfSectionsDialog } from './PdfSectionsDialog'
 import { sectionErrorMessage } from './exportSectionStatus'
 import { SectionStatus } from './SectionStatus'
-import { shareOrDownloadPdf } from './sharePdfFile'
+import { openPdfPreview } from './sharePdfFile'
 
 type Status =
   | { kind: 'idle' }
@@ -223,14 +222,7 @@ export function PdfExportSection() {
         pdfCustomMetricSummaries,
         dailyLog,
       )
-      const outcome = await shareOrDownloadPdf(
-        blob,
-        `turtle-steps-summary-${exportPeriodFileStamp(pdfPeriodStart, pdfPeriodEnd)}.pdf`,
-      )
-      if (outcome === 'cancelled') {
-        setStatus({ kind: 'idle' })
-        return
-      }
+      openPdfPreview(blob)
       setPdfSectionsDialogOpen(false)
       setStatus({ kind: 'exportedPdf' })
     } catch {
