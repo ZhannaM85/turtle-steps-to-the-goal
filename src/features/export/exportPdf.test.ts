@@ -728,10 +728,11 @@ describe('buildSummaryPdf', () => {
     expect(metricsTitle?.textContent).toContain(`${t.exportXlsx.moodColumn}:`)
     expect(metricsTitle?.querySelector('svg')).toBeNull()
     const mealCards = [...day.querySelectorAll('.pdf-meal-card')]
+    const mealColumns = [...day.querySelectorAll('.pdf-meal-column')]
     expect(mealCards).toHaveLength(3)
-    expect(mealCards[0]?.classList.contains('pdf-meal-left')).toBe(true)
-    expect(mealCards[1]?.classList.contains('pdf-meal-right')).toBe(true)
-    expect(mealCards[2]?.classList.contains('pdf-meal-left')).toBe(true)
+    expect(mealColumns).toHaveLength(2)
+    expect(mealColumns[0]?.querySelectorAll('.pdf-meal-card')).toHaveLength(2)
+    expect(mealColumns[1]?.querySelectorAll('.pdf-meal-card')).toHaveLength(1)
     expect(html).toContain('padding-left: 10pt')
     expect(html).toContain('padding-bottom: 9pt')
     expect(html).toContain(

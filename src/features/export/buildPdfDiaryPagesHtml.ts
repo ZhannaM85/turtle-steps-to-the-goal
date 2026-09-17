@@ -40,11 +40,13 @@ export function dailyLogPagesHtml(
     let sectionContent: string[] = []
     let mealOpen = false
     let mealIndex = 0
+    let mealColumns: [string[], string[]] = [[], []]
+    let activeMealColumn: string[] | null = null
     const sections: string[] = []
     const finishSection = () => {
       if (!sectionTitle) return
-      if (mealOpen) {
-        sectionContent.push('</div>')
+      if (mealOpen && activeMealColumn) {
+        activeMealColumn.push('</div>')
         mealOpen = false
       }
       const sectionClass = sectionTitle === t.pdfSummary.dailyLogMetricsSectionTitle
@@ -63,12 +65,17 @@ export function dailyLogPagesHtml(
         : sectionClass.includes('pdf-day-section-water') && waterTitleParts.length > 1
           ? `<span class="pdf-day-section-title-lead"><span>${escapeHtml(waterTitleParts[0] ?? '')}</span> <span class="pdf-day-section-water-total">${escapeHtml(waterTitleParts.slice(1).join('  ·  '))}</span></span>`
           : `<span>${escapeHtml(sectionTitle)}</span>`
+      const mealColumnsHtml = mealColumns.some((column) => column.length > 0)
+        ? `<div class="pdf-meal-columns"><div class="pdf-meal-column pdf-meal-column-left">${mealColumns[0].join('')}</div><div class="pdf-meal-column pdf-meal-column-right">${mealColumns[1].join('')}</div></div>`
+        : ''
       sections.push(`<section class="pdf-day-section${sectionClass}">
   <h3 class="pdf-day-section-title">${titleHtml}</h3>
-  <div class="pdf-day-section-content">${sectionContent.join('')}</div>
+  <div class="pdf-day-section-content">${mealColumnsHtml}${sectionContent.join('')}</div>
 </section>`)
       sectionTitle = ''
       sectionContent = []
+      mealColumns = [[], []]
+      activeMealColumn = null
     }
     for (const line of lines) {
       if (line.role === 'header') {
@@ -91,17 +98,18 @@ export function dailyLogPagesHtml(
         ? `<p class="pdf-day-item">${escapeHtml(line.text)}</p>`
         : `<p class="pdf-line">${lineText}</p>`
       if (line.kind === 'meal') {
-        if (mealOpen) sectionContent.push('</div>')
-        const mealColumn = mealIndex % 2 === 0 ? 'left' : 'right'
-        sectionContent.push(`<div class="pdf-meal-card pdf-meal-${mealColumn}">${lineHtml}`)
+        if (mealOpen && activeMealColumn) activeMealColumn.push('</div>')
+        activeMealColumn = mealColumns[mealIndex % 2] ?? mealColumns[0]
+        activeMealColumn.push(`<div class="pdf-meal-card">${lineHtml}`)
         mealIndex += 1
         mealOpen = true
       } else {
-        if (line.kind === 'dayTotal' && mealOpen) {
-          sectionContent.push('</div>')
+        if (line.kind === 'dayTotal' && mealOpen && activeMealColumn) {
+          activeMealColumn.push('</div>')
           mealOpen = false
         }
-        sectionContent.push(lineHtml)
+        if (mealOpen && activeMealColumn) activeMealColumn.push(lineHtml)
+        else sectionContent.push(lineHtml)
       }
     }
     finishSection()

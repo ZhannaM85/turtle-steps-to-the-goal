@@ -213,10 +213,13 @@ export const PDF_DOCUMENT_CSS = `
   }
   .pdf-day-section-metrics .pdf-day-line-label { font-weight: 700; }
   .pdf-day-section-food .pdf-day-section-content > .pdf-line { clear: both; }
+  .pdf-meal-columns { overflow: hidden; }
+  .pdf-meal-column { width: 48.5%; }
+  .pdf-meal-column-left { float: left; }
+  .pdf-meal-column-right { float: right; }
   .pdf-meal-card {
-    float: left;
-    width: 48.5%;
-    margin: 0 1.5% 3pt 0;
+    width: 100%;
+    margin: 0 0 3pt 0;
     padding: 3pt 4pt;
     padding-left: 10pt;
     padding-bottom: 9pt;
@@ -225,12 +228,6 @@ export const PDF_DOCUMENT_CSS = `
     background: #fff;
     overflow: hidden;
     overflow-wrap: anywhere;
-  }
-  .pdf-meal-left { clear: left; }
-  .pdf-meal-right {
-    float: right;
-    clear: right;
-    margin-right: 0;
   }
   .pdf-meal-card .pdf-line { font-weight: 600; font-size: 9.5pt; line-height: 1.18; }
   .pdf-meal-card .pdf-day-item {
