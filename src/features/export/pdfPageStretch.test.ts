@@ -20,7 +20,14 @@ describe('pinPdfFooterToCanvasBottom (#960)', () => {
       '<div class="pdf-page-body">body</div><footer class="pdf-footer">Disclaimer</footer>'
     document.body.appendChild(page)
     const footer = page.querySelector('.pdf-footer') as HTMLElement
-    vi.spyOn(footer, 'offsetHeight', 'get').mockReturnValue(40)
+    vi.spyOn(page, 'getBoundingClientRect').mockReturnValue(
+      new DOMRect(0, 100, 100, 190),
+    )
+    vi.spyOn(footer, 'getBoundingClientRect').mockReturnValue(
+      new DOMRect(0, 250, 100, 40),
+    )
+    // A bad WebKit offsetHeight must not pull Water/Notes into the footer slice.
+    vi.spyOn(footer, 'offsetHeight', 'get').mockReturnValue(120)
     vi.spyOn(page, 'scrollHeight', 'get').mockReturnValue(190)
     vi.spyOn(page, 'offsetHeight', 'get').mockReturnValue(190)
 

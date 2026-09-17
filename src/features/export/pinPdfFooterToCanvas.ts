@@ -152,10 +152,7 @@ export function preparePdfPagesForCapture(host: HTMLElement): void {
   }
 }
 
-/**
- * Footer is last in-flow in the captured bitmap. Slice it from the canvas
- * bottom (offsetHeight × scale), not a flex getBoundingClientRect.
- */
+/** Locate only the footer pixels; never treat trailing diary content as footer. */
 export function pdfFooterSourceFromCanvasBottom(
   canvasHeight: number,
   page: HTMLElement,
@@ -165,6 +162,25 @@ export function pdfFooterSourceFromCanvasBottom(
   if (!footer) return null
   const cssHeight = Math.max(captureHeightPx, 1)
   const scaleY = canvasHeight / cssHeight
+
+  const pageBox = page.getBoundingClientRect()
+  const footerBox = footer.getBoundingClientRect()
+  const footerTopCss = footerBox.top - pageBox.top
+  if (
+    pageBox.height > 0 &&
+    footerBox.height > 0 &&
+    footerTopCss >= 0 &&
+    footerTopCss < cssHeight
+  ) {
+    const y = Math.max(1, Math.round(footerTopCss * scaleY))
+    const height = Math.min(
+      canvasHeight - y,
+      Math.max(1, Math.round(footerBox.height * scaleY)),
+    )
+    if (height > 0) return { y, height }
+  }
+
+  // jsdom and older WebKit snapshots can report empty client rects.
   const footerH = Math.max(1, Math.round(footer.offsetHeight * scaleY))
   const y = canvasHeight - footerH
   if (y < 1 || footerH < 1) return null

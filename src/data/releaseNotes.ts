@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 933,
+    issue: 958,
+    date: '2026-09-17T17:12:00+00:00',
+    en: 'PDF footer placement now moves only footer pixels, keeping Water rows and Notes together.',
+    ru: 'При размещении футера PDF теперь перемещается только сам футер, поэтому строки воды и заметки остаются вместе.',
+  },
+  {
     version: 932,
     issue: 939,
     date: '2026-09-17T15:53:00+00:00',
