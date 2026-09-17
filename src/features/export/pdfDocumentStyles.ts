@@ -163,7 +163,7 @@ export const PDF_DOCUMENT_CSS = `
     float: right;
     display: block;
     white-space: nowrap;
-    font-size: 7.5pt;
+    font-size: 10.5pt;
     font-weight: 400;
     line-height: 1.2;
   }
@@ -182,14 +182,6 @@ export const PDF_DOCUMENT_CSS = `
     line-height: 1.2;
   }
   .pdf-day-header-metric:first-child { margin-left: 0; }
-  .pdf-day-header-metric svg {
-    display: inline-block;
-    width: 9pt;
-    height: 9pt;
-    vertical-align: -1.5pt;
-    transform: translateY(1pt);
-    margin-right: 2pt;
-  }
   .pdf-day-section:nth-of-type(1) .pdf-day-section-title { background: #eef2ff; color: #3730a3; }
   .pdf-day-section:nth-of-type(2) .pdf-day-section-title { background: #fff7ed; color: #9a3412; }
   .pdf-day-section:nth-of-type(3) .pdf-day-section-title { background: #ecfeff; color: #155e75; }

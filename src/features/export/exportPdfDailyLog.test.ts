@@ -47,7 +47,7 @@ describe('dailyLogPdfDayLines (#891)', () => {
     const text = lines.map((line) => line.text)
     expect(text[0]).toContain('80')
     expect(text).toContain('Metrics')
-    expect(text.some((line) => line.includes('Hours slept'))).toBe(true)
+    expect(text.some((line) => line.startsWith('Sleep:'))).toBe(true)
     expect(text.some((line) => line.startsWith('Food'))).toBe(true)
     expect(text.some((line) => line.includes('Breakfast'))).toBe(true)
     expect(text.some((line) => line.includes('Oatmeal'))).toBe(true)
@@ -67,7 +67,7 @@ describe('dailyLogPdfDayLines (#891)', () => {
     )
     const text = lines.map((line) => line.text)
     expect(text).not.toContain('Metrics')
-    expect(text.some((line) => line.includes('Hours slept'))).toBe(false)
+    expect(text.some((line) => line.startsWith('Sleep:'))).toBe(false)
     expect(text).toContain('Notes')
   })
 
@@ -147,7 +147,7 @@ describe('dailyLogPdfDayLines (#891)', () => {
     )
 
     const metricLines = lines.filter((line) => line.role === 'body')
-    expect(metricLines.filter((line) => line.text.includes('Hours slept'))).toHaveLength(1)
+    expect(metricLines.filter((line) => line.text.startsWith('Sleep:'))).toHaveLength(1)
     expect(metricLines.find((line) => line.kind === 'sleep')?.text).toContain('7h 30m')
     expect(metricLines.find((line) => line.kind === 'deepSleep')?.text).toContain('2h')
     expect(metricLines.find((line) => line.text.includes('Acne'))?.text).toContain('Improving')

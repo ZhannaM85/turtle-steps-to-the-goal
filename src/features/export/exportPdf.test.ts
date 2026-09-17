@@ -722,6 +722,11 @@ describe('buildSummaryPdf', () => {
       metricsTitle?.querySelectorAll('.pdf-day-header-metric'),
     ).toHaveLength(4)
     expect(metricsTitle?.textContent).toContain('7h 30m')
+    expect(metricsTitle?.textContent).toContain(`${t.dailyEntry.sleepLabel}:`)
+    expect(metricsTitle?.textContent).toContain(`${t.dailyEntry.deepSleepLabel}:`)
+    expect(metricsTitle?.textContent).toContain(`${t.dailyEntry.stepsLabel}:`)
+    expect(metricsTitle?.textContent).toContain(`${t.exportXlsx.moodColumn}:`)
+    expect(metricsTitle?.querySelector('svg')).toBeNull()
     const mealCards = [...day.querySelectorAll('.pdf-meal-card')]
     expect(mealCards).toHaveLength(3)
     expect(mealCards[0]?.classList.contains('pdf-meal-left')).toBe(true)
@@ -816,8 +821,6 @@ describe('buildSummaryPdf', () => {
     )
     expect(PDF_DOCUMENT_CSS).toContain('display: block')
     expect(PDF_DOCUMENT_CSS).toContain('padding: 1pt 6pt 11pt')
-    expect(PDF_DOCUMENT_CSS).toContain('vertical-align: -1.5pt')
-    expect(PDF_DOCUMENT_CSS).toContain('transform: translateY(1pt)')
     expect(PDF_DOCUMENT_CSS).toContain('padding: 0 6pt 8pt')
     expect(PDF_DOCUMENT_CSS).not.toContain('padding: 8pt 6pt 2pt')
     const footerRule = PDF_DOCUMENT_CSS.match(/\.pdf-footer \{([^}]*)\}/)?.[1]
@@ -973,7 +976,7 @@ describe('buildSummaryPdf', () => {
     expect(leadRule).toContain('font-size: 10.5pt')
     expect(leadRule).toContain('font-weight: 600')
     expect(leadRule).toContain('color: inherit')
-    expect(chipsRule).toContain('font-size: 7.5pt')
+    expect(chipsRule).toContain('font-size: 10.5pt')
     expect(chipsRule).toContain('font-weight: 400')
     expect(chipsRule).toContain('float: right')
     expect(chipsRule).toContain('display: block')

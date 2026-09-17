@@ -125,7 +125,7 @@ export function dailyLogPdfDayLines(
     const sleep =
       entry.sleepHours === undefined
         ? undefined
-        : `${t.dailyEntry.sleepHoursLabel}: ${formatSleepDuration(
+        : `${t.dailyEntry.sleepLabel}: ${formatSleepDuration(
             entry.sleepHours,
             t.dailyEntry.hoursUnit,
             t.dailyEntry.minutesUnit,
@@ -145,7 +145,7 @@ export function dailyLogPdfDayLines(
     lines.push({ role: 'body', text: `${t.dailyEntry.stepsLabel}: ${formatNumber(entry.steps, locale, 0)}`, kind: 'steps' })
   }
   if (trackingOn(extras, 'mood') && entry.emotion) {
-    lines.push({ role: 'body', text: `${t.dailyEntry.dayMoodLabel}: ${t.dailyEntry.emotionLabel(entry.emotion)}`, kind: 'mood' })
+    lines.push({ role: 'body', text: `${t.exportXlsx.moodColumn}: ${t.dailyEntry.emotionLabel(entry.emotion)}`, kind: 'mood' })
   }
   if (trackingOn(extras, 'bodyMeasurements') && entry.waistCm !== undefined) {
     metrics.push(
