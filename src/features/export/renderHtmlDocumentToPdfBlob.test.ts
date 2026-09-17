@@ -8,6 +8,8 @@ import {
 } from './renderHtmlDocumentToPdfBlob'
 import {
   a4ContentCanvasHeightPx,
+  pdfCaptureHeightThroughFooterPx,
+  pdfFooterSourceFromCanvasBottom,
   pinPdfFooterToCanvasBottom,
   preparePdfPagesForCapture,
 } from './pinPdfFooterToCanvas'
@@ -162,14 +164,14 @@ describe('capturePdfPageDataUrls (#935)', () => {
   })
 })
 
-describe('preparePdfPagesForCapture (#939)', () => {
+describe('preparePdfPagesForCapture (#958)', () => {
   afterEach(() => {
     vi.restoreAllMocks()
   })
 
-  it('removes a leftover fill strut and unpins forced 980px height', () => {
+  it('removes a leftover fill strut and uses block packing, not flex min-height', () => {
     const host = document.createElement('div')
-    host.innerHTML = `<div class="pdf-root"><section class="pdf-page" style="height:980px;min-height:980px">
+    host.innerHTML = `<div class="pdf-root"><section class="pdf-page" style="display:flex;height:980px;min-height:980px">
       <div class="pdf-page-body"><p>short day</p></div>
       <div class="pdf-page-fill" style="height:200px"></div>
       <footer class="pdf-footer">Disclaimer</footer>
@@ -178,10 +180,16 @@ describe('preparePdfPagesForCapture (#939)', () => {
     try {
       preparePdfPagesForCapture(host)
       const page = host.querySelector<HTMLElement>('.pdf-page')
+      const footer = page?.querySelector<HTMLElement>('.pdf-footer')
       expect(host.querySelector('.pdf-page-fill')).toBeNull()
+      expect(page?.style.display).toBe('block')
       expect(page?.style.height).toBe('auto')
       expect(page?.style.minHeight).toBe('0px')
-      expect(page?.querySelector('.pdf-footer')).not.toBeNull()
+      expect(footer).not.toBeNull()
+      expect(footer?.style.position).toBe('static')
+      expect(page?.querySelector('.pdf-page-body')?.nextElementSibling).toBe(
+        footer,
+      )
     } finally {
       host.remove()
     }
@@ -216,53 +224,152 @@ describe('preparePdfPagesForCapture (#939)', () => {
       expect(pages).toHaveLength(2)
       expect(host.querySelector('.pdf-page-fill')).toBeNull()
       for (const page of pages) {
+        expect(page.style.display).toBe('block')
         expect(page.style.height).toBe('auto')
+        expect(page.querySelector('.pdf-footer')).not.toBeNull()
         expect(page.scrollHeight).toBeLessThan(MAX_STYLED_PAGE_PX)
       }
     } finally {
       host.remove()
     }
   })
+
+  it('keeps Water rows and Notes header+body together when splitting a tall day', () => {
+    vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockImplementation(
+      function (this: HTMLElement) {
+        if (!this.classList.contains('pdf-page')) return 0
+        const body = this.querySelector('.pdf-page-body')
+        let height = 40
+        for (const child of body?.children ?? []) {
+          height +=
+            Number.parseInt((child as HTMLElement).style.height, 10) || 50
+        }
+        return height
+      },
+    )
+
+    const host = document.createElement('div')
+    host.innerHTML = `<div class="pdf-root"><section class="pdf-page">
+      <div class="pdf-page-body">
+        <div class="pdf-day-start" style="height:500px">header + metrics</div>
+        <section class="pdf-day-section pdf-day-section-water" style="height:500px">
+          <h3 class="pdf-day-section-title">Water</h3>
+          <div class="pdf-day-section-content">
+            <p class="pdf-day-item">09:00 · 250 ml</p>
+            <p class="pdf-day-item">12:00 · 250 ml</p>
+            <p class="pdf-day-item">18:00 · 250 ml</p>
+          </div>
+        </section>
+        <section class="pdf-day-section pdf-day-section-notes" style="height:500px">
+          <h3 class="pdf-day-section-title">Notes</h3>
+          <div class="pdf-day-section-content"><p class="pdf-line">walked after dinner</p></div>
+        </section>
+      </div><footer class="pdf-footer">Disclaimer · generated</footer>
+    </section></div>`
+    document.body.appendChild(host)
+    try {
+      explodeOverflowingPdfPagesForTest(host)
+      preparePdfPagesForCapture(host)
+      const pages = [...host.querySelectorAll<HTMLElement>('.pdf-page')]
+      expect(pages.length).toBeGreaterThan(1)
+      expect(host.querySelector('.pdf-page-fill')).toBeNull()
+
+      const water = host.querySelector('.pdf-day-section-water')
+      expect(water).not.toBeNull()
+      expect(water?.querySelector('.pdf-day-section-title')?.textContent).toBe(
+        'Water',
+      )
+      expect(water?.querySelectorAll('.pdf-day-item')).toHaveLength(3)
+      expect(
+        water?.closest('.pdf-page')?.querySelector('.pdf-footer'),
+      ).not.toBeNull()
+
+      const notes = host.querySelector('.pdf-day-section-notes')
+      expect(notes).not.toBeNull()
+      expect(notes?.querySelector('.pdf-day-section-title')?.textContent).toBe(
+        'Notes',
+      )
+      expect(
+        notes?.querySelector('.pdf-day-section-content')?.textContent,
+      ).toContain('walked after dinner')
+      expect(
+        notes?.closest('.pdf-page')?.querySelector('.pdf-footer'),
+      ).not.toBeNull()
+    } finally {
+      host.remove()
+    }
+  })
 })
 
-describe('pinPdfFooterToCanvasBottom (#939)', () => {
+describe('pdfCaptureHeightThroughFooterPx (#958)', () => {
   afterEach(() => {
     vi.restoreAllMocks()
   })
 
-  function rect(top: number, height: number, width = 100): DOMRect {
-    return {
-      x: 0,
-      y: top,
-      top,
-      bottom: top + height,
-      left: 0,
-      right: width,
-      width,
-      height,
-      toJSON() {
-        return {}
-      },
-    }
-  }
-
-  it('pins the footer slice to the bottom of an A4-tall canvas', () => {
+  it('clips capture to the footer bottom, not padding below the footer', () => {
     const page = document.createElement('section')
     page.className = 'pdf-page'
     page.innerHTML =
       '<div class="pdf-page-body">body</div><footer class="pdf-footer">Disclaimer</footer>'
     document.body.appendChild(page)
-    const footer = page.querySelector('.pdf-footer')!
-    vi.spyOn(page, 'getBoundingClientRect').mockReturnValue(rect(0, 400))
-    vi.spyOn(footer, 'getBoundingClientRect').mockReturnValue(rect(360, 40))
+    const footer = page.querySelector<HTMLElement>('.pdf-footer')!
+    vi.spyOn(page, 'getBoundingClientRect').mockReturnValue({
+      x: 0,
+      y: 0,
+      top: 0,
+      bottom: 420,
+      left: 0,
+      right: 100,
+      width: 100,
+      height: 420,
+      toJSON() {
+        return {}
+      },
+    })
+    vi.spyOn(footer, 'getBoundingClientRect').mockReturnValue({
+      x: 0,
+      y: 360,
+      top: 360,
+      bottom: 400,
+      left: 0,
+      right: 100,
+      width: 100,
+      height: 40,
+      toJSON() {
+        return {}
+      },
+    })
+    vi.spyOn(page, 'scrollHeight', 'get').mockReturnValue(420)
+    vi.spyOn(page, 'offsetHeight', 'get').mockReturnValue(420)
+    try {
+      expect(pdfCaptureHeightThroughFooterPx(page)).toBe(400)
+    } finally {
+      page.remove()
+    }
+  })
+})
+
+describe('pinPdfFooterToCanvasBottom (#958)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('pins the in-flow footer slice from the canvas bottom onto an A4-tall canvas', () => {
+    const page = document.createElement('section')
+    page.className = 'pdf-page'
+    page.innerHTML =
+      '<div class="pdf-page-body">body</div><footer class="pdf-footer">Disclaimer</footer>'
+    document.body.appendChild(page)
+    const footer = page.querySelector('.pdf-footer') as HTMLElement
+    vi.spyOn(footer, 'offsetHeight', 'get').mockReturnValue(40)
     vi.spyOn(page, 'scrollHeight', 'get').mockReturnValue(400)
     vi.spyOn(page, 'offsetHeight', 'get').mockReturnValue(400)
-    Object.defineProperty(footer, 'offsetTop', {
-      configurable: true,
-      value: 360,
-    })
 
     try {
+      expect(pdfFooterSourceFromCanvasBottom(400, page, 400)).toEqual({
+        y: 360,
+        height: 40,
+      })
       const canvas = document.createElement('canvas')
       canvas.width = 100
       canvas.height = 400
@@ -274,7 +381,7 @@ describe('pinPdfFooterToCanvasBottom (#939)', () => {
       vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
         ctx as unknown as CanvasRenderingContext2D,
       )
-      const dest = pinPdfFooterToCanvasBottom(canvas, page, 980)
+      const dest = pinPdfFooterToCanvasBottom(canvas, page, 980, 400)
       expect(dest).not.toBe(canvas)
       expect(dest.width).toBe(100)
       expect(dest.height).toBe(980)
@@ -303,7 +410,7 @@ describe('pinPdfFooterToCanvasBottom (#939)', () => {
       const canvas = document.createElement('canvas')
       canvas.width = 100
       canvas.height = 980
-      expect(pinPdfFooterToCanvasBottom(canvas, page, 980)).toBe(canvas)
+      expect(pinPdfFooterToCanvasBottom(canvas, page, 980, 980)).toBe(canvas)
     } finally {
       page.remove()
     }
@@ -318,7 +425,7 @@ describe('pinPdfFooterToCanvasBottom (#939)', () => {
       const canvas = document.createElement('canvas')
       canvas.width = 100
       canvas.height = 400
-      expect(pinPdfFooterToCanvasBottom(canvas, page, 980)).toBe(canvas)
+      expect(pinPdfFooterToCanvasBottom(canvas, page, 980, 400)).toBe(canvas)
     } finally {
       page.remove()
     }

@@ -18,13 +18,13 @@ export const PDF_DOCUMENT_CSS = `
   }
   .pdf-page {
     width: 180mm;
-    /* Desktop fallback only — iOS html2canvas ignores min-height (#939). */
-    min-height: 259mm;
+    /* #958 — block in-flow, not flex min-height. Flex+min-height made
+       html2canvas clones taller than the live page and cropped Water/Notes. */
+    min-height: 0;
     padding: 0;
     padding-right: 9pt;
-    padding-bottom: 9pt;
-    display: flex;
-    flex-direction: column;
+    padding-bottom: 0;
+    display: block;
     page-break-after: always;
     break-after: page;
     background: #fff;
@@ -33,7 +33,7 @@ export const PDF_DOCUMENT_CSS = `
     page-break-after: auto;
     break-after: auto;
   }
-  .pdf-page-body { flex: 1 1 auto; }
+  .pdf-page-body { display: block; }
   .pdf-summary-body { overflow: hidden; }
   .pdf-title {
     font-size: 18pt;
@@ -259,8 +259,8 @@ export const PDF_DOCUMENT_CSS = `
     color: #57534e;
   }
   .pdf-footer {
-    margin-top: auto;
-    flex: none;
+    display: block;
+    margin-top: 6pt;
     padding-top: 4pt;
     padding-left: 9pt;
     padding-bottom: 9pt;

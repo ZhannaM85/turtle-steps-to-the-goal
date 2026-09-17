@@ -9,9 +9,9 @@
  *
  * #935 — the layout preview uses the same html2canvas pass as the download.
  *
- * #939 — do not rasterize an empty `.pdf-page-fill` below `.pdf-footer`.
- * Capture the content box through the footer, then pin that footer slice to
- * the bottom of the A4 content canvas so jsPDF keeps a ~10mm bottom margin.
+ * #958 — block in-flow packing (no flex min-height, no `.pdf-page-fill`
+ * under the footer). Capture through `.pdf-footer`, then pin that slice to
+ * the A4 content canvas so jsPDF keeps a ~10mm bottom margin.
  * pdfDebug (`?pdfDebug=1` / Settings toggle #952) stays for on-device re-check.
  */
 import {
@@ -26,6 +26,7 @@ import { publishPdfDebugReport } from './pdfDebugOverlay'
 import {
   a4ContentCanvasHeightPx,
   isPdfPageFillElement,
+  pdfCaptureHeightThroughFooterPx,
   pinPdfFooterToCanvasBottom,
   preparePdfPagesForCapture,
 } from './pinPdfFooterToCanvas'
@@ -196,9 +197,8 @@ async function paintPdfPages(html: string): Promise<{
       })
     }
 
-    // iPhone dump: a 980px `.pdf-page-fill` strut was painted *below* the
-    // footer and showed up as the blank band. Capture through the footer
-    // only, then pin that slice to the A4 content box outside html2canvas.
+    // #958 — in-flow block pages, capture through the footer (no fill strut
+    // under it), then pin that slice to the A4 content box outside html2canvas.
     preparePdfPagesForCapture(host)
     void host.offsetHeight
 
@@ -236,6 +236,7 @@ async function paintPdfPages(html: string): Promise<{
           clonedElement
             .querySelectorAll('.pdf-page-fill')
             .forEach((el) => el.remove())
+          clonedElement.style.display = 'block'
           clonedElement.style.height = 'auto'
           clonedElement.style.minHeight = '0px'
         },
@@ -252,7 +253,12 @@ async function paintPdfPages(html: string): Promise<{
         captured.width,
         contentWidthMm,
       )
-      const canvas = pinPdfFooterToCanvasBottom(captured, target, destHeightPx)
+      const canvas = pinPdfFooterToCanvasBottom(
+        captured,
+        target,
+        destHeightPx,
+        captureHeightPx,
+      )
       canvases.push(canvas)
       if (debug) {
         const after = collectPdfPageLayoutSnapshot(
@@ -361,7 +367,7 @@ export function canvasScaleForDimensions(
 export const MAX_STYLED_PAGE_PX = 980
 
 function pdfCaptureHeightPx(target: HTMLElement): number {
-  return Math.max(target.scrollHeight, target.offsetHeight, 1)
+  return pdfCaptureHeightThroughFooterPx(target)
 }
 
 function explodeOverflowingPdfPages(host: HTMLElement): void {

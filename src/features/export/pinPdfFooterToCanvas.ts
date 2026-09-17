@@ -1,6 +1,7 @@
 /**
- * #939 — keep empty `.pdf-page-fill` out of the html2canvas bitmap.
- * Capture through `.pdf-footer`, then pin that slice to the A4 content box.
+ * #958 — pack diary pages without a `.pdf-page-fill` strut under `.pdf-footer`.
+ * Block in-flow layout (not flex min-height) keeps Water/Notes intact.
+ * Capture through the footer, then pin that slice to the A4 content canvas.
  */
 
 export const PDF_PAGE_FILL_CLASS = 'pdf-page-fill'
@@ -29,34 +30,74 @@ export function a4ContentCanvasHeightPx(
   )
 }
 
+/**
+ * Live CSS px from the page top through the last footer pixel.
+ * Excludes page padding below the footer so that band is not rasterized.
+ */
+export function pdfCaptureHeightThroughFooterPx(page: HTMLElement): number {
+  const boxHeight = Math.max(page.scrollHeight, page.offsetHeight, 1)
+  const footer = page.querySelector<HTMLElement>('.pdf-footer')
+  if (!footer) return boxHeight
+
+  let throughFooter = 0
+  const pageBox = page.getBoundingClientRect()
+  const footerBox = footer.getBoundingClientRect()
+  if (pageBox.height > 0 && footerBox.height > 0) {
+    throughFooter = Math.ceil(footerBox.bottom - pageBox.top)
+  }
+  if (throughFooter < 1) {
+    throughFooter = Math.ceil(
+      (footer.offsetTop || 0) + Math.max(footer.offsetHeight, 0),
+    )
+  }
+  if (throughFooter < 1) return boxHeight
+  return Math.min(boxHeight, Math.max(throughFooter, 1))
+}
+
+/** In-flow block page: no fill strut, no flex packing, footer after the body. */
 export function preparePdfPagesForCapture(host: HTMLElement): void {
   for (const page of host.querySelectorAll<HTMLElement>('.pdf-page')) {
     page
       .querySelectorAll(`.${PDF_PAGE_FILL_CLASS}`)
       .forEach((el) => el.remove())
+    page.style.display = 'block'
     page.style.height = 'auto'
     page.style.minHeight = '0px'
     const body = page.querySelector<HTMLElement>('.pdf-page-body')
     if (body) {
+      body.style.display = 'block'
       body.style.flexGrow = '0'
       body.style.flexShrink = '0'
       body.style.flexBasis = 'auto'
+      body.style.minHeight = '0px'
     }
     const footer = page.querySelector<HTMLElement>('.pdf-footer')
-    if (footer) footer.style.marginTop = '0'
+    if (footer) {
+      footer.style.display = 'block'
+      footer.style.position = 'static'
+      footer.style.marginTop = '8px'
+      footer.style.flex = 'none'
+    }
   }
 }
 
-function footerSliceTopCss(page: HTMLElement): number | null {
+/**
+ * Footer is last in-flow in the captured bitmap. Slice it from the canvas
+ * bottom (offsetHeight × scale), not a flex getBoundingClientRect.
+ */
+export function pdfFooterSourceFromCanvasBottom(
+  canvasHeight: number,
+  page: HTMLElement,
+  captureHeightPx: number,
+): { y: number; height: number } | null {
   const footer = page.querySelector<HTMLElement>('.pdf-footer')
   if (!footer) return null
-  const pageBox = page.getBoundingClientRect()
-  const footerBox = footer.getBoundingClientRect()
-  const fromRect = footerBox.top - pageBox.top
-  if (fromRect >= 1) return fromRect
-  if (footer.offsetParent === page && footer.offsetTop >= 1)
-    return footer.offsetTop
-  return null
+  const cssHeight = Math.max(captureHeightPx, 1)
+  const scaleY = canvasHeight / cssHeight
+  const footerH = Math.max(1, Math.round(footer.offsetHeight * scaleY))
+  const y = canvasHeight - footerH
+  if (y < 1 || footerH < 1) return null
+  return { y, height: footerH }
 }
 
 /**
@@ -67,16 +108,15 @@ export function pinPdfFooterToCanvasBottom(
   canvas: HTMLCanvasElement,
   page: HTMLElement,
   destHeightPx: number,
+  captureHeightPx: number,
 ): HTMLCanvasElement {
   if (destHeightPx <= canvas.height + 1) return canvas
-  const footerTopCss = footerSliceTopCss(page)
-  if (footerTopCss == null) return canvas
-
-  const cssHeight = Math.max(page.scrollHeight, page.offsetHeight, 1)
-  const scaleY = canvas.height / cssHeight
-  const footerSrcY = Math.round(footerTopCss * scaleY)
-  const footerSrcH = canvas.height - footerSrcY
-  if (footerSrcY < 1 || footerSrcH < 1) return canvas
+  const slice = pdfFooterSourceFromCanvasBottom(
+    canvas.height,
+    page,
+    captureHeightPx,
+  )
+  if (!slice) return canvas
 
   const dest = canvas.ownerDocument.createElement('canvas')
   dest.width = canvas.width
@@ -85,29 +125,29 @@ export function pinPdfFooterToCanvasBottom(
   if (!ctx) return canvas
   ctx.fillStyle = '#ffffff'
   ctx.fillRect(0, 0, dest.width, dest.height)
-  if (footerSrcY > 0) {
+  if (slice.y > 0) {
     ctx.drawImage(
       canvas,
       0,
       0,
       canvas.width,
-      footerSrcY,
+      slice.y,
       0,
       0,
       canvas.width,
-      footerSrcY,
+      slice.y,
     )
   }
   ctx.drawImage(
     canvas,
     0,
-    footerSrcY,
+    slice.y,
     canvas.width,
-    footerSrcH,
+    slice.height,
     0,
-    destHeightPx - footerSrcH,
+    destHeightPx - slice.height,
     canvas.width,
-    footerSrcH,
+    slice.height,
   )
   return dest
 }

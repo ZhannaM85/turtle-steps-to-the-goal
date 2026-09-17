@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 929,
+    issue: 958,
+    date: '2026-09-17T07:59:00+00:00',
+    en: 'PDF diary pages keep the footer, water log, and notes together — without a blank band under the disclaimer.',
+    ru: 'В дневнике PDF футер, вода и заметки снова вместе — без пустой полосы под дисклеймером.',
+  },
+  {
     version: 928,
     issue: 957,
     date: '2026-09-17T07:48:52+00:00',
@@ -2129,14 +2136,14 @@ export const releaseNotes: ReleaseNote[] = [
     version: 632,
     issue: 674,
     date: '2026-08-10T13:50:31+03:00',
-    en: "Fixed: deleting your current goal on the Goal page now keeps showing it in read-only view instead of dropping straight into a blank create-goal form.",
+    en: 'Fixed: deleting your current goal on the Goal page now keeps showing it in read-only view instead of dropping straight into a blank create-goal form.',
     ru: 'Исправлено: удаление текущей цели на странице «Цели» теперь оставляет её видимой в режиме просмотра, а не сразу открывает пустую форму создания цели.',
   },
   {
     version: 631,
     issue: 672,
     date: '2026-08-10T13:26:15+03:00',
-    en: "Fixed: the delete-weight icon on the Day page now appears right after your first weight save of the day, and disappears right after a delete — no page refresh needed either way.",
+    en: 'Fixed: the delete-weight icon on the Day page now appears right after your first weight save of the day, and disappears right after a delete — no page refresh needed either way.',
     ru: 'Исправлено: значок удаления веса на странице дня теперь появляется сразу после первого сохранения веса за день и исчезает сразу после удаления — без обновления страницы.',
   },
   {
@@ -2185,7 +2192,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 624,
     issue: 666,
     date: '2026-08-10T11:50:00+03:00',
-    en: 'Fixed: the Goal page\'s past-targets list now shows the weigh-in you actually logged (e.g. 58.85 kg) instead of rounding it to one decimal place.',
+    en: "Fixed: the Goal page's past-targets list now shows the weigh-in you actually logged (e.g. 58.85 kg) instead of rounding it to one decimal place.",
     ru: 'Исправлено: в списке прошлых целей на странице «Цели» теперь показывается фактически введённый вес (например, 58,85 кг), а не округлённый до одного знака.',
   },
   {
@@ -2248,7 +2255,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 615,
     issue: 606,
     date: '2026-08-08T22:48:55+03:00',
-    en: 'Added an Android home-screen widget showing today\'s weight and remaining calories at a glance — tap it to open the app.',
+    en: "Added an Android home-screen widget showing today's weight and remaining calories at a glance — tap it to open the app.",
     ru: 'Добавлен виджет для главного экрана Android с весом за сегодня и оставшимися калориями — нажмите, чтобы открыть приложение.',
   },
   {
@@ -2423,7 +2430,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 590,
     issue: 638,
     date: '2026-08-06T20:26:19+03:00',
-    en: "Settings' \"What to track\" night-eating toggle now reads \"He ate\"/\"She ate\" based on your Profile gender, matching the Day screen's own toggle.",
+    en: 'Settings\' "What to track" night-eating toggle now reads "He ate"/"She ate" based on your Profile gender, matching the Day screen\'s own toggle.',
     ru: 'Переключатель «Ел(а) поздно вечером» в разделе «Что отслеживать» теперь учитывает пол из Профиля, как и на экране «День».',
   },
   {
@@ -2542,7 +2549,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 573,
     issue: 622,
     date: '2026-08-05T16:13:26+03:00',
-    en: 'Fixed: a custom metric\'s note editor no longer reopens on its own after you close it.',
+    en: "Fixed: a custom metric's note editor no longer reopens on its own after you close it.",
     ru: 'Исправлено: поле заметки к своей метрике больше не открывается само по себе после закрытия.',
   },
   {
@@ -2556,7 +2563,7 @@ export const releaseNotes: ReleaseNote[] = [
     version: 571,
     issue: 620,
     date: '2026-08-05T15:24:49+03:00',
-    en: "Canceling a brand-new custom metric note now correctly returns to \"no note yet\" instead of showing an empty box that looked saved.",
+    en: 'Canceling a brand-new custom metric note now correctly returns to "no note yet" instead of showing an empty box that looked saved.',
     ru: 'Отмена новой заметки к пользовательскому показателю теперь корректно возвращает к состоянию «заметки нет», а не показывает пустой блок, будто она сохранена.',
   },
   {

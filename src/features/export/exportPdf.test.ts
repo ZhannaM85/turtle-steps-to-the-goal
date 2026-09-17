@@ -681,19 +681,46 @@ describe('buildSummaryPdf', () => {
       nightEatingOverride: false,
       nightEatingNoWhatHelped: 'Tea helped me sleep',
       calorieEntries: [
-        { id: 'breakfast', createdAt: '2026-08-01T08:00:00Z', label: 'Breakfast', items: [{ id: 'eggs', name: 'Eggs', amountKcal: 200 }] },
-        { id: 'lunch', createdAt: '2026-08-01T12:00:00Z', label: 'Lunch', items: [{ id: 'soup', name: 'Soup', amountKcal: 300 }] },
-        { id: 'dinner', createdAt: '2026-08-01T18:00:00Z', label: 'Dinner', items: [{ id: 'rice', name: 'Rice', amountKcal: 400 }] },
+        {
+          id: 'breakfast',
+          createdAt: '2026-08-01T08:00:00Z',
+          label: 'Breakfast',
+          items: [{ id: 'eggs', name: 'Eggs', amountKcal: 200 }],
+        },
+        {
+          id: 'lunch',
+          createdAt: '2026-08-01T12:00:00Z',
+          label: 'Lunch',
+          items: [{ id: 'soup', name: 'Soup', amountKcal: 300 }],
+        },
+        {
+          id: 'dinner',
+          createdAt: '2026-08-01T18:00:00Z',
+          label: 'Dinner',
+          items: [{ id: 'rice', name: 'Rice', amountKcal: 400 }],
+        },
       ],
     })
     const data = buildPdfSummaryData([entry], entry.date, entry.date, 1)
-    const html = buildPdfDocumentHtml(data, t, 'en', 'kg', ALL_SECTIONS_EXCLUDED, [], { entries: [entry] })
+    const html = buildPdfDocumentHtml(
+      data,
+      t,
+      'en',
+      'kg',
+      ALL_SECTIONS_EXCLUDED,
+      [],
+      { entries: [entry] },
+    )
     const container = document.createElement('div')
     container.innerHTML = html
     const day = container.querySelectorAll('.pdf-page')[1]!
-    expect(day.querySelector('.pdf-day-header')?.textContent).not.toContain('7h 30m')
+    expect(day.querySelector('.pdf-day-header')?.textContent).not.toContain(
+      '7h 30m',
+    )
     const metricsTitle = day.querySelector('.pdf-day-section-title-metrics')
-    expect(metricsTitle?.querySelectorAll('.pdf-day-header-metric')).toHaveLength(4)
+    expect(
+      metricsTitle?.querySelectorAll('.pdf-day-header-metric'),
+    ).toHaveLength(4)
     expect(metricsTitle?.textContent).toContain('7h 30m')
     const mealCards = [...day.querySelectorAll('.pdf-meal-card')]
     expect(mealCards).toHaveLength(3)
@@ -702,12 +729,20 @@ describe('buildSummaryPdf', () => {
     expect(mealCards[2]?.classList.contains('pdf-meal-left')).toBe(true)
     expect(html).toContain('padding-left: 10pt')
     expect(html).toContain('padding-bottom: 9pt')
-    expect(html).toContain('.pdf-meal-card .pdf-line + .pdf-day-item { margin-top: 4pt; }')
+    expect(html).toContain(
+      '.pdf-meal-card .pdf-line + .pdf-day-item { margin-top: 4pt; }',
+    )
     expect(html).toContain('font-weight: 600; font-size: 9.5pt')
-    const mealItemRule = PDF_DOCUMENT_CSS.match(/\.pdf-meal-card \.pdf-day-item \{([^}]*)\}/)?.[1]
+    const mealItemRule = PDF_DOCUMENT_CSS.match(
+      /\.pdf-meal-card \.pdf-day-item \{([^}]*)\}/,
+    )?.[1]
     expect(mealItemRule).toContain('font-size: 11pt')
-    expect(day.querySelector('.pdf-day-section-food')?.textContent).toContain('Eggs')
-    expect(day.querySelector('.pdf-day-section-food')?.textContent).toContain('Rice')
+    expect(day.querySelector('.pdf-day-section-food')?.textContent).toContain(
+      'Eggs',
+    )
+    expect(day.querySelector('.pdf-day-section-food')?.textContent).toContain(
+      'Rice',
+    )
     expect(day.textContent).toContain('Tea helped me sleep')
     expect(html).toContain('float: left')
     expect(html).toContain('display: inline-flex')
@@ -721,18 +756,44 @@ describe('buildSummaryPdf', () => {
       note: 'Felt lighter today',
     })
     const data = buildPdfSummaryData([entry], entry.date, entry.date, 1)
-    const html = buildPdfDocumentHtml(data, t, 'en', 'kg', ALL_SECTIONS_EXCLUDED, [], { entries: [entry] })
+    const html = buildPdfDocumentHtml(
+      data,
+      t,
+      'en',
+      'kg',
+      ALL_SECTIONS_EXCLUDED,
+      [],
+      { entries: [entry] },
+    )
     const container = document.createElement('div')
     container.innerHTML = html
     const day = container.querySelectorAll('.pdf-page')[1]!
-    expect(day.querySelector('.pdf-day-section-metrics')?.textContent).toContain('80')
-    expect(day.querySelector('.pdf-day-section-notes')?.textContent).toContain('Felt lighter today')
-    const metricsLabel = day.querySelector('.pdf-day-section-metrics .pdf-day-line-label')
+    expect(
+      day.querySelector('.pdf-day-section-metrics')?.textContent,
+    ).toContain('80')
+    expect(day.querySelector('.pdf-day-section-notes')?.textContent).toContain(
+      'Felt lighter today',
+    )
+    expect(
+      day.querySelector('.pdf-day-section-notes .pdf-day-section-title'),
+    ).not.toBeNull()
+    expect(
+      day.querySelector('.pdf-day-section-notes .pdf-day-section-content'),
+    ).not.toBeNull()
+    expect(day.querySelector('.pdf-page-body + .pdf-footer')).not.toBeNull()
+    expect(day.querySelector('.pdf-page-fill')).toBeNull()
+    const metricsLabel = day.querySelector(
+      '.pdf-day-section-metrics .pdf-day-line-label',
+    )
     expect(metricsLabel?.textContent).toMatch(/:$/)
     expect(metricsLabel?.parentElement?.textContent).toContain('80')
     expect(metricsLabel?.textContent).not.toContain('80')
-    expect(html).toContain('.pdf-day-section-metrics .pdf-day-section-content .pdf-line')
-    expect(html).toContain('.pdf-day-section-notes .pdf-day-section-content .pdf-line')
+    expect(html).toContain(
+      '.pdf-day-section-metrics .pdf-day-section-content .pdf-line',
+    )
+    expect(html).toContain(
+      '.pdf-day-section-notes .pdf-day-section-content .pdf-line',
+    )
     expect(html).toContain('font-size: 9pt')
     expect(html).toContain('.pdf-day-section-water .pdf-day-section-content')
     expect(html).toContain('.pdf-day-section-notes .pdf-day-section-content')
@@ -747,7 +808,9 @@ describe('buildSummaryPdf', () => {
     )
     expect(PDF_DOCUMENT_CSS).toContain('.pdf-day-section-title')
     expect(PDF_DOCUMENT_CSS).toContain('font-size: 10.5pt')
-    expect(PDF_DOCUMENT_CSS).toContain('.pdf-day-section-metrics .pdf-day-section-title')
+    expect(PDF_DOCUMENT_CSS).toContain(
+      '.pdf-day-section-metrics .pdf-day-section-title',
+    )
     expect(PDF_DOCUMENT_CSS).toContain('align-items: center')
     expect(PDF_DOCUMENT_CSS).toContain('justify-content: space-between')
     expect(PDF_DOCUMENT_CSS).toContain('padding: 1pt 6pt 11pt')
@@ -760,16 +823,27 @@ describe('buildSummaryPdf', () => {
     expect(footerRule).toContain('padding-left: 9pt')
     expect(footerRule).toContain('padding-bottom: 9pt')
     const pageRule = PDF_DOCUMENT_CSS.match(/\.pdf-page \{([^}]*)\}/)?.[1]
-    expect(pageRule).toContain('min-height: 259mm')
+    expect(pageRule).toContain('min-height: 0')
+    expect(pageRule).toContain('display: block')
+    expect(pageRule).not.toContain('display: flex')
     expect(pageRule).toContain('padding-right: 9pt')
-    expect(pageRule).toContain('padding-bottom: 9pt')
+    expect(pageRule).toContain('padding-bottom: 0')
+    expect(footerRule).not.toContain('margin-top: auto')
     expect(PDF_DOCUMENT_CSS).not.toContain('.pdf-page-fill')
     expect(PDF_DOCUMENT_CSS).toContain(
       '.pdf-day-header h2 { font-size: 11pt; font-weight: 600; line-height: 1.2; margin: 0; }',
     )
     const entry = makeEntry({ note: 'Centered headers', waistCm: 80 })
     const data = buildPdfSummaryData([entry], entry.date, entry.date, 1)
-    const html = buildPdfDocumentHtml(data, t, 'en', 'kg', ALL_SECTIONS_EXCLUDED, [], { entries: [entry] })
+    const html = buildPdfDocumentHtml(
+      data,
+      t,
+      'en',
+      'kg',
+      ALL_SECTIONS_EXCLUDED,
+      [],
+      { entries: [entry] },
+    )
     const container = document.createElement('div')
     container.innerHTML = html
     const day = container.querySelectorAll('.pdf-page')[1]!
@@ -782,21 +856,37 @@ describe('buildSummaryPdf', () => {
       waterEntries: [{ id: 'w1', amountMl: 250, timeDrunk: '09:15' }],
     })
     const data = buildPdfSummaryData([entry], entry.date, entry.date, 1)
-    const html = buildPdfDocumentHtml(data, t, 'en', 'kg', ALL_SECTIONS_EXCLUDED, [], { entries: [entry] })
+    const html = buildPdfDocumentHtml(
+      data,
+      t,
+      'en',
+      'kg',
+      ALL_SECTIONS_EXCLUDED,
+      [],
+      { entries: [entry] },
+    )
     const container = document.createElement('div')
     container.innerHTML = html
-    const water = container.querySelectorAll('.pdf-page')[1]?.querySelector('.pdf-day-section-water')
+    const water = container
+      .querySelectorAll('.pdf-page')[1]
+      ?.querySelector('.pdf-day-section-water')
     const title = water?.querySelector('.pdf-day-section-title')
     expect(title?.textContent).toContain('Water')
     expect(title?.textContent).toContain('250')
     expect(title?.textContent).not.toContain('Water250')
     expect(title?.querySelector('.pdf-day-section-title-lead')).not.toBeNull()
-    expect(title?.querySelector('.pdf-day-section-water-total')?.textContent).toContain('250')
+    expect(
+      title?.querySelector('.pdf-day-section-water-total')?.textContent,
+    ).toContain('250')
     expect(title?.querySelector('.pdf-day-section-title-metrics')).toBeNull()
     expect(html).toContain('pdf-day-section-water-total')
     expect(html).not.toContain('justify-content: flex-start')
-    expect(water?.querySelector('.pdf-day-section-content .pdf-line')).toBeNull()
-    expect(water?.querySelector('.pdf-day-item')?.textContent).toContain('09:15')
+    expect(
+      water?.querySelector('.pdf-day-section-content .pdf-line'),
+    ).toBeNull()
+    expect(water?.querySelector('.pdf-day-item')?.textContent).toContain(
+      '09:15',
+    )
     const waterItemRule = PDF_DOCUMENT_CSS.match(
       /\.pdf-day-section-water \.pdf-day-section-content \.pdf-day-item \{([^}]*)\}/,
     )?.[1]
@@ -810,30 +900,67 @@ describe('buildSummaryPdf', () => {
       waistCm: 80,
       note: 'Header match',
       calorieEntries: [
-        { id: 'breakfast', createdAt: '2026-08-01T08:00:00Z', label: 'Breakfast', items: [{ id: 'eggs', name: 'Eggs', amountKcal: 200 }] },
+        {
+          id: 'breakfast',
+          createdAt: '2026-08-01T08:00:00Z',
+          label: 'Breakfast',
+          items: [{ id: 'eggs', name: 'Eggs', amountKcal: 200 }],
+        },
       ],
     })
     const data = buildPdfSummaryData([entry], entry.date, entry.date, 1)
     const ru = getDictionary('ru')
-    const enHtml = buildPdfDocumentHtml(data, t, 'en', 'kg', ALL_SECTIONS_EXCLUDED, [], { entries: [entry] })
-    const ruHtml = buildPdfDocumentHtml(data, ru, 'ru', 'kg', ALL_SECTIONS_EXCLUDED, [], { entries: [entry] })
+    const enHtml = buildPdfDocumentHtml(
+      data,
+      t,
+      'en',
+      'kg',
+      ALL_SECTIONS_EXCLUDED,
+      [],
+      { entries: [entry] },
+    )
+    const ruHtml = buildPdfDocumentHtml(
+      data,
+      ru,
+      'ru',
+      'kg',
+      ALL_SECTIONS_EXCLUDED,
+      [],
+      { entries: [entry] },
+    )
     const container = document.createElement('div')
     container.innerHTML = ruHtml
     const day = container.querySelectorAll('.pdf-page')[1]!
-    const metricsTitle = day.querySelector('.pdf-day-section-metrics .pdf-day-section-title')
-    const lead = metricsTitle?.querySelector(':scope > .pdf-day-section-title-lead')
-    const chips = metricsTitle?.querySelector(':scope > .pdf-day-section-title-metrics')
+    const metricsTitle = day.querySelector(
+      '.pdf-day-section-metrics .pdf-day-section-title',
+    )
+    const lead = metricsTitle?.querySelector(
+      ':scope > .pdf-day-section-title-lead',
+    )
+    const chips = metricsTitle?.querySelector(
+      ':scope > .pdf-day-section-title-metrics',
+    )
     expect(lead?.textContent).toBe(ru.pdfSummary.dailyLogMetricsSectionTitle)
     expect(lead?.textContent).toBe('Показатели')
     expect(lead?.querySelector('.pdf-day-section-title-metrics')).toBeNull()
-    expect(chips?.querySelectorAll('.pdf-day-header-metric').length).toBeGreaterThan(0)
-    expect(enHtml).toContain(`class="pdf-day-section-title-lead">${t.pdfSummary.dailyLogMetricsSectionTitle}<`)
-    const titleRule = PDF_DOCUMENT_CSS.match(/\.pdf-day-section-title \{([^}]*)\}/)?.[1]
+    expect(
+      chips?.querySelectorAll('.pdf-day-header-metric').length,
+    ).toBeGreaterThan(0)
+    expect(enHtml).toContain(
+      `class="pdf-day-section-title-lead">${t.pdfSummary.dailyLogMetricsSectionTitle}<`,
+    )
+    const titleRule = PDF_DOCUMENT_CSS.match(
+      /\.pdf-day-section-title \{([^}]*)\}/,
+    )?.[1]
     const metricsTitleRule = PDF_DOCUMENT_CSS.match(
       /\.pdf-day-section-metrics \.pdf-day-section-title \{([^}]*)\}/,
     )?.[1]
-    const leadRule = PDF_DOCUMENT_CSS.match(/\.pdf-day-section-title-lead \{([^}]*)\}/)?.[1]
-    const chipsRule = PDF_DOCUMENT_CSS.match(/\.pdf-day-section-title-metrics \{([^}]*)\}/)?.[1]
+    const leadRule = PDF_DOCUMENT_CSS.match(
+      /\.pdf-day-section-title-lead \{([^}]*)\}/,
+    )?.[1]
+    const chipsRule = PDF_DOCUMENT_CSS.match(
+      /\.pdf-day-section-title-metrics \{([^}]*)\}/,
+    )?.[1]
     expect(titleRule).toContain('font-size: 10.5pt')
     expect(titleRule).toContain('font-weight: 600')
     expect(metricsTitleRule).toContain('font-size: 10.5pt')
@@ -846,14 +973,24 @@ describe('buildSummaryPdf', () => {
     expect(chipsRule).toContain('font-size: 7.5pt')
     expect(chipsRule).toContain('font-weight: 400')
     expect(chipsRule).toContain('display: inline-flex')
-    expect(day.querySelector('.pdf-day-section-food .pdf-day-section-title')).not.toBeNull()
-    expect(day.querySelector('.pdf-day-section-food .pdf-day-section-title-lead')).toBeNull()
-    expect(day.querySelector('.pdf-day-section-notes .pdf-day-section-title')).not.toBeNull()
-    expect(day.querySelector('.pdf-day-section-notes .pdf-day-section-title-lead')).toBeNull()
+    expect(
+      day.querySelector('.pdf-day-section-food .pdf-day-section-title'),
+    ).not.toBeNull()
+    expect(
+      day.querySelector('.pdf-day-section-food .pdf-day-section-title-lead'),
+    ).toBeNull()
+    expect(
+      day.querySelector('.pdf-day-section-notes .pdf-day-section-title'),
+    ).not.toBeNull()
+    expect(
+      day.querySelector('.pdf-day-section-notes .pdf-day-section-title-lead'),
+    ).toBeNull()
   })
 
   it('uses larger body text for meal items and water log lines (#940)', () => {
-    const mealItemRule = PDF_DOCUMENT_CSS.match(/\.pdf-meal-card \.pdf-day-item \{([^}]*)\}/)?.[1]
+    const mealItemRule = PDF_DOCUMENT_CSS.match(
+      /\.pdf-meal-card \.pdf-day-item \{([^}]*)\}/,
+    )?.[1]
     expect(mealItemRule).toContain('font-size: 11pt')
     expect(mealItemRule).not.toContain('font-size: 9pt')
     const waterItemRule = PDF_DOCUMENT_CSS.match(
@@ -864,7 +1001,9 @@ describe('buildSummaryPdf', () => {
       /\.pdf-day-section-metrics \.pdf-day-section-content \.pdf-line,\s*\.pdf-day-section-notes \.pdf-day-section-content \.pdf-line \{([^}]*)\}/,
     )?.[1]
     expect(metricsNotesRule).toContain('font-size: 9pt')
-    expect(PDF_DOCUMENT_CSS).toContain('.pdf-meal-card .pdf-line { font-weight: 600; font-size: 9.5pt')
+    expect(PDF_DOCUMENT_CSS).toContain(
+      '.pdf-meal-card .pdf-line { font-weight: 600; font-size: 9.5pt',
+    )
   })
 
   it('shows a Steps text label instead of the walking icon (#931)', () => {
@@ -873,15 +1012,33 @@ describe('buildSummaryPdf', () => {
       waistCm: 80,
     })
     const data = buildPdfSummaryData([entry], entry.date, entry.date, 1)
-    const enHtml = buildPdfDocumentHtml(data, t, 'en', 'kg', ALL_SECTIONS_EXCLUDED, [], { entries: [entry] })
+    const enHtml = buildPdfDocumentHtml(
+      data,
+      t,
+      'en',
+      'kg',
+      ALL_SECTIONS_EXCLUDED,
+      [],
+      { entries: [entry] },
+    )
     const ru = getDictionary('ru')
-    const ruHtml = buildPdfDocumentHtml(data, ru, 'ru', 'kg', ALL_SECTIONS_EXCLUDED, [], { entries: [entry] })
+    const ruHtml = buildPdfDocumentHtml(
+      data,
+      ru,
+      'ru',
+      'kg',
+      ALL_SECTIONS_EXCLUDED,
+      [],
+      { entries: [entry] },
+    )
     const container = document.createElement('div')
     container.innerHTML = enHtml
-    const metricsTitle = container.querySelectorAll('.pdf-page')[1]?.querySelector('.pdf-day-section-title-metrics')
-    const stepsMetric = [...(metricsTitle?.querySelectorAll('.pdf-day-header-metric') ?? [])].find((el) =>
-      el.textContent?.includes('Steps'),
-    )
+    const metricsTitle = container
+      .querySelectorAll('.pdf-page')[1]
+      ?.querySelector('.pdf-day-section-title-metrics')
+    const stepsMetric = [
+      ...(metricsTitle?.querySelectorAll('.pdf-day-header-metric') ?? []),
+    ].find((el) => el.textContent?.includes('Steps'))
     expect(stepsMetric?.textContent).toContain('Steps')
     expect(stepsMetric?.querySelector('svg')).toBeNull()
     expect(enHtml).not.toContain('M8 3v5l3 2')
@@ -910,7 +1067,9 @@ describe('buildSummaryPdf', () => {
     const weekCell = table?.querySelector('tbody td.pdf-week-range')
     expect(weekCell).not.toBeNull()
     expect(weekCell?.textContent).toBe('7 сент. 2026 г. – 13 сент. 2026 г.')
-    expect(table?.querySelectorAll('tbody td:not(.pdf-week-range)')).toHaveLength(3)
+    expect(
+      table?.querySelectorAll('tbody td:not(.pdf-week-range)'),
+    ).toHaveLength(3)
     const weekRule = PDF_DOCUMENT_CSS.match(
       /\.pdf-weekly-averages \.pdf-week-range \{([^}]*)\}/,
     )?.[1]
@@ -942,8 +1101,16 @@ describe('buildSummaryPdf', () => {
     expect(body).not.toBeNull()
     const cards = [...(body?.querySelectorAll(':scope > .pdf-section') ?? [])]
     expect(cards).toHaveLength(5)
-    expect(cards.slice(0, 2).every((card) => card.classList.contains('pdf-section-wide'))).toBe(true)
-    expect(cards.slice(2).every((card) => !card.classList.contains('pdf-section-wide'))).toBe(true)
+    expect(
+      cards
+        .slice(0, 2)
+        .every((card) => card.classList.contains('pdf-section-wide')),
+    ).toBe(true)
+    expect(
+      cards
+        .slice(2)
+        .every((card) => !card.classList.contains('pdf-section-wide')),
+    ).toBe(true)
     expect(cards[2]?.classList.contains('pdf-summary-right')).toBe(true)
     expect(cards[3]?.classList.contains('pdf-summary-right')).toBe(true)
     expect(cards[4]?.classList.contains('pdf-summary-left')).toBe(true)
