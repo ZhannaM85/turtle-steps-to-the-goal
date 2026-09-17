@@ -6,7 +6,7 @@ import { BarcodeScannerDialog } from '@/features/daily-log/BarcodeScannerDialog'
 import { buildDailyLogCsv, CSV_BOM } from '@/features/export/exportCsv'
 import { currentAnalysisExportTracking } from '@/features/export/analysisExportTracking'
 import { buildSingleDayPdf } from '@/features/export/buildSingleDayPdf'
-import { shareOrDownloadPdf } from '@/features/export/sharePdfFile'
+import { openPdfPreview } from '@/features/export/sharePdfFile'
 import { generateQrDataUrl } from '@/features/food-share/generateQrDataUrl'
 import { useLocale, useTranslation } from '@/i18n'
 import { IndexedDbDailyEntryRepository, IndexedDbGoalRepository } from '@/infrastructure/persistence/indexeddb'
@@ -207,7 +207,7 @@ function SendDaySnippetBody({
             useEatingReasonTrackingStore.getState().builtinLabelOverrides,
         },
       )
-      await shareOrDownloadPdf(pdf, `turtle-steps-daily-log-${date}.pdf`)
+      openPdfPreview(pdf)
     } catch {
       setPdfError(t.today.sendDaySavePdfFailed)
     }
