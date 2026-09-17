@@ -702,6 +702,7 @@ _Reported from an iPhone PDF export and the Day screen._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#955](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/955) | ✅ Done | Projection modal: move estimate up so content fits without scroll | Confirmed on-device 2026-09-17 — the projection sheet fits without scrolling. |
 | [#956](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/956) | ✅ Done | PDF share to Telegram: send PDF file, not blob: URL text | Confirmed on-device 2026-09-17 — sharing sends the actual PDF file. Preview-first flow follow-up to be tracked separately. |
 | [#957](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/957) | ✅ Done | Dates: one shared format everywhere; no chart label overlap | Confirmed on-device 2026-09-17 — dates use one localized format and chart labels remain readable without overlap. |
 | [#959](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/959) | ✅ Done | Projection chart: add middle X-axis date (Month/Year too sparse after #957) | Confirmed on-device 2026-09-17 — Month and Year charts show a readable middle X-axis date. |
