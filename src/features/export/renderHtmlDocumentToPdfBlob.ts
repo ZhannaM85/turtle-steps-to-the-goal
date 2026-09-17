@@ -23,11 +23,9 @@ import {
 } from './pdfDebug'
 import { publishPdfDebugReport } from './pdfDebugOverlay'
 import {
-  a4ContentCanvasHeightPx,
   isPdfPageFillElement,
   packPdfPageElement,
   pdfPageStretchMetrics,
-  pinPdfFooterToCanvasBottom,
   preparePdfPagesForCapture,
 } from './pinPdfFooterToCanvas'
 
@@ -217,14 +215,11 @@ async function paintPdfPages(html: string): Promise<{
     for (const [index, target] of targets.entries()) {
       const scale = canvasScaleForElement(target)
       const captureHeightPx = pdfCaptureHeightPx(target)
-      const bodyTarget =
-        target.querySelector<HTMLElement>('.pdf-page-body') ?? target
-      const captureWidthPx = Math.max(
-        target.scrollWidth,
-        bodyTarget.scrollWidth,
-        1,
-      )
-      const capturedBody = await html2canvas(bodyTarget, {
+      // #960 — capture the whole styled page (body + footer) in one pass so
+      // the on-screen layout is preserved 1:1. No separate footer capture and
+      // no A4-height slot: pinning the footer to the paper bottom inserted a
+      // growing blank band (the "tear down") and orphaned Заметки.
+      const canvas = await html2canvas(target, {
         scale,
         useCORS: true,
         logging: false,
@@ -249,34 +244,11 @@ async function paintPdfPages(html: string): Promise<{
         scrollY: 0,
         windowWidth: Math.max(target.scrollWidth, host.clientWidth),
         windowHeight: captureHeightPx,
-        width: captureWidthPx,
+        height: captureHeightPx,
       })
-      if (capturedBody.width === 0 || capturedBody.height === 0) {
+      if (canvas.width === 0 || canvas.height === 0) {
         throw new Error('html2canvas produced an empty canvas')
       }
-      const footerTarget = target.querySelector<HTMLElement>('.pdf-footer')
-      const capturedFooter = footerTarget
-        ? await html2canvas(footerTarget, {
-            scale,
-            useCORS: true,
-            logging: false,
-            backgroundColor: '#ffffff',
-            ignoreElements: (element) =>
-              shouldIgnorePdfRenderElement(element, host) ||
-              isPdfDebugOverlayElement(element),
-            scrollX: 0,
-            scrollY: 0,
-            windowWidth: Math.max(target.scrollWidth, host.clientWidth),
-            width: captureWidthPx,
-          })
-        : null
-      const destHeightPx = a4ContentCanvasHeightPx(
-        capturedBody.width,
-        contentWidthMm,
-      )
-      const canvas = capturedFooter
-        ? pinPdfFooterToCanvasBottom(capturedBody, capturedFooter, destHeightPx)
-        : capturedBody
       canvases.push(canvas)
       if (debug) {
         const after = collectPdfPageLayoutSnapshot(
@@ -288,27 +260,18 @@ async function paintPdfPages(html: string): Promise<{
         after.canvasHeight = canvas.height
         after.captureHeightPx = captureHeightPx
         after.scale = scale
-        const sourceCanvasHeight =
-          capturedBody.height + (capturedFooter?.height ?? 0)
-        after.sourceCanvasHeight = sourceCanvasHeight
-        after.pinnedFooter = canvas !== capturedBody
-        after.footerCanvasWidth = capturedFooter?.width
-        after.footerCanvasHeight = capturedFooter?.height
-        after.bodyCanvasHeight = capturedBody.height
-        after.compositeGapHeight = canvas.height - sourceCanvasHeight
-        after.footerCompositeSafe =
-          capturedFooter != null &&
-          capturedFooter.width > 0 &&
-          capturedFooter.height > 0 &&
-          capturedFooter.height < canvas.height
+        after.sourceCanvasHeight = canvas.height
+        // #960 — natural placement now, so nothing is pinned or padded.
+        after.pinnedFooter = false
+        after.compositeGapHeight = 0
         const stretch = pdfPageStretchMetrics({
           canvasWidth: canvas.width,
           canvasHeight: canvas.height,
-          sourceCanvasHeight,
+          sourceCanvasHeight: canvas.height,
           captureHeightPx,
           scale,
           contentWidthMm,
-          paddedCanvas: canvas !== capturedBody,
+          paddedCanvas: false,
         })
         after.imgHeightMm = stretch.placedMm
         after.naturalImgHeightMm = stretch.naturalMm
