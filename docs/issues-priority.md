@@ -51,7 +51,6 @@ _Reported from iPhone PDF previews and local Chrome._
 |---|--------|-------|-------|
 | [#929](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/929) | 🔍 Pending validation | PDF diary: reduce Metrics and Notes body text size | Metrics and Notes use compact `9pt` text; metric labels are bold and both cards have safer inner spacing. Awaiting on-device confirmation. |
 | [#932](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/932) | 🔍 Pending validation | PDF diary: footer still cut off, generated date not visible | Pages and footers now have right/bottom safety clearance, and every footer shows its page number. Awaiting on-device confirmation. |
-| [#935](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/935) | 🔍 Pending validation | PDF layout preview cannot predict the iOS PDF | Preview photographs pages through the same html2canvas path as export; the latest spacing and alignment fixes were tuned against that captured output. Awaiting on-device confirmation. |
 
 ## Tier 165 — PDF footer whitespace and Day chrome (2026-09-17)
 
