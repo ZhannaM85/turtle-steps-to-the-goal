@@ -3,13 +3,36 @@ import { KCAL_PER_KG_FAT } from '@/domain/goal'
 import { calculateBmr, type Sex } from './bodyComposition'
 import { calculateTdee, type ActivityLevel } from './targetCalculator'
 
-/** #934 — Complete-the-day overlay looks this far ahead. */
-export const COMPLETE_DAY_HORIZON_WEEKS = 5
-export const COMPLETE_DAY_HORIZON_DAYS = COMPLETE_DAY_HORIZON_WEEKS * 7
+/** #948 — Week / Month / Year tab horizons (exact day lengths). */
+export type CompleteDayHorizon = 'week' | 'month' | 'year'
+export const COMPLETE_DAY_DEFAULT_HORIZON: CompleteDayHorizon = 'week'
+export const COMPLETE_DAY_HORIZON_DAYS = {
+  week: 7,
+  month: 30,
+  year: 365,
+} as const
+export const COMPLETE_DAY_HORIZONS: CompleteDayHorizon[] = [
+  'week',
+  'month',
+  'year',
+]
 
-/** Skip the 5-week line when today's intake is below half of estimated TDEE. */
+export function completeDayHorizonDays(
+  horizon: CompleteDayHorizon = COMPLETE_DAY_DEFAULT_HORIZON,
+): number {
+  return COMPLETE_DAY_HORIZON_DAYS[horizon]
+}
+
+/** X-axis units stay “weeks” (day / 7) so a 30-day month ends at ~4.29. */
+export function completeDayHorizonWeeks(
+  horizon: CompleteDayHorizon = COMPLETE_DAY_DEFAULT_HORIZON,
+): number {
+  return completeDayHorizonDays(horizon) / 7
+}
+
+/** Skip the projection when today's intake is below half of estimated TDEE. */
 export const COMPLETE_DAY_LOW_INTAKE_TDEE_FRACTION = 0.5
-/** Skip the 5-week line when today's intake is above 1.5× estimated TDEE. */
+/** Skip the projection when today's intake is above 1.5× estimated TDEE. */
 export const COMPLETE_DAY_HIGH_INTAKE_TDEE_FRACTION = 1.5
 /** #936 — horizontal dashed mesh every 500 g. */
 export const COMPLETE_DAY_GRID_KG = 0.5
@@ -18,17 +41,35 @@ export const COMPLETE_DAY_TREND_WINDOW_DAYS = 7
 /** #947 — typical morning-scale wobble around the projected trend, in kg. */
 export const COMPLETE_DAY_OSCILLATION_KG = 0.4
 
-export function completeDayWeekGridTicks(): number[] {
-  return Array.from(
-    { length: COMPLETE_DAY_HORIZON_WEEKS + 1 },
-    (_, week) => week,
-  )
+export function completeDayWeekGridTicks(
+  horizon: CompleteDayHorizon = COMPLETE_DAY_DEFAULT_HORIZON,
+): number[] {
+  const endWeek = completeDayHorizonWeeks(horizon)
+  if (endWeek <= 0) return [0]
+  const maxTicks = 7
+  const step = endWeek <= maxTicks - 1 ? 1 : endWeek / (maxTicks - 1)
+  const ticks: number[] = [0]
+  if (step === 1) {
+    for (let week = 1; week < endWeek; week += 1) {
+      ticks.push(week)
+    }
+  } else {
+    for (let i = 1; i < maxTicks - 1; i += 1) {
+      const week = step * i
+      if (week < endWeek - 1e-9) ticks.push(week)
+    }
+  }
+  ticks.push(endWeek)
+  return ticks
 }
 
-/** Calendar day of week 5 if every day from `startIso` matched today. */
-export function completeDayProjectionEndIso(startIso: string): string {
+/** Calendar day at the selected horizon if every day from `startIso` matched today. */
+export function completeDayProjectionEndIso(
+  startIso: string,
+  horizon: CompleteDayHorizon = COMPLETE_DAY_DEFAULT_HORIZON,
+): string {
   return format(
-    addDays(parseISO(startIso), COMPLETE_DAY_HORIZON_DAYS),
+    addDays(parseISO(startIso), completeDayHorizonDays(horizon)),
     'yyyy-MM-dd',
   )
 }
@@ -65,6 +106,8 @@ export interface CompleteDayProjectionInput {
   activityLevel: ActivityLevel
   /** #947 — ISO log date; seeds the synthetic daily oscillation. */
   logDate?: string
+  /** #948 — Week / Month / Year horizon; default Week (7 days). */
+  horizon?: CompleteDayHorizon
 }
 
 export interface CompleteDayProjectionPoint {
@@ -82,7 +125,7 @@ export interface CompleteDayProjectionChartPoint {
 export interface CompleteDayProjection {
   tdeeKcal: number
   dailyDeficitKcal: number
-  /** Starting weight minus week-5 weight. Positive = lower. */
+  /** Starting weight minus end-of-horizon weight. Positive = lower. */
   totalChangeKg: number
   projectedWeightKg: number
   points: CompleteDayProjectionPoint[]
@@ -180,13 +223,16 @@ export function completeDayOscillatingDailyKg(
 }
 
 /**
- * #934 — 35-day simulation if every day matched today's calories.
- * Recalculates Mifflin–St Jeor TDEE as weight moves so the line is not a
- * straight `deficit × 35 / 7700` ruler. Not medical advice.
+ * #934/#948 — simulation if every day matched today's calories, for the
+ * selected horizon (Week=7, Month=30, Year=365). Recalculates
+ * Mifflin–St Jeor TDEE as weight moves so the line is not a straight
+ * `deficit × days / 7700` ruler. Not medical advice.
  */
 export function projectWeightIfEatingLikeToday(
   input: CompleteDayProjectionInput,
 ): CompleteDayProjection {
+  const horizon = input.horizon ?? COMPLETE_DAY_DEFAULT_HORIZON
+  const horizonDays = completeDayHorizonDays(horizon)
   const startBmr = calculateBmr(
     input.weightKg,
     input.heightCm,
@@ -197,16 +243,16 @@ export function projectWeightIfEatingLikeToday(
   let weightKg = input.weightKg
   const points: CompleteDayProjectionPoint[] = [{ week: 0, weightKg }]
   const dailyTrendKg: number[] = [weightKg]
-  for (let day = 1; day <= COMPLETE_DAY_HORIZON_DAYS; day += 1) {
+  for (let day = 1; day <= horizonDays; day += 1) {
     const bmr = calculateBmr(weightKg, input.heightCm, input.age, input.sex)
     const tdee = calculateTdee(bmr, input.activityLevel)
     weightKg -= (tdee - input.dailyKcal) / KCAL_PER_KG_FAT
     dailyTrendKg.push(weightKg)
-    if (day % 7 === 0) {
+    if (day % 7 === 0 || day === horizonDays) {
       points.push({ week: day / 7, weightKg })
     }
   }
-  const projectedWeightKg = points[COMPLETE_DAY_HORIZON_WEEKS]!.weightKg
+  const projectedWeightKg = dailyTrendKg[horizonDays]!
   const dailyKg = completeDayOscillatingDailyKg(
     dailyTrendKg,
     completeDayOscillationSeed(input),

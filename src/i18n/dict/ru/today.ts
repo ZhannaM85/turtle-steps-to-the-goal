@@ -138,21 +138,25 @@ export const today: TodayDict = {
   completeDayEstimatedLabel: 'Оценка',
   completeDayWeekNow: 'Сегодня',
   completeDayWeekEnd: '5 недель',
+  completeDayHorizonLabel: 'Период прогноза',
   completeDayIntakeLabel: 'Сегодня съедено',
   completeDayMaintenanceLabel: 'Оценка поддержания',
   completeDayDeficitLabel: 'Оценка дневного дефицита',
-  completeDayChangeLower: (amount) => `Примерно на ${amount} ниже за 5 недель`,
-  completeDayChangeHigher: (amount) => `Примерно на ${amount} выше за 5 недель`,
-  completeDayChangeSame: 'Примерно так же через 5 недель',
+  completeDayChangeLower: (amount, horizon) =>
+    `Примерно на ${amount} ниже за ${{ week: '1 неделю', month: '1 месяц', year: '1 год' }[horizon]}`,
+  completeDayChangeHigher: (amount, horizon) =>
+    `Примерно на ${amount} выше за ${{ week: '1 неделю', month: '1 месяц', year: '1 год' }[horizon]}`,
+  completeDayChangeSame: (horizon) =>
+    `Примерно так же через ${{ week: '1 неделю', month: '1 месяц', year: '1 год' }[horizon]}`,
   completeDayMissingWeight: 'Сначала запишите сегодняшний вес.',
   completeDayMissingCalories: 'Сначала запишите приём пищи (или итог за день).',
   completeDayMissingProfile:
     'Укажите рост, возраст, пол и активность в Настройках, чтобы оценить поддерживающую норму калорий.',
   completeDayProfileLink: 'Открыть Настройки',
   completeDayUnusualLow:
-    'Сегодня не лучший день для прогноза. Калорий необычно мало, поэтому повторять такой день пять недель не имеет смысла.',
+    'Сегодня не лучший день для прогноза. Калорий необычно мало, поэтому повторять такой день для прогноза не имеет смысла.',
   completeDayUnusualHigh:
-    'Сегодня не лучший день для прогноза. Калорий необычно много, поэтому повторять такой день пять недель не имеет смысла.',
+    'Сегодня не лучший день для прогноза. Калорий необычно много, поэтому повторять такой день для прогноза не имеет смысла.',
   completeDayDisclaimer:
     'Это оценка по сегодняшним калориям и примерной норме. Вес на весах каждый день будет колебаться.',
 }

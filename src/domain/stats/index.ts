@@ -213,14 +213,17 @@ export type {
   SuggestedDailyTargets,
 } from './targetCalculator'
 export {
+  COMPLETE_DAY_DEFAULT_HORIZON,
   COMPLETE_DAY_HORIZON_DAYS,
-  COMPLETE_DAY_HORIZON_WEEKS,
+  COMPLETE_DAY_HORIZONS,
   COMPLETE_DAY_GRID_KG,
   COMPLETE_DAY_HIGH_INTAKE_TDEE_FRACTION,
   COMPLETE_DAY_LOW_INTAKE_TDEE_FRACTION,
   COMPLETE_DAY_OSCILLATION_KG,
   COMPLETE_DAY_TREND_WINDOW_DAYS,
   completeDayChartEndAxisLabel,
+  completeDayHorizonDays,
+  completeDayHorizonWeeks,
   completeDayOscillatingDailyKg,
   completeDayOscillationSeed,
   completeDayProjectionBlocker,
@@ -231,6 +234,7 @@ export {
   projectWeightIfEatingLikeToday,
 } from './completeDayProjection'
 export type {
+  CompleteDayHorizon,
   CompleteDayProjection,
   CompleteDayProjectionBlocker,
   CompleteDayProjectionChartPoint,

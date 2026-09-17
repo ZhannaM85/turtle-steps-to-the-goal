@@ -136,21 +136,25 @@ export const today: TodayDict = {
   completeDayEstimatedLabel: 'Estimated',
   completeDayWeekNow: 'Today',
   completeDayWeekEnd: '5 weeks',
+  completeDayHorizonLabel: 'Projection period',
   completeDayIntakeLabel: "Today's intake",
   completeDayMaintenanceLabel: 'Estimated maintenance',
   completeDayDeficitLabel: 'Estimated daily deficit',
-  completeDayChangeLower: (amount) => `About ${amount} lower over 5 weeks`,
-  completeDayChangeHigher: (amount) => `About ${amount} higher over 5 weeks`,
-  completeDayChangeSame: 'About the same over 5 weeks',
+  completeDayChangeLower: (amount, horizon) =>
+    `About ${amount} lower over ${{ week: '1 week', month: '1 month', year: '1 year' }[horizon]}`,
+  completeDayChangeHigher: (amount, horizon) =>
+    `About ${amount} higher over ${{ week: '1 week', month: '1 month', year: '1 year' }[horizon]}`,
+  completeDayChangeSame: (horizon) =>
+    `About the same over ${{ week: '1 week', month: '1 month', year: '1 year' }[horizon]}`,
   completeDayMissingWeight: "Log today's weight first.",
   completeDayMissingCalories: 'Log a meal (or day totals) first.',
   completeDayMissingProfile:
     'Add height, age, sex, and activity in Settings so maintenance calories can be estimated.',
   completeDayProfileLink: 'Open Settings',
   completeDayUnusualLow:
-    "Today isn't a good day to project from. Your intake was unusually low, so repeating it wouldn't make a useful five-week estimate.",
+    "Today isn't a good day to project from. Your intake was unusually low, so repeating it wouldn't make a useful estimate.",
   completeDayUnusualHigh:
-    "Today isn't a good day to project from. Your intake was unusually high, so repeating it wouldn't make a useful five-week estimate.",
+    "Today isn't a good day to project from. Your intake was unusually high, so repeating it wouldn't make a useful estimate.",
   completeDayDisclaimer:
     'This is an estimate based on today’s calories and your estimated energy needs. Daily scale weight will fluctuate.',
 }

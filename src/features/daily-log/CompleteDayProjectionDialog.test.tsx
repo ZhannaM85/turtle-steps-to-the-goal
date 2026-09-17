@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import {
@@ -17,7 +17,28 @@ import {
 import { DailyEntryFormStateProvider } from './DailyEntryFormStateContext'
 import { calories, now } from './dailyEntryFormTestUtils'
 
-describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947)', () => {
+function renderProjectionDialog() {
+  return render(
+    <MemoryRouter>
+      <DailyEntryFormStateProvider
+        date="2026-03-01"
+        existingEntry={{
+          id: 'e1',
+          date: '2026-03-01',
+          weightKg: 60.2,
+          calorieEntries: [calories(1200, 'm1')],
+          createdAt: now,
+          updatedAt: now,
+        }}
+        onSave={vi.fn()}
+      >
+        <CompleteDayProjectionDialog />
+      </DailyEntryFormStateProvider>
+    </MemoryRouter>,
+  )
+}
+
+describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 / #948)', () => {
   beforeEach(() => {
     useProfileStore.setState({
       heightCm: 165,
@@ -92,10 +113,9 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947)'
       }),
     ).toBeInTheDocument()
     expect(screen.getByText("Today's intake")).toBeInTheDocument()
-    expect(screen.getByText('≈ 58.8 kg')).toBeInTheDocument()
     expect(screen.getByText('Estimated maintenance')).toBeInTheDocument()
     expect(screen.getByText('Estimated daily deficit')).toBeInTheDocument()
-    expect(screen.getByText(/About .+ lower over 5 weeks/)).toBeInTheDocument()
+    expect(screen.getByText(/About .+ lower over 1 week/)).toBeInTheDocument()
     expect(screen.getByText('weight')).toBeInTheDocument()
     expect(screen.getByText('7-day average')).toBeInTheDocument()
     expect(
@@ -164,7 +184,7 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947)'
     expect(screen.queryByText("Today's intake")).not.toBeInTheDocument()
   })
 
-  it('anchors Today at the start and 5 weeks at the end (#938)', () => {
+  it('anchors Today at the start and the horizon end at the end (#938 / #948)', () => {
     const { container } = render(
       <svg>
         <CompleteDayWeekTick
@@ -172,21 +192,24 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947)'
           y={20}
           payload={{ value: 0 }}
           todayLabel="Today"
-          endLabel="5 weeks"
+          endLabel="Mar 8, 2026"
+          endWeek={1}
         />
         <CompleteDayWeekTick
           x={200}
           y={20}
-          payload={{ value: 5 }}
+          payload={{ value: 1 }}
           todayLabel="Today"
-          endLabel="5 weeks"
+          endLabel="Mar 8, 2026"
+          endWeek={1}
         />
         <CompleteDayWeekTick
           x={100}
           y={20}
-          payload={{ value: 2 }}
+          payload={{ value: 0.5 }}
           todayLabel="Today"
-          endLabel="5 weeks"
+          endLabel="Mar 8, 2026"
+          endWeek={1}
         />
       </svg>,
     )
@@ -195,10 +218,10 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947)'
     expect(labels[0]).toHaveAttribute('text-anchor', 'start')
     expect(labels[0]).toHaveTextContent('Today')
     expect(labels[1]).toHaveAttribute('text-anchor', 'end')
-    expect(labels[1]).toHaveTextContent('5 weeks')
+    expect(labels[1]).toHaveTextContent('Mar 8, 2026')
   })
 
-  it('puts the calendar end date only in the week-5 axis label (#945 / #947)', () => {
+  it('puts the calendar end date only in the week-end axis label (#945 / #947 / #948)', () => {
     const endLabel = completeDayChartEndAxisLabel(
       formatLocalizedDate(completeDayProjectionEndIso('2026-03-01'), 'en'),
     )
@@ -207,15 +230,16 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947)'
         <CompleteDayWeekTick
           x={200}
           y={20}
-          payload={{ value: 5 }}
+          payload={{ value: 1 }}
           todayLabel="Today"
           endLabel={endLabel}
+          endWeek={1}
         />
       </svg>,
     )
-    expect(endLabel).toBe('Apr 5, 2026')
-    expect(endLabel).not.toMatch(/5 weeks/)
-    expect(container.querySelector('text')).toHaveTextContent('Apr 5, 2026')
+    expect(endLabel).toBe('Mar 8, 2026')
+    expect(endLabel).not.toMatch(/1 week/)
+    expect(container.querySelector('text')).toHaveTextContent('Mar 8, 2026')
   })
 
   it('shows oscillating dual-series legend line samples and keeps the end date (#947)', async () => {
@@ -242,7 +266,7 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947)'
     await user.click(screen.getByRole('button', { name: 'Complete the day' }))
     expect(screen.getByText('weight')).toBeInTheDocument()
     expect(screen.getByText('7-day average')).toBeInTheDocument()
-    expect(screen.getByText(/About .+ lower over 5 weeks/)).toBeInTheDocument()
+    expect(screen.getByText(/About .+ lower over 1 week/)).toBeInTheDocument()
     expect(screen.queryByText(/5 weeks ·/)).not.toBeInTheDocument()
 
     const weightLine = document.querySelector(
@@ -256,5 +280,62 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947)'
     expect(averageLine).toHaveAttribute('stroke-width', '1.5')
     expect(averageLine).toHaveAttribute('stroke-dasharray', '4 3')
     expect(document.querySelector('.size-2.rounded-sm')).not.toBeInTheDocument()
+  })
+
+  it('defaults to the Week tab (#948)', async () => {
+    const user = userEvent.setup()
+    renderProjectionDialog()
+    await user.click(screen.getByRole('button', { name: 'Complete the day' }))
+    const tabs = screen.getByLabelText('Projection period')
+    expect(within(tabs).getByRole('radio', { name: 'Week' })).toHaveAttribute(
+      'data-state',
+      'on',
+    )
+    expect(within(tabs).getByRole('radio', { name: 'Month' })).toHaveAttribute(
+      'data-state',
+      'off',
+    )
+    expect(within(tabs).getByRole('radio', { name: 'Year' })).toHaveAttribute(
+      'data-state',
+      'off',
+    )
+    expect(screen.getByText(/About .+ lower over 1 week/)).toBeInTheDocument()
+    expect(
+      screen.queryByText(/About .+ lower over 1 month/),
+    ).not.toBeInTheDocument()
+  })
+
+  it('recalculates estimate, footer, and end date when switching Month and Year (#948)', async () => {
+    const user = userEvent.setup()
+    renderProjectionDialog()
+    await user.click(screen.getByRole('button', { name: 'Complete the day' }))
+    const tabs = screen.getByLabelText('Projection period')
+    const weekEstimate = screen.getByText(/^≈ /).textContent
+    expect(screen.getByText(/About .+ lower over 1 week/)).toBeInTheDocument()
+
+    await user.click(within(tabs).getByRole('radio', { name: 'Month' }))
+    expect(within(tabs).getByRole('radio', { name: 'Month' })).toHaveAttribute(
+      'data-state',
+      'on',
+    )
+    expect(screen.getByText(/About .+ lower over 1 month/)).toBeInTheDocument()
+    expect(
+      screen.queryByText(/About .+ lower over 1 week/),
+    ).not.toBeInTheDocument()
+    const monthEstimate = screen.getByText(/^≈ /).textContent
+    expect(monthEstimate).not.toBe(weekEstimate)
+
+    await user.click(within(tabs).getByRole('radio', { name: 'Year' }))
+    expect(within(tabs).getByRole('radio', { name: 'Year' })).toHaveAttribute(
+      'data-state',
+      'on',
+    )
+    expect(screen.getByText(/About .+ lower over 1 year/)).toBeInTheDocument()
+    expect(
+      screen.queryByText(/About .+ lower over 1 month/),
+    ).not.toBeInTheDocument()
+    expect(screen.getByText(/^≈ /).textContent).not.toBe(monthEstimate)
+    expect(screen.getByText('weight')).toBeInTheDocument()
+    expect(screen.getByText('7-day average')).toBeInTheDocument()
   })
 })

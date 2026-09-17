@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 918,
+    issue: 948,
+    date: '2026-09-17T09:25:00+03:00',
+    en: 'Complete the day now has Week, Month, and Year tabs so you can change how far the estimate looks ahead.',
+    ru: 'У «Завершить день» теперь вкладки Неделя, Месяц и Год — можно выбрать, насколько далеко смотрит оценка.',
+  },
+  {
     version: 917,
     issue: 947,
     date: '2026-09-17T09:16:01+03:00',

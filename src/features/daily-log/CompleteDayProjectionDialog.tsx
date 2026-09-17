@@ -12,13 +12,16 @@ import {
 import { totalCalories } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
 import {
-  COMPLETE_DAY_HORIZON_WEEKS,
+  COMPLETE_DAY_DEFAULT_HORIZON,
+  COMPLETE_DAY_HORIZONS,
   completeDayChartEndAxisLabel,
+  completeDayHorizonWeeks,
   completeDayProjectionBlocker,
   completeDayProjectionEndIso,
   completeDayWeekGridTicks,
   completeDayWeightGridTicksKg,
   projectWeightIfEatingLikeToday,
+  type CompleteDayHorizon,
 } from '@/domain/stats'
 import { formatLocalizedDate, formatNumber, unitLabel, useLocale } from '@/i18n'
 import { formatKcal } from '@/shared/lib/macroDisplay'
@@ -29,6 +32,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/shared/ui/dialog'
+import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { useProfileStore, useUnitStore } from '@/stores'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
@@ -38,18 +42,20 @@ export function CompleteDayWeekTick({
   payload,
   todayLabel,
   endLabel,
+  endWeek,
 }: {
   x?: number
   y?: number
   payload?: { value?: number }
   todayLabel: string
   endLabel: string
+  endWeek: number
 }) {
   const week = payload?.value
   const label =
     week === 0
       ? todayLabel
-      : week === COMPLETE_DAY_HORIZON_WEEKS
+      : week !== undefined && Math.abs(week - endWeek) < 1e-6
         ? endLabel
         : ''
   if (!label || x === undefined || y === undefined) return null
@@ -102,9 +108,11 @@ function CompleteDayLegendLineSample({
 
 /**
  * #934 — Day CTA + full-height sheet: if days like today became the usual
- * pattern, where weight might be in five weeks. Close with the X only.
+ * pattern, where weight might be over the selected Week / Month / Year.
+ * Close with the X only.
  * #944 — outline chrome matches "Start today's log now" (beige fill, thin
  * border, dark text) so the full-width CTA is not a solid olive block.
+ * #948 — segmented horizon tabs match Settings export period pills.
  */
 export function CompleteDayProjectionDialog() {
   const state = useDailyEntryFormStateContext()
@@ -116,6 +124,10 @@ export function CompleteDayProjectionDialog() {
   const sex = useProfileStore((s) => s.sex)
   const activityLevel = useProfileStore((s) => s.activityLevel)
   const [open, setOpen] = useState(false)
+  const [horizon, setHorizon] = useState<CompleteDayHorizon>(
+    COMPLETE_DAY_DEFAULT_HORIZON,
+  )
+  const endWeek = completeDayHorizonWeeks(horizon)
 
   const dailyKcal = totalCalories(state.calorieEntries, state.dayTotals)
   const blocker = completeDayProjectionBlocker({
@@ -142,6 +154,7 @@ export function CompleteDayProjectionDialog() {
           sex,
           activityLevel,
           logDate: state.date,
+          horizon,
         })
       : null
 
@@ -153,7 +166,7 @@ export function CompleteDayProjectionDialog() {
       weight: toDisplay(point.weightKg),
       average: toDisplay(point.averageKg),
     })) ?? []
-  const weekTicks = completeDayWeekGridTicks()
+  const weekTicks = completeDayWeekGridTicks(horizon)
   const chartKg =
     projection?.chartPoints.flatMap((point) => [
       point.weightKg,
@@ -168,14 +181,19 @@ export function CompleteDayProjectionDialog() {
       : []
 
   const weekEndLabel = completeDayChartEndAxisLabel(
-    formatLocalizedDate(completeDayProjectionEndIso(state.date), locale),
+    formatLocalizedDate(
+      completeDayProjectionEndIso(state.date, horizon),
+      locale,
+    ),
   )
 
   const changeText = (totalChangeKg: number) => {
     const amount = `${formatNumber(Math.abs(toDisplay(totalChangeKg)), locale)} ${unitText}`
-    if (Math.abs(totalChangeKg) < 0.05) return t.today.completeDayChangeSame
-    if (totalChangeKg > 0) return t.today.completeDayChangeLower(amount)
-    return t.today.completeDayChangeHigher(amount)
+    if (Math.abs(totalChangeKg) < 0.05)
+      return t.today.completeDayChangeSame(horizon)
+    if (totalChangeKg > 0)
+      return t.today.completeDayChangeLower(amount, horizon)
+    return t.today.completeDayChangeHigher(amount, horizon)
   }
 
   return (
@@ -235,6 +253,33 @@ export function CompleteDayProjectionDialog() {
                   {formatNumber(toDisplay(state.weightKg), locale)} {unitText}
                 </p>
               </div>
+              <ToggleGroup
+                type="single"
+                aria-label={t.today.completeDayHorizonLabel}
+                value={horizon}
+                onValueChange={(value) => {
+                  if (
+                    value === 'week' ||
+                    value === 'month' ||
+                    value === 'year'
+                  ) {
+                    setHorizon(value)
+                  }
+                }}
+                className="flex flex-wrap justify-start"
+              >
+                {COMPLETE_DAY_HORIZONS.map((id) => (
+                  <ToggleGroupItem key={id} value={id} className="h-12">
+                    {
+                      {
+                        week: t.export.exportRangeWeek,
+                        month: t.export.exportRangeMonth,
+                        year: t.export.exportRangeYear,
+                      }[id]
+                    }
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
               <div className="h-56 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
@@ -264,13 +309,14 @@ export function CompleteDayProjectionDialog() {
                     <XAxis
                       dataKey="week"
                       type="number"
-                      domain={[0, COMPLETE_DAY_HORIZON_WEEKS]}
+                      domain={[0, endWeek]}
                       ticks={weekTicks}
                       interval={0}
                       tick={
                         <CompleteDayWeekTick
                           todayLabel={t.today.completeDayWeekNow}
                           endLabel={weekEndLabel}
+                          endWeek={endWeek}
                         />
                       }
                       axisLine={{ stroke: 'var(--border)' }}
@@ -305,7 +351,7 @@ export function CompleteDayProjectionDialog() {
                       dot={(props) => {
                         const week = (props as { payload?: { week?: number } })
                           .payload?.week
-                        if (week !== 0 && week !== COMPLETE_DAY_HORIZON_WEEKS) {
+                        if (week !== 0 && week !== endWeek) {
                           return false
                         }
                         const { cx, cy, index } = props as {

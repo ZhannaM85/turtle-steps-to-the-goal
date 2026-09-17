@@ -4,12 +4,14 @@ import { calculateTdee } from './targetCalculator'
 import { KCAL_PER_KG_FAT } from '@/domain/goal'
 import { formatLocalizedDate } from '@/i18n'
 import {
+  COMPLETE_DAY_DEFAULT_HORIZON,
   COMPLETE_DAY_GRID_KG,
   COMPLETE_DAY_HORIZON_DAYS,
-  COMPLETE_DAY_HORIZON_WEEKS,
   COMPLETE_DAY_OSCILLATION_KG,
   COMPLETE_DAY_TREND_WINDOW_DAYS,
   completeDayChartEndAxisLabel,
+  completeDayHorizonDays,
+  completeDayHorizonWeeks,
   completeDayOscillatingDailyKg,
   completeDayOscillationSeed,
   completeDayProjectionBlocker,
@@ -41,12 +43,12 @@ describe('projectWeightIfEatingLikeToday (#934)', () => {
     expect(calculateTdee(maleBmr, 'sedentary')).toBeCloseTo(2076)
   })
 
-  it('lands a little less far than a straight 35-day ruler because TDEE falls', () => {
+  it('lands a little less far than a straight 7-day ruler because TDEE falls', () => {
     const result = projectWeightIfEatingLikeToday(sample)
     const staticKg =
-      ((result.tdeeKcal - sample.dailyKcal) * COMPLETE_DAY_HORIZON_DAYS) /
+      ((result.tdeeKcal - sample.dailyKcal) * COMPLETE_DAY_HORIZON_DAYS.week) /
       KCAL_PER_KG_FAT
-    expect(result.points).toHaveLength(COMPLETE_DAY_HORIZON_WEEKS + 1)
+    expect(result.points).toHaveLength(2)
     expect(result.points[0]?.weightKg).toBe(60.2)
     expect(result.projectedWeightKg).toBeLessThan(60.2)
     expect(result.totalChangeKg).toBeGreaterThan(0)
@@ -67,15 +69,20 @@ describe('complete-the-day oscillating dual series (#947)', () => {
   const logged = { ...sample, logDate: '2026-03-01' }
 
   it('builds a jagged daily path around the trend, not a straight primary', () => {
-    const result = projectWeightIfEatingLikeToday(logged)
+    const result = projectWeightIfEatingLikeToday({
+      ...logged,
+      horizon: 'month',
+    })
     expect(COMPLETE_DAY_TREND_WINDOW_DAYS).toBe(7)
     expect(COMPLETE_DAY_OSCILLATION_KG).toBe(0.4)
-    expect(result.chartPoints).toHaveLength(COMPLETE_DAY_HORIZON_DAYS + 1)
+    expect(result.chartPoints).toHaveLength(COMPLETE_DAY_HORIZON_DAYS.month + 1)
     expect(result.chartPoints[0]?.weightKg).toBe(60.2)
     expect(result.chartPoints.at(-1)?.weightKg).toBeCloseTo(
       result.projectedWeightKg,
     )
-    expect(result.chartPoints.at(-1)?.week).toBe(COMPLETE_DAY_HORIZON_WEEKS)
+    expect(result.chartPoints.at(-1)?.week).toBeCloseTo(
+      completeDayHorizonWeeks('month'),
+    )
 
     const weights = result.chartPoints.map((point) => point.weightKg)
     let signFlips = 0
@@ -104,8 +111,26 @@ describe('complete-the-day oscillating dual series (#947)', () => {
     expect(maxDeviation).toBeGreaterThan(0.15)
   })
 
-  it('uses the trailing 7-day average of that oscillating series', () => {
+  it('still oscillates on the default week horizon', () => {
     const result = projectWeightIfEatingLikeToday(logged)
+    expect(result.chartPoints).toHaveLength(COMPLETE_DAY_HORIZON_DAYS.week + 1)
+    expect(result.chartPoints[0]?.weightKg).toBe(60.2)
+    expect(result.chartPoints.at(-1)?.weightKg).toBeCloseTo(
+      result.projectedWeightKg,
+    )
+    expect(result.chartPoints[3]?.weightKg).not.toBeCloseTo(
+      60.2 +
+        ((result.projectedWeightKg - 60.2) * 3) /
+          COMPLETE_DAY_HORIZON_DAYS.week,
+      3,
+    )
+  })
+
+  it('uses the trailing 7-day average of that oscillating series', () => {
+    const result = projectWeightIfEatingLikeToday({
+      ...logged,
+      horizon: 'month',
+    })
     const rebuilt = completeDayProjectionChartPoints(
       result.chartPoints.map((point) => point.weightKg),
     )
@@ -129,8 +154,8 @@ describe('complete-the-day oscillating dual series (#947)', () => {
       ...logged,
       logDate: '2026-03-02',
     })
-    expect(otherDay.chartPoints[10]?.weightKg).not.toBe(
-      first.chartPoints[10]?.weightKg,
+    expect(otherDay.chartPoints[3]?.weightKg).not.toBe(
+      first.chartPoints[3]?.weightKg,
     )
   })
 
@@ -208,31 +233,41 @@ describe('completeDayProjectionBlocker (#934)', () => {
   })
 })
 
-describe('complete-the-day chart end date (#945 / #947)', () => {
-  it('names week 5 as a calendar date only, without the duration prefix', () => {
+describe('complete-the-day chart end date (#945 / #947 / #948)', () => {
+  it('names the horizon end as a calendar date only, without the duration prefix', () => {
     const endIso = completeDayProjectionEndIso('2026-03-01')
-    expect(endIso).toBe('2026-04-05')
+    expect(endIso).toBe('2026-03-08')
     expect(
       completeDayChartEndAxisLabel(formatLocalizedDate(endIso, 'en')),
-    ).toBe('Apr 5, 2026')
+    ).toBe('Mar 8, 2026')
     expect(
       completeDayChartEndAxisLabel(formatLocalizedDate(endIso, 'ru')),
-    ).toBe('5 апр. 2026 г.')
+    ).toBe('8 мар. 2026 г.')
     expect(
       completeDayChartEndAxisLabel(formatLocalizedDate(endIso, 'en')),
-    ).not.toMatch(/5 weeks/)
+    ).not.toMatch(/1 week/)
     expect(
       completeDayChartEndAxisLabel(formatLocalizedDate(endIso, 'ru')),
-    ).not.toMatch(/5 недель/)
+    ).not.toMatch(/1 неделю/)
   })
 })
 
-describe('complete-the-day chart grid (#936)', () => {
-  it('places a vertical line at each of the six week marks', () => {
-    expect(completeDayWeekGridTicks()).toEqual([0, 1, 2, 3, 4, 5])
-    expect(completeDayWeekGridTicks()).toHaveLength(
-      COMPLETE_DAY_HORIZON_WEEKS + 1,
-    )
+describe('complete-the-day chart grid (#936 / #948)', () => {
+  it('places vertical lines at today and the week end by default', () => {
+    expect(completeDayWeekGridTicks()).toEqual([0, 1])
+    expect(completeDayWeekGridTicks('week')).toEqual([0, 1])
+  })
+
+  it('places a weekly mesh plus the 30-day end for Month', () => {
+    expect(completeDayWeekGridTicks('month')).toEqual([0, 1, 2, 3, 4, 30 / 7])
+  })
+
+  it('keeps Year ticks sparse instead of one per week', () => {
+    const ticks = completeDayWeekGridTicks('year')
+    expect(ticks[0]).toBe(0)
+    expect(ticks.at(-1)).toBe(365 / 7)
+    expect(ticks.length).toBeLessThanOrEqual(7)
+    expect(ticks.length).toBeGreaterThan(2)
   })
 
   it('places a horizontal line every 500 g covering the projected range', () => {
@@ -243,5 +278,51 @@ describe('complete-the-day chart grid (#936)', () => {
     expect(completeDayWeightGridTicksKg(60.2, 58.2)).toEqual([
       58, 58.5, 59, 59.5, 60, 60.5,
     ])
+  })
+})
+
+describe('complete-the-day horizons (#948)', () => {
+  it('defaults to Week = 7 days, with Month = 30 and Year = 365', () => {
+    expect(COMPLETE_DAY_DEFAULT_HORIZON).toBe('week')
+    expect(COMPLETE_DAY_HORIZON_DAYS).toEqual({
+      week: 7,
+      month: 30,
+      year: 365,
+    })
+    expect(completeDayHorizonDays()).toBe(7)
+    expect(completeDayHorizonDays('week')).toBe(7)
+    expect(completeDayHorizonDays('month')).toBe(30)
+    expect(completeDayHorizonDays('year')).toBe(365)
+    expect(completeDayHorizonWeeks('week')).toBe(1)
+    expect(completeDayHorizonWeeks('month')).toBeCloseTo(30 / 7)
+    expect(completeDayHorizonWeeks('year')).toBeCloseTo(365 / 7)
+  })
+
+  it('shifts the chart end date with the selected horizon', () => {
+    expect(completeDayProjectionEndIso('2026-03-01', 'week')).toBe('2026-03-08')
+    expect(completeDayProjectionEndIso('2026-03-01', 'month')).toBe(
+      '2026-03-31',
+    )
+    expect(completeDayProjectionEndIso('2026-03-01', 'year')).toBe('2027-03-01')
+  })
+
+  it('recalculates the estimate path length for each horizon', () => {
+    const week = projectWeightIfEatingLikeToday(sample)
+    const month = projectWeightIfEatingLikeToday({
+      ...sample,
+      horizon: 'month',
+    })
+    const year = projectWeightIfEatingLikeToday({
+      ...sample,
+      horizon: 'year',
+    })
+    expect(week.chartPoints).toHaveLength(8)
+    expect(month.chartPoints).toHaveLength(31)
+    expect(year.chartPoints).toHaveLength(366)
+    expect(month.totalChangeKg).toBeGreaterThan(week.totalChangeKg)
+    expect(year.totalChangeKg).toBeGreaterThan(month.totalChangeKg)
+    expect(week.chartPoints.at(-1)?.week).toBe(1)
+    expect(month.chartPoints.at(-1)?.week).toBeCloseTo(30 / 7)
+    expect(year.chartPoints.at(-1)?.week).toBeCloseTo(365 / 7)
   })
 })
