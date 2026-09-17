@@ -693,6 +693,7 @@ _Found while validating Settings groups / Day accordion / DateInput follow-ups o
 | [#931](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/931) | ✅ Done | PDF diary: replace unclear steps icon with a text label | Confirmed on-device 2026-09-16 — Metrics header shows Шаги/Steps beside the count. |
 | [#934](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/934) | ✅ Done | Day: Complete the day 5-week weight projection | Confirmed on-device 2026-09-16 — estimate sheet and 5-week line look right. Chart grid follow-up: #936. |
 | [#936](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/936) | ✅ Done | Complete the day chart: dashed week and 500 g grid | Confirmed on-device 2026-09-16 — week and 500 g mesh visible. Follow-ups: #938 labels, #937 lighter dashes. |
+| [#938](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/938) | ✅ Done | Complete the day chart: x-axis labels are cut off | Confirmed on-device 2026-09-17 — the chart’s start and end labels stay inside the plot. |
 
 ---
 
