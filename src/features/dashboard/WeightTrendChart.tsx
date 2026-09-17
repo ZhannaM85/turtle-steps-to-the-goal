@@ -21,8 +21,8 @@ import {
   type TrendChartPeriod,
 } from '@/domain/stats'
 import {
+  formatLocalizedDate,
   formatNumber,
-  getDateFnsLocale,
   unitLabel,
   useLocale,
   useTranslation,
@@ -36,6 +36,7 @@ import {
 } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
+import { chartDateXAxisProps } from './chartDateAxis'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
 import { isLoggedPeriodDay } from './cyclePeriodDay'
@@ -100,7 +101,6 @@ export function WeightTrendChart({
 }: WeightTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
-  const dateFnsLocale = getDateFnsLocale(locale)
   const displayUnit = useUnitStore((state) => state.unit)
   // #615 — one-line factual note, cycle-tracking users only; no per-user
   // predicted window, just a general "period days are known noise" fact.
@@ -305,7 +305,7 @@ export function WeightTrendChart({
         onTouchMove={(e) => e.stopPropagation()}
       >
         <p className="mb-1 font-medium">
-          {format(parseISO(String(label)), 'PP', { locale: dateFnsLocale })}
+          {formatLocalizedDate(String(label), locale)}
         </p>
         {/* #214: both series (either can be absent on a given day — an
          * early day before the rolling window fills has no average yet,
@@ -374,9 +374,7 @@ export function WeightTrendChart({
           <XAxis
             dataKey="date"
             tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-            tickFormatter={(date: string) =>
-              format(parseISO(date), 'PP', { locale: dateFnsLocale })
-            }
+            {...chartDateXAxisProps(locale)}
             axisLine={{ stroke: 'var(--border)' }}
             tickLine={false}
           />
@@ -488,9 +486,7 @@ export function WeightTrendChart({
         }
         getKey={(point) => point.date}
         getDate={(point) => point.date}
-        formatLabel={(point) =>
-          format(parseISO(point.date), 'd MMM yyyy', { locale: dateFnsLocale })
-        }
+        formatLabel={(point) => formatLocalizedDate(point.date, locale)}
       />
       {/* #238: legend doubles as a show/hide toggle per series — was purely
        * decorative before, no way to turn either off. Always rendered,

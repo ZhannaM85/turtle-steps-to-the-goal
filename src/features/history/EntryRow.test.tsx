@@ -55,10 +55,10 @@ describe('EntryRow', () => {
     expect(screen.getAllByText('—')).not.toHaveLength(0)
   })
 
-  it('shows the date in a compact, locale-agnostic numeric format (#73)', () => {
+  it('shows the date with the shared localized PP format (#957)', () => {
     renderRow()
 
-    expect(screen.getByText('01.03.26')).toBeInTheDocument()
+    expect(screen.getByText('Mar 1, 2026')).toBeInTheDocument()
   })
 
   it('shows the day\'s macro totals under calories, omitted when nothing logged (#52)', () => {

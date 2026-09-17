@@ -237,7 +237,7 @@ describe('WeightTrendChart', () => {
         wrapper: MemoryRouter,
       })
 
-      expect(screen.getByText('22.07.26 – 28.07.26')).toBeInTheDocument()
+      expect(screen.getByText('Jul 22, 2026 – Jul 28, 2026')).toBeInTheDocument()
       expect(
         screen.getByRole('button', { name: 'Next period' }),
       ).toBeDisabled()
@@ -262,7 +262,7 @@ describe('WeightTrendChart', () => {
 
       await user.click(screen.getByRole('button', { name: 'Previous period' }))
 
-      expect(screen.getByText('15.07.26 – 21.07.26')).toBeInTheDocument()
+      expect(screen.getByText('Jul 15, 2026 – Jul 21, 2026')).toBeInTheDocument()
       expect(
         screen.getByRole('button', { name: 'Next period' }),
       ).not.toBeDisabled()
@@ -292,7 +292,7 @@ describe('WeightTrendChart', () => {
 
       expect(
         screen.getByRole('button', {
-          name: 'Exclude 2 Mar 2026 from this pattern',
+          name: 'Exclude Mar 2, 2026 from this pattern',
         }),
       ).toBeInTheDocument()
     })
@@ -313,23 +313,23 @@ describe('WeightTrendChart', () => {
 
       await user.click(
         screen.getByRole('button', {
-          name: 'Exclude 2 Mar 2026 from this pattern',
+          name: 'Exclude Mar 2, 2026 from this pattern',
         }),
       )
       expect(
         screen.getByRole('button', {
-          name: 'Restore 2 Mar 2026 to this pattern',
+          name: 'Restore Mar 2, 2026 to this pattern',
         }),
       ).toBeInTheDocument()
 
       await user.click(
         screen.getByRole('button', {
-          name: 'Restore 2 Mar 2026 to this pattern',
+          name: 'Restore Mar 2, 2026 to this pattern',
         }),
       )
       expect(
         screen.getByRole('button', {
-          name: 'Exclude 2 Mar 2026 from this pattern',
+          name: 'Exclude Mar 2, 2026 from this pattern',
         }),
       ).toBeInTheDocument()
     })

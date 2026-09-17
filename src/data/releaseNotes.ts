@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 928,
+    issue: 957,
+    date: '2026-09-17T07:48:52+00:00',
+    en: 'Dates now use the same format on every screen, and chart date labels no longer overlap.',
+    ru: 'Даты везде в одном формате, и подписи дат на графиках больше не наезжают друг на друга.',
+  },
+  {
     version: 927,
     issue: 956,
     date: '2026-09-17T07:45:00+00:00',

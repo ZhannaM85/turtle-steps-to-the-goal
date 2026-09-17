@@ -1,5 +1,4 @@
 import { useState, type ReactNode } from 'react'
-import { format, parseISO } from 'date-fns'
 import { ArrowRight } from 'lucide-react'
 import {
   CartesianGrid,
@@ -22,7 +21,7 @@ import {
 } from '@/domain/stats'
 import {
   formatExactNumber,
-  getDateFnsLocale,
+  formatLocalizedDate,
   useLocale,
   useTranslation,
   type Dictionary,
@@ -34,6 +33,7 @@ import {
   useMicronutrientTrackingStore,
 } from '@/stores'
 import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
+import { chartDateXAxisProps } from './chartDateAxis'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
 import { useChartGestureZoom } from './useChartGestureZoom'
@@ -88,7 +88,6 @@ export function ElectrolyteTrendChart({
 }: ElectrolyteTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
-  const dateFnsLocale = getDateFnsLocale(locale)
   const stored = useDashboardChartPeriod('electrolytes')
   const pager = useChartPeriodPager(
     periodOverride ?? stored.period,
@@ -196,7 +195,7 @@ export function ElectrolyteTrendChart({
         onTouchMove={(e) => e.stopPropagation()}
       >
         <p className="mb-1 font-medium">
-          {format(parseISO(String(label)), 'PP', { locale: dateFnsLocale })}
+          {formatLocalizedDate(String(label), locale)}
         </p>
         {rows.map((key) => (
           <p key={key} style={{ color: SERIES_COLOR[key] }}>
@@ -267,9 +266,7 @@ export function ElectrolyteTrendChart({
           <XAxis
             dataKey="date"
             tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-            tickFormatter={(date: string) =>
-              format(parseISO(date), 'PP', { locale: dateFnsLocale })
-            }
+            {...chartDateXAxisProps(locale)}
             axisLine={{ stroke: 'var(--border)' }}
             tickLine={false}
           />

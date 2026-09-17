@@ -1,6 +1,5 @@
-import { format, parseISO } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useTranslation } from '@/i18n'
+import { formatLocalizedDateRange, useLocale, useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
 import type { ChartPeriodPager } from './useChartPeriodPager'
 
@@ -11,12 +10,12 @@ import type { ChartPeriodPager } from './useChartPeriodPager'
  * false ('all'/'custom' periods, or no `period` prop passed at all) so a
  * chart's footer looks exactly as it did before #443 in that case.
  *
- * Dates use a fixed `dd.MM.yy` format, not a locale-formatted one — matches
- * #444's own fix for this exact narrow-footer-space overlap problem on the
- * Compare Data chart's X-axis.
+ * #957 — range dates use `formatLocalizedDate` (`PP`), same as chart axes.
+ * Overlap is prevented by thinning axis ticks, not by a numeric one-off.
  */
 export function ChartPeriodPagerControls({ pager }: { pager: ChartPeriodPager }) {
   const t = useTranslation()
+  const locale = useLocale()
   if (!pager.showPager) return null
 
   return (
@@ -32,9 +31,9 @@ export function ChartPeriodPagerControls({ pager }: { pager: ChartPeriodPager })
         <ChevronLeft aria-hidden="true" />
       </Button>
       <span>
-        {pager.range.start && format(parseISO(pager.range.start), 'dd.MM.yy')}
-        {' – '}
-        {pager.range.end && format(parseISO(pager.range.end), 'dd.MM.yy')}
+        {pager.range.start &&
+          pager.range.end &&
+          formatLocalizedDateRange(pager.range.start, pager.range.end, locale)}
       </span>
       <Button
         type="button"

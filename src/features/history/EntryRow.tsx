@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { format, parseISO } from 'date-fns'
 import { ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react'
 import {
   totalCalories,
@@ -9,7 +8,7 @@ import {
   type DailyEntry,
 } from '@/domain/dailyEntry'
 import { kgToLb } from '@/domain/goal'
-import { formatExactNumber, formatNumber, useLocale, useTranslation } from '@/i18n'
+import { formatExactNumber, formatLocalizedDate, formatNumber, useLocale, useTranslation } from '@/i18n'
 import { DailyEntryForm } from '@/features/daily-log'
 import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
 import { cn } from '@/shared/lib/utils'
@@ -124,11 +123,8 @@ export function EntryRow({
               : isHeadingTowardGoal && 'bg-primary/5',
           )}
         >
-          {/* Compact numeric format (#73) — the localized 'PP' format
-           * ("15 июл. 2026 г.") was wide enough, combined with the other
-           * columns, to push the Actions column's icons off screen on
-           * narrow phones. dd.MM.yy is locale-agnostic and unambiguous. */}
-          {format(parseISO(entry.date), 'dd.MM.yy')}
+          {/* #957 — same `formatLocalizedDate` / `PP` path as Day and charts. */}
+          {formatLocalizedDate(entry.date, locale)}
           {(isGoalReachedDay || isHeadingTowardGoal) && (
             <span className="sr-only">
               {' '}

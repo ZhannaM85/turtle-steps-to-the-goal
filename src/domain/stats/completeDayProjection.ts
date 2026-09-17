@@ -1,5 +1,6 @@
 import { addDays, format, parseISO } from 'date-fns'
 import { KCAL_PER_KG_FAT } from '@/domain/goal'
+import { selectNonOverlappingDateTicks } from '@/i18n/dateLocale'
 import { calculateBmr, type Sex } from './bodyComposition'
 import { calculateTdee, type ActivityLevel } from './targetCalculator'
 
@@ -120,6 +121,30 @@ export function completeDayAxisTickLabel(
 ): string {
   const iso = completeDayAxisTickIso(startIso, week)
   return iso ? formatDate(iso) : ''
+}
+
+/** Conservative iPhone plot width for thinning Complete-the-day date labels. */
+export const COMPLETE_DAY_DATE_AXIS_PLOT_WIDTH_PX = 260
+
+/**
+ * #957 — labeled X ticks are a non-overlapping subset of the vertical grid.
+ * Grid lines stay dense; date strings are skipped rather than piled.
+ */
+export function completeDayLabeledWeekTicks(
+  horizon: CompleteDayHorizon,
+  startIso: string,
+  formatDate: (iso: string) => string,
+  plotWidthPx: number = COMPLETE_DAY_DATE_AXIS_PLOT_WIDTH_PX,
+): number[] {
+  const ticks = completeDayWeekGridTicks(horizon)
+  const endWeek = completeDayHorizonWeeks(horizon)
+  const lastIndex = ticks.length - 1
+  return selectNonOverlappingDateTicks(ticks, {
+    getLabel: (week) => completeDayAxisTickLabel(week, startIso, formatDate),
+    getX: (week) => (endWeek <= 0 ? 0 : (week / endWeek) * plotWidthPx),
+    getAnchor: (_week, index) =>
+      index === 0 ? 'start' : index === lastIndex ? 'end' : 'middle',
+  })
 }
 
 /**

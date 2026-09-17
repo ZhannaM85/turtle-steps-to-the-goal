@@ -613,11 +613,11 @@ describe('CustomChartView', () => {
 
       render(<CustomChartView entries={entries} period="week" />)
 
-      expect(screen.getByText('22.07.26 – 28.07.26')).toBeInTheDocument()
+      expect(screen.getByText('Jul 22, 2026 – Jul 28, 2026')).toBeInTheDocument()
 
       await user.click(screen.getByRole('button', { name: 'Previous period' }))
 
-      expect(screen.getByText('15.07.26 – 21.07.26')).toBeInTheDocument()
+      expect(screen.getByText('Jul 15, 2026 – Jul 21, 2026')).toBeInTheDocument()
     })
   })
 })

@@ -16,6 +16,7 @@ import {
   COMPLETE_DAY_HORIZONS,
   completeDayAxisTickLabel,
   completeDayHorizonWeeks,
+  completeDayLabeledWeekTicks,
   completeDayProjectionBlocker,
   completeDayWeekGridTicks,
   completeDayWeightAxisTicks,
@@ -24,7 +25,7 @@ import {
 } from '@/domain/stats'
 import {
   formatExactNumber,
-  formatLocalizedShortDate,
+  formatLocalizedDate,
   formatNumber,
   unitLabel,
   useLocale,
@@ -187,9 +188,14 @@ export function CompleteDayProjectionDialog() {
       average: toDisplay(point.averageKg),
     })) ?? []
   const weekTicks = completeDayWeekGridTicks(horizon)
+  const labeledWeekTicks = completeDayLabeledWeekTicks(
+    horizon,
+    state.date,
+    (iso) => formatLocalizedDate(iso, locale),
+  )
   const formatXTick = (week: number) =>
     completeDayAxisTickLabel(week, state.date, (iso) =>
-      formatLocalizedShortDate(iso, locale),
+      formatLocalizedDate(iso, locale),
     )
   const displayWeights = chartData.flatMap((point) => [
     point.weight,
@@ -330,13 +336,13 @@ export function CompleteDayProjectionDialog() {
                         strokeWidth={1}
                       />
                     ))}
-                    {/* #953 — date labels only at the vertical grid
-                     * positions; no day-count numbers or extra ticks. */}
+                    {/* #953/#957 — PP dates at a non-overlapping subset of
+                     * the vertical grid; skip ticks rather than pile labels. */}
                     <XAxis
                       dataKey="week"
                       type="number"
                       domain={[0, endWeek]}
-                      ticks={weekTicks}
+                      ticks={labeledWeekTicks}
                       interval={0}
                       minTickGap={0}
                       tick={

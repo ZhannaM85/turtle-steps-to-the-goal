@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import { format, parseISO } from 'date-fns'
 import { ChartColumn, ChartLine, ChartScatter } from 'lucide-react'
 import {
   Bar,
@@ -26,8 +25,8 @@ import {
   type TrendChartPeriod,
 } from '@/domain/stats'
 import {
+  formatLocalizedDate,
   formatNumber,
-  getDateFnsLocale,
   unitLabel,
   useLocale,
   useTranslation,
@@ -48,6 +47,7 @@ import {
 import { Button } from '@/shared/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
+import { chartDateXAxisProps } from './chartDateAxis'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { useChartGestureZoom } from './useChartGestureZoom'
 import { useChartPeriodPager } from './useChartPeriodPager'
@@ -351,7 +351,6 @@ export function CustomChartView({
 }: CustomChartViewProps) {
   const t = useTranslation()
   const locale = useLocale()
-  const dateFnsLocale = getDateFnsLocale(locale)
   const stored = useDashboardChartPeriod('customChart')
   const pager = useChartPeriodPager(
     periodOverride ?? stored.period,
@@ -596,7 +595,7 @@ export function CustomChartView({
         onTouchMove={(e) => e.stopPropagation()}
       >
         <p className="mb-1 font-medium">
-          {format(parseISO(date), 'PP', { locale: dateFnsLocale })}
+          {formatLocalizedDate(date, locale)}
         </p>
         {rows.map((key) => (
           <p key={key} style={{ color: seriesConfig[key].color }}>
@@ -694,15 +693,7 @@ export function CustomChartView({
               <XAxis
                 dataKey="date"
                 tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-                // #444 follow-up — reported live right after fixing the
-                // right-axis overflow: with both y-axes now actually
-                // rendering (taking up real width on both sides), the
-                // previous 'PP' format ("8 июл. 2026 г.") was too wide for
-                // the shrunk plot area and overlapped between ticks. A
-                // fixed numeric dd.MM.yy ("16.07.26") is short enough to
-                // fit and, unlike 'PP', has no locale-dependent month name
-                // to translate, so it doesn't need date-fns' locale option.
-                tickFormatter={(date: string) => format(parseISO(date), 'dd.MM.yy')}
+                {...chartDateXAxisProps(locale)}
                 axisLine={{ stroke: 'var(--border)' }}
                 tickLine={false}
               />

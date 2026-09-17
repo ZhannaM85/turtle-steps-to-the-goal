@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import { format, parseISO } from 'date-fns'
 import { ArrowRight } from 'lucide-react'
 import {
   Bar,
@@ -16,14 +15,15 @@ import { Link } from 'react-router-dom'
 import { totalCalories, type DailyEntry } from '@/domain/dailyEntry'
 import { rollingAverage, sliceByZoomWindow, type TrendChartPeriod } from '@/domain/stats'
 import {
+  formatLocalizedDate,
   formatNumber,
-  getDateFnsLocale,
   useLocale,
   useTranslation,
 } from '@/i18n'
 import { useDashboardChartVisibilityStore, useTrendChartSeriesStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
+import { chartDateXAxisProps } from './chartDateAxis'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
 import { useChartGestureZoom } from './useChartGestureZoom'
@@ -61,7 +61,6 @@ export function CalorieTrendChart({
 }: CalorieTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
-  const dateFnsLocale = getDateFnsLocale(locale)
   const stored = useDashboardChartPeriod('calories')
   const pager = useChartPeriodPager(
     periodOverride ?? stored.period,
@@ -178,7 +177,7 @@ export function CalorieTrendChart({
         onTouchMove={(e) => e.stopPropagation()}
       >
         <p className="mb-1 font-medium">
-          {format(parseISO(String(label)), 'PP', { locale: dateFnsLocale })}
+          {formatLocalizedDate(String(label), locale)}
         </p>
         {payload.map((item) => (
           <p key={String(item.dataKey)}>
@@ -228,9 +227,7 @@ export function CalorieTrendChart({
             <XAxis
               dataKey="date"
               tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-              tickFormatter={(date: string) =>
-                format(parseISO(date), 'PP', { locale: dateFnsLocale })
-              }
+              {...chartDateXAxisProps(locale)}
               axisLine={{ stroke: 'var(--border)' }}
               tickLine={false}
             />

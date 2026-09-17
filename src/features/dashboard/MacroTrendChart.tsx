@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import { format, parseISO } from 'date-fns'
 import { ArrowRight, ChartColumn, ChartLine, ChartScatter } from 'lucide-react'
 import {
   Bar,
@@ -16,8 +15,8 @@ import { Link } from 'react-router-dom'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import { customChartPoints, sliceByZoomWindow, type TrendChartPeriod } from '@/domain/stats'
 import {
+  formatLocalizedDate,
   formatNumber,
-  getDateFnsLocale,
   useLocale,
   useTranslation,
   type Dictionary,
@@ -32,6 +31,7 @@ import {
   type MacroSeriesKey,
 } from '@/stores'
 import { ChartPeriodPagerControls } from './ChartPeriodPagerControls'
+import { chartDateXAxisProps } from './chartDateAxis'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { resolveChartClickDate } from './chartNavigation'
 import { useChartGestureZoom } from './useChartGestureZoom'
@@ -110,7 +110,6 @@ export function MacroTrendChart({
 }: MacroTrendChartProps) {
   const t = useTranslation()
   const locale = useLocale()
-  const dateFnsLocale = getDateFnsLocale(locale)
   const stored = useDashboardChartPeriod('macros')
   const pager = useChartPeriodPager(
     periodOverride ?? stored.period,
@@ -260,7 +259,7 @@ export function MacroTrendChart({
         onTouchMove={(e) => e.stopPropagation()}
       >
         <p className="mb-1 font-medium">
-          {format(parseISO(String(label)), 'PP', { locale: dateFnsLocale })}
+          {formatLocalizedDate(String(label), locale)}
         </p>
         {rows.map((key) => (
           <p key={key} style={{ color: SERIES_COLOR[key] }}>
@@ -300,9 +299,7 @@ export function MacroTrendChart({
           <XAxis
             dataKey="date"
             tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-            tickFormatter={(date: string) =>
-              format(parseISO(date), 'PP', { locale: dateFnsLocale })
-            }
+            {...chartDateXAxisProps(locale)}
             axisLine={{ stroke: 'var(--border)' }}
             tickLine={false}
           />

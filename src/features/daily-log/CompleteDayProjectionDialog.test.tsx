@@ -7,10 +7,11 @@ import {
   completeDayAxisTickLabel,
   completeDayChartEndAxisLabel,
   completeDayHorizonWeeks,
+  completeDayLabeledWeekTicks,
   completeDayProjectionEndIso,
   completeDayWeekGridTicks,
 } from '@/domain/stats'
-import { formatLocalizedDate, formatLocalizedShortDate } from '@/i18n'
+import { formatLocalizedDate } from '@/i18n'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useProfileStore } from '@/stores'
 import {
@@ -191,10 +192,10 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 /
     expect(screen.queryByText("Today's intake")).not.toBeInTheDocument()
   })
 
-  it('anchors short dates at the start and end of the grid (#938 / #953)', () => {
+  it('anchors PP dates at the start and end of the grid (#938 / #953 / #957)', () => {
     const formatTick = (week: number) =>
       completeDayAxisTickLabel(week, '2026-03-01', (iso) =>
-        formatLocalizedShortDate(iso, 'en'),
+        formatLocalizedDate(iso, 'en'),
       )
     const { container } = render(
       <svg>
@@ -224,18 +225,18 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 /
     const labels = container.querySelectorAll('text')
     expect(labels).toHaveLength(3)
     expect(labels[0]).toHaveAttribute('text-anchor', 'start')
-    expect(labels[0]).toHaveTextContent('03/01/2026')
+    expect(labels[0]).toHaveTextContent('Mar 1, 2026')
     expect(labels[1]).toHaveAttribute('text-anchor', 'end')
-    expect(labels[1]).toHaveTextContent('03/08/2026')
+    expect(labels[1]).toHaveTextContent('Mar 8, 2026')
     expect(labels[2]).toHaveAttribute('text-anchor', 'middle')
-    expect(labels[2]).toHaveTextContent('03/05/2026')
+    expect(labels[2]).toHaveTextContent('Mar 5, 2026')
     expect(labels[2]?.textContent).not.toMatch(/^\d+$/)
   })
 
   it('labels interior X ticks as dates, not day numbers (#953)', () => {
     const formatTick = (week: number) =>
       completeDayAxisTickLabel(week, '2026-03-01', (iso) =>
-        formatLocalizedShortDate(iso, 'en'),
+        formatLocalizedDate(iso, 'en'),
       )
     const { container } = render(
       <svg>
@@ -250,19 +251,24 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 /
     )
     const label = container.querySelector('text')
     expect(label).toHaveAttribute('text-anchor', 'middle')
-    expect(label).toHaveTextContent('03/04/2026')
+    expect(label).toHaveTextContent('Mar 4, 2026')
     expect(label?.textContent).not.toMatch(/^\d+$/)
   })
 
-  it('puts a date under every Month grid line and nowhere else (#953)', () => {
+  it('labels a non-overlapping Month subset, including start and end (#957)', () => {
     const formatTick = (week: number) =>
       completeDayAxisTickLabel(week, '2026-03-01', (iso) =>
-        formatLocalizedShortDate(iso, 'en'),
+        formatLocalizedDate(iso, 'en'),
       )
     const ticks = completeDayWeekGridTicks('month')
+    const labeled = completeDayLabeledWeekTicks(
+      'month',
+      '2026-03-01',
+      (iso) => formatLocalizedDate(iso, 'en'),
+    )
     const { container } = render(
       <svg>
-        {ticks.map((week) => (
+        {labeled.map((week) => (
           <CompleteDayWeekTick
             key={week}
             x={week * 40}
@@ -277,17 +283,13 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 /
     const labels = [...container.querySelectorAll('text')].map(
       (node) => node.textContent,
     )
-    expect(labels).toEqual([
-      '03/01/2026',
-      '03/08/2026',
-      '03/15/2026',
-      '03/22/2026',
-      '03/29/2026',
-      '03/31/2026',
-    ])
-    expect(labels).toHaveLength(ticks.length)
+    expect(labels[0]).toBe('Mar 1, 2026')
+    expect(labels.at(-1)).toBe('Mar 31, 2026')
+    expect(labels.length).toBe(labeled.length)
+    expect(labels.length).toBeLessThan(ticks.length)
     for (const label of labels) {
       expect(label).not.toMatch(/^\d+$/)
+      expect(label).not.toMatch(/^\d{2}\/\d{2}\/\d{4}$/)
     }
   })
 
@@ -297,7 +299,7 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 /
     )
     const formatTick = (week: number) =>
       completeDayAxisTickLabel(week, '2026-03-01', (iso) =>
-        formatLocalizedShortDate(iso, 'en'),
+        formatLocalizedDate(iso, 'en'),
       )
     const { container } = render(
       <svg>
@@ -312,7 +314,7 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 /
     )
     expect(endLabel).toBe('Mar 8, 2026')
     expect(endLabel).not.toMatch(/1 week/)
-    expect(container.querySelector('text')).toHaveTextContent('03/08/2026')
+    expect(container.querySelector('text')).toHaveTextContent('Mar 8, 2026')
     expect(container.querySelector('text')).not.toHaveTextContent('Today')
   })
 

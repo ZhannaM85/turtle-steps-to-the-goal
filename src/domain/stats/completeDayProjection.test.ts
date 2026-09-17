@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { calculateBmr } from './bodyComposition'
 import { calculateTdee } from './targetCalculator'
 import { KCAL_PER_KG_FAT } from '@/domain/goal'
-import { formatLocalizedDate, formatLocalizedShortDate } from '@/i18n'
+import { formatLocalizedDate } from '@/i18n'
 import {
   COMPLETE_DAY_DEFAULT_HORIZON,
   COMPLETE_DAY_GRID_KG,
@@ -12,6 +12,7 @@ import {
   COMPLETE_DAY_AXIS_MAX_TICKS,
   completeDayAxisTickIso,
   completeDayAxisTickLabel,
+  completeDayLabeledWeekTicks,
   completeDayChartEndAxisLabel,
   completeDayHorizonDays,
   completeDayHorizonWeeks,
@@ -379,9 +380,9 @@ describe('complete-the-day horizons (#948)', () => {
   })
 })
 
-describe('complete-the-day axis ticks (#949 / #953 / #954)', () => {
-  it('labels X ticks as short dates under the same positions as the grid', () => {
-    const formatDate = (iso: string) => formatLocalizedShortDate(iso, 'en')
+describe('complete-the-day axis ticks (#949 / #953 / #954 / #957)', () => {
+  it('maps every grid tick to a PP date, then labels only a non-overlapping subset', () => {
+    const formatDate = (iso: string) => formatLocalizedDate(iso, 'en')
     const monthTicks = completeDayWeekGridTicks('month')
     expect(monthTicks).toEqual([0, 1, 2, 3, 4, 30 / 7])
     expect(
@@ -389,40 +390,64 @@ describe('complete-the-day axis ticks (#949 / #953 / #954)', () => {
         completeDayAxisTickLabel(week, '2026-03-01', formatDate),
       ),
     ).toEqual([
-      '03/01/2026',
-      '03/08/2026',
-      '03/15/2026',
-      '03/22/2026',
-      '03/29/2026',
-      '03/31/2026',
+      'Mar 1, 2026',
+      'Mar 8, 2026',
+      'Mar 15, 2026',
+      'Mar 22, 2026',
+      'Mar 29, 2026',
+      'Mar 31, 2026',
     ])
+    const labeled = completeDayLabeledWeekTicks(
+      'month',
+      '2026-03-01',
+      formatDate,
+    )
+    expect(labeled[0]).toBe(0)
+    expect(labeled.at(-1)).toBe(30 / 7)
+    expect(labeled.length).toBeLessThan(monthTicks.length)
+    expect(labeled.length).toBeGreaterThanOrEqual(2)
+    for (const week of labeled) {
+      expect(monthTicks).toContain(week)
+      const label = completeDayAxisTickLabel(week, '2026-03-01', formatDate)
+      expect(label).not.toMatch(/^\d{2}\/\d{2}\/\d{4}$/)
+      expect(label).not.toMatch(/^\d+$/)
+    }
     expect(completeDayAxisTickIso('2026-03-01', 0)).toBe('2026-03-01')
     expect(completeDayAxisTickIso('2026-03-01', 1)).toBe('2026-03-08')
     expect(completeDayAxisTickIso('2026-03-01', 30 / 7)).toBe('2026-03-31')
   })
 
-  it('uses short dates on Week and Year too, never a day-count number', () => {
-    const formatDate = (iso: string) => formatLocalizedShortDate(iso, 'en')
-    const formatRu = (iso: string) => formatLocalizedShortDate(iso, 'ru')
+  it('uses formatLocalizedDate on Week and Year too, never a day-count or US numeric date', () => {
+    const formatDate = (iso: string) => formatLocalizedDate(iso, 'en')
+    const formatRu = (iso: string) => formatLocalizedDate(iso, 'ru')
     expect(completeDayWeekGridTicks('week')).toEqual([0, 1])
     expect(completeDayAxisTickLabel(0, '2026-03-01', formatDate)).toBe(
-      '03/01/2026',
+      'Mar 1, 2026',
     )
     expect(completeDayAxisTickLabel(1, '2026-03-01', formatDate)).toBe(
-      '03/08/2026',
+      'Mar 8, 2026',
     )
     expect(completeDayAxisTickLabel(0, '2026-03-01', formatRu)).toBe(
-      '01.03.2026',
+      '1 мар. 2026 г.',
     )
     const yearTicks = completeDayWeekGridTicks('year')
-    const yearLabels = yearTicks.map((week) =>
+    const yearLabeled = completeDayLabeledWeekTicks(
+      'year',
+      '2026-03-01',
+      formatDate,
+    )
+    expect(yearLabeled[0]).toBe(0)
+    expect(yearLabeled.at(-1)).toBe(365 / 7)
+    expect(yearLabeled.length).toBeLessThanOrEqual(yearTicks.length)
+    expect(yearLabeled.length).toBeGreaterThanOrEqual(2)
+    const yearLabels = yearLabeled.map((week) =>
       completeDayAxisTickLabel(week, '2026-03-01', formatDate),
     )
-    expect(yearLabels[0]).toBe('03/01/2026')
-    expect(yearLabels.at(-1)).toBe('03/01/2027')
-    expect(yearLabels).toHaveLength(yearTicks.length)
+    expect(yearLabels[0]).toBe('Mar 1, 2026')
+    expect(yearLabels.at(-1)).toBe('Mar 1, 2027')
     for (const label of yearLabels) {
       expect(label).not.toMatch(/^\d+$/)
+      expect(label).not.toMatch(/^\d{2}\/\d{2}\/\d{4}$/)
       expect(label).toMatch(/\d{4}/)
     }
     expect(completeDayAxisTickLabel(3 / 7, '2026-03-01', formatDate)).not.toBe(
