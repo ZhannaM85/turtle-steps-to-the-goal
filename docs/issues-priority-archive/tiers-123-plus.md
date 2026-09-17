@@ -702,6 +702,7 @@ _Reported from an iPhone PDF export and the Day screen._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#950](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/950) | ✅ Done | Projection chart: balance вес oscillation equally above/below average | Confirmed on-device 2026-09-17 — projected weight oscillates evenly around the average line. |
 | [#951](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/951) | ✅ Done | Projection tab bar: match Settings Export segment styling | Confirmed on-device 2026-09-17 — projection tabs match the Settings Export segmented control. |
 | [#953](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/953) | ✅ Done | Projection X-axis: date labels under grid lines only (no day numbers) | Confirmed on-device 2026-09-17 — localized dates sit under the projection grid lines without extra day-number labels. |
 | [#954](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/954) | ✅ Done | Projection Year view: restore full horizontal weight grid | Confirmed on-device 2026-09-17 — Year view shows the full horizontal weight grid. |
