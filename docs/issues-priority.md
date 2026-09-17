@@ -56,3 +56,4 @@ _Reported from an iPhone PDF export and the Day screen._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#965](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/965) | 🔍 Pending validation | Day: remove optional-fields subheader under morning and evening sections | Shipped; awaiting on-device confirmation. Removed the hint under Morning/Evening titles; Settings toggles for optional fields are unchanged. |

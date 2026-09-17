@@ -36,7 +36,6 @@ export function DailyEntryFormMorning() {
       onOpenChange={(open) => setCollapsed('morning', !open)}
       title={t.dailyEntry.morningEntriesTitle}
       icon={<Sun aria-hidden="true" className="size-4" />}
-      subtitle={t.dailyEntry.morningEntriesSubtitle}
       expandLabel={t.dailyEntry.expandMorningEntriesLabel}
       collapseLabel={t.dailyEntry.collapseMorningEntriesLabel}
     >

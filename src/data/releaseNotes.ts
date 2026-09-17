@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 939,
+    issue: 965,
+    date: '2026-09-17T23:38:07+03:00',
+    en: 'The Day screen no longer shows the optional-fields hint under Morning and Evening.',
+    ru: 'На экране «День» убрана подсказка про необязательные поля под утренними и вечерними записями.',
+  },
+  {
     version: 938,
     issue: 963,
     date: '2026-09-17T20:05:00+00:00',

@@ -80,6 +80,18 @@ describe('DailyEntryForm', () => {
       expect(screen.queryByText('Night food')).not.toBeInTheDocument()
     })
 
+    it('does not show the optional-fields hint under Morning or Evening headers (#965)', () => {
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+      )
+
+      expect(screen.getByText('Morning entries')).toBeInTheDocument()
+      expect(screen.getByText('Evening entries')).toBeInTheDocument()
+      expect(
+        screen.queryByText(/don't have to fill these in/i),
+      ).not.toBeInTheDocument()
+    })
+
     it('hides the whole Evening section when every evening field is off (#532)', () => {
       useDigestionTrackingStore.setState({ enabled: false })
       useTrackedFieldsStore.setState((state) => ({

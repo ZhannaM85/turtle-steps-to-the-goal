@@ -6,9 +6,7 @@ export interface DailyEntryFieldsDict {
      * Note, Mood, Constipation, Night eating). Meals and Water stay
      * ungrouped, matching the user's own reference mockup. */
     morningEntriesTitle: string
-    morningEntriesSubtitle: string
     eveningEntriesTitle: string
-    eveningEntriesSubtitle: string
     /** #472 — accordion triggers wrapping the Morning/Evening entries
      * groups, same expand/collapse aria-label pair shape as
      * expandMacrosLabel/collapseMacrosLabel and expandMealsLabel/

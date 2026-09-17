@@ -2,12 +2,7 @@ import type { DailyEntryDict } from '../types/dailyEntry'
 
 export const dailyEntry: DailyEntryDict = {
     morningEntriesTitle: 'Утренние записи',
-    // #528 — было «Заполните…» (звучало как обязательное).
-    morningEntriesSubtitle:
-      'Эти поля заполнять не обязательно. Ненужные можно отключить в настройках.',
     eveningEntriesTitle: 'Вечерние записи',
-    eveningEntriesSubtitle:
-      'Эти поля заполнять не обязательно. Ненужные можно отключить в настройках.',
     expandMorningEntriesLabel: 'Показать утренние записи',
     collapseMorningEntriesLabel: 'Скрыть утренние записи',
     expandEveningEntriesLabel: 'Показать вечерние записи',
