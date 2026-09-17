@@ -13,10 +13,6 @@ const diaryHeaderMetricKinds = {
   mood: true,
 } as const
 
-function diaryHeaderMetricHtml(text: string): string {
-  return `<span class="pdf-day-header-metric">${escapeHtml(text)}</span>`
-}
-
 function diaryMetricLineHtml(text: string): string {
   const separator = text.indexOf(':')
   if (separator < 0) return escapeHtml(text)
@@ -61,7 +57,7 @@ export function dailyLogPagesHtml(
               : ''
       const waterTitleParts = sectionTitle.split('  ·  ')
       const titleHtml = sectionTitle === t.pdfSummary.dailyLogMetricsSectionTitle
-        ? `<span class="pdf-day-section-title-metrics">${metricsHeaderValues.join('')}</span><span class="pdf-day-section-title-lead">${escapeHtml(sectionTitle)}</span>`
+        ? `<span>${escapeHtml([sectionTitle, ...metricsHeaderValues].join(' · '))}</span>`
         : sectionClass.includes('pdf-day-section-water') && waterTitleParts.length > 1
           ? `<span class="pdf-day-section-title-lead"><span>${escapeHtml(waterTitleParts[0] ?? '')}</span> <span class="pdf-day-section-water-total">${escapeHtml(waterTitleParts.slice(1).join('  ·  '))}</span></span>`
           : `<span>${escapeHtml(sectionTitle)}</span>`
@@ -83,7 +79,7 @@ export function dailyLogPagesHtml(
         continue
       }
       if (line.kind && line.kind in diaryHeaderMetricKinds) {
-        metricsHeaderValues.push(diaryHeaderMetricHtml(line.text))
+        metricsHeaderValues.push(line.text)
         continue
       }
       if (line.role === 'section') {

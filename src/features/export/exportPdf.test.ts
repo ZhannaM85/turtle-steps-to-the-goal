@@ -717,15 +717,16 @@ describe('buildSummaryPdf', () => {
     expect(day.querySelector('.pdf-day-header')?.textContent).not.toContain(
       '7h 30m',
     )
-    const metricsTitle = day.querySelector('.pdf-day-section-title-metrics')
-    expect(
-      metricsTitle?.querySelectorAll('.pdf-day-header-metric'),
-    ).toHaveLength(4)
+    const metricsTitle = day.querySelector(
+      '.pdf-day-section-metrics .pdf-day-section-title',
+    )
     expect(metricsTitle?.textContent).toContain('7h 30m')
     expect(metricsTitle?.textContent).toContain(`${t.dailyEntry.sleepLabel}:`)
     expect(metricsTitle?.textContent).toContain(`${t.dailyEntry.deepSleepLabel}:`)
     expect(metricsTitle?.textContent).toContain(`${t.dailyEntry.stepsLabel}:`)
     expect(metricsTitle?.textContent).toContain(`${t.exportXlsx.moodColumn}:`)
+    expect(metricsTitle?.textContent).toContain(' · ')
+    expect(metricsTitle?.querySelector('.pdf-day-header-metric')).toBeNull()
     expect(metricsTitle?.querySelector('svg')).toBeNull()
     const mealCards = [...day.querySelectorAll('.pdf-meal-card')]
     const mealColumns = [...day.querySelectorAll('.pdf-meal-column')]
@@ -817,9 +818,7 @@ describe('buildSummaryPdf', () => {
     )
     expect(PDF_DOCUMENT_CSS).toContain('.pdf-day-section-title')
     expect(PDF_DOCUMENT_CSS).toContain('font-size: 10.5pt')
-    expect(PDF_DOCUMENT_CSS).toContain(
-      '.pdf-day-section-metrics .pdf-day-section-title',
-    )
+    expect(PDF_DOCUMENT_CSS).toContain('.pdf-day-section-title > span')
     expect(PDF_DOCUMENT_CSS).toContain('display: block')
     expect(PDF_DOCUMENT_CSS).toContain('padding: 1pt 6pt 11pt')
     expect(PDF_DOCUMENT_CSS).toContain('padding: 0 6pt 8pt')
@@ -941,21 +940,16 @@ describe('buildSummaryPdf', () => {
     const metricsTitle = day.querySelector(
       '.pdf-day-section-metrics .pdf-day-section-title',
     )
-    const lead = metricsTitle?.querySelector(
-      ':scope > .pdf-day-section-title-lead',
+    const foodTitle = day.querySelector(
+      '.pdf-day-section-food .pdf-day-section-title',
     )
-    const chips = metricsTitle?.querySelector(
-      ':scope > .pdf-day-section-title-metrics',
-    )
-    expect(lead?.textContent).toBe(ru.pdfSummary.dailyLogMetricsSectionTitle)
-    expect(lead?.textContent).toBe('Показатели')
-    expect(lead?.querySelector('.pdf-day-section-title-metrics')).toBeNull()
-    expect(
-      chips?.querySelectorAll('.pdf-day-header-metric').length,
-    ).toBeGreaterThan(0)
-    expect(metricsTitle?.firstElementChild).toBe(chips)
+    expect(metricsTitle?.textContent).toContain('Показатели · Сон:')
+    expect(metricsTitle?.children).toHaveLength(1)
+    expect(metricsTitle?.firstElementChild?.tagName).toBe('SPAN')
+    expect(metricsTitle?.className).toBe(foodTitle?.className)
+    expect(metricsTitle?.querySelector('[class]')).toBeNull()
     expect(enHtml).toContain(
-      `class="pdf-day-section-title-lead">${t.pdfSummary.dailyLogMetricsSectionTitle}<`,
+      `<span>${t.pdfSummary.dailyLogMetricsSectionTitle} · `,
     )
     const titleRule = PDF_DOCUMENT_CSS.match(
       /\.pdf-day-section-title \{([^}]*)\}/,
@@ -963,24 +957,13 @@ describe('buildSummaryPdf', () => {
     const metricsTitleRule = PDF_DOCUMENT_CSS.match(
       /\.pdf-day-section-metrics \.pdf-day-section-title \{([^}]*)\}/,
     )?.[1]
-    const leadRule = PDF_DOCUMENT_CSS.match(
-      /\.pdf-day-section-title-lead \{([^}]*)\}/,
-    )?.[1]
     const chipsRule = PDF_DOCUMENT_CSS.match(
       /\.pdf-day-section-title-metrics \{([^}]*)\}/,
     )?.[1]
     expect(titleRule).toContain('font-size: 10.5pt')
     expect(titleRule).toContain('font-weight: 600')
-    expect(metricsTitleRule).toContain('font-size: 10.5pt')
-    expect(metricsTitleRule).toContain('font-weight: 600')
-    expect(metricsTitleRule).toContain('display: block')
-    expect(leadRule).toContain('font-size: 10.5pt')
-    expect(leadRule).toContain('font-weight: 600')
-    expect(leadRule).toContain('color: inherit')
-    expect(chipsRule).toContain('font-size: 10.5pt')
-    expect(chipsRule).toContain('font-weight: 400')
-    expect(chipsRule).toContain('float: right')
-    expect(chipsRule).toContain('display: block')
+    expect(metricsTitleRule).toBeUndefined()
+    expect(chipsRule).toBeUndefined()
     expect(
       day.querySelector('.pdf-day-section-food .pdf-day-section-title'),
     ).not.toBeNull()
@@ -1005,10 +988,14 @@ describe('buildSummaryPdf', () => {
       /\.pdf-day-section-water \.pdf-day-section-content \.pdf-day-item \{([^}]*)\}/,
     )?.[1]
     expect(waterItemRule).toContain('font-size: 11.5pt')
-    const metricsNotesRule = PDF_DOCUMENT_CSS.match(
-      /\.pdf-day-section-metrics \.pdf-day-section-content \.pdf-line,\s*\.pdf-day-section-notes \.pdf-day-section-content \.pdf-line \{([^}]*)\}/,
+    const metricsRule = PDF_DOCUMENT_CSS.match(
+      /\.pdf-day-section-metrics \.pdf-day-section-content \.pdf-line \{([^}]*)\}/,
     )?.[1]
-    expect(metricsNotesRule).toContain('font-size: 8pt')
+    const notesRule = PDF_DOCUMENT_CSS.match(
+      /\.pdf-day-section-notes \.pdf-day-section-content \.pdf-line \{([^}]*)\}/,
+    )?.[1]
+    expect(metricsRule).toContain('font-size: 6pt')
+    expect(notesRule).toContain('font-size: 8pt')
     expect(PDF_DOCUMENT_CSS).toContain(
       '.pdf-meal-card .pdf-line { font-weight: 600; font-size: 9.5pt',
     )
@@ -1043,12 +1030,9 @@ describe('buildSummaryPdf', () => {
     container.innerHTML = enHtml
     const metricsTitle = container
       .querySelectorAll('.pdf-page')[1]
-      ?.querySelector('.pdf-day-section-title-metrics')
-    const stepsMetric = [
-      ...(metricsTitle?.querySelectorAll('.pdf-day-header-metric') ?? []),
-    ].find((el) => el.textContent?.includes('Steps'))
-    expect(stepsMetric?.textContent).toContain('Steps')
-    expect(stepsMetric?.querySelector('svg')).toBeNull()
+      ?.querySelector('.pdf-day-section-metrics .pdf-day-section-title')
+    expect(metricsTitle?.textContent).toContain('Steps')
+    expect(metricsTitle?.querySelector('svg')).toBeNull()
     expect(enHtml).not.toContain('M8 3v5l3 2')
     expect(ruHtml).toContain('Шаги')
   })

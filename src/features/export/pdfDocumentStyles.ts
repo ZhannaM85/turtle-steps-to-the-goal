@@ -152,22 +152,7 @@ export const PDF_DOCUMENT_CSS = `
     overflow: hidden;
   }
   .pdf-day-section-title > span { line-height: 1.2; }
-  /* #941 — keep the compact chips out of the title's font context. On-device
-     html2canvas paints the title too small when both are flex children. */
-  .pdf-day-section-metrics .pdf-day-section-title {
-    display: block;
-    font-size: 10.5pt;
-    font-weight: 600;
-  }
-  .pdf-day-section-title-metrics {
-    float: right;
-    display: block;
-    white-space: nowrap;
-    font-size: 10.5pt;
-    font-weight: 400;
-    line-height: 1.2;
-  }
-  /* #941 — Metrics/Water title labels must match .pdf-day-section-title, not chip type. */
+  /* Water keeps its total regular while inheriting the shared title size. */
   .pdf-day-section-title-lead {
     display: inline;
     font-size: 10.5pt;
@@ -175,13 +160,6 @@ export const PDF_DOCUMENT_CSS = `
     color: inherit;
   }
   .pdf-day-section-water-total { font-weight: 400; padding-left: 4pt; }
-  .pdf-day-header-metric {
-    display: inline-block;
-    margin-left: 7pt;
-    white-space: nowrap;
-    line-height: 1.2;
-  }
-  .pdf-day-header-metric:first-child { margin-left: 0; }
   .pdf-day-section:nth-of-type(1) .pdf-day-section-title { background: #eef2ff; color: #3730a3; }
   .pdf-day-section:nth-of-type(2) .pdf-day-section-title { background: #fff7ed; color: #9a3412; }
   .pdf-day-section:nth-of-type(3) .pdf-day-section-title { background: #ecfeff; color: #155e75; }
@@ -206,7 +184,10 @@ export const PDF_DOCUMENT_CSS = `
     padding-left: 9pt;
     padding-bottom: 12pt;
   }
-  .pdf-day-section-metrics .pdf-day-section-content .pdf-line,
+  .pdf-day-section-metrics .pdf-day-section-content .pdf-line {
+    font-size: 6pt;
+    line-height: 1.18;
+  }
   .pdf-day-section-notes .pdf-day-section-content .pdf-line {
     font-size: 8pt;
     line-height: 1.18;
