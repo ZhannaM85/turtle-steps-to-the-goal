@@ -50,7 +50,7 @@ _Reported from iPhone PDF previews and local Chrome._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#929](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/929) | ⬜ Open | PDF diary: reduce Metrics and Notes body text size | Failed on-device validation 2026-09-17: the requested result is not fully addressed. Needs correction before another device check. |
-| [#932](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/932) | 🔍 Pending validation | PDF diary: footer still cut off, generated date not visible | Pages and footers now have right/bottom safety clearance, and every footer shows its page number. Awaiting on-device confirmation. |
+| [#932](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/932) | ⬜ Open | PDF diary: footer still cut off, generated date not visible | Failed on-device validation 2026-09-17: the requested result is not fully addressed. Needs correction before another device check. |
 
 ## Tier 165 — PDF footer whitespace and Day chrome (2026-09-17)
 
