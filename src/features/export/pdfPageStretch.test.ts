@@ -2,7 +2,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   a4ContentCanvasHeightPx,
   packPdfPageElement,
-  pdfFooterSourceFromCanvasBottom,
   pdfImageHeightMm,
   pdfPageStretchMetrics,
   pinPdfFooterToCanvasBottom,
@@ -14,85 +13,67 @@ describe('pinPdfFooterToCanvasBottom (#960)', () => {
   })
 
   it('pins the footer on A4 paper without scaling body or footer pixels', () => {
-    const page = document.createElement('section')
-    page.className = 'pdf-page'
-    page.innerHTML =
-      '<div class="pdf-page-body">body</div><footer class="pdf-footer">Disclaimer</footer>'
-    document.body.appendChild(page)
-    const footer = page.querySelector('.pdf-footer') as HTMLElement
-    vi.spyOn(page, 'getBoundingClientRect').mockReturnValue(
-      new DOMRect(0, 100, 100, 190),
+    const canvas = document.createElement('canvas')
+    canvas.width = 1021
+    canvas.height = 225
+    const footerCanvas = document.createElement('canvas')
+    footerCanvas.width = 1021
+    footerCanvas.height = 60
+    const drawImage = vi.fn()
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
+      fillStyle: '',
+      fillRect: vi.fn(),
+      drawImage,
+    } as unknown as CanvasRenderingContext2D)
+    const destHeight = a4ContentCanvasHeightPx(canvas.width, 190)
+    const dest = pinPdfFooterToCanvasBottom(
+      canvas,
+      footerCanvas,
+      destHeight,
     )
-    vi.spyOn(footer, 'getBoundingClientRect').mockReturnValue(
-      new DOMRect(0, 250, 100, 40),
+    expect(dest).not.toBe(canvas)
+    expect(dest.height).toBe(destHeight)
+    expect(drawImage).toHaveBeenNthCalledWith(
+      1,
+      canvas,
+      0,
+      0,
     )
-    // A bad WebKit offsetHeight must not pull Water/Notes into the footer slice.
-    vi.spyOn(footer, 'offsetHeight', 'get').mockReturnValue(120)
-    vi.spyOn(page, 'scrollHeight', 'get').mockReturnValue(190)
-    vi.spyOn(page, 'offsetHeight', 'get').mockReturnValue(190)
-
-    try {
-      expect(pdfFooterSourceFromCanvasBottom(285, page, 190)).toEqual({
-        y: 225,
-        height: 60,
-      })
-      const canvas = document.createElement('canvas')
-      canvas.width = 1021
-      canvas.height = 285
-      const drawImage = vi.fn()
-      vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
-        fillStyle: '',
-        fillRect: vi.fn(),
-        drawImage,
-      } as unknown as CanvasRenderingContext2D)
-      const destHeight = a4ContentCanvasHeightPx(canvas.width, 190)
-      const dest = pinPdfFooterToCanvasBottom(
-        canvas,
-        page,
-        destHeight,
-        190,
-      )
-      expect(dest).not.toBe(canvas)
-      expect(dest.height).toBe(destHeight)
-      expect(drawImage).toHaveBeenNthCalledWith(
-        1,
-        canvas,
-        0,
-        0,
-        1021,
-        225,
-        0,
-        0,
-        1021,
-        225,
-      )
-      expect(drawImage).toHaveBeenNthCalledWith(
-        2,
-        canvas,
-        0,
-        225,
-        1021,
-        60,
-        0,
-        destHeight - 60,
-        1021,
-        60,
-      )
-      const placedMm = pdfImageHeightMm(dest.width, dest.height, 190)
-      expect(placedMm).toBeGreaterThan(276)
-      expect(297 - 10 - placedMm).toBeGreaterThan(10)
-    } finally {
-      page.remove()
-    }
+    expect(drawImage).toHaveBeenNthCalledWith(
+      2,
+      footerCanvas,
+      0,
+      destHeight - 60,
+    )
+    const placedMm = pdfImageHeightMm(dest.width, dest.height, 190)
+    expect(placedMm).toBeGreaterThan(276)
+    expect(297 - 10 - placedMm).toBeGreaterThan(10)
   })
 
-  it('leaves a full-height capture unchanged', () => {
+  it('leaves the body unchanged when the footer capture is empty', () => {
     const canvas = document.createElement('canvas')
     canvas.width = 100
     canvas.height = 980
-    const page = document.createElement('section')
-    expect(pinPdfFooterToCanvasBottom(canvas, page, 980, 980)).toBe(canvas)
+    const footerCanvas = document.createElement('canvas')
+    footerCanvas.height = 0
+    expect(pinPdfFooterToCanvasBottom(canvas, footerCanvas, 980)).toBe(canvas)
     expect(canvas.height).toBe(980)
+  })
+
+  it('keeps every body pixel when body and footer exceed the A4 target', () => {
+    const body = document.createElement('canvas')
+    body.width = 100
+    body.height = 1000
+    const footer = document.createElement('canvas')
+    footer.width = 100
+    footer.height = 100
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
+      fillStyle: '',
+      fillRect: vi.fn(),
+      drawImage: vi.fn(),
+    } as unknown as CanvasRenderingContext2D)
+    const result = pinPdfFooterToCanvasBottom(body, footer, 980)
+    expect(result.height).toBe(1100)
   })
 })
 

@@ -6,10 +6,7 @@ import {
   MAX_STYLED_PAGE_PX,
   shouldIgnorePdfRenderElement,
 } from './renderHtmlDocumentToPdfBlob'
-import {
-  pdfCaptureHeightThroughFooterPx,
-  preparePdfPagesForCapture,
-} from './pinPdfFooterToCanvas'
+import { preparePdfPagesForCapture } from './pinPdfFooterToCanvas'
 
 describe('explodeOverflowingPdfPages (#908)', () => {
   afterEach(() => {
@@ -298,54 +295,6 @@ describe('preparePdfPagesForCapture (#958)', () => {
       ).not.toBeNull()
     } finally {
       host.remove()
-    }
-  })
-})
-
-describe('pdfCaptureHeightThroughFooterPx (#958)', () => {
-  afterEach(() => {
-    vi.restoreAllMocks()
-  })
-
-  it('clips capture to the footer bottom, not padding below the footer', () => {
-    const page = document.createElement('section')
-    page.className = 'pdf-page'
-    page.innerHTML =
-      '<div class="pdf-page-body">body</div><footer class="pdf-footer">Disclaimer</footer>'
-    document.body.appendChild(page)
-    const footer = page.querySelector<HTMLElement>('.pdf-footer')!
-    vi.spyOn(page, 'getBoundingClientRect').mockReturnValue({
-      x: 0,
-      y: 0,
-      top: 0,
-      bottom: 420,
-      left: 0,
-      right: 100,
-      width: 100,
-      height: 420,
-      toJSON() {
-        return {}
-      },
-    })
-    vi.spyOn(footer, 'getBoundingClientRect').mockReturnValue({
-      x: 0,
-      y: 360,
-      top: 360,
-      bottom: 400,
-      left: 0,
-      right: 100,
-      width: 100,
-      height: 40,
-      toJSON() {
-        return {}
-      },
-    })
-    vi.spyOn(page, 'scrollHeight', 'get').mockReturnValue(420)
-    vi.spyOn(page, 'offsetHeight', 'get').mockReturnValue(420)
-    try {
-      expect(pdfCaptureHeightThroughFooterPx(page)).toBe(400)
-    } finally {
-      page.remove()
     }
   })
 })

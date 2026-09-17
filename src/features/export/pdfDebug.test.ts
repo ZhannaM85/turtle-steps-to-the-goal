@@ -280,6 +280,11 @@ describe('collectPdfPageLayoutSnapshot / formatPdfDebugReport (#939)', () => {
           stretchFlagged: true,
           sourceCanvasHeight: 285,
           pinnedFooter: true,
+          footerCanvasWidth: 1021,
+          footerCanvasHeight: 60,
+          bodyCanvasHeight: 225,
+          compositeGapHeight: 1202,
+          footerCompositeSafe: true,
         },
       ],
     }
@@ -287,5 +292,8 @@ describe('collectPdfPageLayoutSnapshot / formatPdfDebugReport (#939)', () => {
     expect(text).toContain('stretch placed/natural: 5.22')
     expect(text).toContain('FLAG STRETCHED')
     expect(text).toContain('.pdf-page-fill: NO')
+    expect(text).toContain('separate footer canvas: 1021 x 60px')
+    expect(text).toContain('body canvas: 225px, inserted gap: 1202px')
+    expect(text).toContain('footer composite: safe')
   })
 })

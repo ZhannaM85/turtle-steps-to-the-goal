@@ -10,8 +10,8 @@
  * #935 — the layout preview uses the same html2canvas pass as the download.
  *
  * #958 / #960 / #939 follow-up — block in-flow packing (no flex min-height
- * or `.pdf-page-fill` under the footer). Capture through `.pdf-footer`,
- * then copy body/footer pixels unscaled onto an A4-height canvas.
+ * or `.pdf-page-fill` under the footer). Capture body and footer separately,
+ * then place both unscaled onto an A4-height canvas.
  */
 import {
   applyPdfDebugOutlines,
@@ -26,7 +26,6 @@ import {
   a4ContentCanvasHeightPx,
   isPdfPageFillElement,
   packPdfPageElement,
-  pdfCaptureHeightThroughFooterPx,
   pdfPageStretchMetrics,
   pinPdfFooterToCanvasBottom,
   preparePdfPagesForCapture,
@@ -218,7 +217,14 @@ async function paintPdfPages(html: string): Promise<{
     for (const [index, target] of targets.entries()) {
       const scale = canvasScaleForElement(target)
       const captureHeightPx = pdfCaptureHeightPx(target)
-      const captured = await html2canvas(target, {
+      const bodyTarget =
+        target.querySelector<HTMLElement>('.pdf-page-body') ?? target
+      const captureWidthPx = Math.max(
+        target.scrollWidth,
+        bodyTarget.scrollWidth,
+        1,
+      )
+      const capturedBody = await html2canvas(bodyTarget, {
         scale,
         useCORS: true,
         logging: false,
@@ -243,21 +249,34 @@ async function paintPdfPages(html: string): Promise<{
         scrollY: 0,
         windowWidth: Math.max(target.scrollWidth, host.clientWidth),
         windowHeight: captureHeightPx,
-        height: captureHeightPx,
+        width: captureWidthPx,
       })
-      if (captured.width === 0 || captured.height === 0) {
+      if (capturedBody.width === 0 || capturedBody.height === 0) {
         throw new Error('html2canvas produced an empty canvas')
       }
+      const footerTarget = target.querySelector<HTMLElement>('.pdf-footer')
+      const capturedFooter = footerTarget
+        ? await html2canvas(footerTarget, {
+            scale,
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#ffffff',
+            ignoreElements: (element) =>
+              shouldIgnorePdfRenderElement(element, host) ||
+              isPdfDebugOverlayElement(element),
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: Math.max(target.scrollWidth, host.clientWidth),
+            width: captureWidthPx,
+          })
+        : null
       const destHeightPx = a4ContentCanvasHeightPx(
-        captured.width,
+        capturedBody.width,
         contentWidthMm,
       )
-      const canvas = pinPdfFooterToCanvasBottom(
-        captured,
-        target,
-        destHeightPx,
-        captureHeightPx,
-      )
+      const canvas = capturedFooter
+        ? pinPdfFooterToCanvasBottom(capturedBody, capturedFooter, destHeightPx)
+        : capturedBody
       canvases.push(canvas)
       if (debug) {
         const after = collectPdfPageLayoutSnapshot(
@@ -269,16 +288,27 @@ async function paintPdfPages(html: string): Promise<{
         after.canvasHeight = canvas.height
         after.captureHeightPx = captureHeightPx
         after.scale = scale
-        after.sourceCanvasHeight = captured.height
-        after.pinnedFooter = canvas !== captured
+        const sourceCanvasHeight =
+          capturedBody.height + (capturedFooter?.height ?? 0)
+        after.sourceCanvasHeight = sourceCanvasHeight
+        after.pinnedFooter = canvas !== capturedBody
+        after.footerCanvasWidth = capturedFooter?.width
+        after.footerCanvasHeight = capturedFooter?.height
+        after.bodyCanvasHeight = capturedBody.height
+        after.compositeGapHeight = canvas.height - sourceCanvasHeight
+        after.footerCompositeSafe =
+          capturedFooter != null &&
+          capturedFooter.width > 0 &&
+          capturedFooter.height > 0 &&
+          capturedFooter.height < canvas.height
         const stretch = pdfPageStretchMetrics({
           canvasWidth: canvas.width,
           canvasHeight: canvas.height,
-          sourceCanvasHeight: captured.height,
+          sourceCanvasHeight,
           captureHeightPx,
           scale,
           contentWidthMm,
-          paddedCanvas: canvas !== captured,
+          paddedCanvas: canvas !== capturedBody,
         })
         after.imgHeightMm = stretch.placedMm
         after.naturalImgHeightMm = stretch.naturalMm
@@ -381,7 +411,7 @@ export function canvasScaleForDimensions(
 export const MAX_STYLED_PAGE_PX = 980
 
 function pdfCaptureHeightPx(target: HTMLElement): number {
-  return pdfCaptureHeightThroughFooterPx(target)
+  return Math.max(target.scrollHeight, target.offsetHeight, 1)
 }
 
 function explodeOverflowingPdfPages(host: HTMLElement): void {

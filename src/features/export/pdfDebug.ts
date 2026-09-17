@@ -61,6 +61,11 @@ export interface PdfPageLayoutSnapshot {
   stretchFlagged?: boolean
   sourceCanvasHeight?: number
   pinnedFooter?: boolean
+  footerCanvasWidth?: number
+  footerCanvasHeight?: number
+  bodyCanvasHeight?: number
+  compositeGapHeight?: number
+  footerCompositeSafe?: boolean
 }
 
 export interface PdfDebugReport {
@@ -374,6 +379,19 @@ export function formatPdfDebugReport(report: PdfDebugReport): string {
             `source canvas height: ${snap.sourceCanvasHeight}px, pinnedFooter=${
               snap.pinnedFooter ? 'yes' : 'no'
             }`,
+          )
+        }
+        if (snap.footerCanvasHeight != null) {
+          lines.push(
+            `separate footer canvas: ${snap.footerCanvasWidth ?? '?'} x ${snap.footerCanvasHeight}px`,
+          )
+          lines.push(
+            `body canvas: ${snap.bodyCanvasHeight ?? '?'}px, inserted gap: ${snap.compositeGapHeight ?? '?'}px`,
+          )
+          lines.push(
+            snap.footerCompositeSafe
+              ? 'footer composite: safe'
+              : 'footer composite: FLAG INVALID FOOTER CANVAS',
           )
         }
         if (snap.imgHeightMm != null) {
