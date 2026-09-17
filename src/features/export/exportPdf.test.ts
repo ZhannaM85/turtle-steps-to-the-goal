@@ -757,7 +757,7 @@ describe('buildSummaryPdf', () => {
     expect(html).not.toContain('grid-template-columns')
   })
 
-  it('uses 8pt body text in Metrics and Notes diary cards (#929)', () => {
+  it('uses compact body text in Metrics and Notes diary cards (#929)', () => {
     const entry = makeEntry({
       waistCm: 80,
       note: 'Felt lighter today',
@@ -801,10 +801,14 @@ describe('buildSummaryPdf', () => {
     expect(html).toContain(
       '.pdf-day-section-notes .pdf-day-section-content .pdf-line',
     )
-    const compactBodyRule = PDF_DOCUMENT_CSS.match(
-      /\.pdf-day-section-metrics \.pdf-day-section-content \.pdf-line,\s*\.pdf-day-section-notes \.pdf-day-section-content \.pdf-line \{([^}]*)\}/,
+    const metricsBodyRule = PDF_DOCUMENT_CSS.match(
+      /\.pdf-day-section-metrics \.pdf-day-section-content \.pdf-line \{([^}]*)\}/,
     )?.[1]
-    expect(compactBodyRule).toContain('font-size: 8pt')
+    const notesBodyRule = PDF_DOCUMENT_CSS.match(
+      /\.pdf-day-section-notes \.pdf-day-section-content \.pdf-line \{([^}]*)\}/,
+    )?.[1]
+    expect(metricsBodyRule).toContain('font-size: 6pt')
+    expect(notesBodyRule).toContain('font-size: 8pt')
     expect(html).toContain('.pdf-day-section-water .pdf-day-section-content')
     expect(html).toContain('.pdf-day-section-notes .pdf-day-section-content')
     expect(html).toContain('padding-left: 9pt')
