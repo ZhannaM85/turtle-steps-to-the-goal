@@ -702,6 +702,7 @@ _Reported from an iPhone PDF export and the Day screen._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#942](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/942) | ✅ Done | PDF summary: widen Неделя column so week ranges stay on one line | Confirmed on-device 2026-09-17 — weekly date ranges stay on one line. |
 | [#943](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/943) | ✅ Done | Export: keep info icons tight beside buttons (CSV and other rows) | Confirmed on-device 2026-09-17 — Export info icons stay close to their controls. |
 | [#944](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/944) | ✅ Done | Day: lighten Завершить день to match Начать сегодняшний день сейчас | Confirmed on-device 2026-09-17 — the Complete day action uses the intended lighter styling. |
 | [#945](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/945) | ✅ Done | Projection chart: show actual end date, not only “N недель” | Confirmed on-device 2026-09-17 — the projection axis shows its actual end date. |
