@@ -702,6 +702,7 @@ _Reported from an iPhone PDF export and the Day screen._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#945](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/945) | ✅ Done | Projection chart: show actual end date, not only “N недель” | Confirmed on-device 2026-09-17 — the projection axis shows its actual end date. |
 | [#946](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/946) | ✅ Done | Complete-day projection: two-line chart like About instruction | Confirmed on-device 2026-09-17 — the projection shows distinct solid weight and dashed average lines. |
 | [#947](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/947) | ✅ Done | Complete-day projection: oscillating daily weight + dashed 7-day average | Confirmed on-device 2026-09-17 — daily projected weight oscillates around the dashed 7-day average. |
 | [#948](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/948) | ✅ Done | Complete-day projection: Week/Month/Year tab bar (not fixed 5 weeks) | Confirmed on-device 2026-09-17 — Week, Month, and Year tabs switch the projection horizon correctly. |
