@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 940,
+    issue: 966,
+    date: '2026-09-17T23:50:00+03:00',
+    en: 'The About card on Settings stays open and no longer has a collapse control.',
+    ru: 'Карточка «О проекте» в Настройках всегда раскрыта и больше не сворачивается.',
+  },
+  {
     version: 939,
     issue: 965,
     date: '2026-09-17T23:38:07+03:00',

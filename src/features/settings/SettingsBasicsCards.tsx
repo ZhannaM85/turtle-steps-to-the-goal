@@ -57,7 +57,12 @@ export function SettingsBasicsCards() {
 
   return (
     <>
-      <SettingsPinnableCard pinId="about" pinnable={false} style={{ order: -2000 }}>
+      <SettingsPinnableCard
+        pinId="about"
+        pinnable={false}
+        collapsible={false}
+        style={{ order: -2000 }}
+      >
         <CardHeader>
           <CardTitle>{t.settings.aboutLabel}</CardTitle>
         </CardHeader>

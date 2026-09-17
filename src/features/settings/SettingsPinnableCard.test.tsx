@@ -69,4 +69,26 @@ describe('SettingsPinnableCard (#873)', () => {
       screen.queryByRole('button', { name: 'Pin to top' }),
     ).not.toBeInTheDocument()
   })
+
+  it('hides the collapse control when the card is not collapsible (#966)', () => {
+    const { container } = render(
+      <SettingsPinnableCard pinId="about" pinnable={false} collapsible={false}>
+        <CardHeader>
+          <CardTitle>About</CardTitle>
+        </CardHeader>
+        <CardContent>about</CardContent>
+      </SettingsPinnableCard>,
+    )
+
+    const panel = container.querySelector('[data-slot="settings-panel"]')
+    expect(panel).not.toHaveClass('[&_[data-slot=card-header]]:!pe-16')
+    expect(panel).not.toHaveClass('[&_[data-slot=card-header]]:cursor-pointer')
+    expect(
+      screen.queryByRole('button', { name: 'Collapse' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Expand' }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByText('about')).toBeInTheDocument()
+  })
 })

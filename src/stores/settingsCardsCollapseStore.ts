@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
-/** Every Settings card that can collapse (#826), including About. */
+/** Settings card ids for pin/collapse (#826). About stays expanded (#966). */
 export const SETTINGS_CARD_KEYS = [
   'about',
   'features',
@@ -37,7 +37,10 @@ export type SettingsCardKey = (typeof SETTINGS_CARD_KEYS)[number]
 
 function allCollapsed(collapsed: boolean): Record<SettingsCardKey, boolean> {
   return Object.fromEntries(
-    SETTINGS_CARD_KEYS.map((key) => [key, collapsed]),
+    SETTINGS_CARD_KEYS.map((key) => [
+      key,
+      key === 'about' ? false : collapsed,
+    ]),
   ) as Record<SettingsCardKey, boolean>
 }
 

@@ -1052,24 +1052,54 @@ describe('SettingsScreen', () => {
   it('collapses a Settings card body and keeps About unpinnable (#826)', async () => {
     const user = userEvent.setup()
     renderSettings()
-    const aboutCard = screen.getByRole('heading', { name: 'About' }).closest(
-      '[data-slot=settings-panel]',
-    )
-    expect(aboutCard).toBeTruthy()
+    const featuresCard = screen
+      .getByRole('heading', { name: 'Features' })
+      .closest('[data-slot=settings-panel]')
+    expect(featuresCard).toBeTruthy()
     await user.click(
-      within(aboutCard as HTMLElement).getByRole('button', {
+      within(featuresCard as HTMLElement).getByRole('button', {
         name: 'Collapse',
       }),
     )
     expect(
-      within(aboutCard as HTMLElement).getByRole('button', { name: 'Expand' }),
+      within(featuresCard as HTMLElement).getByRole('button', {
+        name: 'Expand',
+      }),
     ).toHaveAttribute('aria-expanded', 'false')
-    expect(aboutCard).toHaveClass('[&_[data-slot=card-content]]:hidden')
+    expect(featuresCard).toHaveClass('[&_[data-slot=card-content]]:hidden')
+    const aboutCard = screen.getByRole('heading', { name: 'About' }).closest(
+      '[data-slot=settings-panel]',
+    )
+    expect(aboutCard).toBeTruthy()
     expect(
       within(aboutCard as HTMLElement).queryByRole('button', {
         name: 'Pin to top',
       }),
     ).not.toBeInTheDocument()
+  })
+
+  it('keeps About expanded with no collapse control (#966)', () => {
+    renderSettings()
+    const aboutCard = screen.getByRole('heading', { name: 'About' }).closest(
+      '[data-slot=settings-panel]',
+    )
+    expect(aboutCard).toBeTruthy()
+    expect(
+      within(aboutCard as HTMLElement).queryByRole('button', {
+        name: 'Collapse',
+      }),
+    ).not.toBeInTheDocument()
+    expect(
+      within(aboutCard as HTMLElement).queryByRole('button', {
+        name: 'Expand',
+      }),
+    ).not.toBeInTheDocument()
+    expect(
+      within(aboutCard as HTMLElement).getByRole('link', {
+        name: 'View About',
+      }),
+    ).toBeInTheDocument()
+    expect(aboutCard).not.toHaveClass('[&_[data-slot=card-content]]:hidden')
   })
 
   it('groups Settings cards under named sections (#877)', () => {
@@ -1113,10 +1143,19 @@ describe('SettingsScreen', () => {
     renderSettings()
     await user.click(screen.getByRole('button', { name: 'Collapse all' }))
     expect(screen.getByRole('button', { name: 'Expand all' })).toBeInTheDocument()
+    const exportCard = screen
+      .getByRole('heading', { name: 'Export' })
+      .closest('[data-slot=settings-panel]')
+    expect(exportCard).toHaveClass('[&_[data-slot=card-content]]:hidden')
     const aboutCard = screen.getByRole('heading', { name: 'About' }).closest(
       '[data-slot=settings-panel]',
     )
-    expect(aboutCard).toHaveClass('[&_[data-slot=card-content]]:hidden')
+    expect(aboutCard).not.toHaveClass('[&_[data-slot=card-content]]:hidden')
+    expect(
+      within(aboutCard as HTMLElement).getByRole('link', {
+        name: 'View About',
+      }),
+    ).toBeInTheDocument()
   })
 
   it('pins Export below About (#820)', async () => {

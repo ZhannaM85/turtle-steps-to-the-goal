@@ -25,18 +25,18 @@ describe('settingsCardsCollapseStore (#826)', () => {
     expect(useSettingsCardsCollapseStore.getState().cards.export).toBe(false)
   })
 
-  it('collapseAll hides every card; expandAll restores them', () => {
+  it('collapseAll hides every collapsible card; About stays expanded (#966)', () => {
     useSettingsCardsCollapseStore.getState().collapseAll()
+    expect(useSettingsCardsCollapseStore.getState().cards.about).toBe(false)
+    expect(useSettingsCardsCollapseStore.getState().cards.export).toBe(true)
     expect(
       anySettingsCardExpanded(useSettingsCardsCollapseStore.getState().cards, [
-        'about',
         'export',
       ]),
     ).toBe(false)
     useSettingsCardsCollapseStore.getState().expandAll()
     expect(
       anySettingsCardExpanded(useSettingsCardsCollapseStore.getState().cards, [
-        'about',
         'export',
       ]),
     ).toBe(true)

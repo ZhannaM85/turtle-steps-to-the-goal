@@ -20,7 +20,8 @@ export function SettingsCardsCollapseControl() {
   const expandAll = useSettingsCardsCollapseStore((state) => state.expandAll)
   const keys: SettingsCardKey[] = SETTINGS_CARD_KEYS.filter(
     (key) =>
-      key !== 'healthConnect' || Capacitor.getPlatform() === 'android',
+      key !== 'about' &&
+      (key !== 'healthConnect' || Capacitor.getPlatform() === 'android'),
   )
   const anyExpanded = anySettingsCardExpanded(cards, keys)
 
