@@ -37,6 +37,12 @@ import { AnalysisExportSection } from './AnalysisExportSection'
 import { sectionErrorMessage } from './exportSectionStatus'
 import { SectionStatus } from './SectionStatus'
 import { ThirdPartyImportSection } from './ThirdPartyImportSection'
+import { StorageUsageBreakdown } from './StorageUsageBreakdown'
+import {
+  formatStorageBytes,
+  readStorageBreakdown,
+  type StorageBreakdown,
+} from './storageBreakdown'
 
 type StatusSection =
   | 'jsonBackup'
@@ -57,17 +63,6 @@ type Status =
   /** #617 — `section` keeps the alert under the matching export/import block. */
   | { kind: 'error'; section: StatusSection; message: string }
 
-/** "50 KB" / "1.2 MB" / "1.2 GB" — used for both usage and quota (#191:
- * quota is now shown alongside usage, so this needs a GB tier it never
- * used to reach). */
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
-  if (bytes < 1024 * 1024 * 1024)
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`
-}
-
 export function ExportSection() {
   const t = useTranslation()
   const recordBackupExport = useLastBackupStore((state) => state.recordExport)
@@ -81,17 +76,17 @@ export function ExportSection() {
   const [encryptedImportError, setEncryptedImportError] = useState<
     string | null
   >(null)
-  const [storageUsage, setStorageUsage] = useState<number | null>(null)
-  const [storageQuota, setStorageQuota] = useState<number | null>(null)
+  const [storageBreakdown, setStorageBreakdown] =
+    useState<StorageBreakdown | null>(null)
 
   useEffect(() => {
-    navigator.storage
-      ?.estimate?.()
-      .then((estimate) => {
-        if (estimate.usage !== undefined) setStorageUsage(estimate.usage)
-        if (estimate.quota !== undefined) setStorageQuota(estimate.quota)
+    let active = true
+    readStorageBreakdown()
+      .then((breakdown) => {
+        if (active) setStorageBreakdown(breakdown)
       })
       .catch(() => {})
+    return () => { active = false }
   }, [])
 
   async function handleExport() {
@@ -244,15 +239,18 @@ export function ExportSection() {
       <CardHeader>
         <CardTitle>{t.export.title}</CardTitle>
         <CardDescription>{t.export.description}</CardDescription>
-        {storageUsage !== null && (
+        {storageBreakdown !== null && (
           <p className="text-xs text-muted-foreground">
-            {storageQuota !== null
+            {storageBreakdown.quota !== null
               ? t.export.storageUsedOfQuotaLabel(
-                  formatBytes(storageUsage),
-                  formatBytes(storageQuota),
+                  formatStorageBytes(storageBreakdown.usage),
+                  formatStorageBytes(storageBreakdown.quota),
                 )
-              : t.export.storageUsedLabel(formatBytes(storageUsage))}
+              : t.export.storageUsedLabel(formatStorageBytes(storageBreakdown.usage))}
           </p>
+        )}
+        {storageBreakdown !== null && (
+          <StorageUsageBreakdown data={storageBreakdown} />
         )}
       </CardHeader>
       <CardContent className="flex flex-col gap-4">

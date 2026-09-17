@@ -210,6 +210,13 @@ export interface ExportDict {
      * asked directly how much space is left and whether there's even a
      * limit, so the real number is shown and left for them to judge. */
     storageUsedOfQuotaLabel: (used: string, quota: string) => string
+    storageBreakdownTitle: string
+    storageAppDataLabel: string
+    storageCacheLabel: string
+    storageOtherLabel: string
+    storagePdfLabel: string
+    storageBreakdownEstimateNote: string
+    storagePdfNote: string
     /** #369 — shared field picker above the Zepp Life/Apple Health import
      * buttons, letting a user opt out of specific data types (e.g. only
      * import steps) instead of each import always being all-or-nothing. */

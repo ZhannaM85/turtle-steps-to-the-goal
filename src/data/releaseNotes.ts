@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 937,
+    issue: 964,
+    date: '2026-09-17T22:28:48+03:00',
+    en: 'Settings now shows a storage chart for app records, offline cache, and other space, with an explanation of PDF exports.',
+    ru: 'В Настройках теперь есть диаграмма данных приложения, офлайн-кеша и прочего хранилища с пояснением про PDF-экспорт.',
+  },
+  {
     version: 936,
     issue: 963,
     date: '2026-09-17T22:20:02+03:00',

@@ -656,6 +656,28 @@ describe('ExportSection', () => {
     ).toBeInTheDocument()
   })
 
+  it('shows a readable storage breakdown and explains PDF exports (#964)', async () => {
+    Object.defineProperty(navigator, 'storage', {
+      value: {
+        estimate: vi.fn().mockResolvedValue({
+          usage: 1024,
+          quota: 2048,
+          usageDetails: { indexedDB: 512, caches: 256 },
+        }),
+      },
+      configurable: true,
+    })
+
+    render(<ExportSection />)
+
+    expect(await screen.findByText('Storage breakdown')).toBeInTheDocument()
+    expect(screen.getByText('App records (IndexedDB): 512 B')).toBeInTheDocument()
+    expect(screen.getByText('Offline app cache: 256 B')).toBeInTheDocument()
+    expect(screen.getByText('Other / browser overhead: 256 B')).toBeInTheDocument()
+    expect(screen.getByText('PDF exports stored by this app: 0 B')).toBeInTheDocument()
+    expect(screen.getByText(/Files saved or shared outside the app/)).toBeInTheDocument()
+  })
+
   it('shows a clear error for a file that is not valid JSON at all', async () => {
     const user = userEvent.setup()
 

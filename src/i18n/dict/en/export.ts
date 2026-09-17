@@ -161,6 +161,15 @@ export const exportCopy: ExportDict = {
     storageUsedLabel: (size) => `~${size} used on this device`,
     storageUsedOfQuotaLabel: (used, quota) =>
       `~${used} used of ~${quota} available on this device`,
+    storageBreakdownTitle: 'Storage breakdown',
+    storageAppDataLabel: 'App records (IndexedDB)',
+    storageCacheLabel: 'Offline app cache',
+    storageOtherLabel: 'Other / browser overhead',
+    storagePdfLabel: 'PDF exports stored by this app',
+    storageBreakdownEstimateNote:
+      'Approximate site storage. Other includes browser overhead and storage that cannot be classified.',
+    storagePdfNote:
+      'PDFs are generated temporarily. Files saved or shared outside the app are not included in this total.',
     dataToImportLabel: 'Data to import',
     importConflictModeLabel: 'If a day already has a value',
     importConflictModeDescription:

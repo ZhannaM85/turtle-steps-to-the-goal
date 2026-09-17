@@ -161,6 +161,15 @@ export const exportCopy: ExportDict = {
     storageUsedLabel: (size) => `~${size} использовано на этом устройстве`,
     storageUsedOfQuotaLabel: (used, quota) =>
       `~${used} использовано из ~${quota}, доступных на этом устройстве`,
+    storageBreakdownTitle: 'Структура хранилища',
+    storageAppDataLabel: 'Данные приложения (IndexedDB)',
+    storageCacheLabel: 'Офлайн-кеш приложения',
+    storageOtherLabel: 'Прочее / служебные данные браузера',
+    storagePdfLabel: 'PDF-экспорт, хранимый приложением',
+    storageBreakdownEstimateNote:
+      'Приблизительный объём данных сайта. «Прочее» включает служебные и нераспознанные данные браузера.',
+    storagePdfNote:
+      'PDF создаются временно. Файлы, сохранённые или отправленные вне приложения, в этот объём не входят.',
     dataToImportLabel: 'Данные для импорта',
     importConflictModeLabel: 'Если за день уже есть значение',
     importConflictModeDescription:
