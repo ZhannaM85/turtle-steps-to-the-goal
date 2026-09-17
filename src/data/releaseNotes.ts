@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 935,
+    issue: 962,
+    date: '2026-09-17T22:00:33+03:00',
+    en: 'Mood now appears beside Night food in PDF diaries, keeping the Metrics heading on one line.',
+    ru: 'Настроение в PDF-дневнике теперь показано рядом с поздней едой, поэтому заголовок «Показатели» остаётся в одну строку.',
+  },
+  {
     version: 934,
     issue: 961,
     date: '2026-09-17T21:56:31+03:00',
