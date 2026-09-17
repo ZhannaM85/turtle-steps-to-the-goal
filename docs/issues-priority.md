@@ -56,7 +56,6 @@ _Reported from iPhone PDF previews and local Chrome._
 | [#932](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/932) | 🔍 Pending validation | PDF diary: footer still cut off, generated date not visible | Pages and footers now have right/bottom safety clearance, and every footer shows its page number. Awaiting on-device confirmation. |
 | [#933](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/933) | 🔍 Pending validation | PDF layout preview route for browser inspection | `/settings/pdf-layout` shows each PDF page as a separate sheet and now uses the photographed export preview added by #935. Awaiting browser confirmation. |
 | [#935](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/935) | 🔍 Pending validation | PDF layout preview cannot predict the iOS PDF | Preview photographs pages through the same html2canvas path as export; the latest spacing and alignment fixes were tuned against that captured output. Awaiting on-device confirmation. |
-| [#937](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/937) | 🔍 Pending validation | Complete the day chart: lighten the dashed grid | Dashes use muted-foreground at 35% opacity, 1px. Awaiting on-device confirmation. |
 
 ## Tier 165 — PDF footer whitespace and Day chrome (2026-09-17)
 
