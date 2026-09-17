@@ -50,7 +50,6 @@ _Reported from iPhone PDF previews and local Chrome._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#927](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/927) | 🔍 Pending validation | PDF diary: align meal card dividers within each card | Replaced the overlapping meal-item divider with an em dash before each item. Awaiting device PDF validation. |
-| [#928](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/928) | 🔍 Pending validation | PDF export: vertically center page, section, and table headers | Capture-adjusted padding now centers date, section, and weekly-table text; metric icons share the text baseline. Awaiting on-device confirmation. |
 | [#929](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/929) | 🔍 Pending validation | PDF diary: reduce Metrics and Notes body text size | Metrics and Notes use compact `9pt` text; metric labels are bold and both cards have safer inner spacing. Awaiting on-device confirmation. |
 | [#930](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/930) | 🔍 Pending validation | PDF diary: show total water beside the Water title | The total stays directly beside Вода/Water, with added left and bottom content clearance. Awaiting on-device confirmation. |
 | [#932](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/932) | 🔍 Pending validation | PDF diary: footer still cut off, generated date not visible | Pages and footers now have right/bottom safety clearance, and every footer shows its page number. Awaiting on-device confirmation. |
