@@ -79,6 +79,8 @@ function ticksOverlap(
 /**
  * #957 — keep first and last ticks; drop interiors whose `PP` labels would
  * collide. Never invent a shorter numeric date to squeeze more labels in.
+ * #959 — `keepIndices` stay even when a left-to-right pass would skip them
+ * (Month/Year mid-range date).
  */
 export function selectNonOverlappingDateTicks<T>(
   ticks: readonly T[],
@@ -91,6 +93,7 @@ export function selectNonOverlappingDateTicks<T>(
       ticks: readonly T[],
     ) => ChartDateTickAnchor
     minGapPx?: number
+    keepIndices?: readonly number[]
   },
 ): T[] {
   if (ticks.length <= 1) return [...ticks]
@@ -100,34 +103,33 @@ export function selectNonOverlappingDateTicks<T>(
     ((_tick, index, all) =>
       index === 0 ? 'start' : index === all.length - 1 ? 'end' : 'middle')
   const lastIndex = ticks.length - 1
-  const last = ticks[lastIndex]!
-  const lastBounds = tickBounds(
-    options.getX(last),
-    estimateChartDateTickWidthPx(options.getLabel(last)),
-    getAnchor(last, lastIndex, ticks),
-  )
-  const first = ticks[0]!
-  const selected: T[] = [first]
-  const selectedBounds = [
-    tickBounds(
-      options.getX(first),
-      estimateChartDateTickWidthPx(options.getLabel(first)),
-      getAnchor(first, 0, ticks),
-    ),
-  ]
-  for (let i = 1; i < lastIndex; i += 1) {
-    const tick = ticks[i]!
-    const bounds = tickBounds(
+  const boundsOf = (index: number) => {
+    const tick = ticks[index]!
+    return tickBounds(
       options.getX(tick),
       estimateChartDateTickWidthPx(options.getLabel(tick)),
-      getAnchor(tick, i, ticks),
+      getAnchor(tick, index, ticks),
     )
-    const previous = selectedBounds[selectedBounds.length - 1]!
-    if (ticksOverlap(previous, bounds, minGapPx)) continue
-    if (ticksOverlap(bounds, lastBounds, minGapPx)) continue
-    selected.push(tick)
-    selectedBounds.push(bounds)
   }
-  selected.push(last)
-  return selected
+  const mustKeep = new Set<number>([0, lastIndex])
+  for (const index of options.keepIndices ?? []) {
+    if (index > 0 && index < lastIndex) mustKeep.add(index)
+  }
+  const selected: { index: number; bounds: { left: number; right: number } }[] =
+    [...mustKeep]
+      .sort((a, b) => a - b)
+      .map((index) => ({ index, bounds: boundsOf(index) }))
+  for (let i = 1; i < lastIndex; i += 1) {
+    if (mustKeep.has(i)) continue
+    const bounds = boundsOf(i)
+    if (selected.some((item) => ticksOverlap(item.bounds, bounds, minGapPx))) {
+      continue
+    }
+    const insertAt = selected.findIndex((item) => item.index > i)
+    selected.splice(insertAt === -1 ? selected.length : insertAt, 0, {
+      index: i,
+      bounds,
+    })
+  }
+  return selected.map((item) => ticks[item.index]!)
 }

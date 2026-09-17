@@ -4,10 +4,12 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import {
+  completeDayAxisTickIso,
   completeDayAxisTickLabel,
   completeDayChartEndAxisLabel,
   completeDayHorizonWeeks,
   completeDayLabeledWeekTicks,
+  completeDayMiddleWeekTick,
   completeDayProjectionEndIso,
   completeDayWeekGridTicks,
 } from '@/domain/stats'
@@ -255,7 +257,7 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 /
     expect(label?.textContent).not.toMatch(/^\d+$/)
   })
 
-  it('labels a non-overlapping Month subset, including start and end (#957)', () => {
+  it('labels a non-overlapping Month subset, including start, middle, and end (#957 / #959)', () => {
     const formatTick = (week: number) =>
       completeDayAxisTickLabel(week, '2026-03-01', (iso) =>
         formatLocalizedDate(iso, 'en'),
@@ -283,10 +285,20 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 /
     const labels = [...container.querySelectorAll('text')].map(
       (node) => node.textContent,
     )
+    const middle = completeDayMiddleWeekTick(ticks)
     expect(labels[0]).toBe('Mar 1, 2026')
     expect(labels.at(-1)).toBe('Mar 31, 2026')
     expect(labels.length).toBe(labeled.length)
+    expect(labels.length).toBeGreaterThanOrEqual(3)
     expect(labels.length).toBeLessThan(ticks.length)
+    expect(labeled).toContain(middle)
+    expect(labels).toContain(
+      formatLocalizedDate(completeDayAxisTickIso('2026-03-01', middle!), 'en'),
+    )
+    const nodes = [...container.querySelectorAll('text')]
+    expect(nodes[0]).toHaveAttribute('text-anchor', 'start')
+    expect(nodes.at(-1)).toHaveAttribute('text-anchor', 'end')
+    expect(nodes[1]).toHaveAttribute('text-anchor', 'middle')
     for (const label of labels) {
       expect(label).not.toMatch(/^\d+$/)
       expect(label).not.toMatch(/^\d{2}\/\d{2}\/\d{4}$/)

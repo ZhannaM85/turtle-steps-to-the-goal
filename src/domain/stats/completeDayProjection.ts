@@ -123,12 +123,38 @@ export function completeDayAxisTickLabel(
   return iso ? formatDate(iso) : ''
 }
 
-/** Conservative iPhone plot width for thinning Complete-the-day date labels. */
-export const COMPLETE_DAY_DATE_AXIS_PLOT_WIDTH_PX = 260
+/**
+ * iPhone plot width for thinning Complete-the-day date labels.
+ * 260px (#957) dropped the Month/Year mid-range `PP` date; 360px still
+ * skips extras that would pile up while start + middle + end fit (#959).
+ */
+export const COMPLETE_DAY_DATE_AXIS_PLOT_WIDTH_PX = 360
+
+/** #959 — grid tick closest to the mid-range calendar date (not endpoints). */
+export function completeDayMiddleWeekTick(
+  ticks: readonly number[],
+): number | undefined {
+  if (ticks.length < 3) return undefined
+  const start = ticks[0]!
+  const end = ticks[ticks.length - 1]!
+  const target = start + (end - start) / 2
+  let best = ticks[1]!
+  let bestDist = Math.abs(best - target)
+  for (let i = 2; i < ticks.length - 1; i += 1) {
+    const week = ticks[i]!
+    const dist = Math.abs(week - target)
+    if (dist < bestDist) {
+      best = week
+      bestDist = dist
+    }
+  }
+  return best
+}
 
 /**
- * #957 — labeled X ticks are a non-overlapping subset of the vertical grid.
- * Grid lines stay dense; date strings are skipped rather than piled.
+ * #957/#959 — labeled X ticks are a non-overlapping subset of the vertical
+ * grid. Month/Year always keep start, the mid-range grid tick, and end.
+ * Grid lines stay dense; extra date strings are skipped rather than piled.
  */
 export function completeDayLabeledWeekTicks(
   horizon: CompleteDayHorizon,
@@ -139,11 +165,20 @@ export function completeDayLabeledWeekTicks(
   const ticks = completeDayWeekGridTicks(horizon)
   const endWeek = completeDayHorizonWeeks(horizon)
   const lastIndex = ticks.length - 1
+  const keepIndices: number[] = []
+  if (horizon === 'month' || horizon === 'year') {
+    const middle = completeDayMiddleWeekTick(ticks)
+    if (middle !== undefined) {
+      const midIndex = ticks.indexOf(middle)
+      if (midIndex > 0 && midIndex < lastIndex) keepIndices.push(midIndex)
+    }
+  }
   return selectNonOverlappingDateTicks(ticks, {
     getLabel: (week) => completeDayAxisTickLabel(week, startIso, formatDate),
     getX: (week) => (endWeek <= 0 ? 0 : (week / endWeek) * plotWidthPx),
     getAnchor: (_week, index) =>
       index === 0 ? 'start' : index === lastIndex ? 'end' : 'middle',
+    keepIndices,
   })
 }
 

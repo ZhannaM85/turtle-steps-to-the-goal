@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 930,
+    issue: 959,
+    date: '2026-09-17T08:20:00+00:00',
+    en: 'The Complete the day Month and Year charts now show a date in the middle of the axis, not only at the start and end.',
+    ru: 'На графике «Завершить день» во вкладках Месяц и Год теперь есть дата посередине оси, а не только в начале и в конце.',
+  },
+  {
     version: 929,
     issue: 958,
     date: '2026-09-17T07:59:00+00:00',

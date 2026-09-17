@@ -227,6 +227,7 @@ export {
   completeDayAxisTickIso,
   completeDayAxisTickLabel,
   completeDayLabeledWeekTicks,
+  completeDayMiddleWeekTick,
   completeDayChartEndAxisLabel,
   completeDayHorizonDays,
   completeDayHorizonWeeks,

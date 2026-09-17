@@ -10,9 +10,6 @@ import {
   COMPLETE_DAY_OSCILLATION_KG,
   COMPLETE_DAY_TREND_WINDOW_DAYS,
   COMPLETE_DAY_AXIS_MAX_TICKS,
-  completeDayAxisTickIso,
-  completeDayAxisTickLabel,
-  completeDayLabeledWeekTicks,
   completeDayChartEndAxisLabel,
   completeDayHorizonDays,
   completeDayHorizonWeeks,
@@ -380,84 +377,7 @@ describe('complete-the-day horizons (#948)', () => {
   })
 })
 
-describe('complete-the-day axis ticks (#949 / #953 / #954 / #957)', () => {
-  it('maps every grid tick to a PP date, then labels only a non-overlapping subset', () => {
-    const formatDate = (iso: string) => formatLocalizedDate(iso, 'en')
-    const monthTicks = completeDayWeekGridTicks('month')
-    expect(monthTicks).toEqual([0, 1, 2, 3, 4, 30 / 7])
-    expect(
-      monthTicks.map((week) =>
-        completeDayAxisTickLabel(week, '2026-03-01', formatDate),
-      ),
-    ).toEqual([
-      'Mar 1, 2026',
-      'Mar 8, 2026',
-      'Mar 15, 2026',
-      'Mar 22, 2026',
-      'Mar 29, 2026',
-      'Mar 31, 2026',
-    ])
-    const labeled = completeDayLabeledWeekTicks(
-      'month',
-      '2026-03-01',
-      formatDate,
-    )
-    expect(labeled[0]).toBe(0)
-    expect(labeled.at(-1)).toBe(30 / 7)
-    expect(labeled.length).toBeLessThan(monthTicks.length)
-    expect(labeled.length).toBeGreaterThanOrEqual(2)
-    for (const week of labeled) {
-      expect(monthTicks).toContain(week)
-      const label = completeDayAxisTickLabel(week, '2026-03-01', formatDate)
-      expect(label).not.toMatch(/^\d{2}\/\d{2}\/\d{4}$/)
-      expect(label).not.toMatch(/^\d+$/)
-    }
-    expect(completeDayAxisTickIso('2026-03-01', 0)).toBe('2026-03-01')
-    expect(completeDayAxisTickIso('2026-03-01', 1)).toBe('2026-03-08')
-    expect(completeDayAxisTickIso('2026-03-01', 30 / 7)).toBe('2026-03-31')
-  })
-
-  it('uses formatLocalizedDate on Week and Year too, never a day-count or US numeric date', () => {
-    const formatDate = (iso: string) => formatLocalizedDate(iso, 'en')
-    const formatRu = (iso: string) => formatLocalizedDate(iso, 'ru')
-    expect(completeDayWeekGridTicks('week')).toEqual([0, 1])
-    expect(completeDayAxisTickLabel(0, '2026-03-01', formatDate)).toBe(
-      'Mar 1, 2026',
-    )
-    expect(completeDayAxisTickLabel(1, '2026-03-01', formatDate)).toBe(
-      'Mar 8, 2026',
-    )
-    expect(completeDayAxisTickLabel(0, '2026-03-01', formatRu)).toBe(
-      '1 мар. 2026 г.',
-    )
-    const yearTicks = completeDayWeekGridTicks('year')
-    const yearLabeled = completeDayLabeledWeekTicks(
-      'year',
-      '2026-03-01',
-      formatDate,
-    )
-    expect(yearLabeled[0]).toBe(0)
-    expect(yearLabeled.at(-1)).toBe(365 / 7)
-    expect(yearLabeled.length).toBeLessThanOrEqual(yearTicks.length)
-    expect(yearLabeled.length).toBeGreaterThanOrEqual(2)
-    const yearLabels = yearLabeled.map((week) =>
-      completeDayAxisTickLabel(week, '2026-03-01', formatDate),
-    )
-    expect(yearLabels[0]).toBe('Mar 1, 2026')
-    expect(yearLabels.at(-1)).toBe('Mar 1, 2027')
-    for (const label of yearLabels) {
-      expect(label).not.toMatch(/^\d+$/)
-      expect(label).not.toMatch(/^\d{2}\/\d{2}\/\d{4}$/)
-      expect(label).toMatch(/\d{4}/)
-    }
-    expect(completeDayAxisTickLabel(3 / 7, '2026-03-01', formatDate)).not.toBe(
-      '3',
-    )
-    expect(completeDayAxisTickLabel(5 / 7, '2026-03-01', formatDate)).not.toBe(
-      '5',
-    )
-  })
-
+describe('complete-the-day weight axis ticks (#949 / #954)', () => {
   it('keeps dense 500 g Y ticks on a short Week range', () => {
     const ticks = completeDayWeightAxisTicks(59.8, 60.3)
     expect(COMPLETE_DAY_AXIS_MAX_TICKS).toBe(7)

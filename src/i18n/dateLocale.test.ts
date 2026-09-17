@@ -123,6 +123,25 @@ describe('selectNonOverlappingDateTicks (#957)', () => {
     }
   })
 
+  it('keeps a preferred interior tick when a left-to-right pass would skip it (#959)', () => {
+    const ticks = [0, 1, 2, 3, 4, 30 / 7]
+    const end = 30 / 7
+    const withoutKeep = selectNonOverlappingDateTicks(ticks, {
+      getLabel: () => '16 сент. 2026 г.',
+      getX: (week) => (week / end) * 260,
+    })
+    expect(withoutKeep).toEqual([0, 30 / 7])
+    const selected = selectNonOverlappingDateTicks(ticks, {
+      getLabel: () => '16 сент. 2026 г.',
+      getX: (week) => (week / end) * 260,
+      keepIndices: [2],
+    })
+    expect(selected[0]).toBe(0)
+    expect(selected).toContain(2)
+    expect(selected.at(-1)).toBe(30 / 7)
+    expect(selected.length).toBeGreaterThanOrEqual(3)
+  })
+
   it('uses a min tick gap large enough for a PP label', () => {
     expect(CHART_DATE_TICK_MIN_GAP_PX).toBeGreaterThanOrEqual(80)
   })

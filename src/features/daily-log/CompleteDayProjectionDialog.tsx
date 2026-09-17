@@ -336,8 +336,8 @@ export function CompleteDayProjectionDialog() {
                         strokeWidth={1}
                       />
                     ))}
-                    {/* #953/#957 — PP dates at a non-overlapping subset of
-                     * the vertical grid; skip ticks rather than pile labels. */}
+                    {/* #953/#957/#959 — PP dates at a non-overlapping subset
+                     * of the vertical grid (Month/Year keep start+mid+end). */}
                     <XAxis
                       dataKey="week"
                       type="number"
