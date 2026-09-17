@@ -47,6 +47,7 @@ import { PdfDebugToggle } from './PdfDebugToggle'
 import { PdfSectionsDialog } from './PdfSectionsDialog'
 import { sectionErrorMessage } from './exportSectionStatus'
 import { SectionStatus } from './SectionStatus'
+import { shareOrDownloadPdf } from './sharePdfFile'
 
 type Status =
   | { kind: 'idle' }
@@ -222,13 +223,14 @@ export function PdfExportSection() {
         pdfCustomMetricSummaries,
         dailyLog,
       )
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `turtle-steps-summary-${exportPeriodFileStamp(pdfPeriodStart, pdfPeriodEnd)}.pdf`
-      link.click()
-      // iOS Safari opens the blob in a viewer; revoking immediately blanks it.
-      window.setTimeout(() => URL.revokeObjectURL(url), 60_000)
+      const outcome = await shareOrDownloadPdf(
+        blob,
+        `turtle-steps-summary-${exportPeriodFileStamp(pdfPeriodStart, pdfPeriodEnd)}.pdf`,
+      )
+      if (outcome === 'cancelled') {
+        setStatus({ kind: 'idle' })
+        return
+      }
       setPdfSectionsDialogOpen(false)
       setStatus({ kind: 'exportedPdf' })
     } catch {

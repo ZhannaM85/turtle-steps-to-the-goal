@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 927,
+    issue: 956,
+    date: '2026-09-17T07:45:00+00:00',
+    en: 'Sharing a PDF now sends the actual document to apps like Telegram, instead of a blob link.',
+    ru: 'Отправка PDF теперь передаёт сам файл в приложения вроде Telegram, а не текстовую blob-ссылку.',
+  },
+  {
     version: 926,
     issue: 951,
     date: '2026-09-17T07:35:00+00:00',

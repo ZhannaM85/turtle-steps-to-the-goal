@@ -6,6 +6,7 @@ import { BarcodeScannerDialog } from '@/features/daily-log/BarcodeScannerDialog'
 import { buildDailyLogCsv, CSV_BOM } from '@/features/export/exportCsv'
 import { currentAnalysisExportTracking } from '@/features/export/analysisExportTracking'
 import { buildSingleDayPdf } from '@/features/export/buildSingleDayPdf'
+import { shareOrDownloadPdf } from '@/features/export/sharePdfFile'
 import { generateQrDataUrl } from '@/features/food-share/generateQrDataUrl'
 import { useLocale, useTranslation } from '@/i18n'
 import { IndexedDbDailyEntryRepository, IndexedDbGoalRepository } from '@/infrastructure/persistence/indexeddb'
@@ -206,13 +207,7 @@ function SendDaySnippetBody({
             useEatingReasonTrackingStore.getState().builtinLabelOverrides,
         },
       )
-      const url = URL.createObjectURL(pdf)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `turtle-steps-daily-log-${date}.pdf`
-      link.click()
-      // iOS Safari opens the blob in a viewer; revoking immediately blanks it.
-      window.setTimeout(() => URL.revokeObjectURL(url), 60_000)
+      await shareOrDownloadPdf(pdf, `turtle-steps-daily-log-${date}.pdf`)
     } catch {
       setPdfError(t.today.sendDaySavePdfFailed)
     }
