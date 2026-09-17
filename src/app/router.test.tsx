@@ -87,23 +87,6 @@ describe('app router', () => {
     ).toBeInTheDocument()
   })
 
-  it('renders the PDF layout preview at /settings/pdf-layout (#933)', async () => {
-    renderAt('/settings/pdf-layout')
-    expect(
-      await screen.findByRole(
-        'heading',
-        { name: 'PDF layout' },
-        { timeout: 5000 },
-      ),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('link', { name: '← Settings' }),
-    ).toBeInTheDocument()
-    expect(
-      screen.queryByRole('navigation', { name: 'Tabs' }),
-    ).not.toBeInTheDocument()
-  })
-
   it('wires an errorElement so a render crash never falls back to a blank screen (#102)', () => {
     expect(routes.every((route) => route.errorElement)).toBe(true)
   })

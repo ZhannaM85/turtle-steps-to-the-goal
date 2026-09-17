@@ -114,13 +114,6 @@ export const exportCopy: ExportDict = {
     exportPdfRangeLabel: 'Сводка охватывает',
     exportPdfRange30Label: 'Последние 30 дней',
     exportPdfRange90Label: 'Последние 90 дней',
-    pdfLayoutPreviewTitle: 'Макет PDF',
-    pdfLayoutPreviewBlurb:
-      'Страницы рисуются так же, как файл PDF. Откройте это на iPhone, чтобы увидеть, что попадёт в файл.',
-    pdfLayoutPreviewButton: 'Посмотреть макет',
-    pdfLayoutPreviewLoading: 'Рисуем страницы тем же способом, что и PDF…',
-    pdfLayoutPreviewFailed: 'Не удалось показать макет.',
-    pdfLayoutPreviewPageLabel: (page) => `Страница ${page}`,
     pdfSectionsDialogTitle: 'Выберите, что включить',
     pdfSectionsDialogDescription:
       'Выберите, какие разделы войдут в PDF. Отказ от медицинской ответственности включается всегда.',

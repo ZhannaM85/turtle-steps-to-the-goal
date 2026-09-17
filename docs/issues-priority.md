@@ -56,5 +56,4 @@ _Reported from an iPhone PDF export and the Day screen._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#962](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/962) | 🔍 Pending validation | PDF diary: move mood out of Показатели header onto the late-evening row | Implemented in `aa1f77f0b`: Mood moved out of the header and onto the Night food body row; Sleep, Deep sleep, and Steps remain in the title. Awaiting on-device confirmation. |
-| [#963](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/963) | 🔍 Pending validation | PDF: remove temporary pdfDebug overlay and Settings toggle | Removed the Settings control, URL/storage flag, overlay, and render-only instrumentation after #939/#952/#958/#960 were validated. Awaiting on-device confirmation. |
+| [#963](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/963) | 🔍 Pending validation | PDF: remove temporary pdfDebug overlay and Settings toggle | Also removed the «Посмотреть макет» / Preview layout button and `/settings/pdf-layout` screen (#933/#935) — debugging-only after PDF layout issues were validated. Awaiting on-device confirmation. |

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 938,
+    issue: 963,
+    date: '2026-09-17T20:05:00+00:00',
+    en: 'The temporary PDF layout preview button and screen have been removed from Settings.',
+    ru: 'Временная кнопка и экран «Посмотреть макет» PDF удалены из Настроек.',
+  },
+  {
     version: 937,
     issue: 964,
     date: '2026-09-17T22:28:48+03:00',

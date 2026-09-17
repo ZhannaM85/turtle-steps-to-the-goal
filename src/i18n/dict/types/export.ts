@@ -143,13 +143,6 @@ export interface ExportDict {
     exportPdfRangeLabel: string
     exportPdfRange30Label: string
     exportPdfRange90Label: string
-    /** #933 / #935 — html2canvas layout preview of the PDF document. */
-    pdfLayoutPreviewTitle: string
-    pdfLayoutPreviewBlurb: string
-    pdfLayoutPreviewButton: string
-    pdfLayoutPreviewLoading: string
-    pdfLayoutPreviewFailed: string
-    pdfLayoutPreviewPageLabel: (page: number) => string
     /** #629 — lets the user pick which optional sections (below) go into
      * the PDF before it's generated. The disclaimer stays unconditional,
      * so it has no corresponding toggle here. */

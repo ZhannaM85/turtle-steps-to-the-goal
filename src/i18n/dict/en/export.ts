@@ -114,13 +114,6 @@ export const exportCopy: ExportDict = {
     exportPdfRangeLabel: 'Summary covers',
     exportPdfRange30Label: 'Last 30 days',
     exportPdfRange90Label: 'Last 90 days',
-    pdfLayoutPreviewTitle: 'PDF layout',
-    pdfLayoutPreviewBlurb:
-      'These pages are painted the same way the PDF file is. Open this on the iPhone to see what iOS will put in the file.',
-    pdfLayoutPreviewButton: 'Preview layout',
-    pdfLayoutPreviewLoading: 'Painting pages the same way the PDF is built…',
-    pdfLayoutPreviewFailed: 'Could not build the layout preview.',
-    pdfLayoutPreviewPageLabel: (page) => `Page ${page}`,
     pdfSectionsDialogTitle: 'Choose what to include',
     pdfSectionsDialogDescription:
       'Pick which sections go into the PDF. The non-medical disclaimer is always included.',
