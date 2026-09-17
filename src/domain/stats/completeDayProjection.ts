@@ -42,12 +42,6 @@ export const COMPLETE_DAY_TREND_WINDOW_DAYS = 7
 export const COMPLETE_DAY_OSCILLATION_KG = 0.4
 /** #949 — cap labeled Y ticks so Year does not list every 500 g. */
 export const COMPLETE_DAY_AXIS_MAX_TICKS = 7
-/** #949 — X-axis day step by horizon (Week denser, Year sparse). */
-export const COMPLETE_DAY_AXIS_DAY_STEP = {
-  week: 1,
-  month: 5,
-  year: 60,
-} as const
 const COMPLETE_DAY_WEIGHT_AXIS_STEPS = [0.5, 1, 2, 5, 10] as const
 
 export function completeDayWeekGridTicks(
@@ -106,36 +100,26 @@ export function completeDayWeightGridTicksKg(
   return ticks
 }
 
-/** #949 — X-axis positions in week units, one tick per horizon day-step. */
-export function completeDayAxisDayTicks(
-  horizon: CompleteDayHorizon = COMPLETE_DAY_DEFAULT_HORIZON,
-): number[] {
-  const days = completeDayHorizonDays(horizon)
-  const step = COMPLETE_DAY_AXIS_DAY_STEP[horizon]
-  const dayNumbers: number[] = [0]
-  for (let day = step; day < days; day += step) {
-    dayNumbers.push(day)
-  }
-  if (dayNumbers[dayNumbers.length - 1] !== days) {
-    dayNumbers.push(days)
-  }
-  return dayNumbers.map((day) => day / 7)
-}
-
 export function completeDayAxisDayNumber(week: number): number {
   return Math.round(week * 7)
 }
 
-/** #949 — Today / date-only end / interior day number. */
+/** #953 — calendar ISO at a week offset from the log day. */
+export function completeDayAxisTickIso(startIso: string, week: number): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(startIso)) return ''
+  const parsed = parseISO(startIso)
+  if (Number.isNaN(parsed.getTime())) return ''
+  return format(addDays(parsed, completeDayAxisDayNumber(week)), 'yyyy-MM-dd')
+}
+
+/** #953 — date-only X label at a grid-aligned tick; never a day count. */
 export function completeDayAxisTickLabel(
   week: number,
-  endWeek: number,
-  todayLabel: string,
-  endLabel: string,
+  startIso: string,
+  formatDate: (iso: string) => string,
 ): string {
-  if (Math.abs(week) < 1e-6) return todayLabel
-  if (Math.abs(week - endWeek) < 1e-6) return endLabel
-  return String(completeDayAxisDayNumber(week))
+  const iso = completeDayAxisTickIso(startIso, week)
+  return iso ? formatDate(iso) : ''
 }
 
 /**

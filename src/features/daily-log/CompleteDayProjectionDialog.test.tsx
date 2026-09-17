@@ -4,10 +4,13 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import {
+  completeDayAxisTickLabel,
   completeDayChartEndAxisLabel,
+  completeDayHorizonWeeks,
   completeDayProjectionEndIso,
+  completeDayWeekGridTicks,
 } from '@/domain/stats'
-import { formatLocalizedDate } from '@/i18n'
+import { formatLocalizedDate, formatLocalizedShortDate } from '@/i18n'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useProfileStore } from '@/stores'
 import {
@@ -38,7 +41,7 @@ function renderProjectionDialog() {
   )
 }
 
-describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 / #948 / #949)', () => {
+describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 / #948 / #949 / #953)', () => {
   beforeEach(() => {
     useProfileStore.setState({
       heightCm: 165,
@@ -184,31 +187,32 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 /
     expect(screen.queryByText("Today's intake")).not.toBeInTheDocument()
   })
 
-  it('anchors Today at the start and the horizon end at the end (#938 / #948)', () => {
+  it('anchors short dates at the start and end of the grid (#938 / #953)', () => {
+    const formatTick = (week: number) =>
+      completeDayAxisTickLabel(week, '2026-03-01', (iso) =>
+        formatLocalizedShortDate(iso, 'en'),
+      )
     const { container } = render(
       <svg>
         <CompleteDayWeekTick
           x={10}
           y={20}
           payload={{ value: 0 }}
-          todayLabel="Today"
-          endLabel="Mar 8, 2026"
+          formatTick={formatTick}
           endWeek={1}
         />
         <CompleteDayWeekTick
           x={200}
           y={20}
           payload={{ value: 1 }}
-          todayLabel="Today"
-          endLabel="Mar 8, 2026"
+          formatTick={formatTick}
           endWeek={1}
         />
         <CompleteDayWeekTick
           x={100}
           y={20}
           payload={{ value: 0.5 }}
-          todayLabel="Today"
-          endLabel="Mar 8, 2026"
+          formatTick={formatTick}
           endWeek={1}
         />
       </svg>,
@@ -216,50 +220,96 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 /
     const labels = container.querySelectorAll('text')
     expect(labels).toHaveLength(3)
     expect(labels[0]).toHaveAttribute('text-anchor', 'start')
-    expect(labels[0]).toHaveTextContent('Today')
+    expect(labels[0]).toHaveTextContent('03/01/2026')
     expect(labels[1]).toHaveAttribute('text-anchor', 'end')
-    expect(labels[1]).toHaveTextContent('Mar 8, 2026')
+    expect(labels[1]).toHaveTextContent('03/08/2026')
     expect(labels[2]).toHaveAttribute('text-anchor', 'middle')
-    expect(labels[2]).toHaveTextContent('4')
+    expect(labels[2]).toHaveTextContent('03/05/2026')
+    expect(labels[2]?.textContent).not.toMatch(/^\d+$/)
   })
 
-  it('labels interior X ticks as day numbers (#949)', () => {
+  it('labels interior X ticks as dates, not day numbers (#953)', () => {
+    const formatTick = (week: number) =>
+      completeDayAxisTickLabel(week, '2026-03-01', (iso) =>
+        formatLocalizedShortDate(iso, 'en'),
+      )
     const { container } = render(
       <svg>
         <CompleteDayWeekTick
           x={80}
           y={20}
           payload={{ value: 3 / 7 }}
-          todayLabel="Today"
-          endLabel="Mar 8, 2026"
+          formatTick={formatTick}
           endWeek={1}
         />
       </svg>,
     )
     const label = container.querySelector('text')
     expect(label).toHaveAttribute('text-anchor', 'middle')
-    expect(label).toHaveTextContent('3')
+    expect(label).toHaveTextContent('03/04/2026')
+    expect(label?.textContent).not.toMatch(/^\d+$/)
+  })
+
+  it('puts a date under every Month grid line and nowhere else (#953)', () => {
+    const formatTick = (week: number) =>
+      completeDayAxisTickLabel(week, '2026-03-01', (iso) =>
+        formatLocalizedShortDate(iso, 'en'),
+      )
+    const ticks = completeDayWeekGridTicks('month')
+    const { container } = render(
+      <svg>
+        {ticks.map((week) => (
+          <CompleteDayWeekTick
+            key={week}
+            x={week * 40}
+            y={20}
+            payload={{ value: week }}
+            formatTick={formatTick}
+            endWeek={completeDayHorizonWeeks('month')}
+          />
+        ))}
+      </svg>,
+    )
+    const labels = [...container.querySelectorAll('text')].map(
+      (node) => node.textContent,
+    )
+    expect(labels).toEqual([
+      '03/01/2026',
+      '03/08/2026',
+      '03/15/2026',
+      '03/22/2026',
+      '03/29/2026',
+      '03/31/2026',
+    ])
+    expect(labels).toHaveLength(ticks.length)
+    for (const label of labels) {
+      expect(label).not.toMatch(/^\d+$/)
+    }
   })
 
   it('puts the calendar end date only in the week-end axis label (#945 / #947 / #948)', () => {
     const endLabel = completeDayChartEndAxisLabel(
       formatLocalizedDate(completeDayProjectionEndIso('2026-03-01'), 'en'),
     )
+    const formatTick = (week: number) =>
+      completeDayAxisTickLabel(week, '2026-03-01', (iso) =>
+        formatLocalizedShortDate(iso, 'en'),
+      )
     const { container } = render(
       <svg>
         <CompleteDayWeekTick
           x={200}
           y={20}
           payload={{ value: 1 }}
-          todayLabel="Today"
-          endLabel={endLabel}
+          formatTick={formatTick}
           endWeek={1}
         />
       </svg>,
     )
     expect(endLabel).toBe('Mar 8, 2026')
     expect(endLabel).not.toMatch(/1 week/)
-    expect(container.querySelector('text')).toHaveTextContent('Mar 8, 2026')
+    expect(container.querySelector('text')).toHaveTextContent('03/08/2026')
+    expect(container.querySelector('text')).not.toHaveTextContent('Today')
   })
 
   it('shows oscillating dual-series legend line samples and keeps the end date (#947)', async () => {
@@ -359,7 +409,7 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 /
     expect(screen.getByText('7-day average')).toBeInTheDocument()
   })
 
-  it('keeps oscillating legend, date-only end, and start/end ticks after axis ticks (#949)', async () => {
+  it('keeps oscillating legend, date-only end, and start/end ticks after axis ticks (#949 / #953)', async () => {
     const user = userEvent.setup()
     renderProjectionDialog()
     await user.click(screen.getByRole('button', { name: 'Complete the day' }))

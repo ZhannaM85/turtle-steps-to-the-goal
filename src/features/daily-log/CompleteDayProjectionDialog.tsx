@@ -14,12 +14,9 @@ import { kgToLb } from '@/domain/goal'
 import {
   COMPLETE_DAY_DEFAULT_HORIZON,
   COMPLETE_DAY_HORIZONS,
-  completeDayAxisDayTicks,
   completeDayAxisTickLabel,
-  completeDayChartEndAxisLabel,
   completeDayHorizonWeeks,
   completeDayProjectionBlocker,
-  completeDayProjectionEndIso,
   completeDayWeekGridTicks,
   completeDayWeightAxisTicks,
   completeDayWeightGridTicksKg,
@@ -28,7 +25,7 @@ import {
 } from '@/domain/stats'
 import {
   formatExactNumber,
-  formatLocalizedDate,
+  formatLocalizedShortDate,
   formatNumber,
   unitLabel,
   useLocale,
@@ -45,25 +42,24 @@ import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { useProfileStore, useUnitStore } from '@/stores'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
-/** #938/#947/#949 — start/end labels stay; interior ticks are day numbers. */
+/** #938/#953 — date-only labels sit under the dashed vertical grid. */
 export function CompleteDayWeekTick({
   x,
   y,
   payload,
-  todayLabel,
-  endLabel,
   endWeek,
+  formatTick,
 }: {
   x?: number
   y?: number
   payload?: { value?: number }
-  todayLabel: string
-  endLabel: string
   endWeek: number
+  formatTick: (week: number) => string
 }) {
   const week = payload?.value
   if (week === undefined || x === undefined || y === undefined) return null
-  const label = completeDayAxisTickLabel(week, endWeek, todayLabel, endLabel)
+  const label = formatTick(week)
+  if (!label) return null
   const isStart = Math.abs(week) < 1e-6
   const isEnd = Math.abs(week - endWeek) < 1e-6
   return (
@@ -174,7 +170,10 @@ export function CompleteDayProjectionDialog() {
       average: toDisplay(point.averageKg),
     })) ?? []
   const weekTicks = completeDayWeekGridTicks(horizon)
-  const dayAxisTicks = completeDayAxisDayTicks(horizon)
+  const formatXTick = (week: number) =>
+    completeDayAxisTickLabel(week, state.date, (iso) =>
+      formatLocalizedShortDate(iso, locale),
+    )
   const chartKg =
     projection?.chartPoints.flatMap((point) => [
       point.weightKg,
@@ -198,13 +197,6 @@ export function CompleteDayProjectionDialog() {
           Math.max(...displayWeights),
         )
       : []
-
-  const weekEndLabel = completeDayChartEndAxisLabel(
-    formatLocalizedDate(
-      completeDayProjectionEndIso(state.date, horizon),
-      locale,
-    ),
-  )
 
   const changeText = (totalChangeKg: number) => {
     const amount = `${formatNumber(Math.abs(toDisplay(totalChangeKg)), locale)} ${unitText}`
@@ -325,19 +317,19 @@ export function CompleteDayProjectionDialog() {
                         strokeWidth={1}
                       />
                     ))}
-                    {/* #949 — visible X/Y tick marks + labels; density by
-                     * horizon. Today / date-only end stay (#947/#948). */}
+                    {/* #953 — date labels only at the vertical grid
+                     * positions; no day-count numbers or extra ticks. */}
                     <XAxis
                       dataKey="week"
                       type="number"
                       domain={[0, endWeek]}
-                      ticks={dayAxisTicks}
+                      ticks={weekTicks}
                       interval={0}
+                      minTickGap={0}
                       tick={
                         <CompleteDayWeekTick
-                          todayLabel={t.today.completeDayWeekNow}
-                          endLabel={weekEndLabel}
                           endWeek={endWeek}
+                          formatTick={formatXTick}
                         />
                       }
                       axisLine={{ stroke: 'var(--border)' }}

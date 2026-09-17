@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 922,
+    issue: 953,
+    date: '2026-09-17T07:08:00+00:00',
+    en: 'The Complete the day chart now shows calendar dates under the dashed grid lines, not day-count numbers.',
+    ru: 'На графике «Завершить день» под пунктирной сеткой теперь календарные даты, а не номера дней.',
+  },
+  {
     version: 921,
     issue: 952,
     date: '2026-09-17T07:01:00+00:00',
