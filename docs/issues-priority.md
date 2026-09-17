@@ -56,7 +56,6 @@ _Reported from an iPhone PDF export and the Day screen._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#961](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/961) | 🔍 Pending validation | PDF export: restore preview before Save or Share | Implemented in `aa757e6e4`: export opens the PDF preview first, where the device viewer can share or save the actual document. Awaiting on-device confirmation. |
 | [#962](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/962) | 🔍 Pending validation | PDF diary: move mood out of Показатели header onto the late-evening row | Implemented in `aa1f77f0b`: Mood moved out of the header and onto the Night food body row; Sleep, Deep sleep, and Steps remain in the title. Awaiting on-device confirmation. |
 | [#963](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/963) | ⬜ Open | PDF: remove temporary pdfDebug overlay and Settings toggle | Cleanup after #939/#952/#958/#960 diagnostics. Remove Settings debug toggle, `?pdfDebug` / localStorage flag, overlay report, and render-path hooks that exist only to feed it — once the layout bugs are settled. |
 | [#964](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/964) | ⬜ Open | Settings Export: break down device storage use (and check if PDFs inflate it) | Export shows ~242.5 MB used; unclear what is included and whether PDF export artifacts dominate. Categorize storage (IndexedDB, cache/SW, PDF/exports, other) and show a sector/pie breakdown near the usage line. Screenshot 2026-09-17. |
