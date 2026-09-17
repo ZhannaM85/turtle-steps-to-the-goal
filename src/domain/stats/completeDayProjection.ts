@@ -153,7 +153,8 @@ export function completeDayWeightAxisTicks(
   const step =
     COMPLETE_DAY_WEIGHT_AXIS_STEPS.find(
       (candidate) => Math.floor(span / candidate) + 1 <= maxTicks,
-    ) ?? COMPLETE_DAY_WEIGHT_AXIS_STEPS[COMPLETE_DAY_WEIGHT_AXIS_STEPS.length - 1]!
+    ) ??
+    COMPLETE_DAY_WEIGHT_AXIS_STEPS[COMPLETE_DAY_WEIGHT_AXIS_STEPS.length - 1]!
   const start = Math.floor(lo / step) * step
   const end = Math.ceil(hi / step) * step
   const ticks: number[] = []
@@ -202,27 +203,40 @@ export interface CompleteDayProjection {
 }
 
 /**
- * #946/#947 — trailing-window companion for the daily series, matching
- * Dashboard `rollingAverage` (partial window at the start, then a full
- * 7-day mean so the dashed line lags the solid path).
+ * #950 — centered window so the 7-day average cuts through the series
+ * instead of riding above a declining path (trailing lag). Edges shrink
+ * to the available days rather than looking only backward.
+ */
+function completeDayCenteredWindowMean(
+  values: number[],
+  windowDays: number = COMPLETE_DAY_TREND_WINDOW_DAYS,
+): number[] {
+  const radius = Math.floor(windowDays / 2)
+  return values.map((_, day) => {
+    const start = Math.max(0, day - radius)
+    const end = Math.min(values.length - 1, day + radius)
+    let sum = 0
+    for (let i = start; i <= end; i += 1) {
+      sum += values[i]!
+    }
+    return sum / (end - start + 1)
+  })
+}
+
+/**
+ * #946/#947/#950 — 7-day companion for the daily series. Centered so the
+ * dashed average runs through the middle of the oscillating вес path.
  */
 export function completeDayProjectionChartPoints(
   dailyKg: number[],
   windowDays: number = COMPLETE_DAY_TREND_WINDOW_DAYS,
 ): CompleteDayProjectionChartPoint[] {
-  let sum = 0
-  return dailyKg.map((weightKg, day) => {
-    sum += weightKg
-    const start = Math.max(0, day - windowDays + 1)
-    if (start > 0) {
-      sum -= dailyKg[start - 1]!
-    }
-    return {
-      week: day / 7,
-      weightKg,
-      averageKg: sum / (day - start + 1),
-    }
-  })
+  const averages = completeDayCenteredWindowMean(dailyKg, windowDays)
+  return dailyKg.map((weightKg, day) => ({
+    week: day / 7,
+    weightKg,
+    averageKg: averages[day]!,
+  }))
 }
 
 function fnv1aSeed(text: string): number {
@@ -271,9 +285,10 @@ export function completeDayOscillationSeed(
 }
 
 /**
- * #947 — synthetic daily scale readings around `trendKg`. Day 0 and the
- * last day stay on the trend so start/end markers match today and the
- * estimate; interior days wander with a mean-reverting wobble.
+ * #947/#950 — synthetic daily scale readings around `trendKg`. Day 0 and
+ * the last day stay on the trend so start/end markers match today and the
+ * estimate. Interior noise is high-pass / mean-centered so the walk is
+ * zero-mean around the projected path (equally above and below).
  */
 export function completeDayOscillatingDailyKg(
   trendKg: number[],
@@ -284,10 +299,26 @@ export function completeDayOscillatingDailyKg(
   if (last <= 0) return [...trendKg]
   const next = mulberry32(seed)
   let residual = 0
-  return trendKg.map((trend, day) => {
+  const raw: number[] = []
+  for (let day = 0; day <= last; day += 1) {
     residual = residual * 0.55 + (next() * 2 - 1) * amplitudeKg
+    raw.push(residual)
+  }
+  const localMean = completeDayCenteredWindowMean(raw)
+  const faded = raw.map((value, day) => {
     const fade = Math.min(day / 2, (last - day) / 2, 1)
-    return trend + residual * fade
+    return (value - localMean[day]!) * fade
+  })
+  let interiorSum = 0
+  let interiorCount = 0
+  for (let day = 1; day < last; day += 1) {
+    interiorSum += faded[day]!
+    interiorCount += 1
+  }
+  const interiorMean = interiorCount > 0 ? interiorSum / interiorCount : 0
+  return trendKg.map((trend, day) => {
+    if (day === 0 || day === last) return trend
+    return trend + faded[day]! - interiorMean
   })
 }
 

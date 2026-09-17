@@ -131,7 +131,7 @@ describe('complete-the-day oscillating dual series (#947)', () => {
     )
   })
 
-  it('uses the trailing 7-day average of that oscillating series', () => {
+  it('uses the 7-day average of that oscillating series', () => {
     const result = projectWeightIfEatingLikeToday({
       ...logged,
       horizon: 'month',
@@ -144,8 +144,9 @@ describe('complete-the-day oscillating dual series (#947)', () => {
     )
     const later = result.chartPoints[14]!
     const window = result.chartPoints
-      .slice(14 - 6, 15)
+      .slice(14 - 3, 14 + 4)
       .map((point) => point.weightKg)
+    expect(window).toHaveLength(7)
     expect(later.averageKg).toBeCloseTo(
       window.reduce((sum, kg) => sum + kg, 0) / 7,
     )
@@ -175,15 +176,62 @@ describe('complete-the-day oscillating dual series (#947)', () => {
     expect(a[3]).not.toBe(trend[3])
   })
 
-  it('lags the companion behind a rising oscillating path too', () => {
+  it('cuts the 7-day average through the middle of a linear series (#950)', () => {
     const rising = completeDayProjectionChartPoints([
       60, 61, 62, 63, 64, 65, 66, 67,
     ])
-    expect(rising[7]?.weightKg).toBe(67)
-    expect(rising[7]?.averageKg).toBeCloseTo(
-      (61 + 62 + 63 + 64 + 65 + 66 + 67) / 7,
+    expect(rising[4]?.weightKg).toBe(64)
+    expect(rising[4]?.averageKg).toBeCloseTo(64)
+    expect(rising[3]?.averageKg).toBeCloseTo(rising[3]!.weightKg)
+  })
+
+  it('keeps zero-mean residuals vs the trend and 7-day average (#950)', () => {
+    const trend = Array.from({ length: 31 }, (_, day) => 60 - day * 0.05)
+    const daily = completeDayOscillatingDailyKg(
+      trend,
+      completeDayOscillationSeed(logged),
     )
-    expect(rising[7]!.averageKg).toBeLessThan(rising[7]!.weightKg)
+    expect(daily[0]).toBe(60)
+    expect(daily.at(-1)).toBe(trend.at(-1))
+
+    const interior = daily.slice(1, -1)
+    const trendInterior = trend.slice(1, -1)
+    const vsTrend = interior.map((kg, i) => kg - trendInterior[i]!)
+    const meanVsTrend =
+      vsTrend.reduce((sum, kg) => sum + kg, 0) / vsTrend.length
+    expect(Math.abs(meanVsTrend)).toBeLessThan(1e-9)
+    expect(vsTrend.filter((kg) => kg > 1e-9).length).toBeGreaterThan(5)
+    expect(vsTrend.filter((kg) => kg < -1e-9).length).toBeGreaterThan(5)
+
+    const chart = completeDayProjectionChartPoints(daily)
+    const vsAverage = chart.map((point) => point.weightKg - point.averageKg)
+    const meanVsAverage =
+      vsAverage.reduce((sum, kg) => sum + kg, 0) / vsAverage.length
+    expect(Math.abs(meanVsAverage)).toBeLessThan(0.03)
+    expect(vsAverage.filter((kg) => kg > 1e-9).length).toBeGreaterThan(5)
+    expect(vsAverage.filter((kg) => kg < -1e-9).length).toBeGreaterThan(5)
+  })
+
+  it('stays balanced around the average on Week, Month, and Year (#950)', () => {
+    for (const horizon of ['week', 'month', 'year'] as const) {
+      const result = projectWeightIfEatingLikeToday({
+        ...logged,
+        horizon,
+      })
+      const vsAverage = result.chartPoints.map(
+        (point) => point.weightKg - point.averageKg,
+      )
+      const mean = vsAverage.reduce((sum, kg) => sum + kg, 0) / vsAverage.length
+      const above = vsAverage.filter((kg) => kg > 1e-9).length
+      const below = vsAverage.filter((kg) => kg < -1e-9).length
+      expect(Math.abs(mean)).toBeLessThan(0.05)
+      expect(above).toBeGreaterThan(0)
+      expect(below).toBeGreaterThan(0)
+      expect(result.chartPoints[0]?.weightKg).toBe(60.2)
+      expect(result.chartPoints.at(-1)?.weightKg).toBeCloseTo(
+        result.projectedWeightKg,
+      )
+    }
   })
 })
 
@@ -375,15 +423,11 @@ describe('complete-the-day axis ticks (#949)', () => {
   })
 
   it('labels Today, the date-only end, and interior day numbers', () => {
-    expect(
-      completeDayAxisTickLabel(0, 1, 'Today', 'Mar 8, 2026'),
-    ).toBe('Today')
-    expect(
-      completeDayAxisTickLabel(1, 1, 'Today', 'Mar 8, 2026'),
-    ).toBe('Mar 8, 2026')
-    expect(
-      completeDayAxisTickLabel(3 / 7, 1, 'Today', 'Mar 8, 2026'),
-    ).toBe('3')
+    expect(completeDayAxisTickLabel(0, 1, 'Today', 'Mar 8, 2026')).toBe('Today')
+    expect(completeDayAxisTickLabel(1, 1, 'Today', 'Mar 8, 2026')).toBe(
+      'Mar 8, 2026',
+    )
+    expect(completeDayAxisTickLabel(3 / 7, 1, 'Today', 'Mar 8, 2026')).toBe('3')
     expect(
       completeDayAxisTickLabel(60 / 7, 365 / 7, 'Today', 'Mar 1, 2027'),
     ).toBe('60')

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 920,
+    issue: 950,
+    date: '2026-09-17T06:56:00+00:00',
+    en: 'The Complete the day weight line now wanders equally above and below the dashed 7-day average, instead of sitting mostly under it.',
+    ru: 'На графике «Завершить день» дневной вес теперь колеблется примерно одинаково выше и ниже пунктирного среднего за 7 дней, а не сидит в основном под ним.',
+  },
+  {
     version: 919,
     issue: 949,
     date: '2026-09-17T06:48:01+00:00',

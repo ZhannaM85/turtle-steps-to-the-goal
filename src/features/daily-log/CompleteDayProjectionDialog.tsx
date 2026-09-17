@@ -397,8 +397,8 @@ export function CompleteDayProjectionDialog() {
                         )
                       }}
                     />
-                    {/* #946/#947: dashed muted companion — trailing average
-                     * of the oscillating daily series (#214 tokens). */}
+                    {/* #946/#947/#950: dashed muted companion — 7-day
+                     * average through the oscillating daily series. */}
                     <Line
                       type="monotone"
                       dataKey="average"
