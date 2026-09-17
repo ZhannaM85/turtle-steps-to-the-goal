@@ -197,6 +197,35 @@ describe('dailyLogPdfDayLines (#891)', () => {
       `${t.dailyEntry.nightEatingNoWhatHelpedLabel}: A walk helped`,
     )
   })
+
+  it('puts Mood on the Night food metric row rather than in the header (#962)', () => {
+    const lines = dailyLogPdfDayLines(
+      makeEntry({ emotion: 'happy', nightEatingOverride: false }),
+      t,
+      'en',
+      'kg',
+    )
+    const nightFoodLine = lines.find((line) =>
+      line.text.startsWith(t.dailyEntry.nightEatingLabel()),
+    )
+
+    expect(nightFoodLine?.text).toContain(`${t.exportXlsx.moodColumn}: Happy`)
+    expect(lines.filter((line) => line.text.startsWith(`${t.exportXlsx.moodColumn}:`))).toHaveLength(0)
+  })
+
+  it('keeps Mood in the Metrics body if Night food has no value (#962)', () => {
+    const lines = dailyLogPdfDayLines(
+      makeEntry({ emotion: 'happy' }),
+      t,
+      'en',
+      'kg',
+    )
+
+    expect(lines).toContainEqual({
+      role: 'body',
+      text: `${t.exportXlsx.moodColumn}: Happy`,
+    })
+  })
 })
 
 describe('appendDailyLogPdfPages', () => {

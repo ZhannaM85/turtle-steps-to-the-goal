@@ -10,7 +10,6 @@ const diaryHeaderMetricKinds = {
   sleep: true,
   deepSleep: true,
   steps: true,
-  mood: true,
 } as const
 
 function diaryMetricLineHtml(text: string): string {

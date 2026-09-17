@@ -672,7 +672,7 @@ describe('buildSummaryPdf', () => {
     expect(html).not.toContain('<article class="pdf-day">')
   })
 
-  it('packs diary signals beside Metrics and meals into paired cards without losing the night food note (#925)', () => {
+  it('keeps Mood in the Night food body row, outside the Metrics title (#962)', () => {
     const entry = makeEntry({
       sleepHours: 7.5,
       deepSleepHours: 2,
@@ -724,10 +724,15 @@ describe('buildSummaryPdf', () => {
     expect(metricsTitle?.textContent).toContain(`${t.dailyEntry.sleepLabel}:`)
     expect(metricsTitle?.textContent).toContain(`${t.dailyEntry.deepSleepLabel}:`)
     expect(metricsTitle?.textContent).toContain(`${t.dailyEntry.stepsLabel}:`)
-    expect(metricsTitle?.textContent).toContain(`${t.exportXlsx.moodColumn}:`)
+    expect(metricsTitle?.textContent).not.toContain(`${t.exportXlsx.moodColumn}:`)
     expect(metricsTitle?.textContent).toContain(' · ')
     expect(metricsTitle?.querySelector('.pdf-day-header-metric')).toBeNull()
     expect(metricsTitle?.querySelector('svg')).toBeNull()
+    const metricsBody = day.querySelector('.pdf-day-section-metrics .pdf-day-section-content')
+    const nightFoodLine = [...(metricsBody?.querySelectorAll('.pdf-line') ?? [])]
+      .find((line) => line.textContent?.startsWith(t.dailyEntry.nightEatingLabel()))
+    expect(nightFoodLine?.textContent).toContain(`${t.exportXlsx.moodColumn}:`)
+    expect(nightFoodLine?.textContent).toContain('Happy')
     const mealCards = [...day.querySelectorAll('.pdf-meal-card')]
     const mealColumns = [...day.querySelectorAll('.pdf-meal-column')]
     expect(mealCards).toHaveLength(3)

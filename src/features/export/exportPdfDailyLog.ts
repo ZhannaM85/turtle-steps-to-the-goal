@@ -43,7 +43,7 @@ export type DailyLogPdfLineRole = 'header' | 'section' | 'body' | 'item'
 export interface DailyLogPdfLine {
   role: DailyLogPdfLineRole
   text: string
-  kind?: 'sleep' | 'deepSleep' | 'steps' | 'mood' | 'meal' | 'dayTotal'
+  kind?: 'sleep' | 'deepSleep' | 'steps' | 'meal' | 'dayTotal'
 }
 
 function trackingOn(
@@ -121,6 +121,11 @@ export function dailyLogPdfDayLines(
   })
 
   const metrics: string[] = []
+  const mood =
+    trackingOn(extras, 'mood') && entry.emotion
+      ? `${t.exportXlsx.moodColumn}: ${t.dailyEntry.emotionLabel(entry.emotion)}`
+      : undefined
+  let moodAddedToNightFood = false
   if (trackingOn(extras, 'sleep')) {
     const sleep =
       entry.sleepHours === undefined
@@ -143,9 +148,6 @@ export function dailyLogPdfDayLines(
   }
   if (trackingOn(extras, 'steps') && entry.steps !== undefined) {
     lines.push({ role: 'body', text: `${t.dailyEntry.stepsLabel}: ${formatNumber(entry.steps, locale, 0)}`, kind: 'steps' })
-  }
-  if (trackingOn(extras, 'mood') && entry.emotion) {
-    lines.push({ role: 'body', text: `${t.exportXlsx.moodColumn}: ${t.dailyEntry.emotionLabel(entry.emotion)}`, kind: 'mood' })
   }
   if (trackingOn(extras, 'bodyMeasurements') && entry.waistCm !== undefined) {
     metrics.push(
@@ -203,7 +205,13 @@ export function dailyLogPdfDayLines(
   if (trackingOn(extras, 'nightEating')) {
     const night = hadNightEating(entry)
     if (night !== undefined) {
-      metrics.push(`${t.dailyEntry.nightEatingLabel()}: ${yesNo(night, t)}`)
+      metrics.push(
+        joinParts([
+          `${t.dailyEntry.nightEatingLabel()}: ${yesNo(night, t)}`,
+          mood,
+        ]),
+      )
+      moodAddedToNightFood = mood !== undefined
       if (night && entry.nightEatingReason) {
         metrics.push(
           `${t.dailyEntry.nightEatingReasonLabel}: ${entry.nightEatingReason}`,
@@ -219,6 +227,12 @@ export function dailyLogPdfDayLines(
         }
       }
     }
+  }
+  // Keep a recorded mood visible even when Night food is not being tracked
+  // or has no value for this date. When it is present, it sits beside Night
+  // food above so the Metrics heading stays compact (#962).
+  if (mood && !moodAddedToNightFood) {
+    metrics.push(mood)
   }
   for (const metric of extras?.customMetrics ?? []) {
     const logged = extras?.customMetricEntries?.find(
