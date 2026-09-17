@@ -14,16 +14,25 @@ import { kgToLb } from '@/domain/goal'
 import {
   COMPLETE_DAY_DEFAULT_HORIZON,
   COMPLETE_DAY_HORIZONS,
+  completeDayAxisDayTicks,
+  completeDayAxisTickLabel,
   completeDayChartEndAxisLabel,
   completeDayHorizonWeeks,
   completeDayProjectionBlocker,
   completeDayProjectionEndIso,
   completeDayWeekGridTicks,
+  completeDayWeightAxisTicks,
   completeDayWeightGridTicksKg,
   projectWeightIfEatingLikeToday,
   type CompleteDayHorizon,
 } from '@/domain/stats'
-import { formatLocalizedDate, formatNumber, unitLabel, useLocale } from '@/i18n'
+import {
+  formatExactNumber,
+  formatLocalizedDate,
+  formatNumber,
+  unitLabel,
+  useLocale,
+} from '@/i18n'
 import { formatKcal } from '@/shared/lib/macroDisplay'
 import { Button } from '@/shared/ui/button'
 import {
@@ -36,6 +45,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { useProfileStore, useUnitStore } from '@/stores'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
+/** #938/#947/#949 — start/end labels stay; interior ticks are day numbers. */
 export function CompleteDayWeekTick({
   x,
   y,
@@ -52,20 +62,17 @@ export function CompleteDayWeekTick({
   endWeek: number
 }) {
   const week = payload?.value
-  const label =
-    week === 0
-      ? todayLabel
-      : week !== undefined && Math.abs(week - endWeek) < 1e-6
-        ? endLabel
-        : ''
-  if (!label || x === undefined || y === undefined) return null
+  if (week === undefined || x === undefined || y === undefined) return null
+  const label = completeDayAxisTickLabel(week, endWeek, todayLabel, endLabel)
+  const isStart = Math.abs(week) < 1e-6
+  const isEnd = Math.abs(week - endWeek) < 1e-6
   return (
     <text
       x={x}
       y={y}
       dy={14}
-      textAnchor={week === 0 ? 'start' : 'end'}
-      fontSize={12}
+      textAnchor={isStart ? 'start' : isEnd ? 'end' : 'middle'}
+      fontSize={11}
       fill="var(--muted-foreground)"
     >
       {label}
@@ -167,6 +174,7 @@ export function CompleteDayProjectionDialog() {
       average: toDisplay(point.averageKg),
     })) ?? []
   const weekTicks = completeDayWeekGridTicks(horizon)
+  const dayAxisTicks = completeDayAxisDayTicks(horizon)
   const chartKg =
     projection?.chartPoints.flatMap((point) => [
       point.weightKg,
@@ -178,6 +186,17 @@ export function CompleteDayProjectionDialog() {
           Math.min(...chartKg),
           Math.max(...chartKg),
         ).map(toDisplay)
+      : []
+  const displayWeights = chartData.flatMap((point) => [
+    point.weight,
+    point.average,
+  ])
+  const weightAxisTicks =
+    displayWeights.length > 0
+      ? completeDayWeightAxisTicks(
+          Math.min(...displayWeights),
+          Math.max(...displayWeights),
+        )
       : []
 
   const weekEndLabel = completeDayChartEndAxisLabel(
@@ -284,7 +303,7 @@ export function CompleteDayProjectionDialog() {
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
                     data={chartData}
-                    margin={{ top: 12, right: 8, left: 8, bottom: 8 }}
+                    margin={{ top: 12, right: 8, left: 0, bottom: 8 }}
                   >
                     {weekTicks.map((week) => (
                       <ReferenceLine
@@ -306,11 +325,13 @@ export function CompleteDayProjectionDialog() {
                         strokeWidth={1}
                       />
                     ))}
+                    {/* #949 — visible X/Y tick marks + labels; density by
+                     * horizon. Today / date-only end stay (#947/#948). */}
                     <XAxis
                       dataKey="week"
                       type="number"
                       domain={[0, endWeek]}
-                      ticks={weekTicks}
+                      ticks={dayAxisTicks}
                       interval={0}
                       tick={
                         <CompleteDayWeekTick
@@ -320,25 +341,31 @@ export function CompleteDayProjectionDialog() {
                         />
                       }
                       axisLine={{ stroke: 'var(--border)' }}
-                      tickLine={false}
+                      tickLine={{ stroke: 'var(--muted-foreground)' }}
                       height={28}
                     />
                     <YAxis
                       type="number"
                       domain={
-                        weightTicks.length > 1
+                        weightAxisTicks.length > 1
                           ? [
-                              weightTicks[0]!,
-                              weightTicks[weightTicks.length - 1]!,
+                              weightAxisTicks[0]!,
+                              weightAxisTicks[weightAxisTicks.length - 1]!,
                             ]
                           : ['auto', 'auto']
                       }
-                      ticks={weightTicks}
+                      ticks={weightAxisTicks}
                       interval={0}
-                      tick={false}
+                      tick={{
+                        fontSize: 11,
+                        fill: 'var(--muted-foreground)',
+                      }}
+                      tickFormatter={(value: number) =>
+                        formatExactNumber(value, locale)
+                      }
                       axisLine={false}
-                      tickLine={false}
-                      width={0}
+                      tickLine={{ stroke: 'var(--muted-foreground)' }}
+                      width={40}
                     />
                     <Line
                       type="linear"

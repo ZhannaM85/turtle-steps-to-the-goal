@@ -38,7 +38,7 @@ function renderProjectionDialog() {
   )
 }
 
-describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 / #948)', () => {
+describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 / #948 / #949)', () => {
   beforeEach(() => {
     useProfileStore.setState({
       heightCm: 165,
@@ -214,11 +214,31 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 /
       </svg>,
     )
     const labels = container.querySelectorAll('text')
-    expect(labels).toHaveLength(2)
+    expect(labels).toHaveLength(3)
     expect(labels[0]).toHaveAttribute('text-anchor', 'start')
     expect(labels[0]).toHaveTextContent('Today')
     expect(labels[1]).toHaveAttribute('text-anchor', 'end')
     expect(labels[1]).toHaveTextContent('Mar 8, 2026')
+    expect(labels[2]).toHaveAttribute('text-anchor', 'middle')
+    expect(labels[2]).toHaveTextContent('4')
+  })
+
+  it('labels interior X ticks as day numbers (#949)', () => {
+    const { container } = render(
+      <svg>
+        <CompleteDayWeekTick
+          x={80}
+          y={20}
+          payload={{ value: 3 / 7 }}
+          todayLabel="Today"
+          endLabel="Mar 8, 2026"
+          endWeek={1}
+        />
+      </svg>,
+    )
+    const label = container.querySelector('text')
+    expect(label).toHaveAttribute('text-anchor', 'middle')
+    expect(label).toHaveTextContent('3')
   })
 
   it('puts the calendar end date only in the week-end axis label (#945 / #947 / #948)', () => {
@@ -335,6 +355,26 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 /
       screen.queryByText(/About .+ lower over 1 month/),
     ).not.toBeInTheDocument()
     expect(screen.getByText(/^≈ /).textContent).not.toBe(monthEstimate)
+    expect(screen.getByText('weight')).toBeInTheDocument()
+    expect(screen.getByText('7-day average')).toBeInTheDocument()
+  })
+
+  it('keeps oscillating legend, date-only end, and start/end ticks after axis ticks (#949)', async () => {
+    const user = userEvent.setup()
+    renderProjectionDialog()
+    await user.click(screen.getByRole('button', { name: 'Complete the day' }))
+    expect(screen.getByText('weight')).toBeInTheDocument()
+    expect(screen.getByText('7-day average')).toBeInTheDocument()
+    expect(
+      document.querySelector('[data-legend-series="weight"] line'),
+    ).not.toHaveAttribute('stroke-dasharray')
+    expect(
+      document.querySelector('[data-legend-series="average"] line'),
+    ).toHaveAttribute('stroke-dasharray', '4 3')
+    expect(screen.getByText(/About .+ lower over 1 week/)).toBeInTheDocument()
+    const tabs = screen.getByLabelText('Projection period')
+    await user.click(within(tabs).getByRole('radio', { name: 'Year' }))
+    expect(screen.getByText(/About .+ lower over 1 year/)).toBeInTheDocument()
     expect(screen.getByText('weight')).toBeInTheDocument()
     expect(screen.getByText('7-day average')).toBeInTheDocument()
   })

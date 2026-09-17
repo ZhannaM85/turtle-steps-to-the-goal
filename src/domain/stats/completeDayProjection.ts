@@ -40,6 +40,15 @@ export const COMPLETE_DAY_GRID_KG = 0.5
 export const COMPLETE_DAY_TREND_WINDOW_DAYS = 7
 /** #947 — typical morning-scale wobble around the projected trend, in kg. */
 export const COMPLETE_DAY_OSCILLATION_KG = 0.4
+/** #949 — cap labeled Y ticks so Year does not list every 500 g. */
+export const COMPLETE_DAY_AXIS_MAX_TICKS = 7
+/** #949 — X-axis day step by horizon (Week denser, Year sparse). */
+export const COMPLETE_DAY_AXIS_DAY_STEP = {
+  week: 1,
+  month: 5,
+  year: 60,
+} as const
+const COMPLETE_DAY_WEIGHT_AXIS_STEPS = [0.5, 1, 2, 5, 10] as const
 
 export function completeDayWeekGridTicks(
   horizon: CompleteDayHorizon = COMPLETE_DAY_DEFAULT_HORIZON,
@@ -93,6 +102,66 @@ export function completeDayWeightGridTicksKg(
   }
   if (ticks.length < 2) {
     ticks.push(Math.round((start + COMPLETE_DAY_GRID_KG) * 10) / 10)
+  }
+  return ticks
+}
+
+/** #949 — X-axis positions in week units, one tick per horizon day-step. */
+export function completeDayAxisDayTicks(
+  horizon: CompleteDayHorizon = COMPLETE_DAY_DEFAULT_HORIZON,
+): number[] {
+  const days = completeDayHorizonDays(horizon)
+  const step = COMPLETE_DAY_AXIS_DAY_STEP[horizon]
+  const dayNumbers: number[] = [0]
+  for (let day = step; day < days; day += step) {
+    dayNumbers.push(day)
+  }
+  if (dayNumbers[dayNumbers.length - 1] !== days) {
+    dayNumbers.push(days)
+  }
+  return dayNumbers.map((day) => day / 7)
+}
+
+export function completeDayAxisDayNumber(week: number): number {
+  return Math.round(week * 7)
+}
+
+/** #949 — Today / date-only end / interior day number. */
+export function completeDayAxisTickLabel(
+  week: number,
+  endWeek: number,
+  todayLabel: string,
+  endLabel: string,
+): string {
+  if (Math.abs(week) < 1e-6) return todayLabel
+  if (Math.abs(week - endWeek) < 1e-6) return endLabel
+  return String(completeDayAxisDayNumber(week))
+}
+
+/**
+ * #949 — labeled Y-axis weights. Same 500 g mesh when the range is small;
+ * larger nice steps when a Year-scale span would crowd the axis.
+ */
+export function completeDayWeightAxisTicks(
+  min: number,
+  max: number,
+  maxTicks: number = COMPLETE_DAY_AXIS_MAX_TICKS,
+): number[] {
+  const lo = Math.min(min, max)
+  const hi = Math.max(min, max)
+  const span = Math.max(hi - lo, COMPLETE_DAY_GRID_KG)
+  const step =
+    COMPLETE_DAY_WEIGHT_AXIS_STEPS.find(
+      (candidate) => Math.floor(span / candidate) + 1 <= maxTicks,
+    ) ?? COMPLETE_DAY_WEIGHT_AXIS_STEPS[COMPLETE_DAY_WEIGHT_AXIS_STEPS.length - 1]!
+  const start = Math.floor(lo / step) * step
+  const end = Math.ceil(hi / step) * step
+  const ticks: number[] = []
+  for (let value = start; value <= end + 1e-9; value += step) {
+    ticks.push(Math.round(value * 10) / 10)
+  }
+  if (ticks.length < 2) {
+    ticks.push(Math.round((start + step) * 10) / 10)
   }
   return ticks
 }

@@ -9,6 +9,10 @@ import {
   COMPLETE_DAY_HORIZON_DAYS,
   COMPLETE_DAY_OSCILLATION_KG,
   COMPLETE_DAY_TREND_WINDOW_DAYS,
+  COMPLETE_DAY_AXIS_DAY_STEP,
+  COMPLETE_DAY_AXIS_MAX_TICKS,
+  completeDayAxisDayTicks,
+  completeDayAxisTickLabel,
   completeDayChartEndAxisLabel,
   completeDayHorizonDays,
   completeDayHorizonWeeks,
@@ -18,6 +22,7 @@ import {
   completeDayProjectionChartPoints,
   completeDayProjectionEndIso,
   completeDayWeekGridTicks,
+  completeDayWeightAxisTicks,
   completeDayWeightGridTicksKg,
   projectWeightIfEatingLikeToday,
 } from './completeDayProjection'
@@ -324,5 +329,80 @@ describe('complete-the-day horizons (#948)', () => {
     expect(week.chartPoints.at(-1)?.week).toBe(1)
     expect(month.chartPoints.at(-1)?.week).toBeCloseTo(30 / 7)
     expect(year.chartPoints.at(-1)?.week).toBeCloseTo(365 / 7)
+  })
+})
+
+describe('complete-the-day axis ticks (#949)', () => {
+  it('uses a daily X tick on Week', () => {
+    expect(COMPLETE_DAY_AXIS_DAY_STEP.week).toBe(1)
+    expect(completeDayAxisDayTicks('week')).toEqual([
+      0,
+      1 / 7,
+      2 / 7,
+      3 / 7,
+      4 / 7,
+      5 / 7,
+      6 / 7,
+      1,
+    ])
+  })
+
+  it('uses every 5 days on Month', () => {
+    expect(COMPLETE_DAY_AXIS_DAY_STEP.month).toBe(5)
+    expect(completeDayAxisDayTicks('month')).toEqual([
+      0,
+      5 / 7,
+      10 / 7,
+      15 / 7,
+      20 / 7,
+      25 / 7,
+      30 / 7,
+    ])
+  })
+
+  it('keeps Year X ticks sparse instead of one per day', () => {
+    expect(COMPLETE_DAY_AXIS_DAY_STEP.year).toBe(60)
+    const ticks = completeDayAxisDayTicks('year')
+    expect(ticks[0]).toBe(0)
+    expect(ticks.at(-1)).toBe(365 / 7)
+    expect(ticks.length).toBeLessThanOrEqual(8)
+    expect(ticks.length).toBeGreaterThan(4)
+    expect(ticks.length).toBeLessThan(COMPLETE_DAY_HORIZON_DAYS.year)
+    const days = ticks.map((week) => week * 7)
+    for (let i = 1; i < days.length - 1; i += 1) {
+      expect(days[i]! - days[i - 1]!).toBeGreaterThanOrEqual(60)
+    }
+  })
+
+  it('labels Today, the date-only end, and interior day numbers', () => {
+    expect(
+      completeDayAxisTickLabel(0, 1, 'Today', 'Mar 8, 2026'),
+    ).toBe('Today')
+    expect(
+      completeDayAxisTickLabel(1, 1, 'Today', 'Mar 8, 2026'),
+    ).toBe('Mar 8, 2026')
+    expect(
+      completeDayAxisTickLabel(3 / 7, 1, 'Today', 'Mar 8, 2026'),
+    ).toBe('3')
+    expect(
+      completeDayAxisTickLabel(60 / 7, 365 / 7, 'Today', 'Mar 1, 2027'),
+    ).toBe('60')
+  })
+
+  it('keeps dense 500 g Y ticks on a short Week range', () => {
+    const ticks = completeDayWeightAxisTicks(59.8, 60.3)
+    expect(COMPLETE_DAY_AXIS_MAX_TICKS).toBe(7)
+    expect(ticks).toEqual([59.5, 60, 60.5])
+  })
+
+  it('thins Y ticks for a wide Year-like range', () => {
+    const ticks = completeDayWeightAxisTicks(45, 60.2)
+    expect(ticks.length).toBeGreaterThan(1)
+    expect(ticks.length).toBeLessThanOrEqual(COMPLETE_DAY_AXIS_MAX_TICKS)
+    expect(ticks.length).toBeLessThan(
+      completeDayWeightGridTicksKg(45, 60.2).length,
+    )
+    expect(ticks[0]).toBeLessThanOrEqual(45)
+    expect(ticks.at(-1)).toBeGreaterThanOrEqual(60.2)
   })
 })

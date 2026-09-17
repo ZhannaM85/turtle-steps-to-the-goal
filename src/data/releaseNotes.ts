@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 919,
+    issue: 949,
+    date: '2026-09-17T06:48:01+00:00',
+    en: 'The Complete the day chart now shows axis ticks: weight on the side and days along the bottom, denser for a week and sparser for a year.',
+    ru: 'На графике «Завершить день» теперь видны деления осей: вес сбоку и дни снизу — чаще на неделе и реже на годе.',
+  },
+  {
     version: 918,
     issue: 948,
     date: '2026-09-17T09:25:00+03:00',
