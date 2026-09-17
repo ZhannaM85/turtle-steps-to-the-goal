@@ -26,13 +26,6 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
-    version: 934,
-    issue: 960,
-    date: '2026-09-17T18:36:00+00:00',
-    en: 'PDF diary pages now print at their natural height instead of being stretched to a full page, removing the blank gaps between Water and Notes.',
-    ru: 'Страницы дневника PDF теперь печатаются в своей естественной высоте, а не растягиваются на всю страницу — пустые пробелы между «Вода» и «Заметки» исчезли.',
-  },
-  {
     version: 933,
     issue: 958,
     date: '2026-09-17T17:12:00+00:00',
