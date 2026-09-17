@@ -56,4 +56,3 @@ _Reported from an iPhone PDF export and the Day screen._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#963](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/963) | 🔍 Pending validation | PDF: remove temporary pdfDebug overlay and Settings toggle | Also removed the «Посмотреть макет» / Preview layout button and `/settings/pdf-layout` screen (#933/#935) — debugging-only after PDF layout issues were validated. Awaiting on-device confirmation. |
