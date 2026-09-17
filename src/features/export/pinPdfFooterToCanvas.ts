@@ -3,9 +3,9 @@
  * `.pdf-footer`. Block in-flow layout (not flex min-height / space-between)
  * keeps Water rows and Notes header+body contiguous.
  *
- * Capture through the footer, then place the bitmap at **natural capture
- * height**. Do not stretch a short page onto a full-A4 canvas — leftover
- * paper below the image is letterbox, not whitespace inside the diary.
+ * Capture through the footer, then copy the body and footer at 1:1 pixel
+ * scale onto an A4-height canvas. The footer sits at the normal bottom
+ * margin without restoring the old under-footer fill strut.
  */
 
 export const PDF_PAGE_FILL_CLASS = 'pdf-page-fill'
@@ -61,6 +61,7 @@ export function pdfPageStretchMetrics(input: {
   captureHeightPx: number
   scale: number
   contentWidthMm: number
+  paddedCanvas?: boolean
 }): PdfPageStretchMetrics {
   const placedMm = pdfImageHeightMm(
     input.canvasWidth,
@@ -78,8 +79,9 @@ export function pdfPageStretchMetrics(input: {
   const scaledCapture = capture * Math.max(input.scale, 0.01)
   const stretchCanvasOverCaptureScaled = input.canvasHeight / scaledCapture
   const stretchFlagged =
-    Math.abs(stretchPlacedOverNatural - 1) > PDF_STRETCH_EPSILON ||
-    Math.abs(stretchCanvasOverCaptureScaled - 1) > PDF_STRETCH_EPSILON
+    !input.paddedCanvas &&
+    (Math.abs(stretchPlacedOverNatural - 1) > PDF_STRETCH_EPSILON ||
+      Math.abs(stretchCanvasOverCaptureScaled - 1) > PDF_STRETCH_EPSILON)
   return {
     placedMm,
     naturalMm,
@@ -170,12 +172,54 @@ export function pdfFooterSourceFromCanvasBottom(
 }
 
 /**
- * #960 — keep the captured bitmap's natural height. Padding a short page
- * onto an A4-tall canvas (the #958 pin) stretched Water/Notes in the JPEG
- * and in Макет PDF. Extra paper belongs below the placed image, not inside it.
+ * Copy a short capture onto an A4-height canvas without scaling either
+ * draw operation. Body pixels stay at the top and footer pixels move to
+ * the bottom; only blank paper is inserted between them.
  */
 export function pinPdfFooterToCanvasBottom(
   canvas: HTMLCanvasElement,
+  page: HTMLElement,
+  destHeightPx: number,
+  captureHeightPx: number,
 ): HTMLCanvasElement {
-  return canvas
+  if (destHeightPx <= canvas.height + 1) return canvas
+  const slice = pdfFooterSourceFromCanvasBottom(
+    canvas.height,
+    page,
+    captureHeightPx,
+  )
+  if (!slice) return canvas
+
+  const dest = canvas.ownerDocument.createElement('canvas')
+  dest.width = canvas.width
+  dest.height = destHeightPx
+  const ctx = dest.getContext('2d')
+  if (!ctx) return canvas
+  ctx.fillStyle = '#ffffff'
+  ctx.fillRect(0, 0, dest.width, dest.height)
+  if (slice.y > 0) {
+    ctx.drawImage(
+      canvas,
+      0,
+      0,
+      canvas.width,
+      slice.y,
+      0,
+      0,
+      canvas.width,
+      slice.y,
+    )
+  }
+  ctx.drawImage(
+    canvas,
+    0,
+    slice.y,
+    canvas.width,
+    slice.height,
+    0,
+    destHeightPx - slice.height,
+    canvas.width,
+    slice.height,
+  )
+  return dest
 }

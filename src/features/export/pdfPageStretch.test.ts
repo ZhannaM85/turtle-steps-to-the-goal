@@ -13,7 +13,7 @@ describe('pinPdfFooterToCanvasBottom (#960)', () => {
     vi.restoreAllMocks()
   })
 
-  it('does not stretch a short capture onto an A4-tall canvas', () => {
+  it('pins the footer on A4 paper without scaling body or footer pixels', () => {
     const page = document.createElement('section')
     page.className = 'pdf-page'
     page.innerHTML =
@@ -32,13 +32,48 @@ describe('pinPdfFooterToCanvasBottom (#960)', () => {
       const canvas = document.createElement('canvas')
       canvas.width = 1021
       canvas.height = 285
-      const dest = pinPdfFooterToCanvasBottom(canvas)
-      expect(dest).toBe(canvas)
-      expect(dest.height).toBe(285)
+      const drawImage = vi.fn()
+      vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
+        fillStyle: '',
+        fillRect: vi.fn(),
+        drawImage,
+      } as unknown as CanvasRenderingContext2D)
+      const destHeight = a4ContentCanvasHeightPx(canvas.width, 190)
+      const dest = pinPdfFooterToCanvasBottom(
+        canvas,
+        page,
+        destHeight,
+        190,
+      )
+      expect(dest).not.toBe(canvas)
+      expect(dest.height).toBe(destHeight)
+      expect(drawImage).toHaveBeenNthCalledWith(
+        1,
+        canvas,
+        0,
+        0,
+        1021,
+        225,
+        0,
+        0,
+        1021,
+        225,
+      )
+      expect(drawImage).toHaveBeenNthCalledWith(
+        2,
+        canvas,
+        0,
+        225,
+        1021,
+        60,
+        0,
+        destHeight - 60,
+        1021,
+        60,
+      )
       const placedMm = pdfImageHeightMm(dest.width, dest.height, 190)
-      expect(placedMm).toBeLessThan(60)
-      expect(placedMm).toBeGreaterThan(50)
-      expect(placedMm).toBeLessThan(276)
+      expect(placedMm).toBeGreaterThan(276)
+      expect(297 - 10 - placedMm).toBeGreaterThan(10)
     } finally {
       page.remove()
     }
@@ -48,7 +83,8 @@ describe('pinPdfFooterToCanvasBottom (#960)', () => {
     const canvas = document.createElement('canvas')
     canvas.width = 100
     canvas.height = 980
-    expect(pinPdfFooterToCanvasBottom(canvas)).toBe(canvas)
+    const page = document.createElement('section')
+    expect(pinPdfFooterToCanvasBottom(canvas, page, 980, 980)).toBe(canvas)
     expect(canvas.height).toBe(980)
   })
 })
@@ -83,6 +119,20 @@ describe('pdfPageStretchMetrics (#960)', () => {
     expect(natural.stretchPlacedOverNatural).toBeCloseTo(1, 5)
     expect(natural.stretchCanvasOverCaptureScaled).toBeCloseTo(1, 5)
     expect(natural.stretchFlagged).toBe(false)
+  })
+
+  it('does not flag an A4 canvas that only pads unscaled content', () => {
+    const padded = pdfPageStretchMetrics({
+      canvasWidth: 1021,
+      canvasHeight: a4ContentCanvasHeightPx(1021, 190),
+      sourceCanvasHeight: 285,
+      captureHeightPx: 190,
+      scale: 1.5,
+      contentWidthMm: 190,
+      paddedCanvas: true,
+    })
+    expect(padded.stretchPlacedOverNatural).toBeGreaterThan(4)
+    expect(padded.stretchFlagged).toBe(false)
   })
 })
 

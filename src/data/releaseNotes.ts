@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 932,
+    issue: 939,
+    date: '2026-09-17T15:53:00+00:00',
+    en: 'PDF diary footers now sit at the bottom margin without stretching the day or leaving a large band underneath.',
+    ru: 'Футер дневника PDF теперь стоит у нижнего поля, не растягивая содержимое дня и не оставляя большой полосы снизу.',
+  },
+  {
     version: 931,
     issue: 960,
     date: '2026-09-17T08:45:00+00:00',

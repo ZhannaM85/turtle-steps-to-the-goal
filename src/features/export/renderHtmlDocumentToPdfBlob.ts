@@ -9,10 +9,9 @@
  *
  * #935 — the layout preview uses the same html2canvas pass as the download.
  *
- * #958 / #960 — block in-flow packing (no flex min-height, no `.pdf-page-fill`
- * under the footer). Capture through `.pdf-footer` and place each page image
- * at natural capture height. Extra paper below a short page is letterbox;
- * do not stretch the bitmap to ~277mm. pdfDebug reports stretch ratio.
+ * #958 / #960 / #939 follow-up — block in-flow packing (no flex min-height
+ * or `.pdf-page-fill` under the footer). Capture through `.pdf-footer`,
+ * then copy body/footer pixels unscaled onto an A4-height canvas.
  */
 import {
   applyPdfDebugOutlines,
@@ -24,10 +23,12 @@ import {
 } from './pdfDebug'
 import { publishPdfDebugReport } from './pdfDebugOverlay'
 import {
+  a4ContentCanvasHeightPx,
   isPdfPageFillElement,
   packPdfPageElement,
   pdfCaptureHeightThroughFooterPx,
   pdfPageStretchMetrics,
+  pinPdfFooterToCanvasBottom,
   preparePdfPagesForCapture,
 } from './pinPdfFooterToCanvas'
 
@@ -197,8 +198,8 @@ async function paintPdfPages(html: string): Promise<{
       })
     }
 
-    // #958 / #960 — in-flow block pages, capture through the footer (no fill
-    // strut). Keep the bitmap at natural height — do not pad to A4.
+    // Top-pack the HTML so Water/Notes cannot flex-stretch. After capture,
+    // composite the footer onto A4 paper without scaling body/footer pixels.
     preparePdfPagesForCapture(host)
     void host.offsetHeight
 
@@ -247,7 +248,16 @@ async function paintPdfPages(html: string): Promise<{
       if (captured.width === 0 || captured.height === 0) {
         throw new Error('html2canvas produced an empty canvas')
       }
-      const canvas = captured
+      const destHeightPx = a4ContentCanvasHeightPx(
+        captured.width,
+        contentWidthMm,
+      )
+      const canvas = pinPdfFooterToCanvasBottom(
+        captured,
+        target,
+        destHeightPx,
+        captureHeightPx,
+      )
       canvases.push(canvas)
       if (debug) {
         const after = collectPdfPageLayoutSnapshot(
@@ -260,7 +270,7 @@ async function paintPdfPages(html: string): Promise<{
         after.captureHeightPx = captureHeightPx
         after.scale = scale
         after.sourceCanvasHeight = captured.height
-        after.pinnedFooter = false
+        after.pinnedFooter = canvas !== captured
         const stretch = pdfPageStretchMetrics({
           canvasWidth: canvas.width,
           canvasHeight: canvas.height,
@@ -268,6 +278,7 @@ async function paintPdfPages(html: string): Promise<{
           captureHeightPx,
           scale,
           contentWidthMm,
+          paddedCanvas: canvas !== captured,
         })
         after.imgHeightMm = stretch.placedMm
         after.naturalImgHeightMm = stretch.naturalMm
