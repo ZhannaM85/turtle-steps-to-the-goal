@@ -18,13 +18,15 @@ export const PDF_DOCUMENT_CSS = `
   }
   .pdf-page {
     width: 180mm;
-    /* #958 — block in-flow, not flex min-height. Flex+min-height made
-       html2canvas clones taller than the live page and cropped Water/Notes. */
+    /* #958 / #960 — block in-flow, natural height. Flex+min-height / A4
+       stretch made html2canvas clones and Макет PDF inflate Water/Notes. */
+    height: auto;
     min-height: 0;
     padding: 0;
     padding-right: 9pt;
     padding-bottom: 0;
     display: block;
+    align-content: start;
     page-break-after: always;
     break-after: page;
     background: #fff;
@@ -33,7 +35,12 @@ export const PDF_DOCUMENT_CSS = `
     page-break-after: auto;
     break-after: auto;
   }
-  .pdf-page-body { display: block; }
+  .pdf-page-body {
+    display: block;
+    height: auto;
+    min-height: 0;
+    align-content: start;
+  }
   .pdf-summary-body { overflow: hidden; }
   .pdf-title {
     font-size: 18pt;
@@ -127,7 +134,11 @@ export const PDF_DOCUMENT_CSS = `
     border-radius: 8pt;
     background: #f8fafc;
     overflow: hidden;
+    height: auto;
+    min-height: 0;
+    align-content: start;
     break-inside: avoid;
+    page-break-inside: avoid;
   }
   .pdf-day-section-title {
     font-size: 10.5pt;
@@ -186,6 +197,9 @@ export const PDF_DOCUMENT_CSS = `
   .pdf-day-section-content {
     padding: 4pt 6pt;
     overflow: hidden;
+    height: auto;
+    min-height: 0;
+    align-content: start;
   }
   .pdf-day-section-content .pdf-line:last-child,
   .pdf-day-section-content .pdf-day-item:last-child {
@@ -243,6 +257,20 @@ export const PDF_DOCUMENT_CSS = `
   .pdf-day-section-water .pdf-day-section-content .pdf-line {
     clear: both;
   }
+  .pdf-day-section-water,
+  .pdf-day-section-notes {
+    height: auto;
+    min-height: 0;
+    align-content: start;
+  }
+  .pdf-day-section-notes .pdf-day-section-title {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+  .pdf-day-section-notes .pdf-day-section-content {
+    page-break-before: avoid;
+    break-before: avoid;
+  }
   .pdf-day-section-water .pdf-day-section-content .pdf-day-item {
     float: left;
     width: 32%;
@@ -250,6 +278,9 @@ export const PDF_DOCUMENT_CSS = `
     padding-left: 0;
     border-left: 0;
     font-size: 9.5pt;
+    height: auto;
+    min-height: 0;
+    vertical-align: top;
   }
   .pdf-day-item {
     margin: 2pt 0 0 6pt;

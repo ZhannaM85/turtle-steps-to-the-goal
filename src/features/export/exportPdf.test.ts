@@ -824,6 +824,8 @@ describe('buildSummaryPdf', () => {
     expect(footerRule).toContain('padding-bottom: 9pt')
     const pageRule = PDF_DOCUMENT_CSS.match(/\.pdf-page \{([^}]*)\}/)?.[1]
     expect(pageRule).toContain('min-height: 0')
+    expect(pageRule).toContain('height: auto')
+    expect(pageRule).toContain('align-content: start')
     expect(pageRule).toContain('display: block')
     expect(pageRule).not.toContain('display: flex')
     expect(pageRule).toContain('padding-right: 9pt')
@@ -1116,5 +1118,47 @@ describe('buildSummaryPdf', () => {
     expect(cards[4]?.classList.contains('pdf-summary-left')).toBe(true)
     expect(PDF_DOCUMENT_CSS).toContain('.pdf-summary-left { clear: left; }')
     expect(PDF_DOCUMENT_CSS).toContain('clear: right')
+  })
+
+  it('packs PDF diary pages at natural height without stretching Water/Notes (#960)', () => {
+    const pageRule = PDF_DOCUMENT_CSS.match(/\.pdf-page \{([^}]*)\}/)?.[1]
+    const bodyRule = PDF_DOCUMENT_CSS.match(/\.pdf-page-body \{([^}]*)\}/)?.[1]
+    expect(pageRule).toContain('height: auto')
+    expect(pageRule).toContain('align-content: start')
+    expect(bodyRule).toContain('align-content: start')
+    expect(PDF_DOCUMENT_CSS).not.toContain('.pdf-page-fill')
+    expect(PDF_DOCUMENT_CSS).toContain(
+      '.pdf-day-section-notes .pdf-day-section-title {\n    page-break-after: avoid',
+    )
+    expect(PDF_DOCUMENT_CSS).toContain(
+      '.pdf-day-section-notes .pdf-day-section-content {\n    page-break-before: avoid',
+    )
+    const entry = makeEntry({
+      note: 'Keep notes together',
+      waterEntries: [
+        { id: 'w1', amountMl: 250, timeDrunk: '09:00' },
+        { id: 'w2', amountMl: 250, timeDrunk: '21:33' },
+      ],
+    })
+    const data = buildPdfSummaryData([entry], entry.date, entry.date, 1)
+    const html = buildPdfDocumentHtml(
+      data,
+      t,
+      'en',
+      'kg',
+      ALL_SECTIONS_EXCLUDED,
+      [],
+      { entries: [entry] },
+    )
+    const container = document.createElement('div')
+    container.innerHTML = html
+    const day = container.querySelectorAll('.pdf-page')[1]!
+    const notes = day.querySelector('.pdf-day-section-notes')
+    expect(day.querySelector('.pdf-page-fill')).toBeNull()
+    expect(notes?.querySelector('.pdf-day-section-title')).not.toBeNull()
+    expect(
+      notes?.querySelector('.pdf-day-section-content')?.textContent,
+    ).toContain('Keep notes together')
+    expect(day.querySelector('.pdf-page-body + .pdf-footer')).not.toBeNull()
   })
 })

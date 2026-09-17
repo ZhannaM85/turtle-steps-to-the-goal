@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 931,
+    issue: 960,
+    date: '2026-09-17T08:45:00+00:00',
+    en: 'PDF diary pages no longer stretch a short day to fill the sheet — leftover paper stays below, and Notes stay with their header.',
+    ru: 'Страницы дневника PDF больше не растягивают короткий день на весь лист — пустое место остаётся снизу, а заголовок заметок остаётся с текстом.',
+  },
+  {
     version: 930,
     issue: 959,
     date: '2026-09-17T08:20:00+00:00',

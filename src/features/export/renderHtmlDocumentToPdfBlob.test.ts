@@ -7,10 +7,7 @@ import {
   shouldIgnorePdfRenderElement,
 } from './renderHtmlDocumentToPdfBlob'
 import {
-  a4ContentCanvasHeightPx,
   pdfCaptureHeightThroughFooterPx,
-  pdfFooterSourceFromCanvasBottom,
-  pinPdfFooterToCanvasBottom,
   preparePdfPagesForCapture,
 } from './pinPdfFooterToCanvas'
 
@@ -185,11 +182,15 @@ describe('preparePdfPagesForCapture (#958)', () => {
       expect(page?.style.display).toBe('block')
       expect(page?.style.height).toBe('auto')
       expect(page?.style.minHeight).toBe('0px')
+      expect(page?.style.alignContent).toBe('start')
       expect(footer).not.toBeNull()
       expect(footer?.style.position).toBe('static')
       expect(page?.querySelector('.pdf-page-body')?.nextElementSibling).toBe(
         footer,
       )
+      const waterOrNotes = page?.querySelector<HTMLElement>('.pdf-page-body')
+      expect(waterOrNotes?.style.alignContent).toBe('start')
+      expect(waterOrNotes?.style.minHeight).toBe('0px')
     } finally {
       host.remove()
     }
@@ -346,99 +347,5 @@ describe('pdfCaptureHeightThroughFooterPx (#958)', () => {
     } finally {
       page.remove()
     }
-  })
-})
-
-describe('pinPdfFooterToCanvasBottom (#958)', () => {
-  afterEach(() => {
-    vi.restoreAllMocks()
-  })
-
-  it('pins the in-flow footer slice from the canvas bottom onto an A4-tall canvas', () => {
-    const page = document.createElement('section')
-    page.className = 'pdf-page'
-    page.innerHTML =
-      '<div class="pdf-page-body">body</div><footer class="pdf-footer">Disclaimer</footer>'
-    document.body.appendChild(page)
-    const footer = page.querySelector('.pdf-footer') as HTMLElement
-    vi.spyOn(footer, 'offsetHeight', 'get').mockReturnValue(40)
-    vi.spyOn(page, 'scrollHeight', 'get').mockReturnValue(400)
-    vi.spyOn(page, 'offsetHeight', 'get').mockReturnValue(400)
-
-    try {
-      expect(pdfFooterSourceFromCanvasBottom(400, page, 400)).toEqual({
-        y: 360,
-        height: 40,
-      })
-      const canvas = document.createElement('canvas')
-      canvas.width = 100
-      canvas.height = 400
-      const ctx = {
-        fillStyle: '',
-        fillRect: vi.fn(),
-        drawImage: vi.fn(),
-      }
-      vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
-        ctx as unknown as CanvasRenderingContext2D,
-      )
-      const dest = pinPdfFooterToCanvasBottom(canvas, page, 980, 400)
-      expect(dest).not.toBe(canvas)
-      expect(dest.width).toBe(100)
-      expect(dest.height).toBe(980)
-      expect(ctx.drawImage).toHaveBeenCalledWith(
-        canvas,
-        0,
-        360,
-        100,
-        40,
-        0,
-        940,
-        100,
-        40,
-      )
-    } finally {
-      page.remove()
-    }
-  })
-
-  it('leaves a full-height capture unchanged', () => {
-    const page = document.createElement('section')
-    page.className = 'pdf-page'
-    page.innerHTML = '<footer class="pdf-footer">Disclaimer</footer>'
-    document.body.appendChild(page)
-    try {
-      const canvas = document.createElement('canvas')
-      canvas.width = 100
-      canvas.height = 980
-      expect(pinPdfFooterToCanvasBottom(canvas, page, 980, 980)).toBe(canvas)
-    } finally {
-      page.remove()
-    }
-  })
-
-  it('leaves a page without a footer unchanged', () => {
-    const page = document.createElement('section')
-    page.className = 'pdf-page'
-    page.innerHTML = '<div class="pdf-page-body">body</div>'
-    document.body.appendChild(page)
-    try {
-      const canvas = document.createElement('canvas')
-      canvas.width = 100
-      canvas.height = 400
-      expect(pinPdfFooterToCanvasBottom(canvas, page, 980, 400)).toBe(canvas)
-    } finally {
-      page.remove()
-    }
-  })
-})
-
-describe('a4ContentCanvasHeightPx (#939)', () => {
-  it('sizes the placed image for a ~10mm PDF bottom margin', () => {
-    const heightPx = a4ContentCanvasHeightPx(1021, 190)
-    const imgHeightMm = (heightPx * 190) / 1021
-    expect(imgHeightMm).toBeGreaterThan(276)
-    expect(imgHeightMm).toBeLessThanOrEqual(277)
-    expect(297 - 10 - imgHeightMm).toBeGreaterThan(10)
-    expect(297 - 10 - imgHeightMm).toBeLessThan(11)
   })
 })

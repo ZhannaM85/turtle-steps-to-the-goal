@@ -54,6 +54,11 @@ export interface PdfPageLayoutSnapshot {
   captureHeightPx?: number
   scale?: number
   imgHeightMm?: number
+  naturalImgHeightMm?: number
+  stretchPlacedOverNatural?: number
+  stretchCanvasOverCapture?: number
+  stretchCanvasOverCaptureScaled?: number
+  stretchFlagged?: boolean
   sourceCanvasHeight?: number
   pinnedFooter?: boolean
 }
@@ -374,10 +379,40 @@ export function formatPdfDebugReport(report: PdfDebugReport): string {
         if (snap.imgHeightMm != null) {
           const leftoverMm =
             report.pageHeightMm - report.marginMm - snap.imgHeightMm
+          const naturalLabel =
+            snap.naturalImgHeightMm != null
+              ? ` (natural ${round1(snap.naturalImgHeightMm)}mm)`
+              : ''
           lines.push(
-            `placed image height: ${round1(snap.imgHeightMm)}mm at y=${report.marginMm}mm`,
+            `placed image height: ${round1(snap.imgHeightMm)}mm at y=${report.marginMm}mm${naturalLabel}`,
           )
           lines.push(`gap below image to page bottom: ${round1(leftoverMm)}mm`)
+        }
+        if (
+          snap.stretchPlacedOverNatural != null ||
+          snap.stretchCanvasOverCapture != null ||
+          snap.stretchCanvasOverCaptureScaled != null
+        ) {
+          if (snap.stretchPlacedOverNatural != null) {
+            lines.push(
+              `stretch placed/natural: ${snap.stretchPlacedOverNatural.toFixed(2)}`,
+            )
+          }
+          if (snap.stretchCanvasOverCaptureScaled != null) {
+            lines.push(
+              `stretch canvas/(capture×scale): ${snap.stretchCanvasOverCaptureScaled.toFixed(2)}`,
+            )
+          }
+          if (snap.stretchCanvasOverCapture != null) {
+            lines.push(
+              `canvas/captureHeightPx: ${snap.stretchCanvasOverCapture.toFixed(2)}`,
+            )
+          }
+          lines.push(
+            snap.stretchFlagged
+              ? 'stretch flag: FLAG STRETCHED'
+              : 'stretch flag: ok (~1)',
+          )
         }
       }
       lines.push('')
