@@ -11,8 +11,6 @@
 export const PDF_PAGE_FILL_CLASS = 'pdf-page-fill'
 export const PDF_MARGIN_MM = 10
 export const PDF_PAGE_HEIGHT_MM = 297
-/** #960 — treat stretch as a bug when placed/natural differs by more than this. */
-export const PDF_STRETCH_EPSILON = 0.05
 
 export function isPdfPageFillElement(element: Element): boolean {
   return (
@@ -21,7 +19,7 @@ export function isPdfPageFillElement(element: Element): boolean {
   )
 }
 
-/** Canvas pixel height that would fill A4 minus ~10mm margins (debug target). */
+/** Canvas pixel height that fills A4 minus ~10mm margins. */
 export function a4ContentCanvasHeightPx(
   canvasWidth: number,
   contentWidthMm: number,
@@ -42,54 +40,6 @@ export function pdfImageHeightMm(
   contentWidthMm: number,
 ): number {
   return (Math.max(canvasHeight, 1) * contentWidthMm) / Math.max(canvasWidth, 1)
-}
-
-export interface PdfPageStretchMetrics {
-  placedMm: number
-  naturalMm: number
-  stretchPlacedOverNatural: number
-  stretchCanvasOverCapture: number
-  stretchCanvasOverCaptureScaled: number
-  stretchFlagged: boolean
-}
-
-/** #960 — placedMm / naturalMm and canvasH / (captureHeightPx × scale). */
-export function pdfPageStretchMetrics(input: {
-  canvasWidth: number
-  canvasHeight: number
-  sourceCanvasHeight: number
-  captureHeightPx: number
-  scale: number
-  contentWidthMm: number
-  paddedCanvas?: boolean
-}): PdfPageStretchMetrics {
-  const placedMm = pdfImageHeightMm(
-    input.canvasWidth,
-    input.canvasHeight,
-    input.contentWidthMm,
-  )
-  const naturalMm = pdfImageHeightMm(
-    input.canvasWidth,
-    input.sourceCanvasHeight,
-    input.contentWidthMm,
-  )
-  const stretchPlacedOverNatural = placedMm / Math.max(naturalMm, 0.01)
-  const capture = Math.max(input.captureHeightPx, 1)
-  const stretchCanvasOverCapture = input.canvasHeight / capture
-  const scaledCapture = capture * Math.max(input.scale, 0.01)
-  const stretchCanvasOverCaptureScaled = input.canvasHeight / scaledCapture
-  const stretchFlagged =
-    !input.paddedCanvas &&
-    (Math.abs(stretchPlacedOverNatural - 1) > PDF_STRETCH_EPSILON ||
-      Math.abs(stretchCanvasOverCaptureScaled - 1) > PDF_STRETCH_EPSILON)
-  return {
-    placedMm,
-    naturalMm,
-    stretchPlacedOverNatural,
-    stretchCanvasOverCapture,
-    stretchCanvasOverCaptureScaled,
-    stretchFlagged,
-  }
 }
 
 /** #960 — top-pack a page (and Макет PDF / html2canvas clones). No flex stretch. */

@@ -42,7 +42,6 @@ import {
   type PdfSummaryData,
 } from './exportPdf'
 import type { DailyLogPdfInput } from './exportPdfDailyLog'
-import { PdfDebugToggle } from './PdfDebugToggle'
 import { PdfSectionsDialog } from './PdfSectionsDialog'
 import { sectionErrorMessage } from './exportSectionStatus'
 import { SectionStatus } from './SectionStatus'
@@ -293,7 +292,6 @@ export function PdfExportSection() {
             {t.export.pdfLayoutPreviewButton}
           </Link>
         </Button>
-        <PdfDebugToggle />
         {status.kind === 'exportedPdf' && (
           <SectionStatus>{t.export.exportedPdfSummary}</SectionStatus>
         )}

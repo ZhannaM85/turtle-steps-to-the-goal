@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 936,
+    issue: 963,
+    date: '2026-09-17T22:20:02+03:00',
+    en: 'The temporary PDF layout debug control and overlay have been removed from Settings.',
+    ru: 'Временный переключатель отладки макета PDF и отладочная подложка удалены из Настроек.',
+  },
+  {
     version: 935,
     issue: 962,
     date: '2026-09-17T22:00:33+03:00',

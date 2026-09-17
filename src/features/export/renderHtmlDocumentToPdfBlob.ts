@@ -14,19 +14,9 @@
  * then place both unscaled onto an A4-height canvas.
  */
 import {
-  applyPdfDebugOutlines,
-  collectPdfPageLayoutSnapshot,
-  isPdfDebugEnabled,
-  isPdfDebugOverlayElement,
-  persistPdfDebugFlagFromLocation,
-  type PdfPageLayoutSnapshot,
-} from './pdfDebug'
-import { publishPdfDebugReport } from './pdfDebugOverlay'
-import {
   a4ContentCanvasHeightPx,
   isPdfPageFillElement,
   packPdfPageElement,
-  pdfPageStretchMetrics,
   pinPdfFooterToCanvasBottom,
   preparePdfPagesForCapture,
 } from './pinPdfFooterToCanvas'
@@ -176,10 +166,6 @@ async function paintPdfPages(html: string): Promise<{
   }
 
   try {
-    persistPdfDebugFlagFromLocation()
-    const debug = isPdfDebugEnabled()
-    const debugSnapshots: PdfPageLayoutSnapshot[] = []
-
     void host.offsetHeight
     explodeOverflowingPdfPages(host)
 
@@ -189,32 +175,15 @@ async function paintPdfPages(html: string): Promise<{
         ? pages
         : [host.querySelector<HTMLElement>('.pdf-root') ?? host]
 
-    if (debug) {
-      targets.forEach((page, index) => {
-        debugSnapshots.push(
-          collectPdfPageLayoutSnapshot(page, index, 'beforeFill'),
-        )
-      })
-    }
-
     // Top-pack the HTML so Water/Notes cannot flex-stretch. After capture,
     // composite the footer onto A4 paper without scaling body/footer pixels.
     preparePdfPagesForCapture(host)
     void host.offsetHeight
 
-    if (debug) {
-      applyPdfDebugOutlines(host)
-      targets.forEach((page, index) => {
-        debugSnapshots.push(
-          collectPdfPageLayoutSnapshot(page, index, 'beforeCapture'),
-        )
-      })
-    }
-
     const { default: html2canvas } = await import('html2canvas')
     const canvases: HTMLCanvasElement[] = []
     const contentWidthMm = 190
-    for (const [index, target] of targets.entries()) {
+    for (const target of targets) {
       const scale = canvasScaleForElement(target)
       const captureHeightPx = pdfCaptureHeightPx(target)
       const bodyTarget =
@@ -262,8 +231,7 @@ async function paintPdfPages(html: string): Promise<{
             logging: false,
             backgroundColor: '#ffffff',
             ignoreElements: (element) =>
-              shouldIgnorePdfRenderElement(element, host) ||
-              isPdfDebugOverlayElement(element),
+              shouldIgnorePdfRenderElement(element, host),
             scrollX: 0,
             scrollY: 0,
             windowWidth: Math.max(target.scrollWidth, host.clientWidth),
@@ -278,71 +246,6 @@ async function paintPdfPages(html: string): Promise<{
         ? pinPdfFooterToCanvasBottom(capturedBody, capturedFooter, destHeightPx)
         : capturedBody
       canvases.push(canvas)
-      if (debug) {
-        const after = collectPdfPageLayoutSnapshot(
-          target,
-          index,
-          'afterCapture',
-        )
-        after.canvasWidth = canvas.width
-        after.canvasHeight = canvas.height
-        after.captureHeightPx = captureHeightPx
-        after.scale = scale
-        const sourceCanvasHeight =
-          capturedBody.height + (capturedFooter?.height ?? 0)
-        after.sourceCanvasHeight = sourceCanvasHeight
-        after.pinnedFooter = canvas !== capturedBody
-        after.footerCanvasWidth = capturedFooter?.width
-        after.footerCanvasHeight = capturedFooter?.height
-        after.bodyCanvasHeight = capturedBody.height
-        after.compositeGapHeight = canvas.height - sourceCanvasHeight
-        after.footerCompositeSafe =
-          capturedFooter != null &&
-          capturedFooter.width > 0 &&
-          capturedFooter.height > 0 &&
-          capturedFooter.height < canvas.height
-        const stretch = pdfPageStretchMetrics({
-          canvasWidth: canvas.width,
-          canvasHeight: canvas.height,
-          sourceCanvasHeight,
-          captureHeightPx,
-          scale,
-          contentWidthMm,
-          paddedCanvas: canvas !== capturedBody,
-        })
-        after.imgHeightMm = stretch.placedMm
-        after.naturalImgHeightMm = stretch.naturalMm
-        after.stretchPlacedOverNatural = stretch.stretchPlacedOverNatural
-        after.stretchCanvasOverCapture = stretch.stretchCanvasOverCapture
-        after.stretchCanvasOverCaptureScaled =
-          stretch.stretchCanvasOverCaptureScaled
-        after.stretchFlagged = stretch.stretchFlagged
-        debugSnapshots.push(after)
-      }
-    }
-
-    if (debug) {
-      try {
-        publishPdfDebugReport({
-          maxStyledPagePx: MAX_STYLED_PAGE_PX,
-          a4FillTargetPx: MAX_STYLED_PAGE_PX,
-          hostWidthPx: host.offsetWidth || 794,
-          marginMm: 10,
-          contentWidthMm,
-          pageHeightMm: 297,
-          userAgent:
-            typeof navigator === 'undefined' ? '' : navigator.userAgent,
-          viewport:
-            typeof window === 'undefined'
-              ? ''
-              : `${window.innerWidth}x${window.innerHeight}`,
-          devicePixelRatio:
-            typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1,
-          pages: debugSnapshots,
-        })
-      } catch (error) {
-        console.warn('[pdfDebug #939] overlay failed', error)
-      }
     }
 
     return { canvases, cleanup }
@@ -368,7 +271,6 @@ export function shouldIgnorePdfRenderElement(
   element: Element,
   host: HTMLElement,
 ): boolean {
-  if (isPdfDebugOverlayElement(element)) return true
   const { documentElement, head, body } = element.ownerDocument
   return (
     element !== documentElement &&

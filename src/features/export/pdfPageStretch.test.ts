@@ -3,7 +3,6 @@ import {
   a4ContentCanvasHeightPx,
   packPdfPageElement,
   pdfImageHeightMm,
-  pdfPageStretchMetrics,
   pinPdfFooterToCanvasBottom,
 } from './pinPdfFooterToCanvas'
 
@@ -77,53 +76,6 @@ describe('pinPdfFooterToCanvasBottom (#960)', () => {
   })
 })
 
-describe('pdfPageStretchMetrics (#960)', () => {
-  it('flags a short capture placed as full A4 height', () => {
-    const a4HeightPx = a4ContentCanvasHeightPx(1021, 190)
-    const stretched = pdfPageStretchMetrics({
-      canvasWidth: 1021,
-      canvasHeight: a4HeightPx,
-      sourceCanvasHeight: 285,
-      captureHeightPx: 190,
-      scale: 1.5,
-      contentWidthMm: 190,
-    })
-    expect(stretched.placedMm).toBeGreaterThan(276)
-    expect(stretched.naturalMm).toBeLessThan(60)
-    expect(stretched.stretchPlacedOverNatural).toBeGreaterThan(4)
-    expect(stretched.stretchFlagged).toBe(true)
-  })
-
-  it('reports stretch ~1 when canvas height matches capture × scale', () => {
-    const natural = pdfPageStretchMetrics({
-      canvasWidth: 1021,
-      canvasHeight: 285,
-      sourceCanvasHeight: 285,
-      captureHeightPx: 190,
-      scale: 1.5,
-      contentWidthMm: 190,
-    })
-    expect(natural.placedMm).toBeLessThan(60)
-    expect(natural.stretchPlacedOverNatural).toBeCloseTo(1, 5)
-    expect(natural.stretchCanvasOverCaptureScaled).toBeCloseTo(1, 5)
-    expect(natural.stretchFlagged).toBe(false)
-  })
-
-  it('does not flag an A4 canvas that only pads unscaled content', () => {
-    const padded = pdfPageStretchMetrics({
-      canvasWidth: 1021,
-      canvasHeight: a4ContentCanvasHeightPx(1021, 190),
-      sourceCanvasHeight: 285,
-      captureHeightPx: 190,
-      scale: 1.5,
-      contentWidthMm: 190,
-      paddedCanvas: true,
-    })
-    expect(padded.stretchPlacedOverNatural).toBeGreaterThan(4)
-    expect(padded.stretchFlagged).toBe(false)
-  })
-})
-
 describe('packPdfPageElement (#960)', () => {
   it('top-packs water and notes so they cannot flex-stretch apart', () => {
     const page = document.createElement('section')
@@ -163,7 +115,7 @@ describe('packPdfPageElement (#960)', () => {
 })
 
 describe('a4ContentCanvasHeightPx (#939)', () => {
-  it('sizes the A4 debug target for a ~10mm PDF bottom margin', () => {
+  it('sizes the A4 canvas for a ~10mm PDF bottom margin', () => {
     const heightPx = a4ContentCanvasHeightPx(1021, 190)
     const imgHeightMm = (heightPx * 190) / 1021
     expect(imgHeightMm).toBeGreaterThan(276)
