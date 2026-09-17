@@ -745,7 +745,7 @@ describe('buildSummaryPdf', () => {
     )
     expect(day.textContent).toContain('Tea helped me sleep')
     expect(html).toContain('float: left')
-    expect(html).toContain('display: inline-flex')
+    expect(html).toContain('float: right')
     expect(html).toContain('white-space: nowrap')
     expect(html).not.toContain('grid-template-columns')
   })
@@ -811,10 +811,8 @@ describe('buildSummaryPdf', () => {
     expect(PDF_DOCUMENT_CSS).toContain(
       '.pdf-day-section-metrics .pdf-day-section-title',
     )
-    expect(PDF_DOCUMENT_CSS).toContain('align-items: center')
-    expect(PDF_DOCUMENT_CSS).toContain('justify-content: space-between')
+    expect(PDF_DOCUMENT_CSS).toContain('display: block')
     expect(PDF_DOCUMENT_CSS).toContain('padding: 1pt 6pt 11pt')
-    expect(PDF_DOCUMENT_CSS).toContain('align-items: baseline')
     expect(PDF_DOCUMENT_CSS).toContain('vertical-align: -1.5pt')
     expect(PDF_DOCUMENT_CSS).toContain('transform: translateY(1pt)')
     expect(PDF_DOCUMENT_CSS).toContain('padding: 0 6pt 8pt')
@@ -948,6 +946,7 @@ describe('buildSummaryPdf', () => {
     expect(
       chips?.querySelectorAll('.pdf-day-header-metric').length,
     ).toBeGreaterThan(0)
+    expect(metricsTitle?.firstElementChild).toBe(chips)
     expect(enHtml).toContain(
       `class="pdf-day-section-title-lead">${t.pdfSummary.dailyLogMetricsSectionTitle}<`,
     )
@@ -967,14 +966,14 @@ describe('buildSummaryPdf', () => {
     expect(titleRule).toContain('font-weight: 600')
     expect(metricsTitleRule).toContain('font-size: 10.5pt')
     expect(metricsTitleRule).toContain('font-weight: 600')
-    expect(metricsTitleRule).toContain('display: flex')
-    expect(metricsTitleRule).toContain('justify-content: space-between')
+    expect(metricsTitleRule).toContain('display: block')
     expect(leadRule).toContain('font-size: 10.5pt')
     expect(leadRule).toContain('font-weight: 600')
     expect(leadRule).toContain('color: inherit')
     expect(chipsRule).toContain('font-size: 7.5pt')
     expect(chipsRule).toContain('font-weight: 400')
-    expect(chipsRule).toContain('display: inline-flex')
+    expect(chipsRule).toContain('float: right')
+    expect(chipsRule).toContain('display: block')
     expect(
       day.querySelector('.pdf-day-section-food .pdf-day-section-title'),
     ).not.toBeNull()

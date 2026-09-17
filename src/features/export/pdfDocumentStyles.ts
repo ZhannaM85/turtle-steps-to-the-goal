@@ -152,18 +152,16 @@ export const PDF_DOCUMENT_CSS = `
     overflow: hidden;
   }
   .pdf-day-section-title > span { line-height: 1.2; }
-  /* #941 — restating size/weight so html2canvas does not pick up the compact chip font. */
+  /* #941 — keep the compact chips out of the title's font context. On-device
+     html2canvas paints the title too small when both are flex children. */
   .pdf-day-section-metrics .pdf-day-section-title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: block;
     font-size: 10.5pt;
     font-weight: 600;
   }
   .pdf-day-section-title-metrics {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 7pt;
+    float: right;
+    display: block;
     white-space: nowrap;
     font-size: 7.5pt;
     font-weight: 400;
@@ -178,10 +176,12 @@ export const PDF_DOCUMENT_CSS = `
   }
   .pdf-day-section-water-total { font-weight: 400; padding-left: 4pt; }
   .pdf-day-header-metric {
-    display: inline;
+    display: inline-block;
+    margin-left: 7pt;
     white-space: nowrap;
     line-height: 1.2;
   }
+  .pdf-day-header-metric:first-child { margin-left: 0; }
   .pdf-day-header-metric svg {
     display: inline-block;
     width: 9pt;
