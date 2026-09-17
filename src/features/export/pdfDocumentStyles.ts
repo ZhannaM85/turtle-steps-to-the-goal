@@ -216,7 +216,7 @@ export const PDF_DOCUMENT_CSS = `
   }
   .pdf-day-section-metrics .pdf-day-section-content .pdf-line,
   .pdf-day-section-notes .pdf-day-section-content .pdf-line {
-    font-size: 9pt;
+    font-size: 8pt;
     line-height: 1.18;
   }
   .pdf-day-section-metrics .pdf-day-line-label { font-weight: 700; }

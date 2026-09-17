@@ -750,7 +750,7 @@ describe('buildSummaryPdf', () => {
     expect(html).not.toContain('grid-template-columns')
   })
 
-  it('uses 9pt body text in Metrics and Notes diary cards (#929)', () => {
+  it('uses 8pt body text in Metrics and Notes diary cards (#929)', () => {
     const entry = makeEntry({
       waistCm: 80,
       note: 'Felt lighter today',
@@ -794,7 +794,10 @@ describe('buildSummaryPdf', () => {
     expect(html).toContain(
       '.pdf-day-section-notes .pdf-day-section-content .pdf-line',
     )
-    expect(html).toContain('font-size: 9pt')
+    const compactBodyRule = PDF_DOCUMENT_CSS.match(
+      /\.pdf-day-section-metrics \.pdf-day-section-content \.pdf-line,\s*\.pdf-day-section-notes \.pdf-day-section-content \.pdf-line \{([^}]*)\}/,
+    )?.[1]
+    expect(compactBodyRule).toContain('font-size: 8pt')
     expect(html).toContain('.pdf-day-section-water .pdf-day-section-content')
     expect(html).toContain('.pdf-day-section-notes .pdf-day-section-content')
     expect(html).toContain('padding-left: 9pt')
@@ -1001,7 +1004,7 @@ describe('buildSummaryPdf', () => {
     const metricsNotesRule = PDF_DOCUMENT_CSS.match(
       /\.pdf-day-section-metrics \.pdf-day-section-content \.pdf-line,\s*\.pdf-day-section-notes \.pdf-day-section-content \.pdf-line \{([^}]*)\}/,
     )?.[1]
-    expect(metricsNotesRule).toContain('font-size: 9pt')
+    expect(metricsNotesRule).toContain('font-size: 8pt')
     expect(PDF_DOCUMENT_CSS).toContain(
       '.pdf-meal-card .pdf-line { font-weight: 600; font-size: 9.5pt',
     )
