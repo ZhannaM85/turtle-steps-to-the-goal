@@ -1,5 +1,5 @@
 import type { ComponentProps, MouseEvent } from 'react'
-import { ChevronDown, Pin } from 'lucide-react'
+import { Pin } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { settingsPinOrder, useSettingsPinStore } from '@/stores/settingsPinStore'
 import {
@@ -7,6 +7,7 @@ import {
   type SettingsCardKey,
 } from '@/stores/settingsCardsCollapseStore'
 import { Button } from '@/shared/ui/button'
+import { CollapseChevronButton } from '@/shared/ui/collapse-chevron'
 import { cn } from '@/shared/lib/utils'
 
 /** #820 pin + #826 header collapse.
@@ -82,26 +83,15 @@ export function SettingsPinnableCard({
       {(collapsible || pinnable) && (
         <div className="absolute top-2 right-2 z-10 flex items-center">
           {collapsible && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-touch"
+            <CollapseChevronButton
+              expanded={!collapsed}
               aria-label={
                 collapsed
                   ? t.settings.expandCardLabel
                   : t.settings.collapseCardLabel
               }
-              aria-expanded={!collapsed}
               onClick={() => setCollapsed(pinId, !collapsed)}
-            >
-              <ChevronDown
-                aria-hidden
-                className={cn(
-                  'size-4 transition-transform',
-                  !collapsed && 'rotate-180',
-                )}
-              />
-            </Button>
+            />
           )}
           {pinnable && (
             <Button

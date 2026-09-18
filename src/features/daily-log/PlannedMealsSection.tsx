@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { addDays, format, parseISO } from 'date-fns'
-import { ChevronDown, Plus, X } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import type { CalorieEntry } from '@/domain/dailyEntry'
 import type { PlannedMeal } from '@/domain/plannedMeal'
 import { useTranslation } from '@/i18n'
 import { usePlannedMealStore, useTodaySectionsCollapseStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
+import { CollapseChevronIcon } from '@/shared/ui/collapse-chevron'
 import {
   Collapsible,
   CollapsibleContent,
@@ -117,10 +118,7 @@ export function PlannedMealsSection({
                 </span>
               )}
             </span>
-            <ChevronDown
-              aria-hidden="true"
-              className="size-4 shrink-0 transition-transform group-data-[state=open]:rotate-180"
-            />
+            <CollapseChevronIcon />
           </button>
         </CollapsibleTrigger>
         <CollapsibleContent>

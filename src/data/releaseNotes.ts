@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 941,
+    issue: 967,
+    date: '2026-09-18T09:07:44+03:00',
+    en: 'Expand and collapse chevrons on Settings and Day no longer sit on a filled background.',
+    ru: 'Стрелки сворачивания в Настройках и на экране «День» больше не на цветной подложке.',
+  },
+  {
     version: 940,
     issue: 966,
     date: '2026-09-17T23:50:00+03:00',

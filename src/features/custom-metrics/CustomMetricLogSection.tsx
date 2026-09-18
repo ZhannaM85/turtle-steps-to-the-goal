@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ChevronDown, Plus, X } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import type { CustomMetric } from '@/domain/customMetric'
 import { useTranslation } from '@/i18n'
 import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
@@ -9,6 +9,7 @@ import {
   useTodaySectionsCollapseStore,
 } from '@/stores'
 import { Button } from '@/shared/ui/button'
+import { CollapseChevronIcon } from '@/shared/ui/collapse-chevron'
 import {
   Collapsible,
   CollapsibleContent,
@@ -352,10 +353,7 @@ export function CustomMetricLogSection({ date }: { date: string }) {
                 </span>
               )}
             </span>
-            <ChevronDown
-              aria-hidden="true"
-              className="size-4 shrink-0 transition-transform group-data-[state=open]:rotate-180"
-            />
+            <CollapseChevronIcon />
           </button>
         </CollapsibleTrigger>
         <CollapsibleContent>

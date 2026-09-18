@@ -42,6 +42,16 @@ describe('SectionAccordion (#876)', () => {
     ).toBeInTheDocument()
   })
 
+  it('keeps the chevron transparent, without a filled chip (#967)', () => {
+    render(<Harness />)
+    const trigger = screen.getByRole('button', { name: 'Collapse morning' })
+    const chevron = trigger.querySelector('[data-slot="collapse-chevron"]')
+
+    expect(trigger.className).not.toMatch(/\bbg-muted\b/)
+    expect(chevron).toHaveClass('bg-transparent')
+    expect(chevron?.getAttribute('class')).not.toMatch(/\bbg-muted\b/)
+  })
+
   it('can drop the shell when the body is already number cards', () => {
     const { container } = render(<Harness shell={false} />)
 

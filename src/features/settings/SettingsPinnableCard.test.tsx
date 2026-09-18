@@ -52,6 +52,25 @@ describe('SettingsPinnableCard (#873)', () => {
     ).toBeInTheDocument()
   })
 
+  it('uses a transparent collapse chevron, not a filled chip (#967)', () => {
+    render(
+      <SettingsPinnableCard pinId="units">
+        <CardHeader>
+          <CardTitle>Units</CardTitle>
+        </CardHeader>
+        <CardContent>kg</CardContent>
+      </SettingsPinnableCard>,
+    )
+
+    const collapse = screen.getByRole('button', { name: 'Collapse' })
+    expect(collapse).toHaveClass('bg-transparent')
+    expect(collapse.className).not.toMatch(/\bbg-muted\b/)
+    expect(collapse).toHaveAttribute('aria-expanded', 'true')
+    expect(collapse.querySelector('[data-slot="collapse-chevron"]')).toHaveClass(
+      'bg-transparent',
+    )
+  })
+
   it('reserves less header space when the card cannot be pinned', () => {
     const { container } = render(
       <SettingsPinnableCard pinId="about" pinnable={false}>

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { ChevronDown } from 'lucide-react'
+import { CollapseChevronIcon } from '@/shared/ui/collapse-chevron'
 import {
   Collapsible,
   CollapsibleContent,
@@ -56,10 +56,7 @@ export function SectionAccordion({
                   {icon}
                   {title}
                 </span>
-                <ChevronDown
-                  aria-hidden="true"
-                  className="size-4 shrink-0 text-muted-foreground transition-transform group-data-[state=open]:rotate-180"
-                />
+                <CollapseChevronIcon />
               </span>
               {subtitle ? (
                 <span className="text-xs font-normal text-muted-foreground">
