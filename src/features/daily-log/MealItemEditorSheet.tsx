@@ -24,6 +24,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { Textarea } from '@/shared/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import { BrandAutocomplete } from './BrandAutocomplete'
 import { EmotionPicker } from './EmotionPicker'
 import { MealNoteAutocomplete } from './MealNoteAutocomplete'
 import { isInconsistentMacros } from './unusualEntryThresholds'
@@ -487,18 +488,14 @@ export function MealItemEditorSheet({
           </FormSection>
 
           <FormSection heading={t.dailyEntry.itemBrandLabel}>
-            <Input
-              type="text"
-              aria-label={t.dailyEntry.itemBrandLabel}
+            <BrandAutocomplete
+              ariaLabel={t.dailyEntry.itemBrandLabel}
               placeholder={t.dailyEntry.itemBrandPlaceholder}
               value={brand}
-              onChange={(e) => onBrandChange(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  onSave()
-                }
-              }}
+              onChange={onBrandChange}
+              onSubmit={onSave}
+              mealItems={mealItems}
+              enabled={open}
               className="h-12 text-base"
             />
           </FormSection>

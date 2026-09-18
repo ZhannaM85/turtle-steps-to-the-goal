@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 943,
+    issue: 969,
+    date: '2026-09-18T21:14:57+03:00',
+    en: 'When you add a meal, the brand field now suggests brands you have used before as you type.',
+    ru: 'При добавлении блюда поле бренда предлагает марки, которые вы уже использовали, по мере ввода.',
+  },
+  {
     version: 942,
     issue: 968,
     date: '2026-09-18T09:14:17+03:00',
