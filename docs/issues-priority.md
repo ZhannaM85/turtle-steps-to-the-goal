@@ -59,10 +59,3 @@ _Reported from an iPhone PDF export and the Day screen._
 | [#965](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/965) | 🔍 Pending validation | Day: remove optional-fields subheader under morning and evening sections | Shipped; awaiting on-device confirmation. Removed the hint under Morning/Evening titles; Settings toggles for optional fields are unchanged. |
 | [#966](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/966) | 🔍 Pending validation | Settings: remove collapse control on О проекте card | Shipped; awaiting on-device confirmation. About stays always expanded; other Settings cards keep collapse/pin. |
 
-## Tier 166 — Settings vs Day chevron chrome (2026-09-18)
-
-_Reported from Settings Export vs Day morning section comparison._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#967](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/967) | 🔍 Pending validation | Chevrons: transparent background everywhere (Settings vs Day) | Shipped; awaiting on-device confirmation. Shared collapse chevron is transparent on Settings cards and Day sections. About stays without a chevron (#966). |
