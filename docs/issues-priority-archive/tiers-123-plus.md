@@ -747,3 +747,4 @@ _Reported from Settings Export vs Day morning section comparison. Open / pending
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#969](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/969) | ✅ Done | Add meal: suggest brands from past entries | Confirmed on-device 2026-09-18 — previously used brands are suggested while adding a meal. |
+| [#968](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/968) | ✅ Done | Settings storage pie: soften too-brown chart colors | Confirmed on-device 2026-09-18 — the storage pie uses the intended softer chart colors. |
