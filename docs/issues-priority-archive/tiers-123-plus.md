@@ -737,3 +737,13 @@ _Reported from an iPhone PDF export and the Day screen._
 | [#964](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/964) | ✅ Done | Settings Export: break down device storage use (and check if PDFs inflate it) | Confirmed on-device 2026-09-17 — Settings shows the storage breakdown and explains that PDF exports use 0 B of site storage. |
 | [#962](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/962) | ✅ Done | PDF diary: move mood out of Показатели header onto the late-evening row | Confirmed on-device 2026-09-17 — Mood appears on the Night food body row; Sleep, Deep sleep, and Steps remain in the Metrics title. |
 | [#963](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/963) | ✅ Done | PDF: remove temporary pdfDebug overlay and Settings toggle | Confirmed on-device 2026-09-17 — temporary PDF debug controls and layout preview are removed. |
+
+---
+
+## Tier 166 — Settings vs Day chevron chrome (2026-09-18)
+
+_Reported from Settings Export vs Day morning section comparison. Open / pending items from this tier remain in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#969](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/969) | ✅ Done | Add meal: suggest brands from past entries | Confirmed on-device 2026-09-18 — previously used brands are suggested while adding a meal. |
