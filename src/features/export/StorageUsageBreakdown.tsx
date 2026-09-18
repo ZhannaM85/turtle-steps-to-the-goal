@@ -1,12 +1,13 @@
 import { useTranslation } from '@/i18n'
 import { formatStorageBytes, type StorageBreakdown } from './storageBreakdown'
+import { STORAGE_USAGE_CHART_COLORS } from './storageUsageChartColors'
 
 export function StorageUsageBreakdown({ data }: { data: StorageBreakdown }) {
   const t = useTranslation()
   const categories = [
-    { label: t.export.storageAppDataLabel, value: data.appData, color: 'var(--stat-water)' },
-    { label: t.export.storageCacheLabel, value: data.offlineCache, color: 'var(--stat-fat)' },
-    { label: t.export.storageOtherLabel, value: data.other, color: 'var(--muted-foreground)' },
+    { label: t.export.storageAppDataLabel, value: data.appData, color: STORAGE_USAGE_CHART_COLORS.appData },
+    { label: t.export.storageCacheLabel, value: data.offlineCache, color: STORAGE_USAGE_CHART_COLORS.offlineCache },
+    { label: t.export.storageOtherLabel, value: data.other, color: STORAGE_USAGE_CHART_COLORS.other },
   ]
   let cursor = 0
   const sectors = categories.map(({ value, color }) => {

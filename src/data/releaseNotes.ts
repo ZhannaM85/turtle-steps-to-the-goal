@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 942,
+    issue: 968,
+    date: '2026-09-18T09:14:17+03:00',
+    en: 'The storage breakdown chart on Settings uses softer, less brown colors.',
+    ru: 'Диаграмма структуры хранилища в Настройках стала мягче и меньше коричневой.',
+  },
+  {
     version: 941,
     issue: 967,
     date: '2026-09-18T09:07:44+03:00',

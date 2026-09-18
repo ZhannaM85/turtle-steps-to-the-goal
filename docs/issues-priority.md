@@ -66,3 +66,4 @@ _Reported from Settings Export vs Day morning section comparison._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#967](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/967) | 🔍 Pending validation | Chevrons: transparent background everywhere (Settings vs Day) | Shipped; awaiting on-device confirmation. Shared collapse chevron is transparent on Settings cards and Day sections. About stays without a chevron (#966). |
+| [#968](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/968) | 🔍 Pending validation | Settings storage pie: soften too-brown chart colors | Shipped; awaiting on-device confirmation. App-data slice stays cool blue; cache/other use slate and sage instead of terracotta and olive-brown. Export button color unchanged. |
