@@ -25,9 +25,18 @@ const STUCK_SHRINK_CLEAR_MS = 700
  *
  * **#546**: if the viewport stays shrunk with nothing keyboard-focused,
  * clear after `STUCK_SHRINK_CLEAR_MS` so the tab bar cannot stick hidden.
+ * **#970**: preserve the stale viewport's bottom gap when clearing so
+ * AppShell can compensate for WebKit positioning fixed content against
+ * that stale viewport instead of the full layout viewport.
  */
-export function useVisualViewportShrunk(): boolean {
-  const [isShrunk, setIsShrunk] = useState(false)
+export function useVisualViewportState(): {
+  isShrunk: boolean
+  staleBottomGap: number
+} {
+  const [state, setState] = useState({
+    isShrunk: false,
+    staleBottomGap: 0,
+  })
 
   useEffect(() => {
     const viewport = window.visualViewport
@@ -39,20 +48,28 @@ export function useVisualViewportShrunk(): boolean {
       // A little slack, not a strict inequality — sub-pixel/rounding
       // differences between the two measurements shouldn't count as a
       // real shrink.
-      const shrunk = window.innerHeight - viewport!.height > 1
+      const bottomGap = Math.max(
+        0,
+        window.innerHeight - viewport!.height - viewport!.offsetTop,
+      )
+      const shrunk = bottomGap > 1
       clearTimeout(stuckClear)
       if (!shrunk) {
-        setIsShrunk(false)
+        setState({ isShrunk: false, staleBottomGap: 0 })
         return
       }
-      setIsShrunk(true)
+      setState({ isShrunk: true, staleBottomGap: 0 })
       if (!opensKeyboard(document.activeElement)) {
         stuckClear = setTimeout(() => {
-          if (
-            window.innerHeight - viewport!.height > 1 &&
-            !opensKeyboard(document.activeElement)
-          ) {
-            setIsShrunk(false)
+          const currentBottomGap = Math.max(
+            0,
+            window.innerHeight - viewport!.height - viewport!.offsetTop,
+          )
+          if (currentBottomGap > 1 && !opensKeyboard(document.activeElement)) {
+            setState({
+              isShrunk: false,
+              staleBottomGap: currentBottomGap,
+            })
           }
         }, STUCK_SHRINK_CLEAR_MS)
       }
@@ -76,5 +93,5 @@ export function useVisualViewportShrunk(): boolean {
     }
   }, [])
 
-  return isShrunk
+  return state
 }

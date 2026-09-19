@@ -133,6 +133,7 @@ function mockVisualViewport(initialHeight: number) {
   const listeners: Partial<Record<string, () => void>> = {}
   const viewport = {
     height: initialHeight,
+    offsetTop: 0,
     addEventListener: (event: string, fn: () => void) => {
       listeners[event] = fn
     },
@@ -187,7 +188,7 @@ describe('AppShell bottom tab bar visibility, viewport-shrink signal (#188)', ()
     expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
   })
 
-  it('clears a stuck shrunk viewport when nothing is keyboard-focused (#546)', () => {
+  it('restores and bottom-aligns the tab bar when the viewport stays stale (#546, #970)', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true })
     const viewport = mockVisualViewport(window.innerHeight)
     renderShellWithInput()
@@ -201,7 +202,9 @@ describe('AppShell bottom tab bar visibility, viewport-shrink signal (#188)', ()
       vi.advanceTimersByTime(700)
     })
 
-    expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
+    expect(screen.getByRole('navigation', { name: 'Tabs' })).toHaveStyle({
+      transform: 'translateY(300px)',
+    })
     vi.useRealTimers()
   })
 })

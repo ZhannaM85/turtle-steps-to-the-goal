@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 944,
+    issue: 970,
+    date: '2026-09-19T16:19:45+03:00',
+    en: 'The bottom navigation now stays at the bottom after returning to the app from the background.',
+    ru: 'Нижняя навигация теперь остаётся внизу после возвращения в приложение из фонового режима.',
+  },
+  {
     version: 943,
     issue: 969,
     date: '2026-09-18T21:14:57+03:00',

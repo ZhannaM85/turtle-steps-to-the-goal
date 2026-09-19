@@ -58,6 +58,6 @@ _Intermittent layout issue observed after returning to the installed app._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#970](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/970) | 📋 Not started | Keep bottom navigation anchored after resuming from background | Intermittently after the app returns from the background, the bottom navigation detaches from the viewport bottom and floats over the Day page; reported with an iPhone screenshot. Root cause not yet investigated |
+| [#970](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/970) | 🔍 Pending validation | Keep bottom navigation anchored after resuming from background | Root cause was #546's 700ms failsafe restoring the fixed bar while iOS still reported a stale shortened `visualViewport`, so WebKit anchored it at that stale edge. The restored state now carries the stale bottom gap and translates the bar to the real layout bottom; AppShell regression coverage added. Awaiting on-device confirmation |
 
 

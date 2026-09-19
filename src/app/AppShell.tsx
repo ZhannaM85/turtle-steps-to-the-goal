@@ -11,7 +11,7 @@ import {
 import { SharedFoodImportHost } from '@/features/food-share'
 import { DaySnippetImportHost } from '@/features/local-transfer/DaySnippetImportHost'
 import { useTranslation, type Dictionary } from '@/i18n'
-import { useIsTextInputFocused, useVisualViewportShrunk } from '@/shared/hooks'
+import { useIsTextInputFocused, useVisualViewportState } from '@/shared/hooks'
 import { cn } from '@/shared/lib/utils'
 import { AppUpdateBanner } from './AppUpdateBanner'
 import { OfflineBanner } from './OfflineBanner'
@@ -53,7 +53,8 @@ export function AppShell() {
   // that — this widens the same #120 mitigation to also hide the bar for
   // as long as the viewport itself actually reads as shrunk, regardless
   // of focus state.
-  const isViewportShrunk = useVisualViewportShrunk()
+  const { isShrunk: isViewportShrunk, staleBottomGap } =
+    useVisualViewportState()
   const hideTabBar = isTextInputFocused || isViewportShrunk
 
   // #185: React Router doesn't reset scroll position on navigation by
@@ -133,6 +134,15 @@ export function AppShell() {
         <nav
           aria-label="Tabs"
           className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] sm:hidden"
+          // #970: after an iOS background/resume cycle, visualViewport can
+          // remain shorter than the real layout viewport. #546 deliberately
+          // restores the tabs after 700ms; move that restored bar through the
+          // stale gap so WebKit cannot leave it floating midway up the page.
+          style={
+            staleBottomGap > 0
+              ? { transform: `translateY(${staleBottomGap}px)` }
+              : undefined
+          }
         >
           {/* #493 — px-4 matches main's horizontal padding so edge tabs
            * align with content cards; was px-2 and read as wider. */}
