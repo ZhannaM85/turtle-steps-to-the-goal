@@ -50,4 +50,14 @@ _Reported from iPhone PDF previews and local Chrome._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 
+---
+
+## Tier 165 — Live iPhone feedback (2026-09-19)
+
+_Intermittent layout issue observed after returning to the installed app._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#970](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/970) | 📋 Not started | Keep bottom navigation anchored after resuming from background | Intermittently after the app returns from the background, the bottom navigation detaches from the viewport bottom and floats over the Day page; reported with an iPhone screenshot. Root cause not yet investigated |
+
 
