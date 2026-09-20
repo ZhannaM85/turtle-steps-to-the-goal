@@ -50,9 +50,10 @@ export function AppShell() {
   // #188: focus tracking alone catches the instant a field gains/loses
   // focus, but the keyboard's own open/close animation can still be
   // mid-transition (visual viewport not yet resized) for a moment after
-  // that — this widens the same #120 mitigation to also hide the bar for
-  // as long as the viewport itself actually reads as shrunk, regardless
-  // of focus state.
+  // that — this widens the same #120 mitigation to also hide the bar
+  // while the viewport is shrunk *because of a keyboard*. #973: a shrink
+  // with no keyboard (visualViewport scroll during a finger pan) must not
+  // hide the bar.
   const { isShrunk: isViewportShrunk, staleBottomGap } =
     useVisualViewportState()
   const hideTabBar = isTextInputFocused || isViewportShrunk

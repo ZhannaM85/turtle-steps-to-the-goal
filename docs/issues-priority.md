@@ -64,11 +64,12 @@ _Intermittent layout issue observed after returning to the installed app._
 
 ## Tier 166 — Live iPhone feedback (2026-09-20)
 
-_Exact 0.1 kg weekly loss counted as missed; past-goal reached date vs week end._
+_Exact 0.1 kg weekly loss counted as missed; past-goal reached date vs week end; bottom nav hiding while scrolling._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#971](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/971) | 🔍 Pending validation | Goal: exact 0.1 kg loss marked not reached (59.8 → 59.7) | IEEE-754 made `59.8 - 59.7` slightly under 0.1 (`0.0999…`), so the compare failed at the exact displayed boundary. Weights, loss, and target are rounded to 1 decimal kg. Regression uses the 2026-09-14…20 export week (baseline 59.8, last day 59.7, target 0.1). Awaiting on-device confirmation |
 | [#972](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/972) | 🔍 Pending validation | Past goals: don’t show mid-week achieved date | Reached rows now use `weekEnd` for «Цель достигнута {date}», not `metOnDate`. Weight delta unchanged; not-reached rows unchanged. Example: week 14–20 сент. met on 19 сент. → status date 20 сент. Awaiting on-device confirmation |
+| [#973](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/973) | 🔍 Pending validation | Bottom footer/nav disappears while scrolling, reappears on scroll release | App bottom tab bar, not the PDF diary footer. `visualViewport` `scroll` during a finger pan was treated as a keyboard shrink (#188/#970), so the bar unmounted for the gesture and returned on touch end. Hide only while a soft keyboard is open or animating closed; no-keyboard shrinks stay visible. Awaiting on-device confirmation |
 
 

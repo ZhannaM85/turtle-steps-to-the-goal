@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react'
 import { opensKeyboard } from './useIsTextInputFocused'
-
-/**
- * How long a viewport can keep reporting "shrunk" with no keyboard-focused
- * field before we treat it as a stuck signal (#546). Covers iOS PWA cases
- * where `visualViewport` never fires a full-height resize after the
- * keyboard or native date picker dismisses.
- */
-const STUCK_SHRINK_CLEAR_MS = 700
+import {
+  STUCK_SHRINK_CLEAR_MS,
+  measureVisualViewportBottomGap,
+  nextVisualViewportTabBarState,
+  stuckViewportRestoreState,
+  type VisualViewportTabBarState,
+} from './visualViewportTabBar'
 
 /**
  * Whether the visual viewport is currently shorter than the layout
@@ -28,12 +27,13 @@ const STUCK_SHRINK_CLEAR_MS = 700
  * **#970**: preserve the stale viewport's bottom gap when clearing so
  * AppShell can compensate for WebKit positioning fixed content against
  * that stale viewport instead of the full layout viewport.
+ * **#973**: do not hide the bar for a shrink with no keyboard involvement
+ * (`visualViewport` `scroll` during a finger pan is chrome, not a
+ * keyboard). That was hiding the tab bar for the whole gesture and
+ * showing it again on touch end.
  */
-export function useVisualViewportState(): {
-  isShrunk: boolean
-  staleBottomGap: number
-} {
-  const [state, setState] = useState({
+export function useVisualViewportState(): VisualViewportTabBarState {
+  const [state, setState] = useState<VisualViewportTabBarState>({
     isShrunk: false,
     staleBottomGap: 0,
   })
@@ -43,36 +43,48 @@ export function useVisualViewportState(): {
     if (!viewport) return
 
     let stuckClear: ReturnType<typeof setTimeout> | undefined
+    let keyboardWasOpen = false
+    let latest: VisualViewportTabBarState = {
+      isShrunk: false,
+      staleBottomGap: 0,
+    }
+
+    function assignState(next: VisualViewportTabBarState) {
+      latest = next
+      setState((prev) =>
+        prev.isShrunk === next.isShrunk &&
+        prev.staleBottomGap === next.staleBottomGap
+          ? prev
+          : next,
+      )
+    }
 
     function update() {
-      // A little slack, not a strict inequality — sub-pixel/rounding
-      // differences between the two measurements shouldn't count as a
-      // real shrink.
-      const bottomGap = Math.max(
-        0,
-        window.innerHeight - viewport!.height - viewport!.offsetTop,
+      const bottomGap = measureVisualViewportBottomGap(
+        window.innerHeight,
+        viewport,
       )
-      const shrunk = bottomGap > 1
+      const keyboardOpen = opensKeyboard(document.activeElement)
+      const next = nextVisualViewportTabBarState({
+        bottomGap,
+        keyboardOpen,
+        keyboardWasOpen,
+        previous: latest,
+      })
+      keyboardWasOpen = next.keyboardWasOpen
       clearTimeout(stuckClear)
-      if (!shrunk) {
-        setState({ isShrunk: false, staleBottomGap: 0 })
-        return
-      }
-      setState({ isShrunk: true, staleBottomGap: 0 })
-      if (!opensKeyboard(document.activeElement)) {
-        stuckClear = setTimeout(() => {
-          const currentBottomGap = Math.max(
-            0,
-            window.innerHeight - viewport!.height - viewport!.offsetTop,
-          )
-          if (currentBottomGap > 1 && !opensKeyboard(document.activeElement)) {
-            setState({
-              isShrunk: false,
-              staleBottomGap: currentBottomGap,
-            })
-          }
-        }, STUCK_SHRINK_CLEAR_MS)
-      }
+      assignState(next.state)
+      if (!next.scheduleStuckClear) return
+      stuckClear = setTimeout(() => {
+        const restored = stuckViewportRestoreState(
+          measureVisualViewportBottomGap(window.innerHeight, viewport),
+          opensKeyboard(document.activeElement),
+        )
+        if (restored) {
+          keyboardWasOpen = false
+          assignState(restored)
+        }
+      }, STUCK_SHRINK_CLEAR_MS)
     }
 
     update()

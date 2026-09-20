@@ -3,6 +3,7 @@ import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, Link, RouterProvider } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { STUCK_SHRINK_CLEAR_MS } from '@/shared/hooks/visualViewportTabBar'
 import { AppShell } from './AppShell'
 
 function renderShellWithInput(onConfirm?: () => void) {
@@ -150,6 +151,13 @@ function mockVisualViewport(initialHeight: number) {
         listeners.resize?.()
       })
     },
+    scrollTo(height: number, offsetTop = 0) {
+      act(() => {
+        viewport.height = height
+        viewport.offsetTop = offsetTop
+        listeners.scroll?.()
+      })
+    },
   }
 }
 
@@ -162,11 +170,36 @@ describe('AppShell bottom tab bar visibility, viewport-shrink signal (#188)', ()
     })
   })
 
-  it('hides the bottom tab bar once the visual viewport shrinks, with no input focused', () => {
+  it('does not hide the bottom tab bar when the viewport shrinks with no keyboard (#973)', () => {
     const viewport = mockVisualViewport(window.innerHeight)
     renderShellWithInput()
     expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
 
+    viewport.resizeTo(window.innerHeight - 80)
+
+    expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
+    expect(screen.getByRole('navigation', { name: 'Tabs' })).not.toHaveStyle({
+      transform: 'translateY(80px)',
+    })
+  })
+
+  it('does not hide the bottom tab bar while visualViewport scrolls with no keyboard (#973)', () => {
+    const viewport = mockVisualViewport(window.innerHeight)
+    renderShellWithInput()
+
+    viewport.scrollTo(window.innerHeight - 120, 40)
+
+    const tabs = screen.getByRole('navigation', { name: 'Tabs' })
+    expect(tabs).toBeInTheDocument()
+    expect(tabs.getAttribute('style') ?? '').not.toContain('translateY')
+  })
+
+  it('hides the bottom tab bar while a text input is focused and the viewport is shrunk (#188)', async () => {
+    const user = userEvent.setup()
+    const viewport = mockVisualViewport(window.innerHeight)
+    renderShellWithInput()
+
+    await user.click(screen.getByLabelText('Weight'))
     viewport.resizeTo(window.innerHeight - 300)
 
     expect(
@@ -174,32 +207,40 @@ describe('AppShell bottom tab bar visibility, viewport-shrink signal (#188)', ()
     ).not.toBeInTheDocument()
   })
 
-  it('shows the bottom tab bar again once the viewport resizes back to full height', () => {
+  it('keeps the tab bar hidden after a text input blurs while the viewport is still shrunk (#188)', async () => {
+    const user = userEvent.setup()
     const viewport = mockVisualViewport(window.innerHeight)
     renderShellWithInput()
 
+    await user.click(screen.getByLabelText('Weight'))
     viewport.resizeTo(window.innerHeight - 300)
+    await user.click(document.body)
+
+    // Past #262's focus-settle delay: the input is no longer focused, but
+    // the keyboard viewport is still shrunk, so the bar must stay hidden.
+    await act(async () => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 150)
+      })
+    })
     expect(
       screen.queryByRole('navigation', { name: 'Tabs' }),
     ).not.toBeInTheDocument()
 
     viewport.resizeTo(window.innerHeight)
-
     expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
   })
 
-  it('restores and bottom-aligns the tab bar when the viewport stays stale (#546, #970)', () => {
+  it('restores and bottom-aligns the tab bar when the viewport stays stale (#546, #970, #973)', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true })
     const viewport = mockVisualViewport(window.innerHeight)
     renderShellWithInput()
 
     viewport.resizeTo(window.innerHeight - 300)
-    expect(
-      screen.queryByRole('navigation', { name: 'Tabs' }),
-    ).not.toBeInTheDocument()
+    expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
 
     act(() => {
-      vi.advanceTimersByTime(700)
+      vi.advanceTimersByTime(STUCK_SHRINK_CLEAR_MS)
     })
 
     expect(screen.getByRole('navigation', { name: 'Tabs' })).toHaveStyle({

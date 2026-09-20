@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 947,
+    issue: 973,
+    date: '2026-09-20T11:35:00+03:00',
+    en: 'The bottom navigation stays visible while you scroll, instead of hiding until you lift your finger.',
+    ru: 'Нижняя навигация остаётся на экране во время прокрутки и больше не пропадает, пока вы не отпустите палец.',
+  },
+  {
     version: 946,
     issue: 972,
     date: '2026-09-20T10:45:00+03:00',
