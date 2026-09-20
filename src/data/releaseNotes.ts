@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 945,
+    issue: 971,
+    date: '2026-09-20T09:50:00+03:00',
+    en: 'A weekly weight-loss goal now counts as reached when the loss matches the target exactly, including 0.1 kg.',
+    ru: 'Недельная цель по снижению веса теперь считается достигнутой, когда потеря совпадает с целью в точности, в том числе на 0,1 кг.',
+  },
+  {
     version: 944,
     issue: 970,
     date: '2026-09-19T16:19:45+03:00',

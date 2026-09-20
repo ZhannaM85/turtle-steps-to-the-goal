@@ -7,6 +7,7 @@ import {
   type DailyEntry,
 } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
+import { weeklyLossTargetMet } from '@/domain/goal/weeklyLossTargetMet'
 
 export interface WeeklySummary {
   weekStart: string // ISO date (Monday)
@@ -132,8 +133,13 @@ export function weeklySummaries(
       (goalTrackingStartDate === undefined ||
         current.weekStart >= goalTrackingStartDate.slice(0, 10))
     ) {
-      const actualLossKg = -current.deltaVsPriorWeekKg
-      current.targetMet = actualLossKg >= goal.targetWeeklyLossKg
+      // #971 — same 1-decimal compare as goalWindowProgress, so History
+      // week rows treat 59.8 → 59.7 on a 0.1 kg goal as reached.
+      current.targetMet = weeklyLossTargetMet(
+        prior.averageWeightKg,
+        current.averageWeightKg,
+        goal.targetWeeklyLossKg,
+      )
     }
   }
 

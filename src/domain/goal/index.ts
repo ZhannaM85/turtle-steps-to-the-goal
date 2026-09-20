@@ -23,6 +23,10 @@ export {
   inclusiveDateRangesOverlap,
 } from './goalWindowOverlap'
 export type { GoalWindowProgress } from './goalWindowProgress'
+export {
+  roundKgToOneDecimal,
+  weeklyLossTargetMet,
+} from './weeklyLossTargetMet'
 export { pastGoals, earliestGoalCreatedAt } from './goalHistory'
 export type { PastGoalRecord } from './goalHistory'
 export {

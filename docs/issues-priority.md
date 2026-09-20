@@ -60,4 +60,14 @@ _Intermittent layout issue observed after returning to the installed app._
 |---|--------|-------|-------|
 | [#970](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/970) | 🔍 Pending validation | Keep bottom navigation anchored after resuming from background | Root cause was #546's 700ms failsafe restoring the fixed bar while iOS still reported a stale shortened `visualViewport`, so WebKit anchored it at that stale edge. The restored state now carries the stale bottom gap and translates the bar to the real layout bottom; AppShell regression coverage added. Awaiting on-device confirmation |
 
+---
+
+## Tier 166 — Live iPhone feedback (2026-09-20)
+
+_Exact 0.1 kg weekly loss counted as missed._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#971](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/971) | 🔍 Pending validation | Goal: exact 0.1 kg loss marked not reached (59.8 → 59.7) | IEEE-754 made `59.8 - 59.7` slightly under 0.1, so the existing `>=` compare failed at the exact displayed boundary. Loss and target are now rounded to 1 decimal kg in a shared helper used by Day (`goalWindowProgress`) and History week rows (`weeklySummaries`). Awaiting on-device confirmation |
+
 

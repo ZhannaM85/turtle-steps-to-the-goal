@@ -118,6 +118,36 @@ describe('weeklySummaries', () => {
     expect(week2.targetMet).toBe(false)
   })
 
+  it('#971: exact 0.1 kg week-over-week loss on a 0.1 kg goal is reached (59.8 → 59.7)', () => {
+    const week2Start = dayOf(WEEK_1_START, 7)
+    const entries = [
+      entry(dayOf(WEEK_1_START, 0), { weightKg: 59.8 }),
+      entry(dayOf(week2Start, 0), { weightKg: 59.7 }),
+    ]
+
+    const [, week2] = weeklySummaries(
+      entries,
+      makeGoal({ targetWeeklyLossKg: 0.1 }),
+    )
+
+    expect(week2.targetMet).toBe(true)
+  })
+
+  it('#971: a just-under 0.04 kg week-over-week loss on a 0.1 kg goal is not reached', () => {
+    const week2Start = dayOf(WEEK_1_START, 7)
+    const entries = [
+      entry(dayOf(WEEK_1_START, 0), { weightKg: 59.8 }),
+      entry(dayOf(week2Start, 0), { weightKg: 59.76 }),
+    ]
+
+    const [, week2] = weeklySummaries(
+      entries,
+      makeGoal({ targetWeeklyLossKg: 0.1 }),
+    )
+
+    expect(week2.targetMet).toBe(false)
+  })
+
   it('leaves targetMet null for a week that entirely predates goal-tracking (#426)', () => {
     const week2Start = dayOf(WEEK_1_START, 7)
     const entries = [

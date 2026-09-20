@@ -1,6 +1,7 @@
 import { addDays, format, parseISO } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from './Goal'
+import { weeklyLossTargetMet } from './weeklyLossTargetMet'
 
 const DATE_FORMAT = 'yyyy-MM-dd'
 
@@ -172,8 +173,14 @@ export function goalWindowProgress(
 
   let metOnDate: string | null = null
   for (const entry of windowEntriesSorted) {
-    const lossKg = baselineWeightKg - (entry.weightKg as number)
-    if (lossKg >= goal.targetWeeklyLossKg) {
+    // #971 — 1-decimal compare so 59.8 → 59.7 on a 0.1 kg goal is reached.
+    if (
+      weeklyLossTargetMet(
+        baselineWeightKg,
+        entry.weightKg as number,
+        goal.targetWeeklyLossKg,
+      )
+    ) {
       metOnDate = entry.date
       break
     }
@@ -185,7 +192,11 @@ export function goalWindowProgress(
   const finalTargetMet =
     currentWeightKg === undefined
       ? null
-      : baselineWeightKg - currentWeightKg >= goal.targetWeeklyLossKg
+      : weeklyLossTargetMet(
+          baselineWeightKg,
+          currentWeightKg,
+          goal.targetWeeklyLossKg,
+        )
 
   return {
     weekStart,
