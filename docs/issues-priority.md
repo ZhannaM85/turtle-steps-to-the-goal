@@ -68,6 +68,6 @@ _Exact 0.1 kg weekly loss counted as missed._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#971](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/971) | 🔍 Pending validation | Goal: exact 0.1 kg loss marked not reached (59.8 → 59.7) | IEEE-754 made `59.8 - 59.7` slightly under 0.1, so the existing `>=` compare failed at the exact displayed boundary. Loss and target are now rounded to 1 decimal kg in a shared helper used by Day (`goalWindowProgress`) and History week rows (`weeklySummaries`). Awaiting on-device confirmation |
+| [#971](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/971) | 🔍 Pending validation | Goal: exact 0.1 kg loss marked not reached (59.8 → 59.7) | IEEE-754 made `59.8 - 59.7` slightly under 0.1 (`0.0999…`), so the compare failed at the exact displayed boundary. Weights, loss, and target are rounded to 1 decimal kg. Regression uses the 2026-09-14…20 export week (baseline 59.8, last day 59.7, target 0.1). Awaiting on-device confirmation |
 
 

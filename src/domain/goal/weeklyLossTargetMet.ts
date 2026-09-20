@@ -11,17 +11,17 @@ export function roundKgToOneDecimal(kg: number): number {
 /**
  * Whether loss from `baselineKg` to `currentKg` meets `targetLossKg`.
  *
- * Compares after rounding both the loss and the target to 1 decimal kg so
- * exact displayed equality (`59.8 → 59.7` on a `0.1` kg goal) counts as
- * reached, while a smaller 1-decimal step (e.g. `59.8 → 59.8`) does not.
+ * Rounds both weights and the resulting loss (and the target) to 1 decimal
+ * kg so exact displayed equality (`59.8 → 59.7` on a `0.1` kg goal, the
+ * 2026-09-14…20 export) counts as reached.
  */
 export function weeklyLossTargetMet(
   baselineKg: number,
   currentKg: number,
   targetLossKg: number,
 ): boolean {
-  return (
-    roundKgToOneDecimal(baselineKg - currentKg) >=
-    roundKgToOneDecimal(targetLossKg)
+  const lossKg = roundKgToOneDecimal(
+    roundKgToOneDecimal(baselineKg) - roundKgToOneDecimal(currentKg),
   )
+  return lossKg >= roundKgToOneDecimal(targetLossKg)
 }

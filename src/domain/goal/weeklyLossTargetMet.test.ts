@@ -6,13 +6,14 @@ import {
 
 describe('roundKgToOneDecimal', () => {
   it('turns the 59.8 − 59.7 IEEE remainder into 0.1', () => {
+    expect(59.8 - 59.7).toBe(0.09999999999999432)
     expect(59.8 - 59.7).toBeLessThan(0.1)
     expect(roundKgToOneDecimal(59.8 - 59.7)).toBe(0.1)
   })
 })
 
 describe('weeklyLossTargetMet (#971)', () => {
-  it('counts an exact 0.1 kg loss on a 0.1 kg goal as reached (59.8 → 59.7)', () => {
+  it('counts the export-week exact boundary as reached (baseline 59.8, current 59.7, target 0.1)', () => {
     expect(weeklyLossTargetMet(59.8, 59.7, 0.1)).toBe(true)
   })
 
