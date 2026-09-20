@@ -6,6 +6,7 @@ import type { PastGoalRecord } from '@/domain/goal'
 import { goalWeekEnd, kgToLb } from '@/domain/goal'
 import {
   formatExactNumber,
+  formatLocalizedDate,
   getDateFnsLocale,
   unitLabel,
   useLocale,
@@ -14,6 +15,7 @@ import {
 import { useSectionVisibilityStore, useUnitStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { SectionTitleWithToggle } from '@/shared/ui/section-title-with-toggle'
+import { pastGoalReachedStatusDate } from './pastGoalReachedStatusDate'
 
 export interface PastTargetsListProps {
   records: PastGoalRecord[]
@@ -37,21 +39,18 @@ function PastTargetRow({
   // per-row delete.
   const [isConfirming, setIsConfirming] = useState(false)
 
-  // #177: name the day it was reached, not just a binary state —
-  // metOnDate is always set whenever finalTargetMet is true (a window
-  // whose final logged entry met the target was necessarily caught by the
-  // same scan that finds metOnDate), targetMetLabel is a defensive
-  // fallback only. #639: this permanent record uses finalTargetMet (the
+  // #972: reached status names weekEnd, not the mid-week first-hit day
+  // (metOnDate). #639: this permanent record uses finalTargetMet (the
   // window's actual final state), not the sticky targetMet — a target
   // only ever crossed on one noisy mid-week day, then regressed by the
   // time the window ended, should not earn a permanent "met" badge.
+  // targetMetLabel is a defensive fallback only.
+  const reachedStatusDate = pastGoalReachedStatusDate(progress)
   const statusLabel =
     progress?.finalTargetMet === true
-      ? progress.metOnDate
+      ? reachedStatusDate
         ? t.goal.targetMetOnLabel(
-            format(parseISO(progress.metOnDate), 'PP', {
-              locale: dateFnsLocale,
-            }),
+            formatLocalizedDate(reachedStatusDate, locale),
           )
         : t.goal.targetMetLabel
       : progress?.finalTargetMet === false

@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { PastGoalRecord } from '@/domain/goal'
+import { formatLocalizedDate, useLocaleStore } from '@/i18n'
 import { PastTargetsList } from './PastTargetsList'
 
 function makeRecord(overrides: Partial<PastGoalRecord> = {}): PastGoalRecord {
@@ -25,6 +26,10 @@ function makeRecord(overrides: Partial<PastGoalRecord> = {}): PastGoalRecord {
 }
 
 describe('PastTargetsList', () => {
+  afterEach(() => {
+    useLocaleStore.setState({ locale: 'en' })
+  })
+
   it('renders nothing when there is no history yet', () => {
     const { container } = render(
       <PastTargetsList records={[]} onDelete={vi.fn()} />,
@@ -40,8 +45,49 @@ describe('PastTargetsList', () => {
     // #527 — positive magnitude (how much to lose), not a leading minus.
     // #586 — formatExactNumber: whole numbers stay "1", not "1.0".
     expect(screen.getByText('1 kg/week')).toBeInTheDocument()
-    // #177: names the day it was reached, not just a binary "Target met".
-    expect(screen.getByText('Target met on Mar 12, 2026')).toBeInTheDocument()
+    // #972: status date is weekEnd (Mar 15), not metOnDate (Mar 12).
+    expect(screen.getByText('Target met on Mar 15, 2026')).toBeInTheDocument()
+    expect(
+      screen.queryByText('Target met on Mar 12, 2026'),
+    ).not.toBeInTheDocument()
+  })
+
+  it('shows week end as the reached status date when the target was met mid-week (#972)', () => {
+    useLocaleStore.setState({ locale: 'ru' })
+    render(
+      <PastTargetsList
+        records={[
+          makeRecord({
+            goal: {
+              id: 'g1',
+              targetWeeklyLossKg: 0.1,
+              weekStart: '2026-09-14',
+              weekEnd: '2026-09-20',
+              createdAt: '2026-09-14T00:00:00.000Z',
+              updatedAt: '2026-09-14T00:00:00.000Z',
+            },
+            progress: {
+              weekStart: '2026-09-14',
+              weekEnd: '2026-09-20',
+              targetMet: true,
+              metOnDate: '2026-09-19',
+              baselineWeightKg: 59.8,
+              currentWeightKg: 59.7,
+              finalTargetMet: true,
+            },
+          }),
+        ]}
+        onDelete={vi.fn()}
+      />,
+    )
+
+    const weekEndLabel = formatLocalizedDate('2026-09-20', 'ru')
+    const midWeekLabel = formatLocalizedDate('2026-09-19', 'ru')
+    expect(screen.getByText(`Цель достигнута ${weekEndLabel}`)).toBeInTheDocument()
+    expect(
+      screen.queryByText(`Цель достигнута ${midWeekLabel}`),
+    ).not.toBeInTheDocument()
+    expect(screen.getByText('59,8 → 59,7 кг')).toBeInTheDocument()
   })
 
   it('shows which two weigh-ins the "target met" status is based on (#339)', () => {

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 946,
+    issue: 972,
+    date: '2026-09-20T10:45:00+03:00',
+    en: 'On Past targets, a reached week now shows the week end date, not the mid-week day the target was first met.',
+    ru: 'В «Прошлых целях» у достигнутой недели теперь показывается дата конца недели, а не день в середине недели, когда цель была достигнута впервые.',
+  },
+  {
     version: 945,
     issue: 971,
     date: '2026-09-20T09:50:00+03:00',
