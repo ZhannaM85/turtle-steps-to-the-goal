@@ -3,7 +3,6 @@ import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, Link, RouterProvider } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { STUCK_SHRINK_CLEAR_MS } from '@/shared/hooks/visualViewportTabBar'
 import { AppShell } from './AppShell'
 
 function renderShellWithInput(onConfirm?: () => void) {
@@ -34,47 +33,32 @@ function renderShellWithInput(onConfirm?: () => void) {
   render(<RouterProvider router={router} />)
 }
 
-describe('AppShell bottom tab bar visibility (#120)', () => {
-  it('hides the bottom tab bar while a text input is focused', async () => {
+function expectTabsMounted() {
+  expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
+}
+
+describe('AppShell bottom tab bar stays mounted (#974)', () => {
+  it('keeps the bottom tab bar mounted while a text input is focused', async () => {
     const user = userEvent.setup()
     renderShellWithInput()
-    expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
+    expectTabsMounted()
 
     await user.click(screen.getByLabelText('Weight'))
 
-    expect(
-      screen.queryByRole('navigation', { name: 'Tabs' }),
-    ).not.toBeInTheDocument()
+    expectTabsMounted()
   })
 
-  it('shows the bottom tab bar again once the text input blurs', async () => {
+  it('keeps the bottom tab bar mounted after a text input blurs', async () => {
     const user = userEvent.setup()
     renderShellWithInput()
 
     await user.click(screen.getByLabelText('Weight'))
-    expect(
-      screen.queryByRole('navigation', { name: 'Tabs' }),
-    ).not.toBeInTheDocument()
-
     await user.click(document.body)
 
-    // #262: the re-check on blur is now deliberately delayed (see
-    // useIsTextInputFocused.ts) so the bar can't reappear mid-gesture and
-    // swallow a same-click tap on whatever control the user is actually
-    // pressing — findBy (async) rather than a synchronous assertion.
-    expect(
-      await screen.findByRole('navigation', { name: 'Tabs' }),
-    ).toBeInTheDocument()
+    expectTabsMounted()
   })
 
-  it('registers a click on a button right after a text input blurs, and shows the tab bar again (#262)', async () => {
-    // #262's real root cause: focus landing on the clicked button (not
-    // just focus *leaving* the input) used to synchronously flip the
-    // bar's visibility state mid-click, before that same click's mouseup
-    // was dispatched — a jsdom click() can't reproduce the actual lost
-    // event (no real hit-testing/paint), but it can confirm the fix
-    // didn't break the button's own click handler or the bar's eventual
-    // reappearance.
+  it('registers a click on a button right after a text input blurs (#262)', async () => {
     const onConfirm = vi.fn()
     const user = userEvent.setup()
     renderShellWithInput(onConfirm)
@@ -83,21 +67,19 @@ describe('AppShell bottom tab bar visibility (#120)', () => {
     await user.click(screen.getByRole('button', { name: 'Confirm' }))
 
     expect(onConfirm).toHaveBeenCalledTimes(1)
-    expect(
-      await screen.findByRole('navigation', { name: 'Tabs' }),
-    ).toBeInTheDocument()
+    expectTabsMounted()
   })
 
-  it('does not hide the bottom tab bar for non-text controls like checkboxes', async () => {
+  it('keeps the bottom tab bar mounted for non-text controls like checkboxes', async () => {
     const user = userEvent.setup()
     renderShellWithInput()
 
     await user.click(screen.getByLabelText('Include'))
 
-    expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
+    expectTabsMounted()
   })
 
-  it('does not hide the bottom tab bar for date inputs (#546)', async () => {
+  it('keeps the bottom tab bar mounted for date inputs', async () => {
     const user = userEvent.setup()
     const router = createMemoryRouter(
       [
@@ -122,14 +104,10 @@ describe('AppShell bottom tab bar visibility (#120)', () => {
 
     await user.click(screen.getByLabelText('Date'))
 
-    expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
+    expectTabsMounted()
   })
 })
 
-// #188: a second, independent signal alongside focus-tracking above — the
-// visual viewport shrinking (on-screen keyboard opening, or still
-// mid-animation) is detected directly rather than only inferred from
-// which element has DOM focus.
 function mockVisualViewport(initialHeight: number) {
   const listeners: Partial<Record<string, () => void>> = {}
   const viewport = {
@@ -161,29 +139,27 @@ function mockVisualViewport(initialHeight: number) {
   }
 }
 
-describe('AppShell bottom tab bar visibility, viewport-shrink signal (#188)', () => {
+describe('AppShell bottom tab bar stays mounted on visualViewport change (#974)', () => {
   afterEach(() => {
-    vi.useRealTimers()
     Object.defineProperty(window, 'visualViewport', {
       value: undefined,
       configurable: true,
     })
   })
 
-  it('does not hide the bottom tab bar when the viewport shrinks with no keyboard (#973)', () => {
+  it('keeps the bottom tab bar mounted when the viewport shrinks', () => {
     const viewport = mockVisualViewport(window.innerHeight)
     renderShellWithInput()
-    expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
+    expectTabsMounted()
 
     viewport.resizeTo(window.innerHeight - 80)
 
-    expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
-    expect(screen.getByRole('navigation', { name: 'Tabs' })).not.toHaveStyle({
-      transform: 'translateY(80px)',
-    })
+    const tabs = screen.getByRole('navigation', { name: 'Tabs' })
+    expect(tabs).toBeInTheDocument()
+    expect(tabs.getAttribute('style') ?? '').not.toContain('translateY')
   })
 
-  it('does not hide the bottom tab bar while visualViewport scrolls with no keyboard (#973)', () => {
+  it('keeps the bottom tab bar mounted while visualViewport scrolls', () => {
     const viewport = mockVisualViewport(window.innerHeight)
     renderShellWithInput()
 
@@ -194,7 +170,7 @@ describe('AppShell bottom tab bar visibility, viewport-shrink signal (#188)', ()
     expect(tabs.getAttribute('style') ?? '').not.toContain('translateY')
   })
 
-  it('hides the bottom tab bar while a text input is focused and the viewport is shrunk (#188)', async () => {
+  it('keeps the bottom tab bar mounted while a text input is focused and the viewport is shrunk', async () => {
     const user = userEvent.setup()
     const viewport = mockVisualViewport(window.innerHeight)
     renderShellWithInput()
@@ -202,51 +178,7 @@ describe('AppShell bottom tab bar visibility, viewport-shrink signal (#188)', ()
     await user.click(screen.getByLabelText('Weight'))
     viewport.resizeTo(window.innerHeight - 300)
 
-    expect(
-      screen.queryByRole('navigation', { name: 'Tabs' }),
-    ).not.toBeInTheDocument()
-  })
-
-  it('keeps the tab bar hidden after a text input blurs while the viewport is still shrunk (#188)', async () => {
-    const user = userEvent.setup()
-    const viewport = mockVisualViewport(window.innerHeight)
-    renderShellWithInput()
-
-    await user.click(screen.getByLabelText('Weight'))
-    viewport.resizeTo(window.innerHeight - 300)
-    await user.click(document.body)
-
-    // Past #262's focus-settle delay: the input is no longer focused, but
-    // the keyboard viewport is still shrunk, so the bar must stay hidden.
-    await act(async () => {
-      await new Promise((resolve) => {
-        setTimeout(resolve, 150)
-      })
-    })
-    expect(
-      screen.queryByRole('navigation', { name: 'Tabs' }),
-    ).not.toBeInTheDocument()
-
-    viewport.resizeTo(window.innerHeight)
-    expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
-  })
-
-  it('restores and bottom-aligns the tab bar when the viewport stays stale (#546, #970, #973)', () => {
-    vi.useFakeTimers({ shouldAdvanceTime: true })
-    const viewport = mockVisualViewport(window.innerHeight)
-    renderShellWithInput()
-
-    viewport.resizeTo(window.innerHeight - 300)
-    expect(screen.getByRole('navigation', { name: 'Tabs' })).toBeInTheDocument()
-
-    act(() => {
-      vi.advanceTimersByTime(STUCK_SHRINK_CLEAR_MS)
-    })
-
-    expect(screen.getByRole('navigation', { name: 'Tabs' })).toHaveStyle({
-      transform: 'translateY(300px)',
-    })
-    vi.useRealTimers()
+    expectTabsMounted()
   })
 })
 

@@ -11,7 +11,6 @@ import {
 import { SharedFoodImportHost } from '@/features/food-share'
 import { DaySnippetImportHost } from '@/features/local-transfer/DaySnippetImportHost'
 import { useTranslation, type Dictionary } from '@/i18n'
-import { useIsTextInputFocused, useVisualViewportState } from '@/shared/hooks'
 import { cn } from '@/shared/lib/utils'
 import { AppUpdateBanner } from './AppUpdateBanner'
 import { OfflineBanner } from './OfflineBanner'
@@ -39,24 +38,10 @@ function useNavItems(t: Dictionary): {
 export function AppShell() {
   const t = useTranslation()
   const navItems = useNavItems(t)
-  // Hides the fixed bottom tab bar while a text input is focused (#120) —
-  // iOS Safari's on-screen keyboard is known to make `position: fixed`
-  // elements render at an unpredictable spot relative to the (shrunk)
-  // visual viewport rather than staying pinned to the bottom, which read
-  // as the bar "floating" mid-page. Sidesteps that WebKit quirk entirely
-  // rather than trying to fight it — the bar can't usefully be tapped
-  // while the keyboard covers most of the screen anyway.
-  const isTextInputFocused = useIsTextInputFocused()
-  // #188: focus tracking alone catches the instant a field gains/loses
-  // focus, but the keyboard's own open/close animation can still be
-  // mid-transition (visual viewport not yet resized) for a moment after
-  // that — this widens the same #120 mitigation to also hide the bar
-  // while the viewport is shrunk *because of a keyboard*. #973: a shrink
-  // with no keyboard (visualViewport scroll during a finger pan) must not
-  // hide the bar.
-  const { isShrunk: isViewportShrunk, staleBottomGap } =
-    useVisualViewportState()
-  const hideTabBar = isTextInputFocused || isViewportShrunk
+  // #974: keep the bottom tab bar always mounted, matching my-money.
+  // Do not hide or unmount it from visualViewport shrink or text-input
+  // focus. Soft-keyboard overlap is an accepted tradeoff; dialogs already
+  // use dvh + overflow scroll so fields stay reachable.
 
   // #185: React Router doesn't reset scroll position on navigation by
   // default (unlike a traditional multi-page site) — landing on a new,
@@ -131,56 +116,45 @@ export function AppShell() {
        * (inset-x-0, no side padding at all beyond the bottom safe-area
        * inset), so the leftmost/rightmost tabs read as cut off on devices
        * with rounded corners or side gesture areas. */}
-      {!hideTabBar && (
-        <nav
-          aria-label="Tabs"
-          className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] sm:hidden"
-          // #970: after an iOS background/resume cycle, visualViewport can
-          // remain shorter than the real layout viewport. #546 deliberately
-          // restores the tabs after 700ms; move that restored bar through the
-          // stale gap so WebKit cannot leave it floating midway up the page.
-          style={
-            staleBottomGap > 0
-              ? { transform: `translateY(${staleBottomGap}px)` }
-              : undefined
-          }
-        >
-          {/* #493 — px-4 matches main's horizontal padding so edge tabs
-           * align with content cards; was px-2 and read as wider. */}
-          <ul className="flex px-4">
-            {navItems.map((item) => {
-              const Icon = item.icon
-              return (
-                <li key={item.to} className="flex-1">
-                  <NavLink
-                    to={item.to}
-                    end={item.end}
-                    replace
-                    className="flex min-h-20 flex-col items-center justify-center text-xs font-medium"
-                  >
-                    {({ isActive }) => (
-                      // #493 — keep the tall tap target on the link, but
-                      // paint the selected treatment on an inner pill
-                      // around icon+label only (not a full-height slab).
-                      <span
-                        className={cn(
-                          'inline-flex flex-col items-center gap-0.5 rounded-2xl px-3 py-1.5 transition-colors',
-                          isActive
-                            ? 'bg-muted text-primary'
-                            : 'text-muted-foreground',
-                        )}
-                      >
-                        <Icon aria-hidden="true" className="size-5" />
-                        {item.label}
-                      </span>
-                    )}
-                  </NavLink>
-                </li>
-              )
-            })}
-          </ul>
-        </nav>
-      )}
+      <nav
+        aria-label="Tabs"
+        className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] sm:hidden"
+      >
+        {/* #493 — px-4 matches main's horizontal padding so edge tabs
+         * align with content cards; was px-2 and read as wider. */}
+        <ul className="flex px-4">
+          {navItems.map((item) => {
+            const Icon = item.icon
+            return (
+              <li key={item.to} className="flex-1">
+                <NavLink
+                  to={item.to}
+                  end={item.end}
+                  replace
+                  className="flex min-h-20 flex-col items-center justify-center text-xs font-medium"
+                >
+                  {({ isActive }) => (
+                    // #493 — keep the tall tap target on the link, but
+                    // paint the selected treatment on an inner pill
+                    // around icon+label only (not a full-height slab).
+                    <span
+                      className={cn(
+                        'inline-flex flex-col items-center gap-0.5 rounded-2xl px-3 py-1.5 transition-colors',
+                        isActive
+                          ? 'bg-muted text-primary'
+                          : 'text-muted-foreground',
+                      )}
+                    >
+                      <Icon aria-hidden="true" className="size-5" />
+                      {item.label}
+                    </span>
+                  )}
+                </NavLink>
+              </li>
+            )
+          })}
+        </ul>
+      </nav>
     </div>
   )
 }

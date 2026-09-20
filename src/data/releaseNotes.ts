@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 948,
+    issue: 974,
+    date: '2026-09-20T12:20:12+03:00',
+    en: 'The bottom navigation now stays on screen while you scroll, type, or return to the app — it no longer hides when the keyboard or browser chrome changes.',
+    ru: 'Нижняя навигация теперь остаётся на экране при прокрутке, вводе и возвращении в приложение — она больше не скрывается, когда меняется клавиатура или панель браузера.',
+  },
+  {
     version: 947,
     issue: 973,
     date: '2026-09-20T11:35:00+03:00',
