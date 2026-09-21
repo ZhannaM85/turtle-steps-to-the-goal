@@ -112,6 +112,7 @@ export {
   resolveTrendChartPeriodRange,
   filterEntriesByTrendChartPeriod,
   isPageableTrendChartPeriod,
+  throughNowDateForTrendChart,
   ROLLING_WINDOW_DAYS,
 } from './trendChartPeriod'
 export type {

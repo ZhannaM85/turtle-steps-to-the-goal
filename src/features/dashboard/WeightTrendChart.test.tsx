@@ -3,8 +3,10 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import { formatLocalizedDateRange, useLocaleStore } from '@/i18n'
 import {
   useDashboardChartVisibilityStore,
+  useDayStartStore,
   useOutlierExclusionStore,
   useTrendChartSeriesStore,
 } from '@/stores'
@@ -209,6 +211,11 @@ describe('WeightTrendChart', () => {
   describe('prev/next period paging (#443)', () => {
     afterEach(() => {
       vi.useRealTimers()
+      useLocaleStore.setState({ locale: 'en' })
+      useDayStartStore.setState({
+        dayStartTime: '00:00',
+        startedEarlyForDate: null,
+      })
     })
 
     it('shows no paging arrows when no period is passed (pre-#443 behavior)', () => {
@@ -266,6 +273,50 @@ describe('WeightTrendChart', () => {
       expect(
         screen.getByRole('button', { name: 'Next period' }),
       ).not.toBeDisabled()
+    })
+
+    it('#975: week range includes 21 Sept when today is that local morning', () => {
+      useLocaleStore.setState({ locale: 'ru' })
+      useDayStartStore.setState({ dayStartTime: '10:00' })
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date(2026, 8, 21, 9, 51, 0))
+      const entries = [
+        entry('2026-09-15', { weightKg: 61 }),
+        entry('2026-09-16', { weightKg: 60.8 }),
+        entry('2026-09-21', { weightKg: 60.6 }),
+      ]
+
+      render(<WeightTrendChart entries={entries} period="week" />, {
+        wrapper: MemoryRouter,
+      })
+
+      expect(
+        screen.getByText(
+          formatLocalizedDateRange('2026-09-15', '2026-09-21', 'ru'),
+        ),
+      ).toBeInTheDocument()
+    })
+
+    it('#975: month range includes 21 Sept when today is that local morning', () => {
+      useLocaleStore.setState({ locale: 'ru' })
+      useDayStartStore.setState({ dayStartTime: '10:00' })
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date(2026, 8, 21, 9, 51, 0))
+      const entries = [
+        entry('2026-08-23', { weightKg: 62 }),
+        entry('2026-09-01', { weightKg: 61 }),
+        entry('2026-09-21', { weightKg: 60.6 }),
+      ]
+
+      render(<WeightTrendChart entries={entries} period="month" />, {
+        wrapper: MemoryRouter,
+      })
+
+      expect(
+        screen.getByText(
+          formatLocalizedDateRange('2026-08-23', '2026-09-21', 'ru'),
+        ),
+      ).toBeInTheDocument()
     })
   })
 

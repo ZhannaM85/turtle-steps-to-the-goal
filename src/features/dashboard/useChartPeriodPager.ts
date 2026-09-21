@@ -2,11 +2,11 @@ import { useState } from 'react'
 import { addDays } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
-  effectiveDateFor,
   filterEntriesByTrendChartPeriod,
   isPageableTrendChartPeriod,
   resolveTrendChartPeriodRange,
   ROLLING_WINDOW_DAYS,
+  throughNowDateForTrendChart,
   type TrendChartPeriod,
   type TrendChartPeriodRange,
 } from '@/domain/stats'
@@ -49,12 +49,22 @@ export function useChartPeriodPager(
   entries: DailyEntry[],
   // Injectable, same as `resolveTrendChartPeriodRange`'s own `today` param —
   // lets tests pin "today" instead of depending on the real system clock.
-  // #625 — omitted (the normal case), defaults to the day-start-adjusted
-  // "today" every other rolling window already uses, not the raw clock.
+  // #975 — omitted (the normal case), defaults to the local calendar day
+  // once morning has started, so through-now windows include today's point.
+  // Overnight still follows day-start (#625).
   today?: Date,
 ): ChartPeriodPager {
   const dayStartTime = useDayStartStore((state) => state.dayStartTime)
-  const resolvedToday = today ?? effectiveDateFor(new Date(), dayStartTime)
+  const startedEarlyForDate = useDayStartStore(
+    (state) => state.startedEarlyForDate,
+  )
+  const resolvedToday =
+    today ??
+    throughNowDateForTrendChart(
+      new Date(),
+      dayStartTime,
+      startedEarlyForDate,
+    )
   const [periodsBack, setPeriodsBack] = useState(0)
   // Switching the shared period *type* mid-page (e.g. Month -> Week) leaves
   // an offset that no longer means the same thing against the new window

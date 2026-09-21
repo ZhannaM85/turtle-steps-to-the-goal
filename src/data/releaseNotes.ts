@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 949,
+    issue: 975,
+    date: '2026-09-21T10:22:51+03:00',
+    en: 'Week, month, and year graphs now include today, so a morning weight or calorie entry shows up without waiting until tomorrow.',
+    ru: 'Графики за неделю, месяц и год теперь включают сегодняшний день — утренний вес или калории появляются на графике, не дожидаясь завтрашнего дня.',
+  },
+  {
     version: 948,
     issue: 974,
     date: '2026-09-20T12:20:12+03:00',

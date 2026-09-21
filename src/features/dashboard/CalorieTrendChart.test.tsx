@@ -1,9 +1,14 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { useDashboardChartVisibilityStore, useTrendChartSeriesStore } from '@/stores'
+import { formatLocalizedDateRange, useLocaleStore } from '@/i18n'
+import {
+  useDashboardChartVisibilityStore,
+  useDayStartStore,
+  useTrendChartSeriesStore,
+} from '@/stores'
 import { CalorieTrendChart } from './CalorieTrendChart'
 
 let idCounter = 0
@@ -176,6 +181,39 @@ describe('CalorieTrendChart', () => {
 
       await user.click(showButton)
       expect(screen.getByText('calories')).toBeInTheDocument()
+    })
+  })
+
+  describe('week range includes today (#975)', () => {
+    afterEach(() => {
+      vi.useRealTimers()
+      useLocaleStore.setState({ locale: 'en' })
+      useDayStartStore.setState({
+        dayStartTime: '00:00',
+        startedEarlyForDate: null,
+      })
+    })
+
+    it('shows a week range ending 21 Sept, including that morning calorie day', () => {
+      useLocaleStore.setState({ locale: 'ru' })
+      useDayStartStore.setState({ dayStartTime: '10:00' })
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date(2026, 8, 21, 9, 51, 0))
+      const entries = [
+        entry('2026-09-15', { calorieEntries: [calorieEntry(1900)] }),
+        entry('2026-09-16', { calorieEntries: [calorieEntry(2000)] }),
+        entry('2026-09-21', { calorieEntries: [calorieEntry(1800)] }),
+      ]
+
+      render(<CalorieTrendChart entries={entries} period="week" />, {
+        wrapper: MemoryRouter,
+      })
+
+      expect(
+        screen.getByText(
+          formatLocalizedDateRange('2026-09-15', '2026-09-21', 'ru'),
+        ),
+      ).toBeInTheDocument()
     })
   })
 })

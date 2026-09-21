@@ -1,5 +1,6 @@
 import { format, subDays } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import { effectiveDateFor, OVERNIGHT_WRAP_BEFORE_MINUTES } from './dayStart'
 
 /**
  * #380 — which window Dashboard's main trend charts (Weight/Calorie/Macro/
@@ -37,6 +38,30 @@ export function isPageableTrendChartPeriod(
   period: TrendChartPeriod,
 ): period is 'week' | 'month' | 'year' {
   return period === 'week' || period === 'month' || period === 'year'
+}
+
+/**
+ * #975 — rolling Week/Month/Year windows that mean "through now" must
+ * include the **local calendar day**, so a morning weigh-in shows on the
+ * graph without waiting until tomorrow.
+ *
+ * Overnight (before 06:00) still follows Settings day-start (#625 / #755):
+ * 01:00 with a 04:00 cutoff stays the previous logical day. After 06:00 the
+ * calendar date wins even if day-start is later (e.g. 10:00). "Start
+ * today's log now" (#345/#539) also pins that calendar date.
+ */
+export function throughNowDateForTrendChart(
+  now: Date,
+  dayStartTime: string,
+  startedEarlyForDate: string | null = null,
+): Date {
+  const calendarIso = format(now, 'yyyy-MM-dd')
+  if (startedEarlyForDate === calendarIso) return now
+  const nowMinutes = now.getHours() * 60 + now.getMinutes()
+  if (nowMinutes < OVERNIGHT_WRAP_BEFORE_MINUTES) {
+    return effectiveDateFor(now, dayStartTime)
+  }
+  return now
 }
 
 /**

@@ -125,9 +125,9 @@ describe('useChartPeriodPager', () => {
     })
   })
 
-  // #625 — when the caller omits `today` (the normal case), the pager
-  // should default to the day-start-adjusted "today" rather than the raw
-  // clock, same as every other rolling window.
+  // #625 — overnight (before 06:00), omitted `today` still follows
+  // day-start so 01:00 is the previous logical day, not the new calendar
+  // date. #975 only changes the morning-after-06:00 path.
   it('defaults to the day-start-adjusted "today" when no override is passed', () => {
     useDayStartStore.setState({ dayStartTime: '04:00' })
     vi.useFakeTimers()
@@ -149,6 +149,45 @@ describe('useChartPeriodPager', () => {
 
     vi.useRealTimers()
     useDayStartStore.setState({ dayStartTime: '00:00' })
+  })
+
+  it('#975: week and month through-now windows include local today before day-start', () => {
+    useDayStartStore.setState({
+      dayStartTime: '10:00',
+      startedEarlyForDate: null,
+    })
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 8, 21, 9, 51, 0))
+    const entries = [entry('2026-09-15'), entry('2026-09-21')]
+
+    const week = renderHook(() =>
+      useChartPeriodPager('week', '', '', entries),
+    )
+    expect(week.result.current.range).toEqual({
+      start: '2026-09-15',
+      end: '2026-09-21',
+    })
+    expect(week.result.current.pagedEntries.map((e) => e.date)).toEqual([
+      '2026-09-15',
+      '2026-09-21',
+    ])
+
+    const month = renderHook(() =>
+      useChartPeriodPager('month', '', '', entries),
+    )
+    expect(month.result.current.range).toEqual({
+      start: '2026-08-23',
+      end: '2026-09-21',
+    })
+    expect(month.result.current.pagedEntries.map((e) => e.date)).toContain(
+      '2026-09-21',
+    )
+
+    vi.useRealTimers()
+    useDayStartStore.setState({
+      dayStartTime: '00:00',
+      startedEarlyForDate: null,
+    })
   })
 
   it('resets the page offset back to current when the period type itself changes', () => {
