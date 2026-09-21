@@ -679,10 +679,28 @@ html body[data-scroll-locked] {
   * {
     @apply border-border outline-ring/50;
   }
+  /* #970 — lock the document to the layout viewport (my-money pattern).
+   * Window scroll + `position: fixed` tab bar let iOS resume leave the
+   * bar mid-page against a stale visualViewport. Inner `#main-content`
+   * is the only vertical scroller. */
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
   body {
     @apply bg-background text-foreground;
   }
   html {
     @apply font-sans;
+  }
+  #main-content {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  #main-content::-webkit-scrollbar {
+    width: 0;
+    height: 0;
   }
 }

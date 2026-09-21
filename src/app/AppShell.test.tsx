@@ -182,6 +182,79 @@ describe('AppShell bottom tab bar stays mounted on visualViewport change (#974)'
   })
 })
 
+describe('AppShell flex column pins the tab bar (#970)', () => {
+  afterEach(() => {
+    Object.defineProperty(window, 'visualViewport', {
+      value: undefined,
+      configurable: true,
+    })
+  })
+
+  function getTabBar() {
+    return screen.getByRole('navigation', { name: 'Tabs' })
+  }
+
+  it('keeps the tab bar in document flow, not position fixed', () => {
+    renderShellWithInput()
+    const tabs = getTabBar()
+    expect(tabs).toHaveClass('shrink-0')
+    expect(tabs).not.toHaveClass('fixed')
+    expect(tabs).not.toHaveClass('bottom-0')
+    expect(tabs.getAttribute('style') ?? '').not.toContain('translateY')
+
+    const shell = tabs.parentElement
+    expect(shell).toHaveClass('flex', 'h-full', 'flex-col', 'overflow-hidden')
+
+    const main = document.getElementById('main-content')
+    expect(main).toBeInstanceOf(HTMLElement)
+    expect(main).toHaveClass('flex-1', 'min-h-0', 'overflow-y-auto')
+    expect(
+      (main as HTMLElement).compareDocumentPosition(tabs) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).not.toBe(0)
+  })
+
+  it('keeps the in-flow tab bar after visibilitychange and pageshow resume', () => {
+    renderShellWithInput()
+    const tabs = getTabBar()
+
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      value: 'hidden',
+    })
+    document.dispatchEvent(new Event('visibilitychange'))
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      value: 'visible',
+    })
+    document.dispatchEvent(new Event('visibilitychange'))
+    window.dispatchEvent(new Event('pageshow'))
+
+    expect(tabs).toBeInTheDocument()
+    expect(tabs).toHaveClass('shrink-0')
+    expect(tabs).not.toHaveClass('fixed')
+    expect(tabs.getAttribute('style') ?? '').not.toContain('translateY')
+  })
+
+  it('does not translate the tab bar when visualViewport height changes after resume', () => {
+    const viewport = mockVisualViewport(window.innerHeight)
+    renderShellWithInput()
+
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      value: 'visible',
+    })
+    document.dispatchEvent(new Event('visibilitychange'))
+    viewport.resizeTo(window.innerHeight - 160)
+
+    const tabs = getTabBar()
+    expect(tabs).toBeInTheDocument()
+    expect(tabs).toHaveClass('shrink-0')
+    expect(tabs).not.toHaveClass('fixed')
+    expect(tabs.getAttribute('style') ?? '').not.toContain('translateY')
+  })
+})
+
 describe('scroll to top on navigation (#185)', () => {
   afterEach(() => {
     vi.restoreAllMocks()
@@ -203,6 +276,9 @@ describe('scroll to top on navigation (#185)', () => {
       { initialEntries: ['/'] },
     )
     render(<RouterProvider router={router} />)
+    const main = document.getElementById('main-content')
+    expect(main).toBeTruthy()
+    if (main) main.scrollTop = 320
     // The mount-time call doesn't count — only a real navigation should
     // trigger this.
     scrollToSpy.mockClear()
@@ -211,6 +287,7 @@ describe('scroll to top on navigation (#185)', () => {
 
     expect(await screen.findByText('Other page')).toBeInTheDocument()
     expect(scrollToSpy).toHaveBeenCalledWith(0, 0)
+    expect(main?.scrollTop).toBe(0)
   })
 
   it('does not scroll to top when only search params change on the same route', async () => {

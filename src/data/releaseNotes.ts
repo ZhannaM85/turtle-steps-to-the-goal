@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 950,
+    issue: 970,
+    date: '2026-09-21T14:23:04+03:00',
+    en: 'The bottom navigation stays pinned to the bottom of the screen after returning from the background.',
+    ru: 'Нижняя навигация остаётся прикреплённой к низу экрана после возвращения из фонового режима.',
+  },
+  {
     version: 949,
     issue: 975,
     date: '2026-09-21T10:22:51+03:00',

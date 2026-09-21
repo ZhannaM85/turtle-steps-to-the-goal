@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { isAtRefreshableTop } from '@/shared/lib/appScroll'
 import { reloadForUpdate } from '@/shared/lib/reloadForUpdate'
 
 const PULL_THRESHOLD = 70
@@ -9,9 +10,10 @@ const MAX_PULL = 100
  * standalone context has no Safari chrome to catch a native pull-to-refresh
  * — dragging down there previously did nothing at all, with no feedback.
  * Only activates when the page is already scrolled to the very top
- * (`window.scrollY === 0`) at the moment the touch starts, so it doesn't
- * interfere with normal scrolling or in-page drag gestures (e.g. meal
- * reordering) happening elsewhere on the page. Reaching the pull threshold
+ * (`isAtRefreshableTop` — `#main-content` after #970, else `window.scrollY`)
+ * at the moment the touch starts, so it doesn't interfere with normal
+ * scrolling or in-page drag gestures (e.g. meal reordering) happening
+ * elsewhere on the page. Reaching the pull threshold
  * triggers `reloadForUpdate()` (#211, was a plain `window.location.reload()`
  * — same staleness risk `AppUpdateBanner`'s own Reload button had before
  * #205 fixed it there specifically) so "drag down" gets the same
@@ -39,7 +41,7 @@ export function usePullToRefresh(): {
 
   useEffect(() => {
     function onTouchStart(event: TouchEvent) {
-      if (window.scrollY > 0) return
+      if (!isAtRefreshableTop(event.target)) return
       startY.current = event.touches[0].clientY
       pulling.current = true
     }
@@ -47,7 +49,7 @@ export function usePullToRefresh(): {
     function onTouchMove(event: TouchEvent) {
       if (!pulling.current || startY.current === null) return
       const delta = event.touches[0].clientY - startY.current
-      if (delta <= 0 || window.scrollY > 0) {
+      if (delta <= 0 || !isAtRefreshableTop(event.target)) {
         pulling.current = false
         currentPull.current = 0
         setPullDistance(0)

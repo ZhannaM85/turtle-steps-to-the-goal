@@ -18,9 +18,9 @@ export interface PageHeaderProps {
    */
   overlayAction?: boolean
   /**
-   * #910 — stick under the app header while the page body scrolls (main
-   * tab screens). Day uses a wider sticky wrapper that also includes the
-   * date nav — leave this off there.
+   * #910 / #970 — stick at the top of `#main-content` while the page body
+   * scrolls (main tab screens). Day uses a wider sticky wrapper that also
+   * includes the date nav — leave this off there.
    */
   sticky?: boolean
   className?: string

@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import {
   History,
@@ -42,6 +42,14 @@ export function AppShell() {
   // Do not hide or unmount it from visualViewport shrink or text-input
   // focus. Soft-keyboard overlap is an accepted tradeoff; dialogs already
   // use dvh + overflow scroll so fields stay reachable.
+  //
+  // #970: do not `position: fixed; bottom: 0` the tab bar. On iOS PWA
+  // resume, WebKit can leave visualViewport shortened so a fixed bar
+  // anchors mid-page over Day content. my-money pins the bar in a flex
+  // column (`shrink-0`, inner `#main-content` scrollport, html/body/#root
+  // overflow hidden). The shell fills the layout viewport (`h-full` of
+  // those 100% roots) rather than 100dvh, so a stale visualViewport
+  // cannot leave the footer floating.
 
   // #185: React Router doesn't reset scroll position on navigation by
   // default (unlike a traditional multi-page site) — landing on a new,
@@ -50,16 +58,19 @@ export function AppShell() {
   // pathname only (not the full location) — a search-param-only change
   // like History's own filters shouldn't jump the page back to the top.
   const { pathname } = useLocation()
+  const mainRef = useRef<HTMLElement>(null)
   useEffect(() => {
+    const main = mainRef.current
+    if (main) main.scrollTop = 0
     window.scrollTo(0, 0)
   }, [pathname])
 
   return (
-    <div className="min-h-svh bg-background">
+    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-background">
       <PullToRefreshIndicator />
       <OfflineBanner />
       <AppUpdateBanner />
-      <header className="sticky top-0 z-10 border-b border-border bg-background">
+      <header className="shrink-0 border-b border-border bg-background">
         {/* #308: the native shell's status bar now overlays the WebView
          * (Android 15+ enforces edge-to-edge, can't opt out) — without this
          * top safe-area padding, the status bar's clock/icons drew directly
@@ -98,18 +109,33 @@ export function AppShell() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-6 pb-32 sm:pb-10">
-        {/* #102: every non-Today route is now lazy-loaded (see router.tsx)
-         * — this single boundary covers all of them, so a route doesn't
-         * need its own Suspense wiring. */}
-        <Suspense fallback={<RouteLoadingFallback />}>
-          <Outlet />
-        </Suspense>
+      <main
+        ref={mainRef}
+        id="main-content"
+        className="relative mx-auto flex w-full min-h-0 min-w-0 max-w-3xl flex-1 flex-col overflow-x-hidden overflow-y-auto overscroll-x-none px-4"
+      >
+        {/*
+          Vertical padding must not live on the scrollport — sticky page
+          chrome (#910) would leave a gap under the app header where
+          scrolling content bled through (same as my-money #217).
+        */}
+        <div className="flex min-h-0 w-full flex-1 flex-col pt-6">
+          {/* #102: every non-Today route is now lazy-loaded (see router.tsx)
+           * — this single boundary covers all of them, so a route doesn't
+           * need its own Suspense wiring. */}
+          <Suspense fallback={<RouteLoadingFallback />}>
+            <Outlet />
+          </Suspense>
+          <div
+            data-testid="main-bottom-inset"
+            className="h-8 shrink-0 sm:h-10"
+            aria-hidden="true"
+          />
+        </div>
+        {/* #661 — shared-food deep link + import dialogs (Settings opens entry). */}
+        <SharedFoodImportHost />
+        <DaySnippetImportHost />
       </main>
-
-      {/* #661 — shared-food deep link + import dialogs (Settings opens entry). */}
-      <SharedFoodImportHost />
-      <DaySnippetImportHost />
 
       {/* Taller tap targets + horizontal safe-area padding (#112) — the
        * original min-h-14 bar sat flush against the screen edges
@@ -118,7 +144,7 @@ export function AppShell() {
        * with rounded corners or side gesture areas. */}
       <nav
         aria-label="Tabs"
-        className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] sm:hidden"
+        className="relative z-10 shrink-0 border-t border-border bg-background pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] sm:hidden"
       >
         {/* #493 — px-4 matches main's horizontal padding so edge tabs
          * align with content cards; was px-2 and read as wider. */}

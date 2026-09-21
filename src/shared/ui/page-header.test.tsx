@@ -53,6 +53,7 @@ describe('PageHeader', () => {
     const heading = screen.getByRole('heading', { name: 'History' })
     expect(heading.parentElement?.parentElement?.parentElement).toHaveClass(
       'sticky',
+      'top-0',
     )
   })
 })

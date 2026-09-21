@@ -14,6 +14,7 @@ import {
   useMaxRecordedWeight,
   usePreviousDayEntry,
 } from '@/shared/hooks'
+import { getAppScrollTop, setAppScrollTop } from '@/shared/lib/appScroll'
 import { Button } from '@/shared/ui/button'
 import { InfoTooltip } from '@/shared/ui/info-tooltip'
 import { PageHeader } from '@/shared/ui/page-header'
@@ -72,7 +73,7 @@ export function TodayScreen() {
   const [loadingMinHeight, setLoadingMinHeight] = useState<number | undefined>()
   function setDate(next: string | ((prev: string) => string)) {
     const nextDate = typeof next === 'function' ? next(date) : next
-    pendingScrollYRef.current = window.scrollY
+    pendingScrollYRef.current = getAppScrollTop()
     setSearchParams(
       nextDate === todayIso() ? {} : { date: nextDate },
       { replace: true },
@@ -134,7 +135,7 @@ export function TodayScreen() {
     const y = pendingScrollYRef.current
     if (y === null) return
     pendingScrollYRef.current = null
-    window.scrollTo(0, y)
+    setAppScrollTop(y)
   }, [entryStatus, date, entry])
 
   useEffect(() => {

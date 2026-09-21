@@ -58,7 +58,7 @@ _Intermittent layout issue observed after returning to the installed app._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#970](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/970) | 🔍 Pending validation | Keep bottom navigation anchored after resuming from background | Root cause was #546's 700ms failsafe restoring the fixed bar while iOS still reported a stale shortened `visualViewport`, so WebKit anchored it at that stale edge. The restored state now carries the stale bottom gap and translates the bar to the real layout bottom; AppShell regression coverage added. Awaiting on-device confirmation |
+| [#970](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/970) | 🔍 Pending validation | Keep bottom navigation anchored after resuming from background | Still reproduced after #974. Root cause: `position: fixed; bottom: 0` on the tab bar — iOS PWA resume can leave `visualViewport` shortened, so WebKit anchors the bar mid-page over Day content. Matched my-money: flex-column shell, `html/body/#root` overflow hidden, inner `#main-content` scrollport, in-flow `shrink-0` footer (no fixed/translate compensate). Awaiting on-device confirmation |
 
 ---
 
