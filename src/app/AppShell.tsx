@@ -11,6 +11,7 @@ import {
 import { SharedFoodImportHost } from '@/features/food-share'
 import { DaySnippetImportHost } from '@/features/local-transfer/DaySnippetImportHost'
 import { useTranslation, type Dictionary } from '@/i18n'
+import { scrollAppToTop } from '@/shared/lib/appScroll'
 import { cn } from '@/shared/lib/utils'
 import { AppUpdateBanner } from './AppUpdateBanner'
 import { OfflineBanner } from './OfflineBanner'
@@ -70,16 +71,30 @@ export function AppShell() {
       <PullToRefreshIndicator />
       <OfflineBanner />
       <AppUpdateBanner />
-      <header className="shrink-0 border-b border-border bg-background">
+      <header className="relative shrink-0 border-b border-border bg-background">
+        {/* #979 — iOS only auto-scrolls the document on a status-bar tap.
+         * After #970 the document does not scroll, so this control covers
+         * the header including the safe-area strip (my-money's header
+         * button). Desktop tab links sit above it and stay clickable. */}
+        <button
+          type="button"
+          data-testid="scroll-to-top"
+          aria-label={t.nav.scrollToTop}
+          onClick={() => scrollAppToTop()}
+          className="absolute inset-0 cursor-pointer"
+        />
         {/* #308: the native shell's status bar now overlays the WebView
          * (Android 15+ enforces edge-to-edge, can't opt out) — without this
          * top safe-area padding, the status bar's clock/icons drew directly
          * on top of the app name text instead of above it. */}
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-3">
+        <div className="pointer-events-none relative z-10 mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-3">
           <span className="text-sm font-semibold text-foreground">
             {t.nav.appName}
           </span>
-          <nav aria-label="Main" className="hidden sm:block">
+          <nav
+            aria-label="Main"
+            className="pointer-events-auto relative z-10 hidden sm:block"
+          >
             <ul className="flex flex-wrap gap-1">
               {navItems.map((item) => (
                 <li key={item.to}>

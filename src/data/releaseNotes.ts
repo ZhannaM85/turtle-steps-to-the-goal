@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 954,
+    issue: 979,
+    date: '2026-09-22T22:32:00+03:00',
+    en: 'Tapping the top of the screen, including the status-bar area, scrolls the current page back to the top.',
+    ru: 'Нажатие на верх экрана, включая полосу состояния, прокручивает текущую страницу наверх.',
+  },
+  {
     version: 953,
     issue: 978,
     date: '2026-09-22T18:34:00+03:00',

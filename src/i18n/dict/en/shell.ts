@@ -28,6 +28,7 @@ export const offline: OfflineDict = {
 
 export const nav: NavDict = {
     appName: 'Turtle Steps to the Goal',
+    scrollToTop: 'Scroll to top',
     today: 'Day',
     dashboard: 'Dashboard',
     history: 'History',

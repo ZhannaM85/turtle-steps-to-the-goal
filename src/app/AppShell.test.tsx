@@ -255,6 +255,36 @@ describe('AppShell flex column pins the tab bar (#970)', () => {
   })
 })
 
+describe('status-bar header scrolls the active screen to the top (#979)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('resets #main-content when the header control is activated', async () => {
+    const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+    const user = userEvent.setup()
+    renderShellWithInput()
+
+    const main = document.getElementById('main-content')
+    expect(main).toBeTruthy()
+    if (main) main.scrollTop = 480
+    scrollToSpy.mockClear()
+
+    await user.click(screen.getByTestId('scroll-to-top'))
+
+    expect(scrollToSpy).toHaveBeenCalledWith(0, 0)
+    expect(main?.scrollTop).toBe(0)
+    const headerButton = screen.getByTestId('scroll-to-top')
+    expect(headerButton).toHaveAttribute('aria-label', 'Scroll to top')
+    expect(
+      headerButton.contains(screen.getByRole('navigation', { name: 'Main' })),
+    ).toBe(false)
+    expect(screen.getByRole('navigation', { name: 'Tabs' })).toHaveClass(
+      'shrink-0',
+    )
+  })
+})
+
 describe('scroll to top on navigation (#185)', () => {
   afterEach(() => {
     vi.restoreAllMocks()

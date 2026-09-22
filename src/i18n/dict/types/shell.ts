@@ -32,6 +32,8 @@ export interface OfflineDict {
 
 export interface NavDict {
     appName: string
+    /** #979 — header / status-bar strip scrolls the active screen up. */
+    scrollToTop: string
     today: string
     dashboard: string
     history: string

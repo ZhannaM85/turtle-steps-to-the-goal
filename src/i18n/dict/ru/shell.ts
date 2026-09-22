@@ -29,6 +29,7 @@ export const offline: OfflineDict = {
 
 export const nav: NavDict = {
     appName: 'Черепашка идёт к цели',
+    scrollToTop: 'Прокрутить наверх',
     today: 'День',
     dashboard: 'Обзор',
     history: 'История',

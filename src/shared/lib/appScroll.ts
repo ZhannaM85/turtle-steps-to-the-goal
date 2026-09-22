@@ -18,10 +18,32 @@ export function setAppScrollTop(top: number): void {
   window.scrollTo(0, top)
 }
 
+function resetOverflowScrollers(): void {
+  for (const node of document.querySelectorAll('*')) {
+    if (!(node instanceof HTMLElement)) continue
+    if (node.scrollTop <= 0) continue
+    const { overflowY } = getComputedStyle(node)
+    if (
+      overflowY !== 'auto' &&
+      overflowY !== 'scroll' &&
+      overflowY !== 'overlay'
+    ) {
+      continue
+    }
+    node.scrollTop = 0
+  }
+}
+
+/**
+ * #979 — html/body overflow is locked (#970), so an iOS status-bar tap
+ * cannot drive document scroll. The app header calls this, and nested
+ * overflow scrollers reset too (same as my-money).
+ */
 export function scrollAppToTop(): void {
   window.scrollTo(0, 0)
   const main = getAppScrollport()
   if (main) main.scrollTop = 0
+  resetOverflowScrollers()
 }
 
 function elementFromTarget(target: EventTarget | null): Element | null {

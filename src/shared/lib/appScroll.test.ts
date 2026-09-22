@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   APP_SCROLLPORT_ID,
   getAppScrollTop,
@@ -10,6 +10,7 @@ import {
 afterEach(() => {
   document.body.replaceChildren()
   window.scrollTo(0, 0)
+  vi.restoreAllMocks()
 })
 
 describe('appScroll (#970)', () => {
@@ -54,6 +55,39 @@ describe('appScroll (#970)', () => {
       window.scrollTo = originalScrollTo
       Reflect.deleteProperty(window, 'scrollY')
     }
+  })
+
+  it('resets nested overflow scrollers as well as #main-content (#979)', () => {
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+
+    const main = document.createElement('div')
+    main.id = APP_SCROLLPORT_ID
+    Object.defineProperty(main, 'scrollTop', {
+      configurable: true,
+      writable: true,
+      value: 120,
+    })
+    document.body.append(main)
+
+    const inner = document.createElement('div')
+    Object.defineProperty(inner, 'scrollTop', {
+      configurable: true,
+      writable: true,
+      value: 80,
+    })
+    vi.spyOn(window, 'getComputedStyle').mockImplementation((el) => {
+      if (el === inner) {
+        return { overflowY: 'auto' } as CSSStyleDeclaration
+      }
+      return { overflowY: 'visible' } as CSSStyleDeclaration
+    })
+    main.append(inner)
+
+    scrollAppToTop()
+
+    expect(scrollTo).toHaveBeenCalledWith(0, 0)
+    expect(main.scrollTop).toBe(0)
+    expect(inner.scrollTop).toBe(0)
   })
 
   it('treats a scrolled inner main as not at the refreshable top', () => {
