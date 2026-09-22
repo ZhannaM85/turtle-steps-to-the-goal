@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 951,
+    issue: 976,
+    date: '2026-09-22T08:47:00+03:00',
+    en: 'The AutoSleep screenshot check now shows how sleep and deep sleep compare with yesterday before you save.',
+    ru: 'Проверка скриншота AutoSleep теперь показывает, как сон и глубокий сон отличаются от вчера, до сохранения.',
+  },
+  {
     version: 950,
     issue: 970,
     date: '2026-09-21T14:23:04+03:00',

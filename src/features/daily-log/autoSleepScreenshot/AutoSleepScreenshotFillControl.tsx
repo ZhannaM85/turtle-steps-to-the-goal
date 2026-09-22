@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { ImageUp } from 'lucide-react'
 import { useTranslation } from '@/i18n'
+import { usePreviousDayEntry } from '@/shared/hooks'
 import {
   combineHoursMinutes,
   splitHoursMinutes,
@@ -23,6 +24,7 @@ import {
 } from './parseAutoSleepText'
 import { recognizeOnDeviceScreenshot } from '../recognizeOnDeviceScreenshot'
 import { prepareAutoSleepScreenshotForOcr } from '../prepareScreenshotForOcr'
+import { SleepDurationVsYesterday } from './SleepDurationVsYesterday'
 
 export interface AutoSleepScreenshotFillControlProps {
   asOfDate: string
@@ -39,6 +41,7 @@ function DurationFields({
   minutesFieldLabel,
   onHoursChange,
   onMinutesChange,
+  yesterdayHours,
 }: {
   label: string
   hours: string
@@ -49,6 +52,7 @@ function DurationFields({
   minutesFieldLabel: string
   onHoursChange: (value: string) => void
   onMinutesChange: (value: string) => void
+  yesterdayHours: number | undefined
 }) {
   return (
     <div className="flex flex-col gap-1">
@@ -73,6 +77,10 @@ function DurationFields({
         />
         <span className="text-xs text-muted-foreground">{minutesUnit}</span>
       </div>
+      <SleepDurationVsYesterday
+        currentHours={combineHoursMinutes(hours, minutes)}
+        yesterdayHours={yesterdayHours}
+      />
     </div>
   )
 }
@@ -85,6 +93,7 @@ export function AutoSleepScreenshotFillControl({
     (state) => state.tracked.autoSleepScreenshot,
   )
   const t = useTranslation()
+  const yesterday = usePreviousDayEntry(asOfDate)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [open, setOpen] = useState(false)
   const [readingStatus, setReadingStatus] = useState<
@@ -231,6 +240,7 @@ export function AutoSleepScreenshotFillControl({
                   minutesFieldLabel={t.dailyEntry.minutesFieldLabel}
                   onHoursChange={setSleepHoursPart}
                   onMinutesChange={setSleepMinutesPart}
+                  yesterdayHours={yesterday?.sleepHours}
                 />
                 <DurationFields
                   label={t.dailyEntry.deepSleepLabel}
@@ -242,6 +252,7 @@ export function AutoSleepScreenshotFillControl({
                   minutesFieldLabel={t.dailyEntry.minutesFieldLabel}
                   onHoursChange={setDeepSleepHoursPart}
                   onMinutesChange={setDeepSleepMinutesPart}
+                  yesterdayHours={yesterday?.deepSleepHours}
                 />
                 <Button
                   type="button"

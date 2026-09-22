@@ -83,4 +83,14 @@ _Overview graphs excluding today._
 |---|--------|-------|-------|
 | [#975](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/975) | 🔍 Pending validation | Обзор graphs: week/month range ends yesterday, excludes today | Through-now Week/Month/Year windows used day-start “today,” so a morning weigh-in before that cutoff (or after starting the day early) sat on calendar today while the graph ended yesterday. Range end is the local calendar day after 06:00; overnight still follows day-start. Awaiting on-device confirmation |
 
+---
+
+## Tier 168 — Live iPhone feedback (2026-09-22)
+
+_AutoSleep screenshot confirm: compare scanned sleep with yesterday._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#976](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/976) | 🔍 Pending validation | AutoSleep scan modal: delta vs yesterday for sleep and deep sleep | Confirm modal («Из скриншота AutoSleep») shows the same ↑/↓ hours-and-minutes “compared to yesterday” line as entry comparisons, under Часов сна and Глубокий сон. Baseline is the calendar day before the open Day (`sleepHours` / `deepSleepHours`); a missing metric is omitted, not treated as zero, and an older day is not used. Nothing is written until «Сохранить эти числа». Awaiting on-device confirmation |
+
 
