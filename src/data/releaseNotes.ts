@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 953,
+    issue: 978,
+    date: '2026-09-22T18:34:00+03:00',
+    en: 'When adding a meal, the food search now sits directly above recent dishes and search results.',
+    ru: 'При добавлении приёма пищи поле поиска теперь сразу над недавними блюдами и результатами поиска.',
+  },
+  {
     version: 952,
     issue: 977,
     date: '2026-09-22T12:49:00+03:00',

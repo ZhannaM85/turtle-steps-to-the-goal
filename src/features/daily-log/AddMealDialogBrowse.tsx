@@ -81,6 +81,29 @@ export function AddMealDialogBrowse({
 
   return (
     <>
+      <div className="grid grid-cols-2 gap-3">
+        <AddMealQuickActionCard
+          Icon={Utensils}
+          label={t.dailyEntry.quickActionAddFoodLabel}
+          onClick={onOpenManualAdd}
+        />
+        <AddMealQuickActionCard
+          Icon={ScanBarcode}
+          label={t.dailyEntry.scanBarcodeButton}
+          ariaLabel={`${t.dailyEntry.scanBarcodeButton} — ${mealLabel}`}
+          onClick={onOpenBarcode}
+        />
+        <AddMealQuickActionCard
+          Icon={ChefHat}
+          label={t.recipes.logRecipeButton}
+          onClick={onOpenRecipe}
+        />
+        <AddMealQuickActionCard
+          Icon={QrCode}
+          label={t.dailyEntry.quickActionImportSharedFoodLabel}
+          onClick={onImportSharedFood}
+        />
+      </div>
       <div className="relative">
         <Input
           type="text"
@@ -207,29 +230,6 @@ export function AddMealDialogBrowse({
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-3">
-            <AddMealQuickActionCard
-              Icon={Utensils}
-              label={t.dailyEntry.quickActionAddFoodLabel}
-              onClick={onOpenManualAdd}
-            />
-            <AddMealQuickActionCard
-              Icon={ScanBarcode}
-              label={t.dailyEntry.scanBarcodeButton}
-              ariaLabel={`${t.dailyEntry.scanBarcodeButton} — ${mealLabel}`}
-              onClick={onOpenBarcode}
-            />
-            <AddMealQuickActionCard
-              Icon={ChefHat}
-              label={t.recipes.logRecipeButton}
-              onClick={onOpenRecipe}
-            />
-            <AddMealQuickActionCard
-              Icon={QrCode}
-              label={t.dailyEntry.quickActionImportSharedFoodLabel}
-              onClick={onImportSharedFood}
-            />
-          </div>
           {recentItems.length > 0 && (
             <div className="flex flex-col gap-3">
               <SectionTitleWithToggle

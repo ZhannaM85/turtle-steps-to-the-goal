@@ -783,6 +783,50 @@ describe('AddMealDialog (#454)', () => {
     expect(onRemoveItem).toHaveBeenCalledWith('i1')
   })
 
+  describe('search sits above the dish list (#978)', () => {
+    function follows(earlier: HTMLElement, later: HTMLElement) {
+      return Boolean(
+        earlier.compareDocumentPosition(later) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      )
+    }
+
+    it('keeps quick actions above search and search directly above Recent', async () => {
+      const user = userEvent.setup()
+      await useMealItemStore.getState().touch('Homemade soup', { amountKcal: 320 })
+      render(<ControlledAddMealDialog {...defaultProps} />)
+
+      const addFood = screen.getByRole('button', { name: 'Add food' })
+      const scanCard = screen.getByRole('button', {
+        name: 'Scan barcode — Breakfast',
+      })
+      const logRecipe = screen.getByRole('button', { name: 'Log recipe' })
+      const sharedFood = screen.getByRole('button', { name: 'Shared food' })
+      const search = screen.getByLabelText('Search foods')
+      expect(await screen.findByText('Homemade soup')).toBeInTheDocument()
+      const recent = screen.getByText('Recent')
+
+      for (const action of [addFood, scanCard, logRecipe, sharedFood]) {
+        expect(follows(action, search)).toBe(true)
+      }
+      expect(search.parentElement?.nextElementSibling).toContainElement(recent)
+      expect(search.parentElement?.previousElementSibling).toContainElement(
+        addFood,
+      )
+
+      await user.type(search, 'Homemade')
+      const match = await screen.findByText('Homemade soup')
+      expect(screen.queryByText('Recent')).not.toBeInTheDocument()
+      expect(search.parentElement?.nextElementSibling).toContainElement(match)
+      expect(search.parentElement?.previousElementSibling).toContainElement(
+        addFood,
+      )
+      expect(
+        screen.getByRole('button', { name: 'Scan barcode' }),
+      ).toBeInTheDocument()
+    })
+  })
+
   describe('Recent (#454)', () => {
     it('shows recently-touched personal items when the search box is empty', async () => {
       await useMealItemStore.getState().touch('Homemade soup', { amountKcal: 320 })
