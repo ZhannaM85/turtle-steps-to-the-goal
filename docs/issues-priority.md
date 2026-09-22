@@ -87,10 +87,11 @@ _Overview graphs excluding today._
 
 ## Tier 168 — Live iPhone feedback (2026-09-22)
 
-_AutoSleep screenshot confirm: compare scanned sleep with yesterday._
+_AutoSleep screenshot confirm: compare scanned sleep with yesterday. Meal cards: compare calories with the last day that had that meal._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#976](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/976) | 🔍 Pending validation | AutoSleep scan modal: delta vs yesterday for sleep and deep sleep | Confirm modal («Из скриншота AutoSleep») shows the same ↑/↓ hours-and-minutes “compared to yesterday” line as entry comparisons, under Часов сна and Глубокий сон. Baseline is the calendar day before the open Day (`sleepHours` / `deepSleepHours`); a missing metric is omitted, not treated as zero, and an older day is not used. Nothing is written until «Сохранить эти числа». Awaiting on-device confirmation |
+| [#977](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/977) | 🔍 Pending validation | Meal delta: compare to last day with that meal, not only yesterday | Day meal cards compare kcal with the latest earlier day that has the same meal name. Yesterday still says “compared to yesterday”; an older day is named with the app date. No prior meal of that name omits the line (not treated as zero). Awaiting on-device confirmation |
 
 

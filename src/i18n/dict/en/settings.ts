@@ -201,7 +201,7 @@ export const settings: SettingsDict = {
     trackedFieldHintCopyYesterdayMeals:
       'A Day button that copies yesterday’s meals into today.',
     trackedFieldHintMealKcalVsYesterday:
-      'On each meal card, an up/down arrow for calories vs yesterday’s meal with the same name (green if less, red if more).',
+      'On each meal card, an up/down arrow for calories versus the latest earlier meal with the same name (green if less, red if more).',
     trackedFieldHintEatingReason:
       'Reason chips when adding or editing a meal.',
     trackedFieldHintSodium:

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 952,
+    issue: 977,
+    date: '2026-09-22T12:49:00+03:00',
+    en: 'A meal card now compares calories with the most recent earlier day that had that same meal, not only yesterday.',
+    ru: 'Карточка приёма пищи теперь сравнивает калории с последним предыдущим днём, где был такой же приём, а не только со вчера.',
+  },
+  {
     version: 951,
     issue: 976,
     date: '2026-09-22T08:47:00+03:00',

@@ -54,4 +54,10 @@ export {
   type ComparisonValence,
   type FieldBaseline,
 } from './entryFieldComparison'
-export { mealKcalDeltasByLabel } from './mealKcalVsYesterday'
+export {
+  mealKcalDeltasByLabel,
+  mealKcalDeltasVsLastSameLabel,
+  type DatedMealKcalDay,
+  type LabeledMealKcal,
+  type MealKcalComparison,
+} from './mealKcalVsYesterday'

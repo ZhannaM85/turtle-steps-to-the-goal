@@ -13,10 +13,8 @@ import {
   calorieEntryCarbs,
   calorieEntryFat,
   calorieEntryFiber,
-  calorieEntryKcal,
   calorieEntryProtein,
   mealEatingReasons,
-  mealKcalDeltasByLabel,
   totalCalories,
   totalCarbs,
   totalFat,
@@ -42,6 +40,7 @@ import { AddMealDialog } from './AddMealDialog'
 import { CopyDayMealsDialog } from './CopyDayMealsDialog'
 import { SinceLastMealTimer } from './SinceLastMealTimer'
 import { MealListItem } from './MealListItem'
+import { useMealKcalVsLastSameMeal } from './useMealKcalVsLastSameMeal'
 
 // Every curated food's name in either locale (#150) — names an item picked
 // via FoodPickerDialog can carry, distinct from a name the user actually
@@ -276,49 +275,18 @@ export function MealList({
     mealSlotTimes,
   ])
 
-  // #836 — vs-yesterday kcal by display label, aligned with
-  // mealsInDisplayOrder. Yesterday's meals use the same time-sort +
-  // storage-index labels so unlabeled Breakfast/Lunch still match.
-  const mealKcalDeltas = useMemo(() => {
-    if (!mealKcalVsYesterdayEnabled) {
-      return mealsInDisplayOrder.map(() => null)
-    }
-    const yesterdayEntries = previousDayEntry?.calorieEntries
-    if (!yesterdayEntries?.length) {
-      return mealsInDisplayOrder.map(() => null)
-    }
-    const labeledToday = mealsInDisplayOrder.map((entry) => ({
-      label: effectiveMealLabel(
-        t,
-        calorieEntries.findIndex((candidate) => candidate.id === entry.id) + 1,
-        entry.label,
-      ),
-      kcal: calorieEntryKcal(entry),
-    }))
-    const yesterdaySorted = sortCalorieEntriesByLoggedTime(
-      yesterdayEntries,
-      mealSlotTimes,
-      dayStartTime,
-    )
-    const labeledYesterday = yesterdaySorted.map((entry) => ({
-      label: effectiveMealLabel(
-        t,
-        yesterdayEntries.findIndex((candidate) => candidate.id === entry.id) +
-          1,
-        entry.label,
-      ),
-      kcal: calorieEntryKcal(entry),
-    }))
-    return mealKcalDeltasByLabel(labeledToday, labeledYesterday)
-  }, [
-    mealKcalVsYesterdayEnabled,
-    mealsInDisplayOrder,
-    previousDayEntry,
+  // #836/#977 — kcal vs the latest earlier day with the same display
+  // label (yesterday when that day has the meal). Storage-index labels
+  // stay aligned with the cards below.
+  const mealKcalComparisons = useMealKcalVsLastSameMeal({
+    enabled: mealKcalVsYesterdayEnabled,
+    date,
     calorieEntries,
+    mealsInDisplayOrder,
     mealSlotTimes,
     dayStartTime,
     t,
-  ])
+  })
 
   // #253: whole-day sibling of the above — CopyDayMealsDialog's own
   // preview/selective-pick sheet, extended over every meal group in the
@@ -965,7 +933,11 @@ export function MealList({
                 locale={locale}
                 isConfirmingDelete={confirmDeleteMealId === entry.id}
                 sincePreviousMeal={gapsSincePrevious?.[index] ?? null}
-                kcalVsYesterdayDelta={mealKcalDeltas[index] ?? null}
+                viewedDate={date}
+                kcalVsYesterdayDelta={mealKcalComparisons[index]?.delta ?? null}
+                kcalBaselineDate={
+                  mealKcalComparisons[index]?.baselineDate ?? null
+                }
                 // #461 — opens the shared AddMealDialog overlay for this
                 // meal (state-controlled, see the render block below) —
                 // no route navigation, so this screen never unmounts.

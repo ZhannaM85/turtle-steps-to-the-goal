@@ -2167,6 +2167,105 @@ describe('MealList', () => {
       ).not.toBeInTheDocument()
     })
 
+    it('compares with the latest earlier day when yesterday skipped that meal (#977)', async () => {
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          id: 'entry-gap',
+          date: '2026-02-28',
+          calorieEntries: [
+            {
+              id: 'old-breakfast',
+              label: 'Breakfast',
+              items: [{ id: 'old-i', amountKcal: 200 }],
+              createdAt: '2026-02-28T08:00:00.000Z',
+            },
+          ],
+        }),
+      )
+      await seedYesterdayMeals([
+        {
+          id: 'y-lunch',
+          label: 'Lunch',
+          items: [{ id: 'yi1', amountKcal: 500 }],
+          createdAt: '2026-03-01T13:00:00.000Z',
+        },
+      ])
+      render(
+        <MealList
+          calorieEntries={[
+            {
+              id: 'breakfast',
+              label: 'Breakfast',
+              items: [{ id: 'i1', amountKcal: 140 }],
+              createdAt: '2026-03-02T08:00:00.000Z',
+            },
+          ]}
+          date="2026-03-02"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      const line = await screen.findByText(
+        '↓ 60 kcal compared to Feb 28, 2026',
+      )
+      expect(line.className).toMatch(/status-good/)
+      expect(screen.queryByText(/compared to yesterday/)).not.toBeInTheDocument()
+    })
+
+    it('omits the delta when that meal was never logged on an earlier day (#977)', async () => {
+      await db.dailyEntries.put(
+        makeDailyEntry({
+          id: 'entry-gap',
+          date: '2026-02-28',
+          calorieEntries: [
+            {
+              id: 'old-lunch',
+              label: 'Lunch',
+              items: [{ id: 'old-i', amountKcal: 400 }],
+              createdAt: '2026-02-28T13:00:00.000Z',
+            },
+          ],
+        }),
+      )
+      await seedYesterdayMeals([
+        {
+          id: 'y-lunch',
+          label: 'Lunch',
+          items: [{ id: 'yi1', amountKcal: 450 }],
+          createdAt: '2026-03-01T13:00:00.000Z',
+        },
+      ])
+      render(
+        <MealList
+          calorieEntries={[
+            {
+              id: 'breakfast',
+              label: 'Breakfast',
+              items: [{ id: 'i1', amountKcal: 140 }],
+              createdAt: '2026-03-02T08:00:00.000Z',
+            },
+            {
+              id: 'lunch',
+              label: 'Lunch',
+              items: [{ id: 'i2', amountKcal: 400 }],
+              createdAt: '2026-03-02T13:00:00.000Z',
+            },
+          ]}
+          date="2026-03-02"
+          onChange={vi.fn()}
+        />,
+        { wrapper: MemoryRouter },
+      )
+
+      await screen.findByText('↓ 50 kcal compared to yesterday')
+      const breakfast = screen.getByText('Breakfast').closest('li')
+      expect(breakfast).not.toBeNull()
+      expect(
+        within(breakfast as HTMLElement).queryByText(/compared to/),
+      ).not.toBeInTheDocument()
+    })
+
     it('hides the arrow when yesterday has no meal with that label', async () => {
       useCopyYesterdayMealsStore.setState({ enabled: true })
       await seedYesterdayMeals([

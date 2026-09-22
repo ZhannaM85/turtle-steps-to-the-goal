@@ -6,12 +6,18 @@ import {
   calorieEntryFiber,
   calorieEntryKcal,
   calorieEntryProtein,
+  exactlyDaysBefore,
   isBuiltInEatingReason,
   mealEatingReasons,
 } from '@/domain/dailyEntry'
 import { evaluateMealNutritionFacts } from '@/domain/nutritionFacts'
 import type { ElapsedParts } from '@/domain/stats'
-import { formatNumber, type Dictionary, type Locale } from '@/i18n'
+import {
+  formatLocalizedDate,
+  formatNumber,
+  type Dictionary,
+  type Locale,
+} from '@/i18n'
 import { formatEatingReasonsLine } from '@/shared/lib/eatingReasonDisplay'
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import {
@@ -44,6 +50,27 @@ const EATING_REASON_DOT_CLASS: Record<EatingReason, string> = {
   company: 'bg-reason-company',
 }
 
+function mealKcalComparisonLine(
+  delta: number,
+  baselineDate: string | null,
+  viewedDate: string,
+  locale: Locale,
+  t: Dictionary,
+): string {
+  const arrow = delta < 0 ? '↓' : '↑'
+  const amount = formatKcal(Math.abs(delta), locale, t)
+  const namesYesterday =
+    baselineDate === null || baselineDate === exactlyDaysBefore(viewedDate, 1)
+  if (namesYesterday) {
+    return t.dailyEntry.entryComparisonComparedToYesterday(arrow, amount)
+  }
+  const dateLabel = formatLocalizedDate(baselineDate, locale)
+  if (!dateLabel) {
+    return t.dailyEntry.entryComparisonComparedToYesterday(arrow, amount)
+  }
+  return t.dailyEntry.entryComparisonComparedToDate(arrow, amount, dateLabel)
+}
+
 export interface MealListItemProps {
   entry: CalorieEntry
   position: number
@@ -52,9 +79,13 @@ export interface MealListItemProps {
   isConfirmingDelete: boolean
   /** #792 — static gap from the previous meal; omitted when unknown. */
   sincePreviousMeal: ElapsedParts | null
-  /** #836 — kcal vs yesterday's same-label meal; omitted when unknown
-   * or equal, or when the Settings toggle is off. */
+  /** ISO date of the day these cards belong to. */
+  viewedDate: string
+  /** #836/#977 — kcal vs the latest earlier same-label meal; omitted when
+   * unknown or equal, or when the Settings toggle is off. */
   kcalVsYesterdayDelta: number | null
+  /** ISO date of that earlier meal. Null when the delta line is hidden. */
+  kcalBaselineDate: string | null
   /** #461 — opens this meal in the shared AddMealDialog overlay (state-
    * controlled, no route navigation — see MealList's own onStartEdit
    * wiring) instead of the old #145 inline-fields expand-in-place. */
@@ -71,7 +102,9 @@ export function MealListItem({
   locale,
   isConfirmingDelete,
   sincePreviousMeal,
+  viewedDate,
   kcalVsYesterdayDelta,
+  kcalBaselineDate,
   onStartEdit,
   onRequestDelete,
   onConfirmDelete,
@@ -188,9 +221,10 @@ export function MealListItem({
        * now that the compact macro initials keep it to a single line. */}
       <p className="min-w-0 text-base text-muted-foreground">{calorieSummary}</p>
       {kcalVsYesterdayDelta !== null && (
-        // #836 — quiet one-delta line under the macros summary. Less than
-        // yesterday is good (emerald), more is bad (orange) — same tones as
-        // body/sleep entry comparisons (#664).
+        // #836/#977 — quiet one-delta line under the macros summary. Less
+        // than the prior meal is good (emerald), more is bad (orange) —
+        // same tones as body/sleep entry comparisons (#664). Yesterday
+        // keeps the "yesterday" wording; an older baseline names its date.
         <p
           className={cn(
             'min-w-0 text-xs',
@@ -199,9 +233,12 @@ export function MealListItem({
               : 'text-status-warn',
           )}
         >
-          {t.dailyEntry.entryComparisonComparedToYesterday(
-            kcalVsYesterdayDelta < 0 ? '↓' : '↑',
-            formatKcal(Math.abs(kcalVsYesterdayDelta), locale, t),
+          {mealKcalComparisonLine(
+            kcalVsYesterdayDelta,
+            kcalBaselineDate,
+            viewedDate,
+            locale,
+            t,
           )}
         </p>
       )}

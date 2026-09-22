@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { mealKcalDeltasByLabel } from './mealKcalVsYesterday'
+import {
+  mealKcalDeltasByLabel,
+  mealKcalDeltasVsLastSameLabel,
+} from './mealKcalVsYesterday'
 
 describe('mealKcalDeltasByLabel (#836)', () => {
   it('pairs meals with the same label and returns today minus yesterday', () => {
@@ -75,5 +78,143 @@ describe('mealKcalDeltasByLabel (#836)', () => {
         [{ label: 'Dinner', kcal: 700 }],
       ),
     ).toEqual([null])
+  })
+})
+
+describe('mealKcalDeltasVsLastSameLabel (#977)', () => {
+  const before = '2026-09-22'
+
+  it('uses yesterday when that day has the same meal', () => {
+    expect(
+      mealKcalDeltasVsLastSameLabel(
+        [{ label: 'Завтрак', kcal: 140 }],
+        [
+          {
+            date: '2026-09-19',
+            meals: [{ label: 'Завтрак', kcal: 200 }],
+          },
+          {
+            date: '2026-09-21',
+            meals: [{ label: 'Завтрак', kcal: 180 }],
+          },
+        ],
+        before,
+      ),
+    ).toEqual([{ delta: -40, baselineDate: '2026-09-21' }])
+  })
+
+  it('uses the latest earlier day when yesterday has no meal of that label', () => {
+    expect(
+      mealKcalDeltasVsLastSameLabel(
+        [{ label: 'Завтрак', kcal: 140 }],
+        [
+          {
+            date: '2026-09-19',
+            meals: [{ label: 'Завтрак', kcal: 200 }],
+          },
+          {
+            date: '2026-09-21',
+            meals: [{ label: 'Обед', kcal: 500 }],
+          },
+        ],
+        before,
+      ),
+    ).toEqual([{ delta: -60, baselineDate: '2026-09-19' }])
+  })
+
+  it('omits the delta when that meal was never logged before', () => {
+    expect(
+      mealKcalDeltasVsLastSameLabel(
+        [{ label: 'Завтрак', kcal: 140 }],
+        [
+          {
+            date: '2026-09-21',
+            meals: [{ label: 'Обед', kcal: 0 }],
+          },
+        ],
+        before,
+      ),
+    ).toEqual([{ delta: null, baselineDate: null }])
+  })
+
+  it('does not treat a missing meal as zero and ignores the viewed day', () => {
+    expect(
+      mealKcalDeltasVsLastSameLabel(
+        [{ label: 'Завтрак', kcal: 140 }],
+        [
+          { date: '2026-09-22', meals: [{ label: 'Завтрак', kcal: 90 }] },
+          { date: '2026-09-23', meals: [{ label: 'Завтрак', kcal: 50 }] },
+        ],
+        before,
+      ),
+    ).toEqual([{ delta: null, baselineDate: null }])
+  })
+
+  it('picks a different baseline day per label', () => {
+    expect(
+      mealKcalDeltasVsLastSameLabel(
+        [
+          { label: 'Завтрак', kcal: 140 },
+          { label: 'Обед', kcal: 400 },
+        ],
+        [
+          {
+            date: '2026-09-19',
+            meals: [{ label: 'Завтрак', kcal: 200 }],
+          },
+          {
+            date: '2026-09-21',
+            meals: [{ label: 'Обед', kcal: 450 }],
+          },
+        ],
+        before,
+      ),
+    ).toEqual([
+      { delta: -60, baselineDate: '2026-09-19' },
+      { delta: -50, baselineDate: '2026-09-21' },
+    ])
+  })
+
+  it('does not reach past the latest day to match a later duplicate', () => {
+    expect(
+      mealKcalDeltasVsLastSameLabel(
+        [
+          { label: 'Обед', kcal: 400 },
+          { label: 'Обед', kcal: 300 },
+        ],
+        [
+          {
+            date: '2026-09-19',
+            meals: [
+              { label: 'Обед', kcal: 500 },
+              { label: 'Обед', kcal: 350 },
+            ],
+          },
+          {
+            date: '2026-09-21',
+            meals: [{ label: 'Обед', kcal: 480 }],
+          },
+        ],
+        before,
+      ),
+    ).toEqual([
+      { delta: -80, baselineDate: '2026-09-21' },
+      { delta: null, baselineDate: null },
+    ])
+  })
+
+  it('hides the line when kcal is unchanged on the baseline day', () => {
+    expect(
+      mealKcalDeltasVsLastSameLabel(
+        [{ label: 'Завтрак', kcal: 140 }],
+        [
+          {
+            date: '2026-09-19',
+            meals: [{ label: 'Завтрак', kcal: 140 }],
+          },
+        ],
+        before,
+      ),
+    ).toEqual([{ delta: null, baselineDate: null }])
   })
 })
