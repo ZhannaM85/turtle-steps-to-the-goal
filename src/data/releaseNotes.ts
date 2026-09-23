@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 958,
+    issue: 983,
+    date: '2026-09-23T22:20:00+03:00',
+    en: 'You can long-press foods in a meal, share the ones you picked, or save them as one recipe.',
+    ru: 'В составе приёма пищи можно зажать блюда, отправить выбранные вместе или сохранить их одним рецептом.',
+  },
+  {
     version: 957,
     issue: 982,
     date: '2026-09-23T22:07:58+03:00',

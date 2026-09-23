@@ -206,6 +206,15 @@ export const dailyEntry: DailyEntryDict = {
     quickActionImportSharedFoodLabel: 'QR / ссылка',
     mealSoFarLabel: 'Состав приёма пищи',
     shareMealCompositionLabel: 'Поделиться составом приёма пищи',
+    selectMealItemLabel: (name) => `Выбрать «${name}»`,
+    shareSelectedMealItemsButton: 'Поделиться выбранным',
+    cancelMealSelectionButton: 'Отмена',
+    createRecipeFromMealButton: 'Создать рецепт',
+    createRecipeFromMealTitle: 'Создать рецепт',
+    createRecipeFromMealDescription:
+      'Выбранные блюда станут одним рецептом. Калории и БЖУ суммируются, а значения на 100 г считаются от общего веса.',
+    createRecipeFromMealPer100gLabel: 'На 100 г',
+    createRecipeFromMealSaveButton: 'Сохранить рецепт',
     wasItTastyLabel: 'Было вкусно?',
     doneAddingMealButton: 'Готово',
     confirmDiscardInProgressMealLabel:

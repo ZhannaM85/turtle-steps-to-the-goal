@@ -26,6 +26,15 @@ export interface DailyEntryMealsDict {
     mealSoFarLabel: string
     /** #982 — section share beside «Состав приёма пищи» for every named dish. */
     shareMealCompositionLabel: string
+    /** #983 — long-press selection: share the checked dishes, or save them as one recipe. */
+    selectMealItemLabel: (name: string) => string
+    shareSelectedMealItemsButton: string
+    cancelMealSelectionButton: string
+    createRecipeFromMealButton: string
+    createRecipeFromMealTitle: string
+    createRecipeFromMealDescription: string
+    createRecipeFromMealPer100gLabel: string
+    createRecipeFromMealSaveButton: string
     wasItTastyLabel: string
     doneAddingMealButton: string
     /** #494 — confirm before X/escape discards an in-progress new meal

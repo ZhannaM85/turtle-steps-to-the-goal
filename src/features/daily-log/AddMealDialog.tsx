@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import type { CalorieItem, Emotion } from '@/domain/dailyEntry'
-import type { MealItem } from '@/domain/mealItem'
 import { type NutritionFactId } from '@/domain/nutritionFacts'
 import { useLocale, useTranslation } from '@/i18n'
 import { mealLabelSuggestionsForLocale } from '@/shared/lib/mealLabel'
@@ -19,13 +18,7 @@ import {
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
-import {
-  calorieItemToShareMealItem,
-  calorieItemsToShareMealItems,
-  findMatchingMealItem,
-  ShareFoodDialog,
-  useFoodShareUiStore,
-} from '@/features/food-share'
+import { useFoodShareUiStore } from '@/features/food-share'
 import { LogRecipeDialog } from '@/features/recipes'
 import { BarcodeScannerDialog } from './BarcodeScannerDialog'
 import { EatingReasonPicker } from './EatingReasonPicker'
@@ -40,6 +33,7 @@ import { AddMealDialogEditorSheet } from './AddMealDialogEditorSheet'
 import { AddMealDialogHeader } from './AddMealDialogHeader'
 import { useAddMealCatalog } from './useAddMealCatalog'
 import { useAddMealManualSheet } from './useAddMealManualSheet'
+import { useMealCompositionActions } from './useMealCompositionActions'
 
 export interface AddMealDialogProps {
   open: boolean
@@ -149,8 +143,6 @@ export function AddMealDialog({
   const [isRepeatOpen, setIsRepeatOpen] = useState(false)
   const [isRecipeOpen, setIsRecipeOpen] = useState(false)
   const [isBarcodeOpen, setIsBarcodeOpen] = useState(false)
-  const [shareItem, setShareItem] = useState<MealItem | null>(null)
-  const [shareBatch, setShareBatch] = useState<MealItem[] | null>(null)
   const [isConfirmingMealDelete, setIsConfirmingMealDelete] = useState(false)
   const [confirmRemoveItemId, setConfirmRemoveItemId] = useState<string | null>(
     null,
@@ -220,10 +212,7 @@ export function AddMealDialog({
     t,
     locale,
   })
-  const compositionShareItems = calorieItemsToShareMealItems(
-    items,
-    catalog.mealItems,
-  )
+  const compositionActions = useMealCompositionActions(catalog.mealItems)
   const manualSheetBarcode =
     sheet.pendingBarcode ??
     (sheet.manualDraft.name.trim()
@@ -347,21 +336,10 @@ export function AddMealDialog({
                   todayRemainingPreview={todayRemainingPreview}
                   newlySatisfiedFactIds={newlySatisfiedFactIds}
                   onStartEditItem={sheet.startEditItem}
-                  onShareItem={(item) => {
-                    const shareName = item.name?.trim()
-                    if (!shareName) return
-                    const library = findMatchingMealItem(
-                      { v: 1, name: shareName },
-                      catalog.mealItems,
-                    )
-                    const next = calorieItemToShareMealItem(item, library)
-                    if (next) setShareItem(next)
-                  }}
-                  onShareComposition={
-                    compositionShareItems.length >= 2
-                      ? () => setShareBatch(compositionShareItems)
-                      : undefined
-                  }
+                  onShareItem={compositionActions.shareOne}
+                  onShareComposition={() => compositionActions.shareMany(items)}
+                  onShareSelected={compositionActions.shareMany}
+                  onCreateRecipe={compositionActions.openRecipe}
                   onRequestRemoveItem={setConfirmRemoveItemId}
                   onDeleteMeal={onDeleteMeal}
                   mealPosition={mealPosition}
@@ -467,21 +445,7 @@ export function AddMealDialog({
           />
         </DialogContent>
       </Dialog>
-      <ShareFoodDialog
-        open={shareItem !== null}
-        onOpenChange={(next) => {
-          if (!next) setShareItem(null)
-        }}
-        item={shareItem}
-      />
-      <ShareFoodDialog
-        open={shareBatch !== null}
-        onOpenChange={(next) => {
-          if (!next) setShareBatch(null)
-        }}
-        item={null}
-        items={shareBatch}
-      />
+      {compositionActions.dialogs}
     </>
   )
 }

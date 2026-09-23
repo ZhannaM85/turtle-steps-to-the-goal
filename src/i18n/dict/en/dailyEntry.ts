@@ -198,6 +198,15 @@ export const dailyEntry: DailyEntryDict = {
     quickActionImportSharedFoodLabel: 'Shared food',
     mealSoFarLabel: 'This meal so far',
     shareMealCompositionLabel: 'Share this meal',
+    selectMealItemLabel: (name) => `Select ${name}`,
+    shareSelectedMealItemsButton: 'Share selected',
+    cancelMealSelectionButton: 'Cancel',
+    createRecipeFromMealButton: 'Create recipe',
+    createRecipeFromMealTitle: 'Create recipe',
+    createRecipeFromMealDescription:
+      'The selected foods become one recipe. Calories and macros are added up, and the per 100 g values are scaled from the total weight.',
+    createRecipeFromMealPer100gLabel: 'Per 100 g',
+    createRecipeFromMealSaveButton: 'Save recipe',
     wasItTastyLabel: 'Was it tasty?',
     doneAddingMealButton: 'Done',
     confirmDiscardInProgressMealLabel:

@@ -496,6 +496,79 @@ describe('AddMealDialog (#454)', () => {
     ).toBeInTheDocument()
   })
 
+  it('creates one recipe from a long-press selection and can share that selection (#983)', async () => {
+    const user = userEvent.setup()
+    render(
+      <ControlledAddMealDialog
+        {...defaultProps}
+        initialItems={[
+          {
+            id: 'a',
+            name: 'Bread',
+            amountKcal: 94,
+            amountG: 36,
+            proteinG: 3,
+            fatG: 1,
+            carbsG: 18,
+          },
+          {
+            id: 'b',
+            name: 'Butter',
+            amountKcal: 98,
+            amountG: 13,
+            proteinG: 0,
+            fatG: 11,
+            carbsG: 0,
+          },
+        ]}
+      />,
+    )
+
+    await user.pointer({
+      target: screen.getByText('Bread'),
+      keys: '[MouseLeft>]',
+    })
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    await user.pointer({ keys: '[/MouseLeft]' })
+
+    expect(screen.getByRole('checkbox', { name: 'Select Bread' })).toBeChecked()
+    await user.click(screen.getByRole('checkbox', { name: 'Select Butter' }))
+    await user.click(screen.getByRole('button', { name: 'Share selected' }))
+    expect(
+      screen.getByRole('heading', { name: 'Share foods' }),
+    ).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Close' }))
+
+    await user.pointer({
+      target: screen.getByText('Bread'),
+      keys: '[MouseLeft>]',
+    })
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    await user.pointer({ keys: '[/MouseLeft]' })
+    await user.click(screen.getByRole('checkbox', { name: 'Select Butter' }))
+    await user.click(screen.getByRole('button', { name: 'Create recipe' }))
+
+    expect(screen.getByText(/Per 100 g/)).toBeInTheDocument()
+    await user.type(screen.getByLabelText('Recipe name'), 'Salmon sandwich')
+    await user.click(screen.getByRole('button', { name: 'Save recipe' }))
+
+    await waitFor(() => {
+      expect(useRecipeStore.getState().recipes).toHaveLength(1)
+    })
+    const recipe = useRecipeStore.getState().recipes[0]
+    expect(recipe?.name).toBe('Salmon sandwich')
+    expect(recipe?.servings).toBe(1)
+    expect(recipe?.ingredients.map((item) => item.name)).toEqual([
+      'Bread',
+      'Butter',
+    ])
+    const kcal = recipe?.ingredients.reduce(
+      (sum, item) => sum + item.amountKcal,
+      0,
+    )
+    expect(kcal).toBe(192)
+  })
+
   it('opens a QR-imported dish on the 100g tab (#981)', async () => {
     const user = userEvent.setup()
     const shareUrl = buildShareFoodUrl(

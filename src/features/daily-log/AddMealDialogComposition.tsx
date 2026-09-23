@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import { Pencil, Share2, Trash2 } from 'lucide-react'
 import type { CalorieItem, Emotion } from '@/domain/dailyEntry'
 import type { NutritionFactId } from '@/domain/nutritionFacts'
@@ -25,6 +25,8 @@ export function AddMealDialogComposition({
   onStartEditItem,
   onShareItem,
   onShareComposition,
+  onShareSelected,
+  onCreateRecipe,
   onRequestRemoveItem,
   onDeleteMeal,
   mealPosition,
@@ -44,6 +46,10 @@ export function AddMealDialogComposition({
   onShareItem: (item: CalorieItem) => void
   /** #982 — share every named dish in this meal as one QR / link. */
   onShareComposition?: () => void
+  /** #983 — share the long-press selection (2+ dishes → one link). */
+  onShareSelected?: (items: CalorieItem[]) => void
+  /** #983 — name and save the selection as one recipe. */
+  onCreateRecipe?: (items: CalorieItem[]) => void
   onRequestRemoveItem: (itemId: string) => void
   onDeleteMeal?: () => void
   mealPosition?: number
@@ -52,6 +58,34 @@ export function AddMealDialogComposition({
 }) {
   const t = useTranslation()
   const locale = useLocale()
+  const [selectedIds, setSelectedIds] = useState<string[] | null>(null)
+  const pressTimer = useRef<number | null>(null)
+  const suppressClick = useRef(false)
+  const selecting = selectedIds !== null
+  const selectedItems = items.filter((item) => selectedIds?.includes(item.id))
+  const namedCount = items.filter((item) => item.name?.trim()).length
+
+  function clearPress() {
+    if (pressTimer.current !== null) {
+      window.clearTimeout(pressTimer.current)
+      pressTimer.current = null
+    }
+  }
+
+  function enterSelection(id: string) {
+    setSelectedIds((current) =>
+      current?.includes(id) ? current : [...(current ?? []), id],
+    )
+  }
+
+  function toggleSelected(id: string) {
+    setSelectedIds((current) => {
+      const base = current ?? []
+      return base.includes(id)
+        ? base.filter((itemId) => itemId !== id)
+        : [...base, id]
+    })
+  }
 
   const deleteMealSection =
     onDeleteMeal && mealPosition !== undefined ? (
@@ -83,7 +117,7 @@ export function AddMealDialogComposition({
             <>
               <span className="flex w-full items-center justify-between gap-2 text-sm font-medium text-muted-foreground">
                 {t.dailyEntry.mealSoFarLabel}
-                {onShareComposition ? (
+                {onShareComposition && namedCount >= 2 && !selecting ? (
                   <Button
                     type="button"
                     variant="ghost"
@@ -109,11 +143,50 @@ export function AddMealDialogComposition({
                     <li
                       key={item.id}
                       className="flex items-start justify-between gap-2 py-3 text-sm text-muted-foreground first:pt-0 last:pb-0"
+                      onPointerDown={(event) => {
+                        if (
+                          event.target instanceof Element &&
+                          event.target.closest('[data-meal-row-actions]')
+                        ) {
+                          return
+                        }
+                        clearPress()
+                        pressTimer.current = window.setTimeout(() => {
+                          suppressClick.current = true
+                          enterSelection(item.id)
+                        }, 450)
+                      }}
+                      onPointerUp={clearPress}
+                      onPointerLeave={clearPress}
+                      onPointerCancel={clearPress}
+                      onContextMenu={(event) => event.preventDefault()}
                     >
+                      {selecting ? (
+                        <input
+                          type="checkbox"
+                          className="mt-1 size-5 shrink-0 accent-primary"
+                          checked={selectedIds?.includes(item.id) ?? false}
+                          aria-label={t.dailyEntry.selectMealItemLabel(
+                            item.name?.trim() ||
+                              t.dailyEntry.itemNamePlaceholder,
+                          )}
+                          onChange={() => toggleSelected(item.id)}
+                        />
+                      ) : null}
                       <button
                         type="button"
                         className="flex min-w-0 flex-1 flex-col gap-0.5 text-left hover:underline"
-                        onClick={() => onStartEditItem(item)}
+                        onClick={() => {
+                          if (suppressClick.current) {
+                            suppressClick.current = false
+                            return
+                          }
+                          if (selecting) {
+                            toggleSelected(item.id)
+                            return
+                          }
+                          onStartEditItem(item)
+                        }}
                       >
                         <p className="text-base font-medium">
                           {item.name || t.dailyEntry.itemNamePlaceholder}
@@ -131,7 +204,10 @@ export function AddMealDialogComposition({
                         </p>
                         {itemMacros && <p>{itemMacros}</p>}
                       </button>
-                      <span className="flex shrink-0 items-center gap-2">
+                      <span
+                        data-meal-row-actions
+                        className="flex shrink-0 items-center gap-2"
+                      >
                         <Button
                           type="button"
                           variant="ghost"
@@ -168,6 +244,39 @@ export function AddMealDialogComposition({
                   )
                 })}
               </ul>
+              {selecting ? (
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    disabled={selectedItems.length === 0}
+                    onClick={() => {
+                      onCreateRecipe?.(selectedItems)
+                      setSelectedIds(null)
+                    }}
+                  >
+                    {t.dailyEntry.createRecipeFromMealButton}
+                  </Button>
+                  {selectedItems.length >= 2 ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        onShareSelected?.(selectedItems)
+                        setSelectedIds(null)
+                      }}
+                    >
+                      {t.dailyEntry.shareSelectedMealItemsButton}
+                    </Button>
+                  ) : null}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setSelectedIds(null)}
+                  >
+                    {t.dailyEntry.cancelMealSelectionButton}
+                  </Button>
+                </div>
+              ) : null}
               {todayTotalPreview && (
                 <p className="text-base text-muted-foreground">
                   {todayTotalPreview}
