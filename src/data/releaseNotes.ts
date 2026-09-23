@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 956,
+    issue: 981,
+    date: '2026-09-23T20:04:10+03:00',
+    en: 'Editing a dish, including one received by QR, now opens on the 100 g quantity tab.',
+    ru: 'Редактирование блюда, в том числе полученного по QR, теперь открывается на вкладке «100 г».',
+  },
+  {
     version: 955,
     issue: 980,
     date: '2026-09-23T10:33:00+03:00',

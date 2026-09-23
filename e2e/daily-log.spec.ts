@@ -41,10 +41,10 @@ test('logs a meal, then edits its calories via the pencil', async ({ page }) => 
   // editDialog, so both are `role=dialog` at once — scope by title to
   // avoid an ambiguous match.
   const itemSheet = page.getByRole('dialog', { name: 'Edit item' })
-  // Editing an already-saved item opens in "Portion" mode (startEditItem's
-  // macroMode: 'perPortion'), where the field is plain "kcal" rather than
-  // the "kcal/100g" rate field the 100g-mode manual-add flow uses.
-  const kcalField = itemSheet.getByLabel('kcal', { exact: true })
+  // #981 — editing an already-saved item opens on 100 g. This row was
+  // logged as 300 kcal at the default 1 × 100 g, so the rate field is
+  // still 300; filling 450 replaces that rate.
+  const kcalField = itemSheet.getByLabel('kcal/100g')
   await kcalField.fill('450')
   await itemSheet.getByRole('button', { name: 'Save', exact: true }).click()
 

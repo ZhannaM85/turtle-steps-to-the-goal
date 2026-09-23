@@ -377,21 +377,41 @@ export function applyServingGramsToDraft(
   }
 }
 
+/**
+ * #981 — edit (and a QR-imported line, which is edited the same way) opens
+ * on 100 g. Logged rows store absolute totals; `ratesFromAbsolute` turns
+ * those back into a per-100g rate plus a × 100 g count. Missing grams are
+ * treated as one 100 g portion, same as Settings' food editor. Switching
+ * to Порция still goes through `applyManualDraftModeChange`.
+ */
 export function draftFromCalorieItem(item: CalorieItem): ManualDraft {
+  const rates = ratesFromAbsolute(
+    item.amountKcal,
+    item.proteinG,
+    item.fatG,
+    item.carbsG,
+    item.amountG,
+    item.fiberG,
+    item.sodiumMg,
+    item.potassiumMg,
+    item.magnesiumMg,
+  )
   return {
     name: item.name ?? '',
     brand: item.brand ?? '',
-    amount: String(item.amountKcal),
-    protein: item.proteinG === undefined ? '' : String(item.proteinG),
-    fat: item.fatG === undefined ? '' : String(item.fatG),
-    carbs: item.carbsG === undefined ? '' : String(item.carbsG),
-    fiber: item.fiberG === undefined ? '' : String(item.fiberG),
-    sodium: item.sodiumMg === undefined ? '' : String(item.sodiumMg),
-    potassium: item.potassiumMg === undefined ? '' : String(item.potassiumMg),
-    magnesium: item.magnesiumMg === undefined ? '' : String(item.magnesiumMg),
+    amount: String(rates.kcal100),
+    protein: rates.protein100 === undefined ? '' : String(rates.protein100),
+    fat: rates.fat100 === undefined ? '' : String(rates.fat100),
+    carbs: rates.carbs100 === undefined ? '' : String(rates.carbs100),
+    fiber: rates.fiber100 === undefined ? '' : String(rates.fiber100),
+    sodium: rates.sodium100 === undefined ? '' : String(rates.sodium100),
+    potassium:
+      rates.potassium100 === undefined ? '' : String(rates.potassium100),
+    magnesium:
+      rates.magnesium100 === undefined ? '' : String(rates.magnesium100),
     note: item.noteText ?? '',
-    amountG: item.amountG === undefined ? '' : String(item.amountG),
-    macroMode: 'perPortion',
+    amountG: String(rates.portions),
+    macroMode: 'per100g',
     emotion: item.emotion,
     favorite: false,
   }

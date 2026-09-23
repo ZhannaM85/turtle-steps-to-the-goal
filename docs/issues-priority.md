@@ -96,3 +96,13 @@ _AutoSleep screenshot confirm: compare scanned sleep with yesterday. Meal cards:
 | [#978](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/978) | 🔍 Pending validation | Meal screen: food search directly above the dish list | Add-meal browse order is now the 2×2 actions (add / barcode / recipe / QR), then Поиск…, then Недавние or search results. The action grid no longer sits between the field and the list it filters; the barcode icon on the field stays. Awaiting on-device confirmation |
 | [#979](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/979) | 🔍 Pending validation | iOS: tap status bar scrolls the active screen to the top | After #970 the document does not scroll, so iOS status-bar tap no longer reaches the top. The app header, including the safe-area strip, calls `scrollAppToTop` (window, `#main-content`, and nested overflow scrollers), matching my-money. In-flow tab bar is unchanged. Awaiting on-device confirmation |
 
+---
+
+## Tier 169 — Live feedback (2026-09-23)
+
+_Edit meal and QR-imported dishes should open Количество on 100 г._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#981](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/981) | 🔍 Pending validation | Edit meal / QR share: default Количество tab should be 100 г, not Порция | `draftFromCalorieItem` (edit, and a QR-imported line opened the same way) always set Порция and showed the stored portion totals (136 kcal / 50 g). It now opens on 100 г via `ratesFromAbsolute` (272 kcal / 0.5 × 100 г). Switching to Порция still converts weight and kcal. Awaiting on-device confirmation |
+

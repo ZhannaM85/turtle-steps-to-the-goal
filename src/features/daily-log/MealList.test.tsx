@@ -1021,9 +1021,9 @@ describe('MealList', () => {
         within(dialog).getByRole('button', { name: 'Edit item' }),
       )
       const itemSheet = screen.getByRole('dialog', { name: 'Edit item' })
-      const kcalField = within(itemSheet).getByLabelText('kcal', {
-        exact: true,
-      })
+      // #981 — edit opens on 100 g. No stored grams is one 100 g portion,
+      // so the typed rate is the meal total.
+      const kcalField = within(itemSheet).getByLabelText('kcal/100g')
       await user.clear(kcalField)
       await user.type(kcalField, '450')
       await user.click(

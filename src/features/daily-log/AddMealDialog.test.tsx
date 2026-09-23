@@ -415,6 +415,44 @@ describe('AddMealDialog (#454)', () => {
     ).toBeInTheDocument()
   })
 
+  it('opens a QR-imported dish on the 100g tab (#981)', async () => {
+    const user = userEvent.setup()
+    const shareUrl = buildShareFoodUrl(
+      {
+        v: 1,
+        name: 'Shared yogurt',
+        amountKcal: 120,
+        proteinG: 8,
+        fatG: 4,
+        carbsG: 12,
+        amountG: 150,
+      },
+      { origin: 'https://example.test', baseUrl: '/' },
+    )
+
+    render(
+      <MemoryRouter>
+        <SharedFoodImportHost />
+        <ControlledAddMealDialog {...defaultProps} />
+      </MemoryRouter>,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Shared food' }))
+    await user.type(screen.getByPlaceholderText('Paste link here'), shareUrl)
+    await user.click(screen.getByRole('button', { name: 'Continue' }))
+    await user.click(screen.getByRole('button', { name: 'Add to my foods' }))
+
+    await user.click(
+      await screen.findByRole('button', { name: 'Edit item' }),
+    )
+
+    expect(screen.getByRole('radio', { name: '100g' })).toBeChecked()
+    expect(screen.getByRole('radio', { name: 'Portion' })).not.toBeChecked()
+    // 120 kcal / 150 g → 80 kcal per 100 g, 1.5 × 100 g.
+    expect(screen.getByLabelText('kcal/100g')).toHaveValue('80')
+    expect(screen.getByLabelText('× 100g')).toHaveValue('1.5')
+  })
+
   it('shows a clear control that empties the food search (#533)', async () => {
     const user = userEvent.setup()
     render(<ControlledAddMealDialog {...defaultProps} />)
@@ -1369,6 +1407,10 @@ describe('AddMealDialog (#454)', () => {
     expect(
       await screen.findByRole('heading', { name: 'Edit item' }),
     ).toBeInTheDocument()
+    // #981 — edit opens on 100 g, not Portion. 250 kcal with no grams is
+    // one 100 g portion, so the rate stays 250.
+    expect(screen.getByRole('radio', { name: '100g' })).toBeChecked()
+    expect(screen.getByLabelText('kcal/100g')).toHaveValue('250')
     const nameInput = screen.getByLabelText('Dish name')
     expect(nameInput).toHaveValue('Oatmeal')
     // Pre-#475 Radix FocusScope focused the first tabbable and called
