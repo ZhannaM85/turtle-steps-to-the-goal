@@ -751,3 +751,13 @@ _Reported from Settings Export vs Day morning section comparison. Open / pending
 | [#969](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/969) | ✅ Done | Add meal: suggest brands from past entries | Confirmed on-device 2026-09-18 — previously used brands are suggested while adding a meal. |
 | [#968](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/968) | ✅ Done | Settings storage pie: soften too-brown chart colors | Confirmed on-device 2026-09-18 — the storage pie uses the intended softer chart colors. |
 | [#967](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/967) | ✅ Done | Chevrons: transparent background everywhere (Settings vs Day) | Confirmed on-device 2026-09-18 — collapse chevrons use a transparent background across Settings and Day. |
+
+---
+
+## Tier 169 — Live iPhone feedback (2026-09-23)
+
+_AutoSleep screenshot scan left deep sleep empty when the circled-z row was a whole number of hours._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#980](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/980) | ✅ Done | AutoSleep scan: failed to read deep sleep | Confirmed on-device 2026-09-23 — circled-z `3h Om` OCR fills Глубокий сон as 3 ч 0 м; total sleep still parses. |
