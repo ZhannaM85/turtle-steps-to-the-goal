@@ -24,6 +24,7 @@ export function AddMealDialogComposition({
   newlySatisfiedFactIds,
   onStartEditItem,
   onShareItem,
+  onShareComposition,
   onRequestRemoveItem,
   onDeleteMeal,
   mealPosition,
@@ -41,6 +42,8 @@ export function AddMealDialogComposition({
   newlySatisfiedFactIds: NutritionFactId[]
   onStartEditItem: (item: CalorieItem) => void
   onShareItem: (item: CalorieItem) => void
+  /** #982 — share every named dish in this meal as one QR / link. */
+  onShareComposition?: () => void
   onRequestRemoveItem: (itemId: string) => void
   onDeleteMeal?: () => void
   mealPosition?: number
@@ -78,8 +81,19 @@ export function AddMealDialogComposition({
         <div className="flex flex-col gap-3 border-t border-border pt-4">
           {items.length > 0 && (
             <>
-              <span className="text-sm font-medium text-muted-foreground">
+              <span className="flex w-full items-center justify-between gap-2 text-sm font-medium text-muted-foreground">
                 {t.dailyEntry.mealSoFarLabel}
+                {onShareComposition ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={t.dailyEntry.shareMealCompositionLabel}
+                    onClick={onShareComposition}
+                  >
+                    <Share2 aria-hidden="true" />
+                  </Button>
+                ) : null}
               </span>
               <ul className="flex flex-col divide-y divide-foreground/15 rounded-xl border border-border p-4">
                 {items.map((item) => {

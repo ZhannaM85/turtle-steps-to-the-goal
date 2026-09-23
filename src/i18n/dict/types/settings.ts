@@ -99,6 +99,16 @@ export interface SettingsDict {
     shareFoodShareTitle: (name: string) => string
     shareFoodShareText: (name: string) => string
     shareFoodShareFailedMessage: string
+    /** #982 — one QR / link for every named dish in the open meal. */
+    shareFoodsDialogTitle: string
+    shareFoodsDialogDescription: (count: number) => string
+    shareFoodsQrAlt: (count: number) => string
+    shareFoodsShareTitle: (count: number) => string
+    shareFoodsShareText: (names: string) => string
+    importSharedFoodsDialogTitle: string
+    importSharedFoodsDialogDescription: string
+    importSharedFoodsAddButton: string
+    importSharedFoodsAlreadyHaveLabel: string
     importSharedFoodButton: string
     importSharedFoodEntryTitle: string
     importSharedFoodEntryDescription: string

@@ -21,6 +21,7 @@ import { Dialog, DialogContent } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import {
   calorieItemToShareMealItem,
+  calorieItemsToShareMealItems,
   findMatchingMealItem,
   ShareFoodDialog,
   useFoodShareUiStore,
@@ -149,6 +150,7 @@ export function AddMealDialog({
   const [isRecipeOpen, setIsRecipeOpen] = useState(false)
   const [isBarcodeOpen, setIsBarcodeOpen] = useState(false)
   const [shareItem, setShareItem] = useState<MealItem | null>(null)
+  const [shareBatch, setShareBatch] = useState<MealItem[] | null>(null)
   const [isConfirmingMealDelete, setIsConfirmingMealDelete] = useState(false)
   const [confirmRemoveItemId, setConfirmRemoveItemId] = useState<string | null>(
     null,
@@ -218,6 +220,10 @@ export function AddMealDialog({
     t,
     locale,
   })
+  const compositionShareItems = calorieItemsToShareMealItems(
+    items,
+    catalog.mealItems,
+  )
   const manualSheetBarcode =
     sheet.pendingBarcode ??
     (sheet.manualDraft.name.trim()
@@ -351,6 +357,11 @@ export function AddMealDialog({
                     const next = calorieItemToShareMealItem(item, library)
                     if (next) setShareItem(next)
                   }}
+                  onShareComposition={
+                    compositionShareItems.length >= 2
+                      ? () => setShareBatch(compositionShareItems)
+                      : undefined
+                  }
                   onRequestRemoveItem={setConfirmRemoveItemId}
                   onDeleteMeal={onDeleteMeal}
                   mealPosition={mealPosition}
@@ -462,6 +473,14 @@ export function AddMealDialog({
           if (!next) setShareItem(null)
         }}
         item={shareItem}
+      />
+      <ShareFoodDialog
+        open={shareBatch !== null}
+        onOpenChange={(next) => {
+          if (!next) setShareBatch(null)
+        }}
+        item={null}
+        items={shareBatch}
       />
     </>
   )

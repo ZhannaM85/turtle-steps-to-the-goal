@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { encodeSharedFoodBatchPayload } from '@/features/food-share/sharedFoodBatchPayload'
 import {
   encodeSharedFoodPayload,
   parseSharedFoodFromText,
@@ -25,6 +26,14 @@ describe('classifyShareScan (#723)', () => {
     expect(classifyShareScan(`https://example.com/?shareFood=${food}`)).toBe(
       'food',
     )
+    const batch = encodeSharedFoodBatchPayload([
+      { v: 1, name: 'Bread' },
+      { v: 1, name: 'Butter' },
+    ])
+    expect(classifyShareScan(`https://example.com/?shareFood=${batch}`)).toBe(
+      'food',
+    )
+    expect(parseSharedFoodFromText(`https://example.com/?shareFood=${batch}`)).toBeNull()
     expect(parseSharedFoodFromText(`https://example.com/?shareDay=${day}`)).toBeNull()
     expect(classifyShareScan('not-a-qr')).toBe('invalid')
   })

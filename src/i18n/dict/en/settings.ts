@@ -90,6 +90,18 @@ export const settings: SettingsDict = {
     shareFoodShareText: (name) =>
       `Here’s “${name}” from Turtle Steps — open the link to review and add it to your food list.`,
     shareFoodShareFailedMessage: 'Could not open the share sheet. Try copying the link instead.',
+    shareFoodsDialogTitle: 'Share foods',
+    shareFoodsDialogDescription: (count) =>
+      `One QR code and one link for these ${count} foods. The other person can review them before adding them to their food list.`,
+    shareFoodsQrAlt: (count) => `QR code for ${count} foods`,
+    shareFoodsShareTitle: (count) => `Foods (${count})`,
+    shareFoodsShareText: (names) =>
+      `Here are foods from Turtle Steps: ${names}. Open the link to review and add them to your food list.`,
+    importSharedFoodsDialogTitle: 'Review shared foods',
+    importSharedFoodsDialogDescription:
+      'Check the list, then add every food. Foods you already have are updated with these details.',
+    importSharedFoodsAddButton: 'Add all foods',
+    importSharedFoodsAlreadyHaveLabel: 'Already in your list',
     importSharedFoodButton: 'Import shared food',
     importSharedFoodEntryTitle: 'Import shared food',
     importSharedFoodEntryDescription:

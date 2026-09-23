@@ -92,6 +92,18 @@ export const settings: SettingsDict = {
       `Вот «${name}» из Turtle Steps — откройте ссылку, чтобы проверить и добавить блюдо в свой список.`,
     shareFoodShareFailedMessage:
       'Не удалось открыть лист «Поделиться». Попробуйте скопировать ссылку.',
+    shareFoodsDialogTitle: 'Поделиться блюдами',
+    shareFoodsDialogDescription: (count) =>
+      `Один QR-код и одна ссылка на блюда из этого приёма пищи (${count}). Другой человек сможет проверить их перед добавлением в свой список.`,
+    shareFoodsQrAlt: (count) => `QR-код для блюд из приёма пищи (${count})`,
+    shareFoodsShareTitle: (count) => `Блюда (${count})`,
+    shareFoodsShareText: (names) =>
+      `Вот блюда из Turtle Steps: ${names}. Откройте ссылку, чтобы проверить и добавить их в свой список.`,
+    importSharedFoodsDialogTitle: 'Проверка общих блюд',
+    importSharedFoodsDialogDescription:
+      'Проверьте список и добавьте все блюда. Те, что уже есть, обновятся этими данными.',
+    importSharedFoodsAddButton: 'Добавить все блюда',
+    importSharedFoodsAlreadyHaveLabel: 'Уже в списке',
     importSharedFoodButton: 'Импорт общего блюда',
     importSharedFoodEntryTitle: 'Импорт общего блюда',
     importSharedFoodEntryDescription:

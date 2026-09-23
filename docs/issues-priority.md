@@ -100,9 +100,10 @@ _AutoSleep screenshot confirm: compare scanned sleep with yesterday. Meal cards:
 
 ## Tier 169 — Live feedback (2026-09-23)
 
-_Edit meal and QR-imported dishes should open Количество on 100 г._
+_Edit meal quantity tab; share a whole meal composition as one QR or link._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#981](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/981) | 🔍 Pending validation | Edit meal / QR share: default Количество tab should be 100 г, not Порция | `draftFromCalorieItem` (edit, and a QR-imported line opened the same way) always set Порция and showed the stored portion totals (136 kcal / 50 g). It now opens on 100 г via `ratesFromAbsolute` (272 kcal / 0.5 × 100 г). Switching to Порция still converts weight and kcal. Awaiting on-device confirmation |
+| [#982](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/982) | 🔍 Pending validation | Share multiple foods at once via one QR code or link | Section share beside «Состав приёма пищи» encodes every named dish as one `?shareFood=` link. Two or more foods use `v: 2` `{ items: [v: 1, …] }`; one dish stays `v: 1`. The recipient reviews the list and adds all of them (existing barcode/name matches update). Per-row share is unchanged. Awaiting on-device confirmation |
 

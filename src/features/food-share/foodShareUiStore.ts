@@ -22,6 +22,11 @@ interface FoodShareUiState {
   payload: SharedFoodPayload | null
   openImport: (payload: SharedFoodPayload) => void
   setImportOpen: (open: boolean) => void
+  /** #982 — a `v: 2` share opens the batch review instead of the one-food form. */
+  batchImportOpen: boolean
+  batchItems: SharedFoodPayload[] | null
+  openBatchImport: (items: SharedFoodPayload[]) => void
+  setBatchImportOpen: (open: boolean) => void
   /** #802 — Add meal registers this so a confirmed import also lands in
    * the open meal, not only the food library. */
   onImported: ((result: SharedFoodImportResult) => void) | null
@@ -38,9 +43,31 @@ export const useFoodShareUiStore = create<FoodShareUiState>((set) => ({
   importOpen: false,
   payload: null,
   openImport: (payload) =>
-    set({ payload, importOpen: true, entryOpen: false }),
+    set({
+      payload,
+      importOpen: true,
+      entryOpen: false,
+      batchImportOpen: false,
+      batchItems: null,
+    }),
   setImportOpen: (importOpen) =>
     set(importOpen ? { importOpen } : { importOpen, payload: null }),
+  batchImportOpen: false,
+  batchItems: null,
+  openBatchImport: (batchItems) =>
+    set({
+      batchItems,
+      batchImportOpen: true,
+      entryOpen: false,
+      importOpen: false,
+      payload: null,
+    }),
+  setBatchImportOpen: (batchImportOpen) =>
+    set(
+      batchImportOpen
+        ? { batchImportOpen }
+        : { batchImportOpen, batchItems: null },
+    ),
   onImported: null,
   setOnImported: (onImported) => set({ onImported }),
 }))

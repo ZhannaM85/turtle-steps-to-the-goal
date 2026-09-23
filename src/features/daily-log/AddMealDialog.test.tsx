@@ -9,7 +9,7 @@ import {
   SharedFoodImportHost,
   useFoodShareUiStore,
 } from '@/features/food-share'
-import { buildShareFoodUrl } from '@/features/food-share/buildShareFoodUrl'
+import { buildShareFoodBatchUrl, buildShareFoodUrl } from '@/features/food-share/buildShareFoodUrl'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useFoodOverrideStore, useMealItemStore, useMealLabelPresetStore, useNutritionFactsStore, useRecipeStore, useAddMealRecentVisibilityStore, useEatingReasonTrackingStore } from '@/stores'
 import { AddMealDialog, type AddMealDialogProps } from './AddMealDialog'
@@ -59,6 +59,8 @@ beforeEach(async () => {
     entryOpen: false,
     importOpen: false,
     payload: null,
+    batchImportOpen: false,
+    batchItems: null,
     onImported: null,
   })
   localStorage.removeItem('turtle-steps-add-meal-recent-visibility')
@@ -412,6 +414,85 @@ describe('AddMealDialog (#454)', () => {
     expect(mealSoFar).toHaveTextContent('Shared yogurt')
     expect(
       screen.getByRole('button', { name: 'Share Shared yogurt' }),
+    ).toBeInTheDocument()
+  })
+
+  it('shares every named dish in this meal as one link (#982)', async () => {
+    const user = userEvent.setup()
+    render(
+      <ControlledAddMealDialog
+        {...defaultProps}
+        initialItems={[
+          { id: 'a', name: 'Bread', amountKcal: 94, amountG: 36 },
+          { id: 'b', name: 'Butter', amountKcal: 98, amountG: 13 },
+        ]}
+      />,
+    )
+
+    expect(
+      screen.getByRole('button', { name: 'Share Bread' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Share Butter' }),
+    ).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Share this meal' }))
+
+    const dialog = screen.getByRole('dialog', { name: 'Share foods' })
+    expect(within(dialog).getByText('Bread')).toBeInTheDocument()
+    expect(within(dialog).getByText('Butter')).toBeInTheDocument()
+    expect(
+      within(dialog).getByRole('button', { name: 'Copy link' }),
+    ).toBeInTheDocument()
+  })
+
+  it('keeps per-dish share when the meal has only one named food (#982)', () => {
+    render(
+      <ControlledAddMealDialog
+        {...defaultProps}
+        initialItems={[{ id: 'a', name: 'Bread', amountKcal: 94 }]}
+      />,
+    )
+
+    expect(
+      screen.queryByRole('button', { name: 'Share this meal' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Share Bread' }),
+    ).toBeInTheDocument()
+  })
+
+  it('adds every food from one shared link into this meal (#982)', async () => {
+    const user = userEvent.setup()
+    const shareUrl = buildShareFoodBatchUrl(
+      [
+        { v: 1, name: 'Bread', amountKcal: 94, amountG: 36 },
+        { v: 1, name: 'Butter', amountKcal: 98, amountG: 13 },
+      ],
+      { origin: 'https://example.test', baseUrl: '/' },
+    )
+
+    render(
+      <MemoryRouter>
+        <SharedFoodImportHost />
+        <ControlledAddMealDialog {...defaultProps} />
+      </MemoryRouter>,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Shared food' }))
+    await user.type(screen.getByPlaceholderText('Paste link here'), shareUrl)
+    await user.click(screen.getByRole('button', { name: 'Continue' }))
+    expect(
+      screen.getByRole('heading', { name: 'Review shared foods' }),
+    ).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Add all foods' }))
+
+    await waitFor(() => {
+      const mealSoFar = screen.getByText('This meal so far').closest('div')!
+      expect(mealSoFar).toHaveTextContent('Bread')
+      expect(mealSoFar).toHaveTextContent('Butter')
+    })
+    expect(
+      screen.getByRole('button', { name: 'Share this meal' }),
     ).toBeInTheDocument()
   })
 

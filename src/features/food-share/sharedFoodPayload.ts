@@ -59,22 +59,31 @@ function base64UrlToBytes(encoded: string): Uint8Array {
 }
 
 /** Compact JSON → base64url (no padding), safe for query strings / QR. */
+export function encodeShareFoodJson(value: unknown): string {
+  return bytesToBase64Url(new TextEncoder().encode(JSON.stringify(value)))
+}
+
+export function decodeShareFoodJson(encoded: string): unknown | null {
+  try {
+    return JSON.parse(
+      new TextDecoder().decode(base64UrlToBytes(encoded.trim())),
+    )
+  } catch {
+    return null
+  }
+}
+
 export function encodeSharedFoodPayload(payload: SharedFoodPayload): string {
-  const json = JSON.stringify(sharedFoodPayloadSchema.parse(payload))
-  return bytesToBase64Url(new TextEncoder().encode(json))
+  return encodeShareFoodJson(sharedFoodPayloadSchema.parse(payload))
 }
 
 export function decodeSharedFoodPayload(
   encoded: string,
 ): SharedFoodPayload | null {
-  try {
-    const json = new TextDecoder().decode(base64UrlToBytes(encoded.trim()))
-    const parsed: unknown = JSON.parse(json)
-    const result = sharedFoodPayloadSchema.safeParse(parsed)
-    return result.success ? result.data : null
-  } catch {
-    return null
-  }
+  const parsed = decodeShareFoodJson(encoded)
+  if (parsed == null) return null
+  const result = sharedFoodPayloadSchema.safeParse(parsed)
+  return result.success ? result.data : null
 }
 
 /** Build share payload from a personal library item. */
@@ -222,32 +231,40 @@ export function sharedFoodServings(
   }))
 }
 
-/** Parse a shared-food deep link or raw QR text into a payload. */
-export function parseSharedFoodFromText(
-  text: string,
-): SharedFoodPayload | null {
+/**
+ * Pull the encoded `shareFood` value out of a URL, a `?shareFood=`
+ * fragment, or a raw base64url string. Decoding (one food vs a batch)
+ * stays with the caller.
+ */
+export function extractEncodedShareFood(text: string): string | null {
   const trimmed = text.trim()
   if (!trimmed) return null
 
-  // Full URL with ?shareFood=…
   try {
     const url = new URL(trimmed)
     const param = url.searchParams.get(SHARE_FOOD_QUERY_PARAM)
-    if (param) return decodeSharedFoodPayload(param)
+    if (param) return param
   } catch {
     // Not a URL — fall through.
   }
 
-  // Bare query fragment or path-local "?shareFood=…"
   const queryMatch = /(?:^|[?&])shareFood=([^&#]+)/.exec(trimmed)
   if (queryMatch?.[1]) {
     try {
-      return decodeSharedFoodPayload(decodeURIComponent(queryMatch[1]))
+      return decodeURIComponent(queryMatch[1])
     } catch {
-      return decodeSharedFoodPayload(queryMatch[1])
+      return queryMatch[1]
     }
   }
 
-  // Raw base64url payload (paste without URL wrapper).
-  return decodeSharedFoodPayload(trimmed)
+  return trimmed
+}
+
+/** Parse a shared-food deep link or raw QR text into one food (`v: 1`). */
+export function parseSharedFoodFromText(
+  text: string,
+): SharedFoodPayload | null {
+  const encoded = extractEncodedShareFood(text)
+  if (!encoded) return null
+  return decodeSharedFoodPayload(encoded)
 }

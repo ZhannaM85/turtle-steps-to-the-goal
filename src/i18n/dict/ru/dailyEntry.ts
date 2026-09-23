@@ -205,6 +205,7 @@ export const dailyEntry: DailyEntryDict = {
     quickActionAddFoodLabel: 'Добавить блюдо',
     quickActionImportSharedFoodLabel: 'QR / ссылка',
     mealSoFarLabel: 'Состав приёма пищи',
+    shareMealCompositionLabel: 'Поделиться составом приёма пищи',
     wasItTastyLabel: 'Было вкусно?',
     doneAddingMealButton: 'Готово',
     confirmDiscardInProgressMealLabel:

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 957,
+    issue: 982,
+    date: '2026-09-23T22:07:58+03:00',
+    en: 'You can share every dish in a meal with one QR code or link.',
+    ru: 'Все блюда из приёма пищи можно отправить одним QR-кодом или одной ссылкой.',
+  },
+  {
     version: 956,
     issue: 981,
     date: '2026-09-23T20:04:10+03:00',

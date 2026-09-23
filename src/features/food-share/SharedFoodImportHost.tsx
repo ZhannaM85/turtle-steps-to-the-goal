@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { BarcodeScannerDialog } from '@/features/daily-log/BarcodeScannerDialog'
 import { classifyShareScan } from '@/features/local-transfer/classifyShareScan'
@@ -15,11 +15,13 @@ import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { useFoodShareUiStore } from './foodShareUiStore'
 import { ImportSharedFoodDialog } from './ImportSharedFoodDialog'
+import { ImportSharedFoodsDialog } from './ImportSharedFoodsDialog'
 import {
-  decodeSharedFoodPayload,
-  parseSharedFoodFromText,
-  SHARE_FOOD_QUERY_PARAM,
-} from './sharedFoodPayload'
+  decodeSharedFoodLink,
+  parseSharedFoodLinkFromText,
+  type DecodedShareFood,
+} from './sharedFoodBatchPayload'
+import { SHARE_FOOD_QUERY_PARAM } from './sharedFoodPayload'
 
 /**
  * #661 — mounts once under AppShell: watches `?shareFood=` deep links and
@@ -39,6 +41,10 @@ export function SharedFoodImportHost() {
   const payload = useFoodShareUiStore((s) => s.payload)
   const openImport = useFoodShareUiStore((s) => s.openImport)
   const setImportOpen = useFoodShareUiStore((s) => s.setImportOpen)
+  const batchImportOpen = useFoodShareUiStore((s) => s.batchImportOpen)
+  const batchItems = useFoodShareUiStore((s) => s.batchItems)
+  const openBatchImport = useFoodShareUiStore((s) => s.openBatchImport)
+  const setBatchImportOpen = useFoodShareUiStore((s) => s.setBatchImportOpen)
 
   const [scanOpen, setScanOpen] = useState(false)
   const [pasteValue, setPasteValue] = useState('')
@@ -48,32 +54,40 @@ export function SharedFoodImportHost() {
     void loadItems()
   }, [loadItems])
 
+  const openDecoded = useCallback(
+    (decoded: DecodedShareFood) => {
+      if (decoded.kind === 'many') openBatchImport(decoded.items)
+      else openImport(decoded.payload)
+    },
+    [openBatchImport, openImport],
+  )
+
   useEffect(() => {
     const raw = searchParams.get(SHARE_FOOD_QUERY_PARAM)
     if (!raw) return
-    const decoded = decodeSharedFoodPayload(raw)
+    const decoded = decodeSharedFoodLink(raw)
     const next = new URLSearchParams(searchParams)
     next.delete(SHARE_FOOD_QUERY_PARAM)
     setSearchParams(next, { replace: true })
-    if (decoded) openImport(decoded)
-  }, [searchParams, setSearchParams, openImport])
+    if (decoded) openDecoded(decoded)
+  }, [searchParams, setSearchParams, openDecoded])
 
   function handlePasteSubmit() {
-    const decoded = parseSharedFoodFromText(pasteValue)
+    const decoded = parseSharedFoodLinkFromText(pasteValue)
     if (!decoded) {
       setPasteError(t.settings.importSharedFoodPasteInvalidMessage)
       return
     }
     setPasteValue('')
     setPasteError(null)
-    openImport(decoded)
+    openDecoded(decoded)
   }
 
   async function handleQrScanned(text: string) {
     const kind = classifyShareScan(text)
     if (kind === 'food') {
-      const decoded = parseSharedFoodFromText(text)
-      if (decoded) openImport(decoded)
+      const decoded = parseSharedFoodLinkFromText(text)
+      if (decoded) openDecoded(decoded)
       return
     }
     setPasteError(
@@ -159,6 +173,25 @@ export function SharedFoodImportHost() {
           // #802 — Add meal may have registered a listener so this dish
           // also lands in the open meal, not only the food library.
           useFoodShareUiStore.getState().onImported?.(result)
+        }}
+      />
+
+      <ImportSharedFoodsDialog
+        open={batchImportOpen}
+        onOpenChange={setBatchImportOpen}
+        payloads={batchItems}
+        existingItems={items}
+        onConfirm={async (results) => {
+          for (const result of results) {
+            await applySharedFood({
+              name: result.name,
+              barcode: result.barcode,
+              nutrition: result.nutrition,
+              servings: result.servings,
+              existingId: result.existingId,
+            })
+            useFoodShareUiStore.getState().onImported?.(result)
+          }
         }}
       />
     </>

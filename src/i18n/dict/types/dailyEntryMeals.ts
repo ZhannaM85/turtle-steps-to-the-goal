@@ -24,6 +24,8 @@ export interface DailyEntryMealsDict {
     /** #802 — scan a food-share QR or paste a share link into this meal. */
     quickActionImportSharedFoodLabel: string
     mealSoFarLabel: string
+    /** #982 — section share beside «Состав приёма пищи» for every named dish. */
+    shareMealCompositionLabel: string
     wasItTastyLabel: string
     doneAddingMealButton: string
     /** #494 — confirm before X/escape discards an in-progress new meal
