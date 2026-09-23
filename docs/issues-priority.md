@@ -96,4 +96,14 @@ _AutoSleep screenshot confirm: compare scanned sleep with yesterday. Meal cards:
 | [#978](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/978) | 🔍 Pending validation | Meal screen: food search directly above the dish list | Add-meal browse order is now the 2×2 actions (add / barcode / recipe / QR), then Поиск…, then Недавние or search results. The action grid no longer sits between the field and the list it filters; the barcode icon on the field stays. Awaiting on-device confirmation |
 | [#979](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/979) | 🔍 Pending validation | iOS: tap status bar scrolls the active screen to the top | After #970 the document does not scroll, so iOS status-bar tap no longer reaches the top. The app header, including the safe-area strip, calls `scrollAppToTop` (window, `#main-content`, and nested overflow scrollers), matching my-money. In-flow tab bar is unchanged. Awaiting on-device confirmation |
 
+---
+
+## Tier 169 — Live iPhone feedback (2026-09-23)
+
+_AutoSleep screenshot scan left deep sleep empty when the circled-z row was a whole number of hours._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#980](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/980) | 🔍 Pending validation | AutoSleep scan: failed to read deep sleep | Tesseract reads the circled-z minute zero in `3h 0m` as the letter O (`3h Om`), so the duration regex never matches and Глубокий сон stays empty while Часов сна (`8h 2m`) still parses. That minute O is rewritten to 0 before parsing. Awaiting on-device confirmation |
+
 

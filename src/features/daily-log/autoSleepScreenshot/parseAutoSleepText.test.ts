@@ -249,6 +249,47 @@ SLEEP BANK Oh45m
     })
   })
 
+  it('reads z-icon 3h 0m when Tesseract turns the minute 0 into O (#980)', () => {
+    // eng Tesseract on the 2026-09-23 AutoSleep Today shot (TUESDAY 22 →
+    // WEDNESDAY 23): header/today `8h 2m` is intact, star row may be
+    // `5h 56m` or `Sh 56m`, and the circled-z row comes back as `3h Om`.
+    const text = `
+TUESDAY 22 > WEDNESDAY 23
+8h 2m
+Sleep Efficiency: 91%.
+Sleep Session
+AWAKE LIGHT STILL DEEP
+23:54 - 08:45
+8:02 / 8:51
+Time Asleep Sleep Rating
+TODAY
+8h 2m
+SLEEP BANK
+8,4% Credit
+8h 2m
+Sh 56m
+3h Om
+68
+`
+    expect(parseAutoSleepText(text, '2026-09-23')).toEqual({
+      sleepHours: 8.03,
+      deepSleepHours: 3,
+      date: '2026-09-23',
+    })
+  })
+
+  it('reads 3h Om glued onto the sleep-bank line, not the star row (#980)', () => {
+    const text = `
+TUESDAY 22 > WEDNESDAY 23
+8h 2m
+5h 56m
+8,4% Credit 3h Om
+`
+    const reading = parseAutoSleepText(text, '2026-09-23')
+    expect(reading.sleepHours).toBe(8.03)
+    expect(reading.deepSleepHours).toBe(3)
+  })
+
   it('leaves deep empty when Sleep Rating has no z-icon duration (#772)', () => {
     const text = `
 SATURDAY 29
