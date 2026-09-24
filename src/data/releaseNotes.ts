@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 960,
+    issue: 985,
+    date: '2026-09-24T11:40:27+03:00',
+    en: 'Glasses and bottles of water on the Day page line up from earliest to latest.',
+    ru: 'Стаканы и бутылки воды на странице дня выстраиваются от раннего времени к позднему.',
+  },
+  {
     version: 959,
     issue: 984,
     date: '2026-09-24T09:29:30+03:00',

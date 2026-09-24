@@ -216,6 +216,83 @@ describe('DailyEntryForm', () => {
       expect(screen.getByText('500ml · 07:30')).toBeInTheDocument()
     })
 
+    it('shows water chips in clock order and keeps that order after edit and delete (#985)', async () => {
+      useWaterTrackingStore.setState({ enabled: true })
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-09-24"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-09-24',
+            waterEntries: [
+              { id: 'w-1102', amountMl: 500, timeDrunk: '11:33' },
+              { id: 'w-0802', amountMl: 500, timeDrunk: '08:02' },
+              { id: 'w-1033', amountMl: 500, timeDrunk: '10:33' },
+            ],
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      const section = document.getElementById('water-entry-section')
+      expect(section).not.toBeNull()
+      const water = within(section as HTMLElement)
+      const chipTimes = () =>
+        water
+          .getAllByRole('button', { name: /^Edit / })
+          .map((button) => button.textContent)
+      const editChip = (time: string) => {
+        const button = water
+          .getAllByRole('button', { name: /^Edit / })
+          .find((item) => item.textContent?.includes(time))
+        if (!button) throw new Error(`missing chip ${time}`)
+        return button
+      }
+
+      expect(chipTimes()).toEqual([
+        '500ml · 08:02',
+        '500ml · 10:33',
+        '500ml · 11:33',
+      ])
+
+      await user.click(editChip('08:02'))
+      fireEvent.change(screen.getByLabelText('Time'), {
+        target: { value: '12:15' },
+      })
+      await user.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'Save' }),
+      )
+
+      expect(chipTimes()).toEqual([
+        '500ml · 10:33',
+        '500ml · 11:33',
+        '500ml · 12:15',
+      ])
+      expect(onSave.mock.calls.at(-1)?.[0].waterEntries).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: 'w-0802',
+            amountMl: 500,
+            timeDrunk: '12:15',
+          }),
+        ]),
+      )
+
+      const tenThirtyThree = editChip('10:33')
+      const remove = tenThirtyThree.parentElement
+      if (!remove) throw new Error('missing chip shell')
+      await user.click(
+        within(remove).getByRole('button', { name: 'Remove 500ml entry' }),
+      )
+      await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+      expect(chipTimes()).toEqual(['500ml · 11:33', '500ml · 12:15'])
+    })
+
     it('does not open the edit dialog when the remove button is clicked (#849)', async () => {
       useWaterTrackingStore.setState({ enabled: true })
       const user = userEvent.setup()

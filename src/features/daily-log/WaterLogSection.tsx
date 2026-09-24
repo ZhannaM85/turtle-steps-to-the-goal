@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useMemo, useState } from 'react'
 import { CupSoda, GlassWater } from 'lucide-react'
 import type { WaterEntry } from '@/domain/dailyEntry'
 import { formatNumber } from '@/i18n'
@@ -13,6 +13,7 @@ import { TimeInput } from '@/shared/ui/time-input'
 import { useTodaySectionsCollapseStore } from '@/stores'
 import { ConfirmDeleteEntryBar } from './ConfirmDeleteEntryBar'
 import { waterMlSchema } from './dailyEntryFormSchema'
+import { sortWaterEntriesByTime } from './sortWaterEntries'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
 function formatWaterChipText(amountText: string, timeDrunk?: string): string {
@@ -43,7 +44,13 @@ export function WaterLogSection() {
   const [editAmount, setEditAmount] = useState('')
   const [editTime, setEditTime] = useState('')
   const [editAmountError, setEditAmountError] = useState<string | undefined>()
-  const editingWater = state.waterEntries.find(
+  // #985 — grid is row-major (left, then right). Sort a copy so an edited
+  // or back-filled clock does not stay in save order (11:33 before 10:33).
+  const waterEntries = useMemo(
+    () => sortWaterEntriesByTime(state.waterEntries),
+    [state.waterEntries],
+  )
+  const editingWater = waterEntries.find(
     (entry) => entry.id === editingWaterId,
   )
 
@@ -115,12 +122,12 @@ export function WaterLogSection() {
                 onCancel={() => setConfirmingWaterId(null)}
               />
             )}
-            {state.waterEntries.length > 0 && (
+            {waterEntries.length > 0 && (
                 // #488 — three chips per row was the volume-only layout.
                 // #849 adds HH:MM on the same chip (`500мл · 10:15`), so
                 // two columns keeps the time readable on a phone.
                 <div className="grid grid-cols-2 gap-2">
-                  {state.waterEntries.map((entry) => {
+                  {waterEntries.map((entry) => {
                     const amountText = `${formatNumber(entry.amountMl, locale, 0)}${t.dailyEntry.mlUnit}`
                     const chipText = formatWaterChipText(
                       amountText,
