@@ -223,13 +223,7 @@ describe('WeeklySummaryCards', () => {
     vi.useRealTimers()
   })
 
-  // #601 — "is this week still in progress" now respects day-start, same
-  // as the Day screen's own "today" already does.
-  it('keeps treating the prior week as in-progress past midnight but before day-start (#601)', async () => {
-    const { useDayStartStore } = await import('@/stores')
-    useDayStartStore.setState({ dayStartTime: '04:00' })
-    // Monday 2026-08-03, 01:00 — real calendar Monday, but still "Sunday
-    // night" per a 04:00 day-start.
+  it('treats the week that ended yesterday as complete after midnight (#984)', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-08-03T01:00:00'))
     const entries = [
@@ -239,15 +233,11 @@ describe('WeeklySummaryCards', () => {
     ]
     render(<WeeklySummaryCards entries={entries} goal={null} />)
 
-    // The genuinely-complete prior week still renders...
     expect(screen.getByText(/Jul 20, 2026/)).toBeInTheDocument()
-    // ...but without the day-start adjustment this week (ending Aug 2)
-    // would already read as complete once the real clock ticks past
-    // midnight into Aug 3 — it should stay hidden here instead.
-    expect(screen.queryByText(/Jul 27, 2026/)).not.toBeInTheDocument()
+    expect(screen.getByText(/Jul 27, 2026/)).toBeInTheDocument()
+    expect(screen.queryByText(/Aug 3, 2026/)).not.toBeInTheDocument()
 
     vi.useRealTimers()
-    useDayStartStore.setState({ dayStartTime: '00:00' })
   })
 
   describe('whole-card show/hide toggle (#232)', () => {

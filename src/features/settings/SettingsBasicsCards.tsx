@@ -6,7 +6,6 @@ import {
   type Locale,
 } from '@/i18n'
 import {
-  useDayStartStore,
   useThemeStore,
   useUnitStore,
   useWeekStartStore,
@@ -17,7 +16,6 @@ import {
 } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { TimeInput } from '@/shared/ui/time-input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { SettingsMealSlotTimesSection } from './SettingsMealSlotTimesSection'
 import { SettingsPinnableCard } from './SettingsPinnableCard'
@@ -50,8 +48,6 @@ export function SettingsBasicsCards() {
   const setMood = useThemeStore((state) => state.setMood)
   const colorScheme = useThemeStore((state) => state.colorScheme)
   const setColorScheme = useThemeStore((state) => state.setColorScheme)
-  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
-  const setDayStartTime = useDayStartStore((state) => state.setDayStartTime)
   const weekStart = useWeekStartStore((state) => state.weekStart)
   const setWeekStart = useWeekStartStore((state) => state.setWeekStart)
 
@@ -132,23 +128,6 @@ export function SettingsBasicsCards() {
               {t.settings.weekStartFirstEntry}
             </ToggleGroupItem>
           </ToggleGroup>
-        </CardContent>
-      </SettingsPinnableCard>
-
-      <SettingsPinnableCard pinId="dayStart">
-        <CardHeader>
-          <CardTitle>{t.settings.dayStartLabel}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-1.5">
-          <span className="text-sm text-muted-foreground">
-            {t.settings.dayStartDescription}
-          </span>
-          <TimeInput
-            aria-label={t.settings.dayStartLabel}
-            value={dayStartTime}
-            onChange={(e) => setDayStartTime(e.target.value)}
-            className="w-32"
-          />
         </CardContent>
       </SettingsPinnableCard>
 

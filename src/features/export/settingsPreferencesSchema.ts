@@ -11,7 +11,6 @@ export const settingsPreferencesSchema = z
   .object({
     unit: z.enum(['kg', 'lb']).optional(),
     weekStart: z.enum(['monday', 'firstEntryWeekday']).optional(),
-    dayStartTime: z.string().optional(),
     mealSlotDefaultTimes: z
       .object({
         breakfast: z.string(),

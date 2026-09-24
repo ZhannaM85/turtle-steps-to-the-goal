@@ -2,14 +2,13 @@ import { format, parseISO } from 'date-fns'
 import type { CSSProperties, ReactNode } from 'react'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
-  effectiveDateFor,
   loggingConsistencySummary,
   loggingConsistencyWeeks,
   MAX_LOGGING_SIGNALS,
 } from '@/domain/stats'
 import { formatNumber, getDateFnsLocale, useLocale, useTranslation } from '@/i18n'
 import { useWeekStartsOn } from '@/shared/hooks'
-import { useDashboardChartVisibilityStore, useDayStartStore } from '@/stores'
+import { useDashboardChartVisibilityStore } from '@/stores'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { EmptyDashboardSection } from './EmptyDashboardSection'
 
@@ -54,8 +53,7 @@ export function LoggingConsistencyHeatmap({
   )
   // #625 — "today" for this rolling window should respect day-start too,
   // same meaning `TodayScreen.tsx`'s own "today" already uses.
-  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
-  const today = effectiveDateFor(new Date(), dayStartTime)
+  const today = new Date()
 
   const weeks = loggingConsistencyWeeks(entries, weekStartsOn, today)
   if (weeks.length === 0) {

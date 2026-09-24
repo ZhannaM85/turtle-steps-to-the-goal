@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieEntry, DailyEntry } from '@/domain/dailyEntry'
 import { elapsedParts, resolveLastMealInstant } from '@/domain/stats'
 import { db } from '@/infrastructure/persistence/indexeddb'
-import { useCopyYesterdayMealsStore, useDayStartStore, useEatingReasonTrackingStore, useMealItemStore, useMealKcalVsYesterdayStore, useMealLabelPresetStore, useMealSlotDefaultTimesStore, useNutritionFactsStore, useRecipeStore, useSinceLastMealTimerStore } from '@/stores'
+import { useCopyYesterdayMealsStore, useEatingReasonTrackingStore, useMealItemStore, useMealKcalVsYesterdayStore, useMealLabelPresetStore, useMealSlotDefaultTimesStore, useNutritionFactsStore, useRecipeStore, useSinceLastMealTimerStore } from '@/stores'
 import { BUILTIN_MEAL_SLOT_DEFAULT_TIMES } from '@/shared/lib/mealLabel'
 import { MealList } from './MealList'
 
@@ -1651,8 +1651,7 @@ describe('MealList', () => {
       ).toBeInTheDocument()
     })
 
-    it("uses the previous day's actual latest meal, not its earliest-by-clock-time one, once a custom day-start time is set", async () => {
-      useDayStartStore.setState({ dayStartTime: '02:00' })
+    it("uses the previous day's past-midnight meal as its latest (#984)", async () => {
       await db.dailyEntries.put(
         makeDailyEntry({
           date: '2026-02-28',
@@ -1690,12 +1689,9 @@ describe('MealList', () => {
       expect(
         await screen.findByText('Your fasting window was 12h 14m.'),
       ).toBeInTheDocument()
-
-      useDayStartStore.setState({ dayStartTime: '00:00' })
     })
 
-    it("sorts a past-midnight meal after the same day's evening meals, once a custom day-start time is set (#621)", async () => {
-      useDayStartStore.setState({ dayStartTime: '04:00' })
+    it("sorts a past-midnight meal after the same day's evening meals (#984)", async () => {
       render(
         <MealList
           calorieEntries={[
@@ -1724,8 +1720,6 @@ describe('MealList', () => {
         (el) => el.textContent,
       )
       expect(labels).toEqual(['Lunch', 'Night snack'])
-
-      useDayStartStore.setState({ dayStartTime: '00:00' })
     })
   })
 
@@ -1785,7 +1779,6 @@ describe('MealList', () => {
         todayEntries: entries,
         previousDate: '2026-02-28',
         previousEntries: undefined,
-        dayStartTime: '00:00',
       })
       expect(from).not.toBeNull()
       expect(screen.getByText(expectedDuration(from!))).toBeInTheDocument()
@@ -1842,7 +1835,6 @@ describe('MealList', () => {
             timeEaten: '20:00',
           },
         ],
-        dayStartTime: '00:00',
       })
       expect(from).not.toBeNull()
       expect(screen.getByText(expectedDuration(from!))).toBeInTheDocument()

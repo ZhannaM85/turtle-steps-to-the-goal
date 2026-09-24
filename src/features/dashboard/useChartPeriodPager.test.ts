@@ -1,7 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
-import { useDayStartStore } from '@/stores'
 import { useChartPeriodPager } from './useChartPeriodPager'
 
 const TODAY = new Date('2026-07-28T00:00:00.000Z')
@@ -125,37 +124,24 @@ describe('useChartPeriodPager', () => {
     })
   })
 
-  // #625 — overnight (before 06:00), omitted `today` still follows
-  // day-start so 01:00 is the previous logical day, not the new calendar
-  // date. #975 only changes the morning-after-06:00 path.
-  it('defaults to the day-start-adjusted "today" when no override is passed', () => {
-    useDayStartStore.setState({ dayStartTime: '04:00' })
+  it('defaults to the calendar day after midnight (#984)', () => {
     vi.useFakeTimers()
-    // Monday 2026-08-03, 01:00 — real calendar Monday, but still "Sunday
-    // night" per a 04:00 day-start.
     vi.setSystemTime(new Date('2026-08-03T01:00:00'))
-    const entries = [entry('2026-07-22'), entry('2026-07-27')]
+    const entries = [entry('2026-07-28'), entry('2026-08-03')]
 
     const { result } = renderHook(() =>
       useChartPeriodPager('week', '', '', entries),
     )
 
-    // Without the day-start adjustment the current week would already be
-    // Aug 3-9 once the real clock ticks past midnight.
     expect(result.current.range).toEqual({
-      start: '2026-07-27',
-      end: '2026-08-02',
+      start: '2026-07-28',
+      end: '2026-08-03',
     })
 
     vi.useRealTimers()
-    useDayStartStore.setState({ dayStartTime: '00:00' })
   })
 
-  it('#975: week and month through-now windows include local today before day-start', () => {
-    useDayStartStore.setState({
-      dayStartTime: '10:00',
-      startedEarlyForDate: null,
-    })
+  it('#975: week and month through-now windows include local today', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date(2026, 8, 21, 9, 51, 0))
     const entries = [entry('2026-09-15'), entry('2026-09-21')]
@@ -184,10 +170,6 @@ describe('useChartPeriodPager', () => {
     )
 
     vi.useRealTimers()
-    useDayStartStore.setState({
-      dayStartTime: '00:00',
-      startedEarlyForDate: null,
-    })
   })
 
   it('resets the page offset back to current when the period type itself changes', () => {

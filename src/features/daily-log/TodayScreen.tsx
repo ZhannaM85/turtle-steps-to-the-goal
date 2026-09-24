@@ -5,7 +5,6 @@ import { useSearchParams } from 'react-router-dom'
 import { SendDaySnippetDialog } from '@/features/local-transfer/SendDaySnippetDialog'
 import { CustomMetricLogSection } from '@/features/custom-metrics'
 import { goalWeekEnd, goalWindowConcluded, goalWindowHasEnded } from '@/domain/goal'
-import { effectiveDateFor } from '@/domain/stats'
 import { getDateFnsLocale, useLocale, useTranslation } from '@/i18n'
 import {
   useActiveGoalProgress,
@@ -22,7 +21,6 @@ import { pageStickyUnderAppHeader } from '@/shared/ui/pageSticky'
 import {
   useDailyEntryStore,
   useDailyReminderStore,
-  useDayStartStore,
   useGoalStore,
   useLocalTransferStore,
   usePlannedMealStore,
@@ -56,15 +54,8 @@ export function TodayScreen() {
   } = useDailyEntryStore()
   const localTransferEnabled = useLocalTransferStore((state) => state.enabled)
   const [sendDayOpen, setSendDayOpen] = useState(false)
-  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
-  const startedEarlyForDate = useDayStartStore(
-    (state) => state.startedEarlyForDate,
-  )
-  const startTodayEarly = useDayStartStore((state) => state.startTodayEarly)
-  const realTodayIso = format(new Date(), 'yyyy-MM-dd')
   function todayIso() {
-    if (startedEarlyForDate === realTodayIso) return realTodayIso
-    return format(effectiveDateFor(new Date(), dayStartTime), 'yyyy-MM-dd')
+    return format(new Date(), 'yyyy-MM-dd')
   }
   const [searchParams, setSearchParams] = useSearchParams()
   const date = searchParams.get('date') ?? todayIso()
@@ -222,13 +213,8 @@ export function TodayScreen() {
         <TodayDateNav
           date={date}
           todayIso={todayIso()}
-          realTodayIso={realTodayIso}
           maxNavigableDate={maxNavigableDate}
           onSetDate={setDate}
-          onStartTodayEarly={(realToday) => {
-            startTodayEarly(realToday)
-            setDate(realToday)
-          }}
           debug465={debug465}
           debug465Sizes={debug465Sizes}
           debug465PrevRef={debug465PrevRef}

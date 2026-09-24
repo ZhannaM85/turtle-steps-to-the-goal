@@ -3,7 +3,6 @@ import type { DailyEntry } from '@/domain/dailyEntry'
 import {
   eatingEpisodeLinks,
   eatingPatternInsights,
-  effectiveDateFor,
   entriesInRecentWindow,
   type EatingPatternInsight,
 } from '@/domain/stats'
@@ -17,7 +16,6 @@ import {
 } from '@/shared/ui/collapsible'
 import {
   useDashboardChartVisibilityStore,
-  useDayStartStore,
   useEatingReasonTrackingStore,
   useMealSlotDefaultTimesStore,
 } from '@/stores'
@@ -81,10 +79,9 @@ export function EatingPatternsView({
 }: EatingPatternsViewProps) {
   const t = useTranslation()
   const [detailsOpen, setDetailsOpen] = useState(false)
-  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
   const slotTimes = useMealSlotDefaultTimesStore((state) => state.times)
   const reasonsEnabled = useEatingReasonTrackingStore((state) => state.enabled)
-  const today = effectiveDateFor(new Date(), dayStartTime)
+  const today = new Date()
   const cardVisible = useDashboardChartVisibilityStore(
     (state) => state.visible.eatingPatterns,
   )
@@ -94,14 +91,14 @@ export function EatingPatternsView({
 
   const recent = entriesInRecentWindow(entries, 30, today)
   const recentInsights = eatingPatternInsights(
-    eatingEpisodeLinks(recent, dayStartTime, slotTimes),
+    eatingEpisodeLinks(recent, slotTimes),
     { includeReasons: reasonsEnabled },
   )
   const insights =
     recentInsights.length > 0
       ? recentInsights
       : eatingPatternInsights(
-          eatingEpisodeLinks(entries, dayStartTime, slotTimes),
+          eatingEpisodeLinks(entries, slotTimes),
           { includeReasons: reasonsEnabled },
         )
 

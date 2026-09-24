@@ -6,7 +6,6 @@ import type { DailyEntry } from '@/domain/dailyEntry'
 import { formatLocalizedDateRange, useLocaleStore } from '@/i18n'
 import {
   useDashboardChartVisibilityStore,
-  useDayStartStore,
   useTrendChartSeriesStore,
 } from '@/stores'
 import { CalorieTrendChart } from './CalorieTrendChart'
@@ -188,15 +187,10 @@ describe('CalorieTrendChart', () => {
     afterEach(() => {
       vi.useRealTimers()
       useLocaleStore.setState({ locale: 'en' })
-      useDayStartStore.setState({
-        dayStartTime: '00:00',
-        startedEarlyForDate: null,
-      })
     })
 
     it('shows a week range ending 21 Sept, including that morning calorie day', () => {
       useLocaleStore.setState({ locale: 'ru' })
-      useDayStartStore.setState({ dayStartTime: '10:00' })
       vi.useFakeTimers({ toFake: ['Date'] })
       vi.setSystemTime(new Date(2026, 8, 21, 9, 51, 0))
       const entries = [

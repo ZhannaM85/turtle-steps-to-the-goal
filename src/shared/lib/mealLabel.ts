@@ -231,23 +231,16 @@ function timeToMinutes(hhmm: string): number {
 
 /**
  * #597/#926 — Day meal cards: earliest recorded clock first; meals with no
- * resolvable time stay at the end (stable among ties). #621: reported
- * live — a meal logged at 01:00 sorted *first*, ahead of the same day's
- * 14:09/15:23 meals, when it was actually the last meal of a late-night
- * session. `dayStartTime` (default `'00:00'`, purely additive — every
- * pre-#621 caller keeps today's exact behavior) shifts late-night clocks
- * a full day later before comparing (`adjustForDayStart`, cap 06:00 —
- * #755), so a post-midnight entry sorts after the evening it actually
- * followed, while an 08:27 breakfast stays before 11:00.
+ * resolvable time stay at the end (stable among ties). A meal at 01:00 on
+ * the same day as 14:09 sorts last: clocks before 06:00 are the late-night
+ * tail of that entry (#984). An 08:27 breakfast stays before 11:00.
  */
 export function sortCalorieEntriesByLoggedTime<
   T extends { timeEaten?: string; label?: string | number },
 >(
   entries: readonly T[],
   slotTimes: MealSlotDefaultTimes = BUILTIN_MEAL_SLOT_DEFAULT_TIMES,
-  dayStartTime = '00:00',
 ): T[] {
-  const dayStartMinutes = timeToMinutes(dayStartTime)
   return entries
     .map((entry, index) => ({
       entry,
@@ -258,8 +251,8 @@ export function sortCalorieEntriesByLoggedTime<
       if (a.time == null && b.time == null) return a.index - b.index
       if (a.time == null) return 1
       if (b.time == null) return -1
-      const aMinutes = adjustForDayStart(timeToMinutes(a.time), dayStartMinutes)
-      const bMinutes = adjustForDayStart(timeToMinutes(b.time), dayStartMinutes)
+      const aMinutes = adjustForDayStart(timeToMinutes(a.time))
+      const bMinutes = adjustForDayStart(timeToMinutes(b.time))
       return aMinutes !== bMinutes ? aMinutes - bMinutes : a.index - b.index
     })
     .map(({ entry }) => entry)

@@ -94,7 +94,6 @@ function carbPercent(kcal: number, carbsG: number | undefined): number | undefin
 
 function episodesFromEntries(
   entries: DailyEntry[],
-  dayStartTime: string,
   slotTimes?: MealSlotDefaultTimes,
 ): TimedEpisode[] {
   const episodes: TimedEpisode[] = []
@@ -107,7 +106,7 @@ function episodesFromEntries(
         date: entry.date,
         clock,
         bucket: mealTimeBucket(clock),
-        instant: clockOnDayToDate(entry.date, clock, dayStartTime),
+        instant: clockOnDayToDate(entry.date, clock),
         kcal: calorieEntryKcal(meal),
         carbsG: calorieEntryCarbs(meal),
         reasons: mealEatingReasons(meal),
@@ -124,10 +123,9 @@ function episodesFromEntries(
  */
 export function eatingEpisodeLinks(
   entries: DailyEntry[],
-  dayStartTime = '00:00',
   slotTimes?: MealSlotDefaultTimes,
 ): EatingEpisodeLink[] {
-  const episodes = episodesFromEntries(entries, dayStartTime, slotTimes)
+  const episodes = episodesFromEntries(entries, slotTimes)
   const links: EatingEpisodeLink[] = []
   for (let i = 0; i < episodes.length - 1; i++) {
     const from = episodes[i]!

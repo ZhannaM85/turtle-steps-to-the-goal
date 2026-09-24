@@ -302,9 +302,6 @@ export const settings: SettingsDict = {
       'Which day each week begins on, used for "This week" and weekly summaries.',
     weekStartMonday: 'Monday',
     weekStartFirstEntry: 'Day of my first entry',
-    dayStartLabel: 'Day start time',
-    dayStartDescription:
-      "When your day begins — anything logged before this time counts toward the previous day, and this week's progress, the fasting-window and late-meal charts, and other places that depend on \"today\" follow the same day-start too. Only affects new entries and analytics going forward; already-logged history is never re-bucketed. Default midnight matches today's date exactly.",
     mealSlotDefaultTimesLabel: 'Default meal times',
     mealSlotDefaultTimesDescription:
       'Used when importing meals that have a Breakfast/Lunch/Snack/Dinner label but no clock time (e.g. MyFitnessPal). You can also set these during import.',

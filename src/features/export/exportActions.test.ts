@@ -113,12 +113,10 @@ describe('exportAllData', () => {
   it('includes Settings page preferences in the backup (#594)', async () => {
     const { useUnitStore } = await import('@/stores/unitStore')
     const { useProfileStore } = await import('@/stores/profileStore')
-    const { useDayStartStore } = await import('@/stores/dayStartStore')
     const { useMealLabelPresetStore } = await import(
       '@/stores/mealLabelPresetStore'
     )
     useUnitStore.setState({ unit: 'lb' })
-    useDayStartStore.setState({ dayStartTime: '05:30' })
     useProfileStore.setState({
       heightCm: 170,
       age: 35,
@@ -141,7 +139,7 @@ describe('exportAllData', () => {
 
     const bundle = await exportAllData()
     expect(bundle.settings?.unit).toBe('lb')
-    expect(bundle.settings?.dayStartTime).toBe('05:30')
+    expect(bundle.settings).not.toHaveProperty('dayStartTime')
     expect(bundle.settings?.profile).toMatchObject({
       heightCm: 170,
       age: 35,

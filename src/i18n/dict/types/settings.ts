@@ -334,8 +334,6 @@ export interface SettingsDict {
     weekStartDescription: string
     weekStartMonday: string
     weekStartFirstEntry: string
-    dayStartLabel: string
-    dayStartDescription: string
     /** #588 — remembered Breakfast/Lunch/Snack/Dinner clocks for imports. */
     mealSlotDefaultTimesLabel: string
     mealSlotDefaultTimesDescription: string

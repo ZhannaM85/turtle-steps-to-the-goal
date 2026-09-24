@@ -2,7 +2,6 @@ import type { ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
-  effectiveDateFor,
   recentAverages,
   recentAverageWindowRange,
 } from '@/domain/stats'
@@ -14,7 +13,7 @@ import {
 } from '@/i18n'
 import { formatMacroGrams } from '@/shared/lib/macroDisplay'
 import { StatCard } from '@/shared/ui/stat-card'
-import { useDashboardChartVisibilityStore, useDayStartStore } from '@/stores'
+import { useDashboardChartVisibilityStore } from '@/stores'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { EmptyDashboardSection } from './EmptyDashboardSection'
 
@@ -46,8 +45,7 @@ export function RecentAveragesCards({
   )
   // #625 — "today" for this rolling window should respect day-start too,
   // same meaning `TodayScreen.tsx`'s own "today" already uses.
-  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
-  const today = effectiveDateFor(new Date(), dayStartTime)
+  const today = new Date()
 
   const windows = WINDOWS.map((windowDays) => ({
     windowDays,

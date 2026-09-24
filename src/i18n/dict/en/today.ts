@@ -16,8 +16,6 @@ export const today: TodayDict = {
   nextDayLabel: 'Next day',
   jumpToTodayButton: 'Today',
   dayHasEntriesLabel: 'This day has logged entries',
-  startTodayEarlyBanner: "It's already a new day.",
-  startTodayEarlyButton: "Start today's log now",
   goalRenewalReminder:
     "This week's target is ready to renew — worth checking in on it.",
   reviewGoalLink: 'Review goal',

@@ -108,3 +108,13 @@ _Edit meal quantity tab; share a meal composition as one QR or link; create a re
 | [#982](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/982) | 🔍 Pending validation | Share multiple foods at once via one QR code or link | Section share beside «Состав приёма пищи» encodes every named dish as one `?shareFood=` link. Two or more foods use `v: 2` `{ items: [v: 1, …] }`; one dish stays `v: 1`. The recipient reviews the list and adds all of them (existing barcode/name matches update). Per-row share is unchanged. Awaiting on-device confirmation |
 | [#983](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/983) | 🔍 Pending validation | Create recipe from selected meal foods (long-press multi-select) | Long-press a row in «Состав приёма пищи» to select dishes. «Поделиться выбранным» (2+ foods) sends that subset as one `?shareFood=` link. «Создать рецепт» saves one recipe with one serving; ingredients are the selected dishes, calories and macros are summed, and per 100 g is scaled from the total weight. Section share and per-row share stay. Awaiting on-device confirmation |
 
+---
+
+## Tier 170 — Live feedback (2026-09-24)
+
+_Day boundary is the calendar date. Late-night logs stay on the open day page._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#984](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/984) | 🔍 Pending validation | Remove day-start setting and Start today now; late-night logs stay on the open day page | Removed Settings «Начало дня» and the Day banner «Начать сегодняшний день сейчас». «Сегодня» and Overview through-now ranges use the calendar date, including after midnight. A new meal is saved on the day page that is open. Clocks before 06:00 on that same entry still sort after the evening meals (fasting / last meal). Already-logged history is not rewritten. Awaiting on-device confirmation |
+

@@ -37,7 +37,6 @@ import {
   useCustomMetricStore,
   useCycleTrackingStore,
   useDashboardChartVisibilityStore,
-  useDayStartStore,
   useDigestionTrackingStore,
   useProfileStore,
   useTrackedFieldsStore,
@@ -365,9 +364,6 @@ export function CustomChartView({
   const { surfaceRef, zoomWindow, isZoomed, isGesturing, resetZoom } =
     useChartGestureZoom(gestureResetKey)
   const seriesConfig = useNumericSeriesConfig()
-  // #601 — the fastingHours series should respect day-start too, same as
-  // the fasting-window correlation card and its own toast already do.
-  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
   const sex = useProfileStore((state) => state.sex)
   const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
   const digestionTrackingEnabled = useDigestionTrackingStore(
@@ -476,7 +472,7 @@ export function CustomChartView({
   const isSingleAxis = selectedNumeric.length === 1
   const soleAxisKey = isSingleAxis ? selectedNumeric[0] : undefined
 
-  const points = customChartPoints(entries, selectedNumeric, dayStartTime)
+  const points = customChartPoints(entries, selectedNumeric)
   const pointsByDate = new Map(points.map((p) => [p.date, p]))
   const booleanDatesByKey = new Map(
     selectedBoolean.map((key) => [

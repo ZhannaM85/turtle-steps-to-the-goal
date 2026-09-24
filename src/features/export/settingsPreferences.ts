@@ -1,7 +1,6 @@
 import { useLocaleStore } from '@/i18n'
 import {
   useDailyReminderStore,
-  useDayStartStore,
   useMealLabelPresetStore,
   useEatingReasonTrackingStore,
   useMealSlotDefaultTimesStore,
@@ -28,7 +27,6 @@ export function collectSettingsPreferences(): ExportSettingsPreferences {
   return {
     unit: useUnitStore.getState().unit,
     weekStart: useWeekStartStore.getState().weekStart,
-    dayStartTime: useDayStartStore.getState().dayStartTime,
     mealSlotDefaultTimes: {
       ...useMealSlotDefaultTimesStore.getState().times,
     },
@@ -75,9 +73,6 @@ export function applySettingsPreferences(
   }
   if (settings.weekStart !== undefined) {
     useWeekStartStore.setState({ weekStart: settings.weekStart })
-  }
-  if (settings.dayStartTime !== undefined) {
-    useDayStartStore.setState({ dayStartTime: settings.dayStartTime })
   }
   if (settings.mealSlotDefaultTimes) {
     useMealSlotDefaultTimesStore

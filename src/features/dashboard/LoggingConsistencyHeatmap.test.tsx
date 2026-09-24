@@ -71,26 +71,16 @@ describe('LoggingConsistencyHeatmap', () => {
     ).toBeInTheDocument()
   })
 
-  // #625 — "today" for this rolling window now respects day-start, same as
-  // the Day screen's own "today" already does.
-  it('keeps "today" pinned to the prior day past midnight but before day-start (#625)', async () => {
-    const { useDayStartStore } = await import('@/stores')
-    useDayStartStore.setState({ dayStartTime: '04:00' })
+  it('starts a new week row on the calendar day after midnight (#984)', () => {
     vi.useFakeTimers()
-    // Monday 2026-08-03, 01:00 — real calendar Monday, but still "Sunday
-    // night" per a 04:00 day-start.
     vi.setSystemTime(new Date('2026-08-03T01:00:00'))
-    const entries = [entry('2026-07-27', { weightKg: 80 })] // a Monday
+    const entries = [entry('2026-08-03', { weightKg: 80 })]
 
     render(<LoggingConsistencyHeatmap entries={entries} />)
 
-    // Without the day-start adjustment, a new week row (Aug 3-9) would
-    // already start rendering once the real clock ticks past midnight.
-    expect(screen.getByText('Jul 27')).toBeInTheDocument()
-    expect(screen.queryByText('Aug 3')).not.toBeInTheDocument()
+    expect(screen.getByText('Aug 3')).toBeInTheDocument()
 
     vi.useRealTimers()
-    useDayStartStore.setState({ dayStartTime: '00:00' })
   })
 
   it('gives a fully-logged day a title reflecting its full score', () => {

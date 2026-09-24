@@ -37,7 +37,6 @@ export interface UseMealKcalVsLastSameMealArgs {
   calorieEntries: readonly CalorieEntry[]
   mealsInDisplayOrder: readonly CalorieEntry[]
   mealSlotTimes: MealSlotDefaultTimes
-  dayStartTime: string
   t: Dictionary
 }
 
@@ -52,7 +51,6 @@ export function useMealKcalVsLastSameMeal({
   calorieEntries,
   mealsInDisplayOrder,
   mealSlotTimes,
-  dayStartTime,
   t,
 }: UseMealKcalVsLastSameMealArgs): MealKcalComparison[] {
   const [entries, setEntries] = useState<DailyEntry[]>([])
@@ -89,7 +87,7 @@ export function useMealKcalVsLastSameMeal({
       priorDays.push({
         date: entry.date,
         meals: labelSortedMeals(
-          sortCalorieEntriesByLoggedTime(meals, mealSlotTimes, dayStartTime),
+          sortCalorieEntriesByLoggedTime(meals, mealSlotTimes),
           meals,
           t,
         ),
@@ -102,7 +100,6 @@ export function useMealKcalVsLastSameMeal({
     entries,
     date,
     mealSlotTimes,
-    dayStartTime,
     t,
   ])
 }

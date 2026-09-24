@@ -26,7 +26,6 @@ export const SETTINGS_CARD_GROUPS: Record<
   logging: [
     'trackingPreset',
     'trackedFields',
-    'dayStart',
     'mealSlotTimes',
     'profile',
     'dailyReminder',

@@ -18,14 +18,12 @@ import {
   isHeadingTowardGoalOnDate,
   type ReachedGoalWindow,
 } from '@/domain/goal'
-import { todayIsoForDayStart } from '@/domain/stats'
 import { getDateFnsLocale, useLocale, useTranslation } from '@/i18n'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import {
   useCalendarMarkerVisibilityStore,
   useCycleTrackingStore,
-  useDayStartStore,
   useDigestionTrackingStore,
   type CalendarMarkerKey,
 } from '@/stores'
@@ -67,10 +65,7 @@ export function CalendarView({
   )
   const [currentMonth, setCurrentMonth] = useState(() => new Date())
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
-  // #625 — the bold/aria-current "today" cell should respect day-start too,
-  // same meaning `TodayScreen.tsx`'s own "today" already uses.
-  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
-  const todayIso = todayIsoForDayStart(dayStartTime)
+  const todayIso = format(new Date(), 'yyyy-MM-dd')
 
   const entriesByDate = new Map(entries.map((entry) => [entry.date, entry]))
 

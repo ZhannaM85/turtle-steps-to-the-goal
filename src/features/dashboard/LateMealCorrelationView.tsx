@@ -22,7 +22,6 @@ import {
 } from '@/i18n'
 import {
   useDashboardChartVisibilityStore,
-  useDayStartStore,
   useUnitStore,
 } from '@/stores'
 import { useOutlierExclusion } from '@/shared/hooks'
@@ -87,11 +86,7 @@ export function LateMealCorrelationView({
   const cardVisible = useDashboardChartVisibilityStore(
     (state) => state.visible.lateMealCorrelation,
   )
-  // #601 — a meal logged before day-start should split as "later," not
-  // "earlier," matching the Day screen's own meal-list ordering (#621).
-  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
-
-  const rawPoints = lateMealPoints(entries, dayStartTime)
+  const rawPoints = lateMealPoints(entries)
   const notesByDate = dayNotesByDate(entries)
   const { flags, axes, isExcluded, toggle, includedPoints } = useOutlierExclusion(
     'lateMeal',
@@ -139,7 +134,7 @@ export function LateMealCorrelationView({
     ),
   )
 
-  const insight = lateMealCorrelationFromPoints(includedPoints, dayStartTime)
+  const insight = lateMealCorrelationFromPoints(includedPoints)
   const expanded = insight !== null || isExpanded
 
   const xValues = points.map((p) => p.minutes)

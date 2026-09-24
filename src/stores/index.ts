@@ -60,7 +60,6 @@ export {
   DEFAULT_DASHBOARD_SECTION_ORDER,
   useDashboardSectionOrderStore,
 } from './dashboardSectionOrderStore'
-export { useDayStartStore } from './dayStartStore'
 export { useMealSlotDefaultTimesStore } from './mealSlotDefaultTimesStore'
 export {
   DEFAULT_TODAY_CARD_ORDER,

@@ -25,7 +25,6 @@ import {
 } from '@/i18n'
 import {
   useDashboardChartVisibilityStore,
-  useDayStartStore,
   useUnitStore,
 } from '@/stores'
 import { useOutlierExclusion } from '@/shared/hooks'
@@ -86,12 +85,7 @@ export function FastingWindowCorrelationView({
   const cardVisible = useDashboardChartVisibilityStore(
     (state) => state.visible.fastingWindowCorrelation,
   )
-  // #601 — the fasting window's own start/end meal times should respect
-  // day-start too, same as the "your fasting window was X hours" toast
-  // (`fastingHoursBetween`, MealList.tsx) already does.
-  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
-
-  const rawPoints = fastingWindowPoints(entries, dayStartTime)
+  const rawPoints = fastingWindowPoints(entries)
   const notesByDate = dayNotesByDate(entries)
   const { flags, axes, isExcluded, toggle, includedPoints } = useOutlierExclusion(
     'fastingWindow',

@@ -24,37 +24,29 @@ function timeToMinutes(hhmm: string): number {
  */
 export function lastMealClock(
   entries: readonly MealWithTime[],
-  dayStartTime: string,
   slotTimes?: MealSlotDefaultTimes,
 ): string | null {
-  const dayStartMinutes = timeToMinutes(dayStartTime)
   let best: { clock: string; adjusted: number } | null = null
   for (const meal of entries) {
     const clock = effectiveTimeEaten(meal, slotTimes)
     if (!clock) continue
-    const adjusted = adjustForDayStart(timeToMinutes(clock), dayStartMinutes)
+    const adjusted = adjustForDayStart(timeToMinutes(clock))
     if (!best || adjusted > best.adjusted) best = { clock, adjusted }
   }
   return best?.clock ?? null
 }
 
 /**
- * Local Date for a meal's HH:MM on `dateIso`. Late-night clocks that
- * wrap before day-start (and before 06:00) belong to the next calendar
- * day — same wrap as `adjustForDayStart`.
+ * Local Date for a meal's HH:MM on `dateIso`. Clocks before 06:00 are the
+ * late-night tail of that entry, so they belong to the next calendar day —
+ * same wrap as `adjustForDayStart`.
  */
-export function clockOnDayToDate(
-  dateIso: string,
-  hhmm: string,
-  dayStartTime: string,
-): Date {
+export function clockOnDayToDate(dateIso: string, hhmm: string): Date {
   const [year, month, day] = dateIso.split('-').map(Number)
   const [hours, minutes] = hhmm.split(':').map(Number)
   const date = new Date(year, month - 1, day, hours, minutes, 0, 0)
   const mealMinutes = hours * 60 + minutes
-  const startMinutes = timeToMinutes(dayStartTime)
-  const wrapBefore = Math.min(startMinutes, OVERNIGHT_WRAP_BEFORE_MINUTES)
-  if (mealMinutes < wrapBefore) {
+  if (mealMinutes < OVERNIGHT_WRAP_BEFORE_MINUTES) {
     date.setDate(date.getDate() + 1)
   }
   return date
@@ -65,7 +57,6 @@ export interface ResolveLastMealInstantArgs {
   todayEntries: readonly MealWithTime[]
   previousDate: string
   previousEntries: readonly MealWithTime[] | undefined
-  dayStartTime: string
   slotTimes?: MealSlotDefaultTimes
 }
 
@@ -78,21 +69,16 @@ export function resolveLastMealInstant({
   todayEntries,
   previousDate,
   previousEntries,
-  dayStartTime,
   slotTimes,
 }: ResolveLastMealInstantArgs): Date | null {
-  const todayClock = lastMealClock(todayEntries, dayStartTime, slotTimes)
+  const todayClock = lastMealClock(todayEntries, slotTimes)
   if (todayClock) {
-    return clockOnDayToDate(todayDate, todayClock, dayStartTime)
+    return clockOnDayToDate(todayDate, todayClock)
   }
   if (!previousEntries) return null
-  const previousClock = lastMealClock(
-    previousEntries,
-    dayStartTime,
-    slotTimes,
-  )
+  const previousClock = lastMealClock(previousEntries, slotTimes)
   if (!previousClock) return null
-  return clockOnDayToDate(previousDate, previousClock, dayStartTime)
+  return clockOnDayToDate(previousDate, previousClock)
 }
 
 /**
@@ -106,20 +92,19 @@ export function gapsSincePreviousMeal(
   dateIso: string,
   previousDate: string,
   previousEntries: readonly MealWithTime[] | undefined,
-  dayStartTime: string,
   slotTimes?: MealSlotDefaultTimes,
 ): (ElapsedParts | null)[] {
   const yesterdayClock = previousEntries
-    ? lastMealClock(previousEntries, dayStartTime, slotTimes)
+    ? lastMealClock(previousEntries, slotTimes)
     : null
   const yesterdayInstant = yesterdayClock
-    ? clockOnDayToDate(previousDate, yesterdayClock, dayStartTime)
+    ? clockOnDayToDate(previousDate, yesterdayClock)
     : null
 
   const instants: (Date | null)[] = meals.map((meal) => {
     const clock = effectiveTimeEaten(meal, slotTimes)
     if (!clock) return null
-    return clockOnDayToDate(dateIso, clock, dayStartTime)
+    return clockOnDayToDate(dateIso, clock)
   })
 
   return instants.map((thisInstant, index) => {

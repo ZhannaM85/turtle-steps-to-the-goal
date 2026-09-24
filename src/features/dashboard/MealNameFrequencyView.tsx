@@ -1,12 +1,11 @@
 import type { ReactNode } from 'react'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
-  effectiveDateFor,
   entriesInRecentWindow,
   mealNameTallies,
 } from '@/domain/stats'
 import { useTranslation } from '@/i18n'
-import { useDashboardChartVisibilityStore, useDayStartStore } from '@/stores'
+import { useDashboardChartVisibilityStore } from '@/stores'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { EmptyDashboardSection } from './EmptyDashboardSection'
 import { RankingList } from './RankingList'
@@ -27,8 +26,7 @@ export function MealNameFrequencyView({
   dragHandle,
 }: MealNameFrequencyViewProps) {
   const t = useTranslation()
-  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
-  const today = effectiveDateFor(new Date(), dayStartTime)
+  const today = new Date()
   const cardVisible = useDashboardChartVisibilityStore(
     (state) => state.visible.mealNameFrequency,
   )

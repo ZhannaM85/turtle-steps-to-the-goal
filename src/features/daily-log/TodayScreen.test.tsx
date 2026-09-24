@@ -20,7 +20,6 @@ import {
   useCustomMetricStore,
   useDailyEntryStore,
   useDailyReminderStore,
-  useDayStartStore,
   useGoalStore,
   useNutritionFactsStore,
   usePlannedMealsTrackingStore,
@@ -106,7 +105,6 @@ beforeEach(async () => {
   })
   useDailyReminderStore.setState({ enabled: false })
   useProfileStore.setState({ heightCm: undefined, age: undefined, sex: undefined })
-  useDayStartStore.setState({ dayStartTime: '00:00', startedEarlyForDate: null })
   useTodayCardOrderStore.persist.clearStorage()
   useTodayCardOrderStore.setState({ order: DEFAULT_TODAY_CARD_ORDER })
   useTodaySectionsCollapseStore.setState({
@@ -128,7 +126,6 @@ afterEach(async () => {
   usePlannedMealStore.setState({ plannedMeals: [], status: 'idle', error: null })
   useDailyReminderStore.setState({ enabled: false })
   useProfileStore.setState({ heightCm: undefined, age: undefined, sex: undefined })
-  useDayStartStore.setState({ dayStartTime: '00:00', startedEarlyForDate: null })
   useTodayCardOrderStore.persist.clearStorage()
   useTodayCardOrderStore.setState({ order: DEFAULT_TODAY_CARD_ORDER })
   useTodaySectionsCollapseStore.persist.clearStorage()
@@ -2134,11 +2131,10 @@ describe('TodayScreen', () => {
     })
   })
 
-  describe('day-start time (#298)', () => {
-    it('defaults to the previous day when now is before the configured day-start time', () => {
+  describe('calendar today (#984)', () => {
+    it('opens the real calendar day after midnight', () => {
       vi.useFakeTimers({ toFake: ['Date'] })
       vi.setSystemTime(new Date('2026-07-24T01:30:00'))
-      useDayStartStore.setState({ dayStartTime: '03:00' })
 
       render(
         <MemoryRouter>
@@ -2146,143 +2142,29 @@ describe('TodayScreen', () => {
         </MemoryRouter>,
       )
 
+      expect(screen.getByLabelText('Date')).toHaveValue('2026-07-24')
+      expect(
+        screen.queryByRole('button', { name: "Start today's log now" }),
+      ).not.toBeInTheDocument()
+      expect(screen.queryByText("It's already a new day.")).not.toBeInTheDocument()
+    })
+
+    it('keeps a late-night log on the previous day page and Today returns to the calendar day', async () => {
+      const user = userEvent.setup({ delay: null })
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-07-24T01:30:00'))
+
+      render(
+        <MemoryRouter>
+          <TodayScreen />
+        </MemoryRouter>,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Previous day' }))
       expect(screen.getByLabelText('Date')).toHaveValue('2026-07-23')
-    })
 
-    it('uses the real calendar day once at or after the configured day-start time', () => {
-      vi.useFakeTimers({ toFake: ['Date'] })
-      vi.setSystemTime(new Date('2026-07-24T03:00:00'))
-      useDayStartStore.setState({ dayStartTime: '03:00' })
-
-      render(
-        <MemoryRouter>
-          <TodayScreen />
-        </MemoryRouter>,
-      )
-
+      await user.click(screen.getByRole('button', { name: 'Today' }))
       expect(screen.getByLabelText('Date')).toHaveValue('2026-07-24')
-    })
-
-    it('is unaffected by default (midnight), matching the pre-#298 behavior exactly', () => {
-      vi.useFakeTimers({ toFake: ['Date'] })
-      vi.setSystemTime(new Date('2026-07-24T00:01:00'))
-
-      render(
-        <MemoryRouter>
-          <TodayScreen />
-        </MemoryRouter>,
-      )
-
-      expect(screen.getByLabelText('Date')).toHaveValue('2026-07-24')
-    })
-
-    // #345 — a per-occasion way to cross the configured boundary early,
-    // without touching the dayStartTime setting itself.
-    describe('starting today early (#345)', () => {
-      it('offers to start today\'s log early once the real calendar day has turned over', () => {
-        vi.useFakeTimers({ toFake: ['Date'] })
-        vi.setSystemTime(new Date('2026-07-24T01:30:00'))
-        useDayStartStore.setState({ dayStartTime: '03:00' })
-
-        render(
-          <MemoryRouter>
-            <TodayScreen />
-          </MemoryRouter>,
-        )
-
-        expect(screen.getByText("It's already a new day.")).toBeInTheDocument()
-        expect(
-          screen.getByRole('button', { name: "Start today's log now" }),
-        ).toBeInTheDocument()
-      })
-
-      it('jumps to the real calendar day once clicked', async () => {
-        const user = userEvent.setup({ delay: null })
-        vi.useFakeTimers({ toFake: ['Date'] })
-        vi.setSystemTime(new Date('2026-07-24T01:30:00'))
-        useDayStartStore.setState({ dayStartTime: '03:00' })
-
-        render(
-          <MemoryRouter>
-            <TodayScreen />
-          </MemoryRouter>,
-        )
-
-        await user.click(
-          screen.getByRole('button', { name: "Start today's log now" }),
-        )
-
-        expect(screen.getByLabelText('Date')).toHaveValue('2026-07-24')
-        expect(
-          screen.queryByText("It's already a new day."),
-        ).not.toBeInTheDocument()
-      })
-
-      it('keeps Сегодня on the early-started day after browsing away (#539)', async () => {
-        const user = userEvent.setup({ delay: null })
-        vi.useFakeTimers({ toFake: ['Date'] })
-        vi.setSystemTime(new Date('2026-07-24T01:30:00'))
-        useDayStartStore.setState({
-          dayStartTime: '03:00',
-          startedEarlyForDate: null,
-        })
-
-        render(
-          <MemoryRouter>
-            <TodayScreen />
-          </MemoryRouter>,
-        )
-
-        await user.click(
-          screen.getByRole('button', { name: "Start today's log now" }),
-        )
-        expect(screen.getByLabelText('Date')).toHaveValue('2026-07-24')
-
-        await user.click(screen.getByRole('button', { name: 'Previous day' }))
-        expect(screen.getByLabelText('Date')).toHaveValue('2026-07-23')
-
-        await user.click(screen.getByRole('button', { name: 'Today' }))
-        expect(screen.getByLabelText('Date')).toHaveValue('2026-07-24')
-        expect(useDayStartStore.getState().startedEarlyForDate).toBe(
-          '2026-07-24',
-        )
-      })
-
-      it('does not offer it once the real day matches the effective day', () => {
-        vi.useFakeTimers({ toFake: ['Date'] })
-        vi.setSystemTime(new Date('2026-07-24T03:00:00'))
-        useDayStartStore.setState({ dayStartTime: '03:00' })
-
-        render(
-          <MemoryRouter>
-            <TodayScreen />
-          </MemoryRouter>,
-        )
-
-        expect(
-          screen.queryByText("It's already a new day."),
-        ).not.toBeInTheDocument()
-      })
-
-      it('does not offer it while browsing an earlier day', () => {
-        vi.useFakeTimers({ toFake: ['Date'] })
-        vi.setSystemTime(new Date('2026-07-24T01:30:00'))
-        useDayStartStore.setState({ dayStartTime: '03:00' })
-
-        render(
-          <MemoryRouter>
-            <TodayScreen />
-          </MemoryRouter>,
-        )
-
-        fireEvent.change(screen.getByLabelText('Date'), {
-          target: { value: '2026-07-20' },
-        })
-
-        expect(
-          screen.queryByText("It's already a new day."),
-        ).not.toBeInTheDocument()
-      })
     })
   })
 

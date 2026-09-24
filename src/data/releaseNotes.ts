@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 959,
+    issue: 984,
+    date: '2026-09-24T09:29:30+03:00',
+    en: 'Today is the real calendar date, late-night meals stay on the day page you have open, and the day-start setting is gone.',
+    ru: '«Сегодня» — это календарная дата, поздние приёмы пищи остаются на открытой странице дня, а настройка «Начало дня» убрана.',
+  },
+  {
     version: 958,
     issue: 983,
     date: '2026-09-23T22:20:00+03:00',

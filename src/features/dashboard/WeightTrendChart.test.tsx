@@ -6,7 +6,6 @@ import type { DailyEntry } from '@/domain/dailyEntry'
 import { formatLocalizedDateRange, useLocaleStore } from '@/i18n'
 import {
   useDashboardChartVisibilityStore,
-  useDayStartStore,
   useOutlierExclusionStore,
   useTrendChartSeriesStore,
 } from '@/stores'
@@ -212,10 +211,6 @@ describe('WeightTrendChart', () => {
     afterEach(() => {
       vi.useRealTimers()
       useLocaleStore.setState({ locale: 'en' })
-      useDayStartStore.setState({
-        dayStartTime: '00:00',
-        startedEarlyForDate: null,
-      })
     })
 
     it('shows no paging arrows when no period is passed (pre-#443 behavior)', () => {
@@ -277,7 +272,6 @@ describe('WeightTrendChart', () => {
 
     it('#975: week range includes 21 Sept when today is that local morning', () => {
       useLocaleStore.setState({ locale: 'ru' })
-      useDayStartStore.setState({ dayStartTime: '10:00' })
       vi.useFakeTimers({ toFake: ['Date'] })
       vi.setSystemTime(new Date(2026, 8, 21, 9, 51, 0))
       const entries = [
@@ -299,7 +293,6 @@ describe('WeightTrendChart', () => {
 
     it('#975: month range includes 21 Sept when today is that local morning', () => {
       useLocaleStore.setState({ locale: 'ru' })
-      useDayStartStore.setState({ dayStartTime: '10:00' })
       vi.useFakeTimers({ toFake: ['Date'] })
       vi.setSystemTime(new Date(2026, 8, 21, 9, 51, 0))
       const entries = [

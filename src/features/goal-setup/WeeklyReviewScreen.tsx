@@ -7,13 +7,13 @@ import {
   goalWindowHasEnded,
   goalWindowProgress,
 } from '@/domain/goal'
-import { correlationInsight, effectiveDateFor } from '@/domain/stats'
+import { correlationInsight } from '@/domain/stats'
 import { formatNumber, getDateFnsLocale, useLocale, useTranslation } from '@/i18n'
 import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
 import { useWeekStartsOn } from '@/shared/hooks'
 import { PageHeader } from '@/shared/ui/page-header'
 import { Button } from '@/shared/ui/button'
-import { useDayStartStore, useGoalStore } from '@/stores'
+import { useGoalStore } from '@/stores'
 
 const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 
@@ -47,11 +47,7 @@ export function WeeklyReviewScreen() {
   }, [])
 
   const weekStartsOn = useWeekStartsOn(entries)
-  // #601 — "is this week still in progress"/"how far into the goal window
-  // are we" should respect day-start too, same meaning `TodayScreen.tsx`'s
-  // own "today" already uses.
-  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
-  const today = effectiveDateFor(new Date(), dayStartTime)
+  const today = new Date()
   const insight = correlationInsight(
     entries,
     weekStartsOn,

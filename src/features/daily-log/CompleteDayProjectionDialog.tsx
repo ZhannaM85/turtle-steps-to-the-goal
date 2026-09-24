@@ -130,8 +130,8 @@ function CompleteDayLegendLineSample({
  * #934 — Day CTA + full-height sheet: if days like today became the usual
  * pattern, where weight might be over the selected Week / Month / Year.
  * Close with the X only.
- * #944 — outline chrome matches "Start today's log now" (beige fill, thin
- * border, dark text) so the full-width CTA is not a solid olive block.
+ * #944 — outline chrome (beige fill, thin border, dark text) so the
+ * full-width CTA is not a solid olive block.
  * #948 / #951 — Week/Month/Year uses the shared Export period
  * `PeriodToggleGroup` (muted track, card pill, shadow, 48px type).
  */

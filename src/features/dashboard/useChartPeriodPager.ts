@@ -10,7 +10,6 @@ import {
   type TrendChartPeriod,
   type TrendChartPeriodRange,
 } from '@/domain/stats'
-import { useDayStartStore } from '@/stores'
 
 export interface ChartPeriodPager {
   pagedEntries: DailyEntry[]
@@ -49,22 +48,11 @@ export function useChartPeriodPager(
   entries: DailyEntry[],
   // Injectable, same as `resolveTrendChartPeriodRange`'s own `today` param —
   // lets tests pin "today" instead of depending on the real system clock.
-  // #975 — omitted (the normal case), defaults to the local calendar day
-  // once morning has started, so through-now windows include today's point.
-  // Overnight still follows day-start (#625).
+  // #975 / #984 — omitted (the normal case), defaults to the local
+  // calendar day, including after midnight.
   today?: Date,
 ): ChartPeriodPager {
-  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
-  const startedEarlyForDate = useDayStartStore(
-    (state) => state.startedEarlyForDate,
-  )
-  const resolvedToday =
-    today ??
-    throughNowDateForTrendChart(
-      new Date(),
-      dayStartTime,
-      startedEarlyForDate,
-    )
+  const resolvedToday = today ?? throughNowDateForTrendChart(new Date())
   const [periodsBack, setPeriodsBack] = useState(0)
   // Switching the shared period *type* mid-page (e.g. Month -> Week) leaves
   // an offset that no longer means the same thing against the new window

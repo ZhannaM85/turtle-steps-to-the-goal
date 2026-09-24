@@ -68,7 +68,7 @@ describe('CompleteDayProjectionDialog (#934 / #936 / #938 / #944 / #945 / #947 /
     })
   })
 
-  it('uses outline chrome like Start today’s log now (#944)', () => {
+  it('uses outline chrome on Complete the day (#944)', () => {
     render(
       <MemoryRouter>
         <DailyEntryFormStateProvider

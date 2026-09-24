@@ -183,7 +183,7 @@ describe('lateMealCorrelation', () => {
       entry(day(1), { weightKg: 79.9 }),
     ]
 
-    const points = lateMealPoints(entries, '04:00')
+    const points = lateMealPoints(entries)
     expect(points).toHaveLength(1)
     expect(points[0].minutes).toBe(1 * 60 + 22)
   })
@@ -196,17 +196,12 @@ describe('lateMealCorrelation', () => {
       }),
       entry(day(1), { weightKg: 79.9 }),
     ]
-    const points = lateMealPoints(entries, '04:00')
-    // Not the day-start-adjusted value (01:22 + 24h).
+    const points = lateMealPoints(entries)
+    // Wall-clock minutes for the chart, not the +24h sort key.
     expect(points[0].minutes).toBeLessThan(24 * 60)
   })
 
-  // #601 — a meal logged after midnight but before the configured day-start
-  // time is really the tail of a late night, not an early morning. Without
-  // `dayStartTime`, these four post-midnight meals would sort as *earlier*
-  // than the four midday ones (raw '00:xx' < raw '12:xx') — the exact
-  // opposite of what actually happened.
-  it('sorts a meal logged after midnight but before day-start into the later group, not earlier', () => {
+  it('sorts a past-midnight meal into the later group (#984)', () => {
     const entries = [
       entry(day(0), { weightKg: 80.0, calorieEntries: mealAt('12:00') }),
       entry(day(1), { weightKg: 80.1, calorieEntries: mealAt('12:30') }),
@@ -219,16 +214,9 @@ describe('lateMealCorrelation', () => {
       entry(day(8), { weightKg: 83.4 }),
     ]
 
-    const withDayStart = lateMealCorrelation(entries, '04:00')
-    expect(withDayStart!.laterAveragedMoreGain).toBe(true)
-    expect(withDayStart!.laterGroupAvgDeltaKg).toBeCloseTo(0.75, 5)
-
-    // Without a day-start setting (midnight, today's existing behavior),
-    // the same post-midnight meals sort as the *earlier* group instead —
-    // confirms the two calls actually take different paths, not that the
-    // fixture happens to classify the same way regardless.
-    const withoutDayStart = lateMealCorrelation(entries)
-    expect(withoutDayStart!.laterAveragedMoreGain).toBe(false)
+    const result = lateMealCorrelation(entries)
+    expect(result!.laterAveragedMoreGain).toBe(true)
+    expect(result!.laterGroupAvgDeltaKg).toBeCloseTo(0.75, 5)
   })
 
   it('does not throw when a meal label is a number (#587, #579 legacy data)', () => {

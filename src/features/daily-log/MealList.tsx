@@ -24,7 +24,7 @@ import {
   evaluateMealNutritionFacts,
   type NutritionFactId,
 } from '@/domain/nutritionFacts'
-import { fastingHoursBetween, gapsSincePreviousMeal, resolveLastMealInstant, todayIsoForDayStart } from '@/domain/stats'
+import { fastingHoursBetween, gapsSincePreviousMeal, resolveLastMealInstant } from '@/domain/stats'
 import {
   useLocale,
   useTranslation,
@@ -35,7 +35,7 @@ import { defaultMealLabel, editableMealLabel, effectiveMealLabel, mealLabelSugge
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { NoticeBar } from '@/shared/ui/notice-bar'
-import { useCopyYesterdayMealsStore, useDayStartStore, useMealItemStore, useMealLabelPresetStore, useMealSlotDefaultTimesStore, useMealKcalVsYesterdayStore, useSinceLastMealTimerStore } from '@/stores'
+import { useCopyYesterdayMealsStore, useMealItemStore, useMealLabelPresetStore, useMealSlotDefaultTimesStore, useMealKcalVsYesterdayStore, useSinceLastMealTimerStore } from '@/stores'
 import { AddMealDialog } from './AddMealDialog'
 import { CopyDayMealsDialog } from './CopyDayMealsDialog'
 import { SinceLastMealTimer } from './SinceLastMealTimer'
@@ -147,14 +147,6 @@ export function MealList({
   const t = useTranslation()
   const locale = useLocale()
   const mealSlotTimes = useMealSlotDefaultTimesStore((state) => state.times)
-  // #387 — reported live: a meal logged before this cutoff gets filed
-  // under the *previous* day's own record (`effectiveDateFor`, #298), so
-  // without this the toast's own day-pairing math would treat that
-  // past-midnight meal as an early meal of that previous day instead of
-  // its actual latest one. See fastingWindow.ts's own `adjustForDayStart`
-  // comment for the full reasoning. #621 — also feeds the meal-list sort
-  // below, for the identical reason.
-  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
   // #692 — opt-in; off by default so the full-width control doesn't
   // dominate empty days for people who rarely use it.
   const copyYesterdayMealsEnabled = useCopyYesterdayMealsStore(
@@ -169,13 +161,11 @@ export function MealList({
   const sinceLastMealTimerEnabled = useSinceLastMealTimerStore(
     (state) => state.enabled,
   )
-  // #597 — display earliest logged/effective time first (storage order
-  // unchanged). #621 — day-start-adjusted, so a past-midnight meal sorts
-  // after the evening it actually followed, not before it.
+  // Earliest clock first. Times before 06:00 sort after the evening they
+  // followed on this same day page (#984).
   const mealsInDisplayOrder = useMemo(
-    () =>
-      sortCalorieEntriesByLoggedTime(calorieEntries, mealSlotTimes, dayStartTime),
-    [calorieEntries, mealSlotTimes, dayStartTime],
+    () => sortCalorieEntriesByLoggedTime(calorieEntries, mealSlotTimes),
+    [calorieEntries, mealSlotTimes],
   )
 
   function setCalorieEntries(next: CalorieEntry[]) {
@@ -221,13 +211,9 @@ export function MealList({
   const fastingWindowToastHours = useMemo(
     () =>
       previousDayEntry
-        ? fastingHoursBetween(
-            previousDayEntry,
-            { calorieEntries },
-            dayStartTime,
-          )
+        ? fastingHoursBetween(previousDayEntry, { calorieEntries })
         : null,
-    [previousDayEntry, calorieEntries, dayStartTime],
+    [previousDayEntry, calorieEntries],
   )
   const fastingWindowParts =
     fastingWindowToastHours === null
@@ -236,13 +222,12 @@ export function MealList({
 
   const lastMealAt = useMemo(() => {
     if (!sinceLastMealTimerEnabled) return null
-    if (date !== todayIsoForDayStart(dayStartTime)) return null
+    if (date !== format(new Date(), 'yyyy-MM-dd')) return null
     return resolveLastMealInstant({
       todayDate: date,
       todayEntries: calorieEntries,
       previousDate,
       previousEntries: previousDayEntry?.calorieEntries,
-      dayStartTime,
       slotTimes: mealSlotTimes,
     })
   }, [
@@ -251,7 +236,6 @@ export function MealList({
     calorieEntries,
     previousDate,
     previousDayEntry,
-    dayStartTime,
     mealSlotTimes,
   ])
 
@@ -262,7 +246,6 @@ export function MealList({
       date,
       previousDate,
       previousDayEntry?.calorieEntries,
-      dayStartTime,
       mealSlotTimes,
     )
   }, [
@@ -271,7 +254,6 @@ export function MealList({
     date,
     previousDate,
     previousDayEntry,
-    dayStartTime,
     mealSlotTimes,
   ])
 
@@ -284,7 +266,6 @@ export function MealList({
     calorieEntries,
     mealsInDisplayOrder,
     mealSlotTimes,
-    dayStartTime,
     t,
   })
 

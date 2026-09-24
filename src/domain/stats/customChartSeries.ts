@@ -87,13 +87,12 @@ export interface CustomChartPoint {
 export function customChartPoints(
   entries: DailyEntry[],
   seriesKeys: NumericSeriesKey[],
-  dayStartTime = '00:00',
 ): CustomChartPoint[] {
   const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date))
 
   const fastingHoursByDate = seriesKeys.includes('fastingHours')
     ? new Map(
-        fastingWindowPoints(entries, dayStartTime).map((p) => [
+        fastingWindowPoints(entries).map((p) => [
           p.date,
           p.fastingHours,
         ]),
@@ -151,11 +150,10 @@ export function customChartPoints(
 export function numericSeriesValueByDate(
   entries: DailyEntry[],
   key: NumericSeriesKey,
-  dayStartTime = '00:00',
 ): Map<string, number> {
   if (key === 'fastingHours') {
     return new Map(
-      fastingWindowPoints(entries, dayStartTime).map((p) => [
+      fastingWindowPoints(entries).map((p) => [
         p.date,
         p.fastingHours,
       ]),

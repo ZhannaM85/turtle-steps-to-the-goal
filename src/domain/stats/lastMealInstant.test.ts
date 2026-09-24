@@ -10,10 +10,11 @@ import {
 describe('lastMealInstant (#791)', () => {
   it('picks the latest clock on a day', () => {
     expect(
-      lastMealClock(
-        [{ timeEaten: '12:00' }, { timeEaten: '18:52' }, { timeEaten: '08:10' }],
-        '00:00',
-      ),
+      lastMealClock([
+        { timeEaten: '12:00' },
+        { timeEaten: '18:52' },
+        { timeEaten: '08:10' },
+      ]),
     ).toBe('18:52')
   })
 
@@ -23,7 +24,6 @@ describe('lastMealInstant (#791)', () => {
       todayEntries: [{ timeEaten: '18:52' }],
       previousDate: '2026-08-29',
       previousEntries: [{ timeEaten: '21:00' }],
-      dayStartTime: '00:00',
     })
     expect(instant).toEqual(new Date(2026, 7, 30, 18, 52, 0, 0))
   })
@@ -34,19 +34,18 @@ describe('lastMealInstant (#791)', () => {
       todayEntries: [],
       previousDate: '2026-08-29',
       previousEntries: [{ timeEaten: '21:00' }],
-      dayStartTime: '00:00',
     })
     expect(instant).toEqual(new Date(2026, 7, 29, 21, 0, 0, 0))
   })
 
   it('places a post-midnight tail on the next calendar day', () => {
-    expect(clockOnDayToDate('2026-08-30', '01:15', '04:00')).toEqual(
+    expect(clockOnDayToDate('2026-08-30', '01:15')).toEqual(
       new Date(2026, 7, 31, 1, 15, 0, 0),
     )
   })
 
-  it('does not wrap a morning breakfast before a late day-start (#755)', () => {
-    expect(clockOnDayToDate('2026-08-30', '08:27', '10:00')).toEqual(
+  it('does not wrap a morning breakfast (#755)', () => {
+    expect(clockOnDayToDate('2026-08-30', '08:27')).toEqual(
       new Date(2026, 7, 30, 8, 27, 0, 0),
     )
   })
@@ -80,7 +79,6 @@ describe('gapsSincePreviousMeal (#792)', () => {
         '2026-08-30',
         '2026-08-29',
         [{ timeEaten: '22:00' }],
-        '00:00',
       ),
     ).toEqual([
       { hours: 10, minutes: 0, seconds: 0 },
@@ -95,7 +93,6 @@ describe('gapsSincePreviousMeal (#792)', () => {
         '2026-08-30',
         '2026-08-29',
         [{ timeEaten: '20:00' }],
-        '00:00',
       ),
     ).toEqual([
       null,
@@ -110,7 +107,6 @@ describe('gapsSincePreviousMeal (#792)', () => {
         '2026-08-30',
         '2026-08-29',
         undefined,
-        '00:00',
       ),
     ).toEqual([null])
   })

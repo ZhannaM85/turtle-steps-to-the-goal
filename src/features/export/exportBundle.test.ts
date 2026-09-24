@@ -295,7 +295,6 @@ describe('buildExportBundle', () => {
     const settings = {
       unit: 'lb' as const,
       weekStart: 'firstEntryWeekday' as const,
-      dayStartTime: '04:00',
       cycleTracking: true,
       profile: { heightCm: 165, age: 40, sex: 'female' as const },
       mealLabelPresets: ['Brunch'],

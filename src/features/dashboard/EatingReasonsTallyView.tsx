@@ -2,14 +2,12 @@ import type { ReactNode } from 'react'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
   eatingReasonTallies,
-  effectiveDateFor,
   entriesInRecentWindow,
 } from '@/domain/stats'
 import { useTranslation } from '@/i18n'
 import { eatingReasonDisplayLabel } from '@/shared/lib/eatingReasonDisplay'
 import {
   useDashboardChartVisibilityStore,
-  useDayStartStore,
   useEatingReasonTrackingStore,
 } from '@/stores'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
@@ -36,8 +34,7 @@ export function EatingReasonsTallyView({
     (state) => state.builtinLabelOverrides,
   )
   const t = useTranslation()
-  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
-  const today = effectiveDateFor(new Date(), dayStartTime)
+  const today = new Date()
   const cardVisible = useDashboardChartVisibilityStore(
     (state) => state.visible.eatingReasonsTally,
   )

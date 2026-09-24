@@ -5,7 +5,6 @@ import type { DailyEntry } from '@/domain/dailyEntry'
 import { kgToLb, type Goal } from '@/domain/goal'
 import {
   excludeIncompleteCurrentWeek,
-  todayIsoForDayStart,
   weeklySummaries,
 } from '@/domain/stats'
 import {
@@ -18,7 +17,6 @@ import {
 import { macrosSummaryText } from '@/shared/lib/macroDisplay'
 import {
   useDashboardChartVisibilityStore,
-  useDayStartStore,
   useUnitStore,
   useWeeklyNoteStore,
 } from '@/stores'
@@ -55,10 +53,7 @@ export function WeeklySummaryCards({
   // correlations / MetTargetList). Goal-anchored half-weeks stay on Goal.
   // #562 — hide the in-progress current week until Sunday has passed.
   const weekStartsOn = 1 as const
-  // #601 — "is this week still in progress" should respect day-start too,
-  // same meaning `TodayScreen.tsx`'s own "today" already uses.
-  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
-  const asOfDate = todayIsoForDayStart(dayStartTime)
+  const asOfDate = format(new Date(), 'yyyy-MM-dd')
   const cardVisible = useDashboardChartVisibilityStore(
     (state) => state.visible.weeklySummary,
   )

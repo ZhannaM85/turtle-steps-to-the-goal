@@ -42,33 +42,22 @@ function timeToMinutes(hhmm: string): number {
  * instead of constructing one. */
 type EntryWithMeals = Pick<DailyEntry, 'calorieEntries'>
 
-// #387 — defaults to midnight (today's existing behavior everywhere a
-// caller doesn't pass a real value) so this stays a purely additive
-// change.
-function lastMealTimeMinutes(
-  entry: EntryWithMeals,
-  dayStartTime: string,
-): number | null {
-  const dayStartMinutes = timeToMinutes(dayStartTime)
+function lastMealTimeMinutes(entry: EntryWithMeals): number | null {
   const times = (entry.calorieEntries ?? [])
     .map((meal) => effectiveTimeEaten(meal))
     .filter((time): time is string => time !== undefined)
-    .map((time) => adjustForDayStart(timeToMinutes(time), dayStartMinutes))
+    .map((time) => adjustForDayStart(timeToMinutes(time)))
   return times.length === 0 ? null : Math.max(...times)
 }
 
 /** The earliest meal time (recorded or #580 slot default) across a day's
  * meals, in minutes since midnight (day-start-adjusted, see
  * `adjustForDayStart`) — null if the day has no meals with a usable time. */
-function earliestMealTimeMinutes(
-  entry: EntryWithMeals,
-  dayStartTime: string,
-): number | null {
-  const dayStartMinutes = timeToMinutes(dayStartTime)
+function earliestMealTimeMinutes(entry: EntryWithMeals): number | null {
   const times = (entry.calorieEntries ?? [])
     .map((meal) => effectiveTimeEaten(meal))
     .filter((time): time is string => time !== undefined)
-    .map((time) => adjustForDayStart(timeToMinutes(time), dayStartMinutes))
+    .map((time) => adjustForDayStart(timeToMinutes(time)))
   return times.length === 0 ? null : Math.min(...times)
 }
 
@@ -81,18 +70,17 @@ function earliestMealTimeMinutes(
  * directly by #287's "your fasting window was X hours" toast, which has
  * no reason to care whether weight was logged that day at all.
  *
- * #756 — `adjustForDayStart` (shared with meal sort) only wraps late-night
- * hours before 06:00, so an 08:27 breakfast after starting the day early
- * is the first meal (~10h from 22:54), not a wrapped tail (~33.6h).
+ * #756 / #984 — `adjustForDayStart` only wraps late-night hours before
+ * 06:00, so an 08:27 breakfast is the first meal (~10h from 22:54), not a
+ * wrapped tail. A 01:22 snack on the same entry as 19:41 is the latest meal.
  */
 export function fastingHoursBetween(
   previousDayEntry: EntryWithMeals,
   currentDayEntry: EntryWithMeals,
-  dayStartTime = '00:00',
 ): number | null {
-  const lastMealMinutes = lastMealTimeMinutes(previousDayEntry, dayStartTime)
+  const lastMealMinutes = lastMealTimeMinutes(previousDayEntry)
   if (lastMealMinutes === null) return null
-  const earliestMinutes = earliestMealTimeMinutes(currentDayEntry, dayStartTime)
+  const earliestMinutes = earliestMealTimeMinutes(currentDayEntry)
   if (earliestMinutes === null) return null
   return (24 * 60 - lastMealMinutes + earliestMinutes) / 60
 }
@@ -121,15 +109,9 @@ export interface FastingWindowPoint {
  * recorded time, and the current day also has a logged weight and at
  * least one meal with a recorded time.
  *
- * #601 — `dayStartTime` defaults to midnight (today's existing behavior
- * for any caller that doesn't pass one) but is otherwise threaded straight
- * into `fastingHoursBetween`, same as #287's toast already gets — closes
- * the "fastingWindowCorrelation/customChartSeries's fastingHours series
- * still assume midnight" gap this file's own comments used to call out.
  */
 export function fastingWindowPoints(
   entries: DailyEntry[],
-  dayStartTime = '00:00',
 ): FastingWindowPoint[] {
   const byDate = new Map(entries.map((entry) => [entry.date, entry]))
   const points: FastingWindowPoint[] = []
@@ -139,7 +121,7 @@ export function fastingWindowPoints(
     const nextDate = format(addDays(parseISO(entry.date), 1), 'yyyy-MM-dd')
     const nextEntry = byDate.get(nextDate)
     if (!nextEntry || nextEntry.weightKg === undefined) continue
-    const fastingHours = fastingHoursBetween(entry, nextEntry, dayStartTime)
+    const fastingHours = fastingHoursBetween(entry, nextEntry)
     if (fastingHours === null) continue
 
     points.push({
@@ -193,9 +175,6 @@ export function fastingWindowCorrelationFromPoints(
 
 export function fastingWindowCorrelation(
   entries: DailyEntry[],
-  dayStartTime = '00:00',
 ): FastingWindowCorrelation | null {
-  return fastingWindowCorrelationFromPoints(
-    fastingWindowPoints(entries, dayStartTime),
-  )
+  return fastingWindowCorrelationFromPoints(fastingWindowPoints(entries))
 }

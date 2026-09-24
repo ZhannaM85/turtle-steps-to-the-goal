@@ -93,23 +93,14 @@ describe('fastingWindowPoints', () => {
     expect(fastingWindowPoints(entries)).toEqual([])
   })
 
-  // #601 — `fastingWindowPoints` used to always call `fastingHoursBetween`
-  // with no third argument, silently defaulting to midnight regardless of
-  // the caller's real day-start-time setting (flagged in this file's own
-  // #387 comment as a known gap). Same fixture as the `fastingHoursBetween`
-  // "day-start-time awareness (#387)" tests below, just exercised through
-  // the points/correlation layer that actually feeds the Dashboard charts.
-  it('threads a real day-start time into the underlying fastingHoursBetween call', () => {
+  it('treats a past-midnight meal on the same entry as the latest one (#984)', () => {
     const entries = [
       entry(day(0), { weightKg: 80.0, calorieEntries: mealAt('19:41', '01:22') }),
       entry(day(1), { weightKg: 80.5, calorieEntries: mealAt('13:36') }),
     ]
 
-    const withDayStart = fastingWindowPoints(entries, '02:00')
-    expect(withDayStart[0].fastingHours).toBeCloseTo(12.233, 2)
-
-    const withoutDayStart = fastingWindowPoints(entries)
-    expect(withoutDayStart[0].fastingHours).toBeCloseTo(17.917, 2)
+    const points = fastingWindowPoints(entries)
+    expect(points[0].fastingHours).toBeCloseTo(12.233, 2)
   })
 })
 
@@ -186,59 +177,33 @@ describe('fastingHoursBetween (#287)', () => {
     expect(fastingHoursBetween(previous, current)).toBe(12)
   })
 
-  describe('day-start-time awareness (#387)', () => {
-    // Reproduces the exact live report: a 19:41 dinner and a past-midnight
-    // 01:22 snack both land in the *same* DailyEntry (the day-start-time
-    // setting, #298, files anything before the cutoff under the previous
-    // day), then a 13:36 breakfast the next day. Without the day-start
-    // adjustment, 01:22 reads as earlier-in-the-day than 19:41, so the
-    // "last meal" is wrongly picked as 19:41 (giving 17.9h). With it, the
-    // 01:22 snack is correctly the latest, real meal (giving ~12.23h).
-    it('treats a past-midnight meal filed under the previous day as the latest one, not the earliest', () => {
+  describe('overnight tail on the same entry (#387 / #984)', () => {
+    it('treats a past-midnight meal on the same day as the latest one', () => {
       const previous = { calorieEntries: mealAt('19:41', '01:22') }
       const current = { calorieEntries: mealAt('13:36') }
 
-      const hours = fastingHoursBetween(previous, current, '02:00')
-
-      expect(hours).toBeCloseTo(12.233, 2)
+      expect(fastingHoursBetween(previous, current)).toBeCloseTo(12.233, 2)
     })
 
-    it('falls back to midnight (today\'s existing behavior) when no day-start time is given', () => {
-      const previous = { calorieEntries: mealAt('19:41', '01:22') }
-      const current = { calorieEntries: mealAt('13:36') }
-
-      // No third argument — same as before this fix, 01:22 reads as the
-      // earliest event of that day, so 19:41 is (wrongly, but consistently
-      // with every other caller that hasn't opted into day-start-time
-      // awareness yet) treated as the last meal.
-      const hours = fastingHoursBetween(previous, current)
-
-      expect(hours).toBeCloseTo(17.917, 2)
-    })
-
-    it('leaves an ordinary meal at or after the cutoff untouched', () => {
+    it('leaves an ordinary evening-to-morning gap untouched', () => {
       const previous = { calorieEntries: mealAt('20:00') }
       const current = { calorieEntries: mealAt('08:00') }
 
-      expect(fastingHoursBetween(previous, current, '02:00')).toBe(12)
+      expect(fastingHoursBetween(previous, current)).toBe(12)
     })
 
-    // #756 — live: 18 Aug dinner 22:54, 19 Aug lunch 08:27, day-start after
-    // 08:27 (Start today's log now). Wrapping 08:27 as a late-night tail
-    // produced 33.6h instead of ~9.6h.
-    it('does not add an extra 24h when breakfast is before a late-morning day-start (#756)', () => {
+    it('does not wrap an 08:27 breakfast (#756)', () => {
       const previous = { calorieEntries: mealAt('22:54') }
       const current = { calorieEntries: mealAt('08:27') }
 
-      expect(fastingHoursBetween(previous, current, '10:00')).toBeCloseTo(9.55, 2)
-      expect(fastingHoursBetween(previous, current, '04:00')).toBeCloseTo(9.55, 2)
+      expect(fastingHoursBetween(previous, current)).toBeCloseTo(9.55, 2)
     })
 
-    it('uses 08:27 as the first meal, not 11:00, when day-start is 10:00 (#756)', () => {
+    it('uses 08:27 as the first meal, not 11:00 (#756)', () => {
       const previous = { calorieEntries: mealAt('22:54') }
       const current = { calorieEntries: mealAt('11:00', '08:27') }
 
-      expect(fastingHoursBetween(previous, current, '10:00')).toBeCloseTo(9.55, 2)
+      expect(fastingHoursBetween(previous, current)).toBeCloseTo(9.55, 2)
     })
   })
 })

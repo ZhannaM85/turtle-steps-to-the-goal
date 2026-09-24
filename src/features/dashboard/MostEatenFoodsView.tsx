@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import {
-  effectiveDateFor,
   entriesInRecentWindow,
   foodFrequencyTallies,
   mostEatenFoods,
@@ -9,7 +8,7 @@ import {
 } from '@/domain/stats'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
-import { useDashboardChartVisibilityStore, useDayStartStore } from '@/stores'
+import { useDashboardChartVisibilityStore } from '@/stores'
 import { ChartTitleWithToggle } from './ChartTitleWithToggle'
 import { EmptyDashboardSection } from './EmptyDashboardSection'
 import { RankingList } from './RankingList'
@@ -32,8 +31,7 @@ export function MostEatenFoodsView({
   const t = useTranslation()
   const locale = useLocale()
   const [rankBy, setRankBy] = useState<FoodFrequencyRankBy>('count')
-  const dayStartTime = useDayStartStore((state) => state.dayStartTime)
-  const today = effectiveDateFor(new Date(), dayStartTime)
+  const today = new Date()
   const cardVisible = useDashboardChartVisibilityStore(
     (state) => state.visible.mostEatenRecently,
   )

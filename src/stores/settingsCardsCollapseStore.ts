@@ -7,7 +7,6 @@ export const SETTINGS_CARD_KEYS = [
   'features',
   'units',
   'weekStart',
-  'dayStart',
   'mealSlotTimes',
   'language',
   'appearance',

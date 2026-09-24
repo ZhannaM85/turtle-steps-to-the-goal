@@ -176,33 +176,22 @@ describe('mealLabel helpers', () => {
     expect(sorted.map((m) => m.id)).toEqual(['d', 'b', 'l'])
   })
 
-  it('sorts a past-midnight meal after the evening it followed, given a real day-start time (#621)', () => {
+  it('sorts a past-midnight meal after the evening it followed (#984)', () => {
     const meals = [
       { id: 'night', label: 'Night snack', timeEaten: '01:00' },
       { id: 'lunch', label: 'Lunch', timeEaten: '14:09' },
       { id: 'lunch2', label: 'Lunch two', timeEaten: '15:23' },
     ]
-    // Day starts at 04:00 — 01:00 is before that cutoff, so it belongs to
-    // the tail of the previous evening, not the start of a new one.
-    const sorted = sortCalorieEntriesByLoggedTime(meals, undefined, '04:00')
+    const sorted = sortCalorieEntriesByLoggedTime(meals)
     expect(sorted.map((m) => m.id)).toEqual(['lunch', 'lunch2', 'night'])
   })
 
-  it('keeps the plain clock-time order when no day-start time is passed (default 00:00, #621)', () => {
-    const meals = [
-      { id: 'night', label: 'Night snack', timeEaten: '01:00' },
-      { id: 'lunch', label: 'Lunch', timeEaten: '14:09' },
-    ]
-    const sorted = sortCalorieEntriesByLoggedTime(meals)
-    expect(sorted.map((m) => m.id)).toEqual(['night', 'lunch'])
-  })
-
-  it('keeps 08:27 before 11:00 when day-start is 10:00 (#755)', () => {
+  it('keeps 08:27 before 11:00 (#755)', () => {
     const meals = [
       { id: 'later', label: 'Lunch two', timeEaten: '11:00' },
       { id: 'earlier', label: 'Lunch', timeEaten: '08:27' },
     ]
-    const sorted = sortCalorieEntriesByLoggedTime(meals, undefined, '10:00')
+    const sorted = sortCalorieEntriesByLoggedTime(meals)
     expect(sorted.map((m) => m.id)).toEqual(['earlier', 'later'])
   })
 })

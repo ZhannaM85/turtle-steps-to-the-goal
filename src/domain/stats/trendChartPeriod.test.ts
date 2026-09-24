@@ -85,26 +85,19 @@ describe('resolveTrendChartPeriodRange', () => {
   })
 })
 
-describe('throughNowDateForTrendChart (#975)', () => {
-  it('uses the local calendar morning even when day-start is later the same day', () => {
+describe('throughNowDateForTrendChart (#975 / #984)', () => {
+  it('uses the local calendar day in the morning', () => {
     const now = new Date(2026, 8, 21, 9, 51, 0)
-    expect(format(throughNowDateForTrendChart(now, '10:00'), 'yyyy-MM-dd')).toBe(
+    expect(format(throughNowDateForTrendChart(now), 'yyyy-MM-dd')).toBe(
       '2026-09-21',
     )
   })
 
-  it('keeps overnight before 06:00 on the day-start logical day (#625)', () => {
+  it('keeps the calendar day after midnight (#984)', () => {
     const now = new Date(2026, 7, 3, 1, 0, 0)
-    expect(format(throughNowDateForTrendChart(now, '04:00'), 'yyyy-MM-dd')).toBe(
-      '2026-08-02',
+    expect(format(throughNowDateForTrendChart(now), 'yyyy-MM-dd')).toBe(
+      '2026-08-03',
     )
-  })
-
-  it("honors 'Start today's log now' even overnight", () => {
-    const now = new Date(2026, 8, 21, 1, 0, 0)
-    expect(
-      format(throughNowDateForTrendChart(now, '04:00', '2026-09-21'), 'yyyy-MM-dd'),
-    ).toBe('2026-09-21')
   })
 })
 

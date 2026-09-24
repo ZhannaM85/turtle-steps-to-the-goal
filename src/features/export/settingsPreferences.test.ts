@@ -80,4 +80,15 @@ describe('portable Day toggles (#861)', () => {
     })
     expect(parsed.success).toBe(true)
   })
+
+  it('ignores a legacy day-start time from an older backup (#984)', () => {
+    const parsed = settingsPreferencesSchema.safeParse({
+      unit: 'kg',
+      dayStartTime: '05:30',
+    })
+    expect(parsed.success).toBe(true)
+    if (!parsed.success) return
+    expect(parsed.data).not.toHaveProperty('dayStartTime')
+    expect(parsed.data.unit).toBe('kg')
+  })
 })

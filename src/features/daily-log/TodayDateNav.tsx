@@ -8,10 +8,8 @@ import { shiftDate } from './todayScreenUtils'
 export function TodayDateNav({
   date,
   todayIso,
-  realTodayIso,
   maxNavigableDate,
   onSetDate,
-  onStartTodayEarly,
   debug465,
   debug465Sizes,
   debug465PrevRef,
@@ -21,10 +19,8 @@ export function TodayDateNav({
 }: {
   date: string
   todayIso: string
-  realTodayIso: string
   maxNavigableDate: string
   onSetDate: (next: string | ((prev: string) => string)) => void
-  onStartTodayEarly: (realToday: string) => void
   debug465: boolean
   debug465Sizes: Record<
     'prev' | 'date' | 'next' | 'today',
@@ -108,20 +104,6 @@ export function TodayDateNav({
             ? `${debug465Sizes.today.width.toFixed(0)}×${debug465Sizes.today.height.toFixed(0)}`
             : '?'}
         </p>
-      )}
-      {realTodayIso !== todayIso && date === todayIso && (
-        <div className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
-          <span>{t.today.startTodayEarlyBanner}</span>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="shrink-0"
-            onClick={() => onStartTodayEarly(realTodayIso)}
-          >
-            {t.today.startTodayEarlyButton}
-          </Button>
-        </div>
       )}
     </div>
   )

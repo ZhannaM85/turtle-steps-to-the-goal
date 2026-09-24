@@ -88,28 +88,18 @@ describe('RecentAveragesCards', () => {
     expect(screen.getByText(expectedRangeLabel(30))).toBeInTheDocument()
   })
 
-  // #625 — "today" for this rolling window now respects day-start, same as
-  // the Day screen's own "today" already does.
-  it('keeps "today" pinned to the prior day past midnight but before day-start (#625)', async () => {
-    const { useDayStartStore } = await import('@/stores')
-    useDayStartStore.setState({ dayStartTime: '04:00' })
+  it('ends the rolling window on the calendar day after midnight (#984)', () => {
     vi.useFakeTimers()
-    // Monday 2026-08-03, 01:00 — real calendar Monday, but still "Sunday
-    // night" per a 04:00 day-start.
     vi.setSystemTime(new Date('2026-08-03T01:00:00'))
-    const entries = [entry('2026-08-02', { calorieEntries: calories(2000) })]
+    const entries = [entry('2026-08-03', { calorieEntries: calories(2000) })]
     render(<RecentAveragesCards entries={entries} />)
 
-    const dayStartToday = new Date('2026-08-02T01:00:00')
-    // Without the day-start adjustment, the window would already end on
-    // 2026-08-03 once the real clock ticks past midnight.
+    const calendarToday = new Date('2026-08-03T01:00:00')
     expect(
-      screen.getByText(expectedRangeLabel(7, dayStartToday)),
+      screen.getByText(expectedRangeLabel(7, calendarToday)),
     ).toBeInTheDocument()
-    expect(screen.queryByText(/Aug 3, 2026/)).not.toBeInTheDocument()
 
     vi.useRealTimers()
-    useDayStartStore.setState({ dayStartTime: '00:00' })
   })
 
   it('shows the average protein alongside average calories', () => {

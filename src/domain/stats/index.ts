@@ -279,8 +279,4 @@ export type {
   ElectrolytePoint,
   ElectrolyteSeriesKey,
 } from './electrolyteTrend'
-export {
-  adjustForDayStart,
-  effectiveDateFor,
-  todayIsoForDayStart,
-} from './dayStart'
+export { adjustForDayStart, OVERNIGHT_WRAP_BEFORE_MINUTES } from './dayStart'
