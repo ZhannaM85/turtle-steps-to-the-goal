@@ -274,6 +274,12 @@ export const dailyEntry: DailyEntryDict = {
       "The calories don't quite match the protein/fat/carbs entered — worth a second look.",
     lastLoggedLabel: 'last logged',
     perServingLabel: 'per serving',
+    catalogDeleteDuplicateTitle: (name) =>
+      `Delete the extra copy of “${name}”?`,
+    catalogDeleteDuplicateDescription: 'The row in this list stays.',
+    catalogItemInUseMessage:
+      'This is in your meal history, so it can’t be removed.',
+    catalogItemInUseDismiss: 'OK',
     sleepLabel: 'Sleep',
     sleepHoursLabel: 'Hours slept',
     deepSleepLabel: 'Deep sleep',

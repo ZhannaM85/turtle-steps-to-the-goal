@@ -282,6 +282,11 @@ export const dailyEntry: DailyEntryDict = {
       'Калории не совсем сходятся с указанными белками/жирами/углеводами — стоит перепроверить.',
     lastLoggedLabel: 'в прошлый раз',
     perServingLabel: 'на порцию',
+    catalogDeleteDuplicateTitle: (name) =>
+      `Удалить лишнюю копию «${name}»?`,
+    catalogDeleteDuplicateDescription: 'Строка в списке останется.',
+    catalogItemInUseMessage: 'Это есть в дневнике — удалить нельзя.',
+    catalogItemInUseDismiss: 'Понятно',
     sleepLabel: 'Сон',
     sleepHoursLabel: 'Часов сна',
     deepSleepLabel: 'Глубокий сон',

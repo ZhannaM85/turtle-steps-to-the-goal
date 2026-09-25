@@ -12,11 +12,18 @@ import {
   type OnlineFoodHit,
   type OnlineSearchRemoteStatus,
 } from './searchOnlineFoods'
-import type { PickableItem } from './addMealDialogHelpers'
+import { itemKey, type PickableItem } from './addMealDialogHelpers'
+import {
+  deleteMealSearchPickable,
+  mealSearchDeleteMode,
+  type MealSearchDeleteMode,
+  type MealSearchDeleteResult,
+} from './catalogItemDelete'
 import {
   filterToHomemadeDishes,
   isHomemadePickableItem,
 } from './homemadeFoodFilter'
+import { dedupeMealSearchMatches } from './mealSearchDedupe'
 
 const RECENT_COUNT = 3
 
@@ -121,17 +128,38 @@ export function useAddMealCatalog({
       ? allMealItems
       : allMealItems.slice(0, RECENT_COUNT)
   const searchableItems = filterToHomemadeDishes(allItems, homemadeOnly)
-  const matches = query
-    ? sortFavoritesFirst(
-        rankBySearchMatch(
-          searchableItems.filter((item) =>
-            textFor(item).toLowerCase().includes(query),
+  const dedupedMatches = query
+    ? dedupeMealSearchMatches(
+        sortFavoritesFirst(
+          rankBySearchMatch(
+            searchableItems.filter((item) =>
+              textFor(item).toLowerCase().includes(query),
+            ),
+            query,
+            textFor,
           ),
-          query,
-          textFor,
         ),
+        textFor,
       )
     : []
+  const matches = dedupedMatches.map((hit) => hit.item)
+
+  function hiddenFor(item: PickableItem): PickableItem[] {
+    return (
+      dedupedMatches.find((hit) => itemKey(hit.item) === itemKey(item))
+        ?.hidden ?? []
+    )
+  }
+
+  function deleteModeFor(item: PickableItem): MealSearchDeleteMode {
+    return mealSearchDeleteMode(item, hiddenFor(item))
+  }
+
+  function deletePickableItem(
+    item: PickableItem,
+  ): Promise<MealSearchDeleteResult> {
+    return deleteMealSearchPickable(item, hiddenFor(item))
+  }
 
   async function runOnlineSearch() {
     const rawQuery = search.trim()
@@ -175,6 +203,8 @@ export function useAddMealCatalog({
     allMealItems,
     recentItems,
     matches,
+    deleteMode: deleteModeFor,
+    deletePickableItem,
     query,
     showAllRecent,
     setShowAllRecent,

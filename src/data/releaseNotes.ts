@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 970,
+    issue: 995,
+    date: '2026-09-25T20:55:17+03:00',
+    en: 'Meal search shows one row when foods share a name and calories, and a long-press can delete an unused copy after you confirm.',
+    ru: 'В поиске блюд одинаковые название и калории показываются одной строкой, а неиспользуемую копию можно удалить долгим нажатием с подтверждением.',
+  },
+  {
     version: 969,
     issue: 994,
     date: '2026-09-25T20:41:29+03:00',

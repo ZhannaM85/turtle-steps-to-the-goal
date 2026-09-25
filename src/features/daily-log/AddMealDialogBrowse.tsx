@@ -16,6 +16,10 @@ import { AddMealPickableItemList } from './AddMealPickableItemList'
 import { AddMealQuickActionCard } from './AddMealQuickActionCard'
 import { HomemadeFoodFilterChip } from './HomemadeFoodFilterChip'
 import type { PickableItem } from './addMealDialogHelpers'
+import type {
+  MealSearchDeleteMode,
+  MealSearchDeleteResult,
+} from './catalogItemDelete'
 
 export function AddMealDialogBrowse({
   mealLabel,
@@ -33,6 +37,8 @@ export function AddMealDialogBrowse({
   isFavorite,
   onToggleFavorite,
   onPick,
+  onDeleteItem,
+  deleteMode,
   onOpenManualAdd,
   onOpenBarcode,
   onOpenRecipe,
@@ -64,6 +70,8 @@ export function AddMealDialogBrowse({
   isFavorite: (item: PickableItem) => boolean
   onToggleFavorite: (item: PickableItem) => void
   onPick: (item: PickableItem) => void
+  onDeleteItem?: (item: PickableItem) => Promise<MealSearchDeleteResult>
+  deleteMode?: (item: PickableItem) => MealSearchDeleteMode
   onOpenManualAdd: (initialName?: string) => void
   onOpenBarcode: () => void
   onOpenRecipe: () => void
@@ -173,6 +181,8 @@ export function AddMealDialogBrowse({
               isFavorite={isFavorite}
               onToggleFavorite={onToggleFavorite}
               onPick={onPick}
+              onDeleteItem={onDeleteItem}
+              deleteMode={deleteMode}
               t={t}
               locale={locale}
             />
@@ -252,6 +262,8 @@ export function AddMealDialogBrowse({
             isFavorite={isFavorite}
             onToggleFavorite={onToggleFavorite}
             onPick={onPick}
+            onDeleteItem={onDeleteItem}
+            deleteMode={deleteMode}
             t={t}
             locale={locale}
           />
@@ -292,6 +304,8 @@ export function AddMealDialogBrowse({
                   isFavorite={isFavorite}
                   onToggleFavorite={onToggleFavorite}
                   onPick={onPick}
+                  onDeleteItem={onDeleteItem}
+                  deleteMode={deleteMode}
                   t={t}
                   locale={locale}
                 />

@@ -309,6 +309,8 @@ export function AddMealDialog({
                   isFavorite={catalog.isFavorite}
                   onToggleFavorite={catalog.handleToggleFavorite}
                   onPick={sheet.openPickedItemSheet}
+                  onDeleteItem={catalog.deletePickableItem}
+                  deleteMode={catalog.deleteMode}
                   onOpenManualAdd={sheet.openManualAdd}
                   onOpenBarcode={() => setIsBarcodeOpen(true)}
                   onOpenRecipe={() => setIsRecipeOpen(true)}

@@ -137,6 +137,12 @@ export interface DailyEntryMealsDict {
     lastLoggedLabel: string
     /** #989 — recipe hit in meal search, parallel to lastLoggedLabel. */
     perServingLabel: string
+    /** #995 — long-press removes a hidden same-name copy; this row stays. */
+    catalogDeleteDuplicateTitle: (name: string) => string
+    catalogDeleteDuplicateDescription: string
+    /** #995 — last catalog row still named in a saved meal. */
+    catalogItemInUseMessage: string
+    catalogItemInUseDismiss: string
     sleepLabel: string
     sleepHoursLabel: string
     deepSleepLabel: string
