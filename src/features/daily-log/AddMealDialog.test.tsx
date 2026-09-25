@@ -1670,6 +1670,19 @@ describe('AddMealDialog (#454)', () => {
     )
   })
 
+  it('keeps the meal header and close above the scrollport (#999)', () => {
+    render(<ControlledAddMealDialog {...defaultProps} />)
+
+    const scroll = screen.getByTestId('add-meal-scroll')
+    const header = screen.getByTestId('add-meal-header')
+    const close = screen.getByRole('button', { name: 'Close' })
+
+    expect(scroll.contains(header)).toBe(false)
+    expect(scroll.contains(close)).toBe(false)
+    expect(header).toHaveClass('shrink-0')
+    expect(scroll.parentElement?.previousElementSibling).toBe(header)
+  })
+
   it('pins Done in a flex footer instead of sticky inside the scroll (#775)', () => {
     render(
       <AddMealDialog

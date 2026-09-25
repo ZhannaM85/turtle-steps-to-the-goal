@@ -25,7 +25,10 @@ export function AddMealDialogHeader({
 }) {
   const t = useTranslation()
   return (
-    <div className="flex flex-col gap-2 pr-10">
+    <div
+      data-testid="add-meal-header"
+      className="flex shrink-0 flex-col gap-2 bg-card pr-10"
+    >
       <Label htmlFor="add-meal-name">{t.dailyEntry.mealLabelFieldLabel}</Label>
       <div className="flex items-center justify-between gap-2">
         <DialogTitle className="sr-only">{mealLabel}</DialogTitle>

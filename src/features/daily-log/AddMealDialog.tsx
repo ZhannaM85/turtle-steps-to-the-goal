@@ -257,6 +257,17 @@ export function AddMealDialog({
             event.preventDefault()
           }}
         >
+          {/* #999 — title row stays a sibling of the scroll frame so the
+              absolute close sits in this band and list content cannot
+              scroll underneath it. */}
+          <AddMealDialogHeader
+            mealLabel={mealLabel}
+            onMealLabelChange={onMealLabelChange}
+            timeEaten={timeEaten}
+            onTimeEatenChange={onTimeEatenChange}
+            mealLabelSuggestions={mealLabelSuggestions}
+            onSaveMealNameAsTemplate={addMealLabelPreset}
+          />
           {/* #996 — WebKit sizes a lone `flex-1` / `overflow-y-auto` child to
               its content (`flex-basis: 0%` does not resolve against `h-dvh`),
               so this sheet clips until the Готово footer mounts and forces
@@ -273,14 +284,6 @@ export function AddMealDialog({
                   'pb-[calc(env(safe-area-inset-bottom)+1.25rem)]',
               )}
             >
-              <AddMealDialogHeader
-                mealLabel={mealLabel}
-                onMealLabelChange={onMealLabelChange}
-                timeEaten={timeEaten}
-                onTimeEatenChange={onTimeEatenChange}
-                mealLabelSuggestions={mealLabelSuggestions}
-                onSaveMealNameAsTemplate={addMealLabelPreset}
-              />
               <div className="mt-3 flex flex-col gap-4">
                 <AddMealDialogNotices
                   isConfirmingDiscard={isConfirmingDiscard}

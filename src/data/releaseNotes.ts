@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 974,
+    issue: 999,
+    date: '2026-09-25T23:21:42+03:00',
+    en: 'On the add-food screen, the meal title and close button stay at the top while the list scrolls, so the close button no longer covers the food.',
+    ru: 'На экране добавления еды название и кнопка закрытия остаются сверху, пока список прокручивается, и крестик больше не закрывает еду.',
+  },
+  {
     version: 973,
     issue: 998,
     date: '2026-09-25T21:39:18+03:00',
