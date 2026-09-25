@@ -279,6 +279,7 @@ export const dailyEntry: DailyEntryDict = {
     macroMismatchNote:
       'Калории не совсем сходятся с указанными белками/жирами/углеводами — стоит перепроверить.',
     lastLoggedLabel: 'в прошлый раз',
+    perServingLabel: 'на порцию',
     sleepLabel: 'Сон',
     sleepHoursLabel: 'Часов сна',
     deepSleepLabel: 'Глубокий сон',

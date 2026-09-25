@@ -1,8 +1,10 @@
 import { type FoodItem, type FoodServing, foods } from '@/data/foods'
 import type { CalorieItem, MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
+import type { Recipe } from '@/domain/recipe'
 import type { Locale } from '@/i18n'
 import type { SharedFoodImportResult } from '@/features/food-share'
+import { calorieItemForRecipeServing } from './replaceMealSelectionWithRecipe'
 import {
   gramsToPortions,
   parseOptionalMacro,
@@ -20,9 +22,12 @@ export const curatedFoodNames = new Set(
 export type PickableItem =
   | { source: 'food'; food: FoodItem }
   | { source: 'mealItem'; mealItem: MealItem & { lastAmountKcal: number } }
+  | { source: 'recipe'; recipe: Recipe }
 
 export function itemKey(item: PickableItem): string {
-  return item.source === 'food' ? `food-${item.food.id}` : `meal-${item.mealItem.id}`
+  if (item.source === 'food') return `food-${item.food.id}`
+  if (item.source === 'recipe') return `recipe-${item.recipe.id}`
+  return `meal-${item.mealItem.id}`
 }
 
 // #264 — a curated food has no "last used" quantity of its own, so 100g
@@ -164,6 +169,12 @@ export function draftFromPickableItem(
   locale: Locale,
   brandOverride?: string,
 ): { draft: ManualDraft; portionScaleBase: PortionScaleBase | null } {
+  // #989 — one serving, same sheet as a picked dish. Per 100 g when the
+  // recipe has a weight; otherwise the serving total is one 100 g portion.
+  if (item.source === 'recipe') {
+    const draft = draftFromCalorieItem(calorieItemForRecipeServing(item.recipe))
+    return { draft, portionScaleBase: portionScaleBaseFromDraft(draft) }
+  }
   if (item.source === 'food') {
     const { food } = item
     return {

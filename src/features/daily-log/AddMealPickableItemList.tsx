@@ -1,4 +1,5 @@
 import { Star } from 'lucide-react'
+import { recipePerServing } from '@/domain/recipe'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
 import { cn } from '@/shared/lib/utils'
@@ -52,6 +53,8 @@ export function AddMealPickableItemList({
                     )}
                   </span>
                 </>
+              ) : item.source === 'recipe' ? (
+                <RecipePickableSummary item={item} locale={locale} t={t} />
               ) : (
                 <>
                   <span className="text-base font-medium">
@@ -72,26 +75,56 @@ export function AddMealPickableItemList({
               )}
             </span>
           </button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            className="mr-1 shrink-0 self-center"
-            aria-label={
-              isFavorite(item)
-                ? t.dailyEntry.unfavoriteFoodLabel(textFor(item))
-                : t.dailyEntry.favoriteFoodLabel(textFor(item))
-            }
-            aria-pressed={isFavorite(item)}
-            onClick={() => onToggleFavorite(item)}
-          >
-            <Star
-              aria-hidden="true"
-              className={cn(isFavorite(item) && 'fill-current')}
-            />
-          </Button>
+          {item.source !== 'recipe' && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="mr-1 shrink-0 self-center"
+              aria-label={
+                isFavorite(item)
+                  ? t.dailyEntry.unfavoriteFoodLabel(textFor(item))
+                  : t.dailyEntry.favoriteFoodLabel(textFor(item))
+              }
+              aria-pressed={isFavorite(item)}
+              onClick={() => onToggleFavorite(item)}
+            >
+              <Star
+                aria-hidden="true"
+                className={cn(isFavorite(item) && 'fill-current')}
+              />
+            </Button>
+          )}
         </li>
       ))}
     </ul>
+  )
+}
+
+function RecipePickableSummary({
+  item,
+  locale,
+  t,
+}: {
+  item: PickableItem & { source: 'recipe' }
+  locale: ReturnType<typeof useLocale>
+  t: ReturnType<typeof useTranslation>
+}) {
+  const perServing = recipePerServing(item.recipe)
+  return (
+    <>
+      <span className="text-base font-medium">{item.recipe.name}</span>
+      <span>
+        {formatNumber(perServing.amountKcal, locale, 0)} {t.dailyEntry.kcalUnit}{' '}
+        {t.dailyEntry.perServingLabel} ·{' '}
+        {macrosSummaryTextCompact(
+          perServing.proteinG,
+          perServing.fatG,
+          perServing.carbsG,
+          locale,
+          t,
+        )}
+      </span>
+    </>
   )
 }

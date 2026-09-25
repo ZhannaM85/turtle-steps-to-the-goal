@@ -4,7 +4,7 @@ import type { MealItem } from '@/domain/mealItem'
 import type { Locale } from '@/i18n'
 import { applyFoodOverrides } from '@/shared/lib/applyFoodOverrides'
 import { rankBySearchMatch } from '@/shared/lib/searchRank'
-import { useFoodOverrideStore, useMealItemStore } from '@/stores'
+import { useFoodOverrideStore, useMealItemStore, useRecipeStore } from '@/stores'
 import { foodItemFromOff } from './foodItemFromOff'
 import {
   OFF_SEARCH_MIN_CHARS,
@@ -33,6 +33,7 @@ export function useAddMealCatalog({
   ) => void
 }) {
   const mealItems = useMealItemStore((state) => state.items)
+  const recipes = useRecipeStore((state) => state.recipes)
   const foodOverrides = useFoodOverrideStore((state) => state.overrides)
   const setFoodFavorite = useFoodOverrideStore((state) => state.setFavorite)
   const toggleMealItemFavorite = useMealItemStore((state) => state.toggleFavorite)
@@ -71,12 +72,21 @@ export function useAddMealCatalog({
     source: 'food',
     food,
   }))
-  const allItems = [...allMealItems, ...allFoods]
+  // #989 — recipes live in their own store, not the recent-food library.
+  // Search them by name; Recent stays meal items only.
+  const recipeItems: PickableItem[] = recipes
+    .filter((recipe) => recipe.name.trim() !== '')
+    .map((recipe) => ({ source: 'recipe', recipe }))
+  const allItems = [...allMealItems, ...recipeItems, ...allFoods]
 
-  const textFor = (item: PickableItem) =>
-    item.source === 'food' ? item.food[locale] : item.mealItem.name
+  const textFor = (item: PickableItem) => {
+    if (item.source === 'food') return item.food[locale]
+    if (item.source === 'recipe') return item.recipe.name
+    return item.mealItem.name
+  }
 
   function isFavorite(item: PickableItem): boolean {
+    if (item.source === 'recipe') return false
     if (item.source === 'mealItem') return item.mealItem.favorite === true
     return (
       foodOverrides.find((override) => override.foodId === item.food.id)
@@ -91,6 +101,7 @@ export function useAddMealCatalog({
   }
 
   function handleToggleFavorite(item: PickableItem) {
+    if (item.source === 'recipe') return
     if (item.source === 'mealItem') toggleMealItemFavorite(item.mealItem.id)
     else setFoodFavorite(item.food.id, !isFavorite(item))
   }

@@ -5,6 +5,7 @@ import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CalorieItem, Emotion } from '@/domain/dailyEntry'
+import type { Recipe } from '@/domain/recipe'
 import {
   SharedFoodImportHost,
   useFoodShareUiStore,
@@ -1039,6 +1040,62 @@ describe('AddMealDialog (#454)', () => {
       )
       expect(
         screen.getByRole('button', { name: 'Scan barcode' }),
+      ).toBeInTheDocument()
+    })
+  })
+
+  describe('saved recipes in food search (#989)', () => {
+    const troutSandwich: Recipe = {
+      id: 'recipe-trout-sandwich',
+      name: 'Бутерброд с форелью',
+      ingredients: [
+        {
+          id: 'ing-trout',
+          name: 'Форель',
+          amountKcal: 340,
+          proteinG: 20,
+          fatG: 16,
+          carbsG: 22,
+          amountG: 110,
+        },
+      ],
+      servings: 1,
+      createdAt: '2026-09-25T00:00:00.000Z',
+      updatedAt: '2026-09-25T00:00:00.000Z',
+    }
+
+    it('finds a saved recipe by a case-insensitive name substring', async () => {
+      await useRecipeStore.getState().upsertRecipe(troutSandwich)
+      const user = userEvent.setup()
+      render(<ControlledAddMealDialog {...defaultProps} />)
+
+      const search = screen.getByLabelText('Search foods')
+      await user.type(search, 'бутер')
+
+      const hit = await screen.findByRole('button', {
+        name: /Бутерброд с форелью/,
+      })
+      expect(hit).toHaveTextContent(/per serving/)
+      expect(screen.queryByText('No foods found.')).not.toBeInTheDocument()
+
+      await user.clear(search)
+      expect(screen.queryByText('Бутерброд с форелью')).not.toBeInTheDocument()
+      expect(screen.queryByText('Recent')).not.toBeInTheDocument()
+    })
+
+    it('adds the matched recipe from search', async () => {
+      await useRecipeStore.getState().upsertRecipe(troutSandwich)
+      const user = userEvent.setup()
+      render(<ControlledAddMealDialog {...defaultProps} />)
+
+      await user.type(screen.getByLabelText('Search foods'), 'Бутер')
+      await user.click(await screen.findByText('Бутерброд с форелью'))
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      const mealSoFar = screen.getByText('This meal so far').parentElement
+      expect(mealSoFar).not.toBeNull()
+      expect(
+        within(mealSoFar as HTMLElement).getByText('Бутерброд с форелью'),
       ).toBeInTheDocument()
     })
   })

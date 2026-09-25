@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 964,
+    issue: 989,
+    date: '2026-09-25T09:18:47+03:00',
+    en: 'Searching for a food in a meal now also finds saved recipes by name.',
+    ru: 'Поиск продукта в приёме пищи теперь находит и сохранённые рецепты по названию.',
+  },
+  {
     version: 963,
     issue: 988,
     date: '2026-09-25T09:02:49+03:00',

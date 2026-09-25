@@ -271,6 +271,7 @@ export const dailyEntry: DailyEntryDict = {
     macroMismatchNote:
       "The calories don't quite match the protein/fat/carbs entered — worth a second look.",
     lastLoggedLabel: 'last logged',
+    perServingLabel: 'per serving',
     sleepLabel: 'Sleep',
     sleepHoursLabel: 'Hours slept',
     deepSleepLabel: 'Deep sleep',

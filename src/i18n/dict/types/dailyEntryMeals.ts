@@ -132,6 +132,8 @@ export interface DailyEntryMealsDict {
      * Deliberately muted styling, not a red/destructive warning. */
     macroMismatchNote: string
     lastLoggedLabel: string
+    /** #989 — recipe hit in meal search, parallel to lastLoggedLabel. */
+    perServingLabel: string
     sleepLabel: string
     sleepHoursLabel: string
     deepSleepLabel: string
