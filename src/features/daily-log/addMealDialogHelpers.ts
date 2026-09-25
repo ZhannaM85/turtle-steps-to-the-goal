@@ -59,6 +59,7 @@ export function blankManualDraft() {
     macroMode: 'per100g' as 'per100g' | 'perPortion',
     emotion: undefined as MealEmotion | undefined,
     favorite: false,
+    homemade: false,
   }
 }
 
@@ -201,6 +202,7 @@ export function draftFromPickableItem(
         macroMode: 'per100g',
         emotion: undefined,
         favorite: false,
+        homemade: false,
       },
       portionScaleBase: null,
     }
@@ -247,6 +249,7 @@ export function draftFromPickableItem(
         macroMode: 'per100g',
         emotion: undefined,
         favorite: false,
+        homemade: mealItem.homemade === true,
       },
       portionScaleBase: null,
     }
@@ -277,6 +280,7 @@ export function draftFromPickableItem(
     macroMode: 'perPortion',
     emotion: undefined,
     favorite: false,
+    homemade: mealItem.homemade === true,
   }
   return { draft, portionScaleBase: portionScaleBaseFromDraft(draft) }
 }
@@ -425,6 +429,7 @@ export function draftFromCalorieItem(item: CalorieItem): ManualDraft {
     macroMode: 'per100g',
     emotion: item.emotion,
     favorite: false,
+    homemade: false,
   }
 }
 
@@ -462,5 +467,6 @@ export function libraryPickRatesPatch(
       rates.magnesium100 === undefined ? '' : String(rates.magnesium100),
     amountG: String(rates.portions),
     macroMode: 'per100g',
+    homemade: item.homemade === true,
   }
 }

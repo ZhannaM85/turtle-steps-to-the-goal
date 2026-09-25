@@ -13,6 +13,10 @@ import {
   type OnlineSearchRemoteStatus,
 } from './searchOnlineFoods'
 import type { PickableItem } from './addMealDialogHelpers'
+import {
+  filterToHomemadeDishes,
+  isHomemadePickableItem,
+} from './homemadeFoodFilter'
 
 const RECENT_COUNT = 3
 
@@ -38,6 +42,7 @@ export function useAddMealCatalog({
   const setFoodFavorite = useFoodOverrideStore((state) => state.setFavorite)
   const toggleMealItemFavorite = useMealItemStore((state) => state.toggleFavorite)
   const [showAllRecent, setShowAllRecent] = useState(false)
+  const [homemadeOnly, setHomemadeOnly] = useState(false)
   const [onlineHits, setOnlineHits] = useState<OnlineFoodHit[]>([])
   const [onlineSearchStatus, setOnlineSearchStatus] = useState<
     'idle' | 'loading' | 'done'
@@ -107,13 +112,21 @@ export function useAddMealCatalog({
   }
 
   const query = search.trim().toLowerCase()
-  const recentItems = showAllRecent
-    ? allMealItems
-    : allMealItems.slice(0, RECENT_COUNT)
+  const homemadeItems = sortFavoritesFirst(
+    allMealItems.filter(isHomemadePickableItem),
+  )
+  const recentItems = homemadeOnly
+    ? homemadeItems
+    : showAllRecent
+      ? allMealItems
+      : allMealItems.slice(0, RECENT_COUNT)
+  const searchableItems = filterToHomemadeDishes(allItems, homemadeOnly)
   const matches = query
     ? sortFavoritesFirst(
         rankBySearchMatch(
-          allItems.filter((item) => textFor(item).toLowerCase().includes(query)),
+          searchableItems.filter((item) =>
+            textFor(item).toLowerCase().includes(query),
+          ),
           query,
           textFor,
         ),
@@ -166,6 +179,8 @@ export function useAddMealCatalog({
     showAllRecent,
     setShowAllRecent,
     recentCount: RECENT_COUNT,
+    homemadeOnly,
+    toggleHomemadeOnly: () => setHomemadeOnly((current) => !current),
     onlineHits,
     onlineSearchStatus,
     onlineRemoteStatus,

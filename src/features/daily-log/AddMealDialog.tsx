@@ -328,6 +328,8 @@ export function AddMealDialog({
                   onPickOnlineHit={catalog.pickOnlineHit}
                   onChangeSearch={catalog.changeSearch}
                   onClearSearch={catalog.clearSearch}
+                  homemadeOnly={catalog.homemadeOnly}
+                  onToggleHomemadeOnly={catalog.toggleHomemadeOnly}
                   mealNoteField={mealNoteField}
                   showEmptyMealNote={items.length === 0}
                 />
@@ -407,6 +409,9 @@ export function AddMealDialog({
             }
             onBrandChange={(value) =>
               sheet.setManualDraft((draft) => ({ ...draft, brand: value }))
+            }
+            onHomemadeChange={(value) =>
+              sheet.setManualDraft((draft) => ({ ...draft, homemade: value }))
             }
             onNoteChange={(value) =>
               sheet.setManualDraft((draft) => ({ ...draft, note: value }))

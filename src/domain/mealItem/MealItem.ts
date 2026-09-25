@@ -67,6 +67,9 @@ export interface MealItem {
    * `CalorieItem.brand`, stored on the reusable item so Settings can edit
    * it later). Purely additive; omitted on most items. */
   brand?: string
+  /** #994 — homemade dish. Independent of `brand` (manufacturers). Omitted
+   * on existing rows, which means not homemade. */
+  homemade?: boolean
   /**
    * #541 — how this library row was created when not from normal logging.
    * Lets Settings remove backfilled rows without wiping day meal history.

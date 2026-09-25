@@ -165,6 +165,8 @@ export interface DailyEntryFieldsDict {
      * dish name field in the item editor. */
     itemBrandLabel: string
     itemBrandPlaceholder: string
+    /** #994 — homemade catalog flag on Add/Edit dish, and the meal-search chip. */
+    homemadeDishLabel: string
     /** #344 — section headings for the redesigned Add Dish form's
      * card-grouped layout (mockup-driven): "Quantity" groups the per100g/
      * portion mode toggle with the amount+quantity fields; "Nutrition"

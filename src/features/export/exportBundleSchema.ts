@@ -204,6 +204,8 @@ const mealItemSchema = z.object({
   barcode: z.string().optional(),
   // #781 — optional brand on a library food, same purely-additive reasoning.
   brand: z.string().optional(),
+  // #994 — homemade catalog flag. Omitted means not homemade.
+  homemade: z.boolean().optional(),
   // #541 — backfill provenance for reversible undo.
   source: z.enum(['history-backfill', 'mfp-import']).optional(),
   // #603 — named serving descriptors, same purely-additive reasoning as

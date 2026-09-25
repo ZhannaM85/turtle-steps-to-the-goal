@@ -1009,7 +1009,7 @@ describe('AddMealDialog (#454)', () => {
       )
     }
 
-    it('keeps quick actions above search and search directly above Recent', async () => {
+    it('keeps quick actions above search, then the homemade chip, then Recent', async () => {
       const user = userEvent.setup()
       await useMealItemStore.getState().touch('Homemade soup', { amountKcal: 320 })
       render(<ControlledAddMealDialog {...defaultProps} />)
@@ -1021,21 +1021,23 @@ describe('AddMealDialog (#454)', () => {
       const logRecipe = screen.getByRole('button', { name: 'Log recipe' })
       const sharedFood = screen.getByRole('button', { name: 'Shared food' })
       const search = screen.getByLabelText('Search foods')
+      const homemade = screen.getByRole('button', { name: 'Homemade' })
       expect(await screen.findByText('Homemade soup')).toBeInTheDocument()
       const recent = screen.getByText('Recent')
 
       for (const action of [addFood, scanCard, logRecipe, sharedFood]) {
         expect(follows(action, search)).toBe(true)
       }
-      expect(search.parentElement?.nextElementSibling).toContainElement(recent)
+      expect(search.parentElement?.nextElementSibling).toBe(homemade)
+      expect(homemade.nextElementSibling).toContainElement(recent)
       expect(search.parentElement?.previousElementSibling).toContainElement(
         addFood,
       )
 
-      await user.type(search, 'Homemade')
+      await user.type(search, 'soup')
       const match = await screen.findByText('Homemade soup')
       expect(screen.queryByText('Recent')).not.toBeInTheDocument()
-      expect(search.parentElement?.nextElementSibling).toContainElement(match)
+      expect(homemade.nextElementSibling).toContainElement(match)
       expect(search.parentElement?.previousElementSibling).toContainElement(
         addFood,
       )

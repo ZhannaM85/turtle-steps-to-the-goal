@@ -11,6 +11,7 @@ export function AddMealDialogEditorSheet({
   draft,
   onNameChange,
   onBrandChange,
+  onHomemadeChange,
   onNoteChange,
   onEmotionChange,
   onFavoriteChange,
@@ -42,6 +43,7 @@ export function AddMealDialogEditorSheet({
   draft: ManualDraft
   onNameChange: (value: string) => void
   onBrandChange: (value: string) => void
+  onHomemadeChange: (value: boolean) => void
   onNoteChange: (value: string) => void
   onEmotionChange: (value: ManualDraft['emotion']) => void
   onFavoriteChange: (value: boolean) => void
@@ -96,6 +98,8 @@ export function AddMealDialogEditorSheet({
       onNameChange={onNameChange}
       brand={draft.brand}
       onBrandChange={onBrandChange}
+      homemade={draft.homemade}
+      onHomemadeChange={onHomemadeChange}
       amount={draft.amount}
       onAmountChange={(value) => patchNutrition({ amount: value })}
       protein={draft.protein}

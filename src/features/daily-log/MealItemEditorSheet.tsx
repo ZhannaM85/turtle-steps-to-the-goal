@@ -3,10 +3,8 @@ import { Check, Clipboard, Star } from 'lucide-react'
 import type { FoodServing } from '@/data/foods'
 import type { MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
-import { formatNumber, useLocale, useTranslation } from '@/i18n'
-import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
+import { useLocale, useTranslation } from '@/i18n'
 import { formatBarcodeDisplay } from '@/shared/lib/formatBarcode'
-import { formatMacroGrams } from '@/shared/lib/macroDisplay'
 import {
   formatComputedTotal,
   parseOptionalMacro,
@@ -17,11 +15,9 @@ import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
-import { Textarea } from '@/shared/ui/textarea'
-import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
-import { EmotionPicker } from './EmotionPicker'
 import { MealItemBrandField } from './MealItemBrandField'
-import { MealItemNumberField } from './MealItemNumberField'
+import { MealItemEditorSections } from './MealItemEditorSections'
+import { MealItemFormSection } from './MealItemFormSection'
 import { MealNoteAutocomplete } from './MealNoteAutocomplete'
 import { isInconsistentMacros } from './unusualEntryThresholds'
 
@@ -35,6 +31,9 @@ export interface MealItemEditorSheetProps {
    * name. Collapsed until opened (#993); a non-empty brand starts open. */
   brand: string
   onBrandChange: (value: string) => void
+  /** #994 — homemade catalog flag. Off by default; not stored on the meal log. */
+  homemade?: boolean
+  onHomemadeChange?: (homemade: boolean) => void
   amount: string
   onAmountChange: (value: string) => void
   protein: string
@@ -138,36 +137,6 @@ export interface MealItemEditorSheetProps {
   requireName?: boolean
 }
 
-const NOTE_MAX_LENGTH = 200
-
-/** One card-style section (#344 redesign) — a bordered, rounded group
- * around a logical piece of the form (name, quantity, nutrition, etc.),
- * matching the design mockup's layout. Purely a visual grouping wrapper,
- * not a new interaction pattern. */
-function FormSection({
-  heading,
-  headingAction,
-  children,
-}: {
-  heading?: string
-  headingAction?: React.ReactNode
-  children: React.ReactNode
-}) {
-  return (
-    <div className="flex flex-col gap-3 rounded-xl border border-border p-4">
-      {heading && (
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-sm font-medium text-foreground">
-            {heading}
-          </span>
-          {headingAction}
-        </div>
-      )}
-      {children}
-    </div>
-  )
-}
-
 /**
  * Full-screen editor for one meal item's name/kcal/macros (#122) — replaces
  * the previous cramped `flex flex-wrap` row of `h-7 w-16` inputs, used both
@@ -195,6 +164,8 @@ export function MealItemEditorSheet({
   onNameChange,
   brand,
   onBrandChange,
+  homemade = false,
+  onHomemadeChange = () => {},
   amount,
   onAmountChange,
   protein,
@@ -377,7 +348,7 @@ export function MealItemEditorSheet({
           </div>
         )}
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto pt-4">
-          <FormSection heading={t.dailyEntry.itemNameLabel}>
+          <MealItemFormSection heading={t.dailyEntry.itemNameLabel}>
             <div className="flex items-center gap-2">
               <MealNoteAutocomplete
                 listInputId="item-editor-dish-title"
@@ -411,7 +382,7 @@ export function MealItemEditorSheet({
                 <Star aria-hidden="true" className={cn(favorite && 'fill-current')} />
               </Button>
             </div>
-          </FormSection>
+          </MealItemFormSection>
 
           <MealItemBrandField
             open={open}
@@ -421,283 +392,51 @@ export function MealItemEditorSheet({
             mealItems={mealItems}
           />
 
-          <FormSection heading={t.dailyEntry.itemQuantitySectionLabel}>
-            <ToggleGroup
-              type="single"
-              aria-label={t.dailyEntry.macroModeLabel}
-              value={macroMode}
-              onValueChange={(value) =>
-                value && onMacroModeChange(value as 'per100g' | 'perPortion')
-              }
-              className="w-full gap-3 p-1"
-            >
-              <ToggleGroupItem
-                value="per100g"
-                className="h-10 flex-1 gap-1.5 px-4 text-sm data-[state=on]:bg-background data-[state=on]:font-semibold data-[state=on]:text-foreground data-[state=on]:ring-2 data-[state=on]:ring-primary/45 data-[state=on]:shadow-sm data-[state=off]:opacity-70"
-              >
-                <span aria-hidden="true">⚖️</span>
-                {t.dailyEntry.macroModePer100gOption}
-              </ToggleGroupItem>
-              <ToggleGroupItem
-                value="perPortion"
-                className="h-10 flex-1 gap-1.5 px-4 text-sm data-[state=on]:bg-background data-[state=on]:font-semibold data-[state=on]:text-foreground data-[state=on]:ring-2 data-[state=on]:ring-primary/45 data-[state=on]:shadow-sm data-[state=off]:opacity-70"
-              >
-                <span aria-hidden="true">🍜</span>
-                {t.dailyEntry.macroModePerPortionOption}
-              </ToggleGroupItem>
-            </ToggleGroup>
-
-            {/* #645 — friendlier serving-size shortcuts (#254), same
-             * toggle pattern FoodPickerDialog's own servings picker
-             * already uses, offered here too now that this sheet is the
-             * one confirm screen for every add-a-meal entry point. */}
-            {servings && servings.length > 0 && onServingModeChange && (
-              <ToggleGroup
-                type="single"
-                aria-label={t.dailyEntry.servingModeLabel}
-                value={servingMode}
-                onValueChange={(value) => value && onServingModeChange(value)}
-                className="w-fit flex-wrap gap-2 p-1"
-              >
-                <ToggleGroupItem value="grams" className="h-8 px-3 text-xs">
-                  {t.dailyEntry.gramsModeOption}
-                </ToggleGroupItem>
-                {servings.map((serving, index) => (
-                  <ToggleGroupItem
-                    key={index}
-                    value={String(index)}
-                    className="h-8 px-3 text-xs"
-                  >
-                    {serving[locale]}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
-            )}
-
-            <div className="grid grid-cols-2 gap-4">
-              <MealItemNumberField
-                label={
-                  macroMode === 'per100g'
-                    ? t.dailyEntry.addCaloriesLabel
-                    : t.dailyEntry.addCaloriesPortionLabel
-                }
-                value={amount}
-                onChange={onAmountChange}
-                onEnter={onSave}
-                maxFractionDigits={2}
-              />
-              {/* #111/#121: in per-100g mode this is a portions-*count*
-               * multiplier ("× 100g"). #121 originally made it a
-               * non-interactive "Portion" badge in Portion mode (an
-               * editable "100" there read as a confusing multiplier that
-               * didn't actually apply) — #457 restored it as a real,
-               * optional field there instead, since without it there was
-               * no way to record a portion-mode item's actual weight at
-               * all, which is what lets a per-100g rate be
-               * back-calculated later (`ratesFromAbsolute`) even for
-               * something entered as a direct total. Genuinely a
-               * different unit than per-100g mode's own field (real
-               * grams, not a portions count) — the mode-switch handlers
-               * (`changeManualDraftMode`/`updateEditItemMode`) convert
-               * between the two so switching modes doesn't leave a stale
-               * number read in the wrong unit. */}
-              {servingMode !== 'grams' && onServingCountChange ? (
-                <MealItemNumberField
-                  label={t.dailyEntry.servingCountLabel}
-                  value={servingCount}
-                  onChange={onServingCountChange}
-                  onEnter={onSave}
-                />
-              ) : (
-                <MealItemNumberField
-                  label={
-                    macroMode === 'per100g'
-                      ? t.dailyEntry.itemPortionsLabel
-                      : t.dailyEntry.itemWeightLabel
-                  }
-                  value={amountG}
-                  onChange={onAmountGChange}
-                  onBlur={
-                    macroMode === 'perPortion' ? onAmountGBlur : undefined
-                  }
-                  onEnter={onSave}
-                />
-              )}
-            </div>
-          </FormSection>
-
-          <FormSection
-            heading={t.dailyEntry.itemNutritionSectionLabel(
-              macroMode === 'per100g',
-            )}
-          >
-            {/* #990 — three macros on one row. Fiber and electrolytes
-             * stay on the following 2-column grid; "Клетчатка" is longer
-             * than "Углеводы" and is not part of this row. */}
-            <div className="grid grid-cols-3 gap-2">
-              <MealItemNumberField
-                compact
-                icon="🌿"
-                label={t.dailyEntry.proteinLabel}
-                value={protein}
-                onChange={onProteinChange}
-                onEnter={onSave}
-                maxFractionDigits={2}
-              />
-              <MealItemNumberField
-                compact
-                icon="💧"
-                label={t.dailyEntry.fatLabel}
-                value={fat}
-                onChange={onFatChange}
-                onEnter={onSave}
-                maxFractionDigits={2}
-              />
-              <MealItemNumberField
-                compact
-                icon="🟤"
-                label={t.dailyEntry.carbsLabel}
-                value={carbs}
-                onChange={onCarbsChange}
-                onEnter={onSave}
-                maxFractionDigits={2}
-              />
-            </div>
-            {(showFiber || showSodium || showPotassium || showMagnesium) && (
-              <div className="grid grid-cols-2 gap-4">
-                {/* #341 — its own field rather than folded into the shared
-                 * macrosSummaryTextCompact-based total preview below, which
-                 * would ripple fiber into every other place that same
-                 * compact summary renders (meal-item rows, History's table
-                 * cells) — deliberately out of scope for that issue.
-                 * #582 — gated by Settings → What to track → Fiber. */}
-                {showFiber && (
-                  <MealItemNumberField
-                    icon="🌿"
-                    label={t.dailyEntry.fiberLabel}
-                    value={fiber}
-                    onChange={onFiberChange}
-                    onEnter={onSave}
-                    maxFractionDigits={2}
-                  />
-                )}
-                {showSodium && onSodiumChange && (
-                  <MealItemNumberField
-                    icon="🧂"
-                    label={t.dailyEntry.sodiumLabel}
-                    value={sodium}
-                    onChange={onSodiumChange}
-                    onEnter={onSave}
-                  />
-                )}
-                {showPotassium && onPotassiumChange && (
-                  <MealItemNumberField
-                    icon="🍌"
-                    label={t.dailyEntry.potassiumLabel}
-                    value={potassium}
-                    onChange={onPotassiumChange}
-                    onEnter={onSave}
-                  />
-                )}
-                {showMagnesium && onMagnesiumChange && (
-                  <MealItemNumberField
-                    icon="🥬"
-                    label={t.dailyEntry.magnesiumLabel}
-                    value={magnesium}
-                    onChange={onMagnesiumChange}
-                    onEnter={onSave}
-                  />
-                )}
-              </div>
-            )}
-          </FormSection>
-
-          {(totalPreview ||
-            (scaledPreview?.fiberG !== undefined && totalPreview) ||
-            (totalPreview && todayTotalPreview) ||
-            (totalPreview && todayRemainingPreview) ||
-            (totalPreview && macrosInconsistent)) && (
-            // #505 — same base/sm split as Day meal card: dish kcal hero +
-            // day totals at text-base; secondary notes stay text-sm.
-            <div className="flex flex-col gap-1.5 px-1 text-sm text-muted-foreground">
-              {scaledPreview && (
-                <p className="flex items-baseline gap-1.5">
-                  <span className="text-xl font-semibold tabular-nums">
-                    {formatNumber(scaledPreview.amountKcal, locale, 0)}{' '}
-                    {t.dailyEntry.kcalUnit}
-                  </span>
-                  {scaledPreview.amountG !== undefined && (
-                    <span>
-                      · {formatMacroGrams(scaledPreview.amountG, locale, t)}
-                    </span>
-                  )}
-                </p>
-              )}
-              {totalPreview && (
-                <p>
-                  {t.dailyEntry.computedTotalPrefix} {totalPreview}
-                </p>
-              )}
-              {showFiber && scaledPreview?.fiberG !== undefined && (
-                <p>
-                  {t.dailyEntry.fiberLabel}: {scaledPreview.fiberG}
-                  {t.dailyEntry.gramsUnit}
-                </p>
-              )}
-              {showSodium && scaledPreview?.sodiumMg !== undefined && (
-                <p>
-                  {t.dailyEntry.sodiumLabel}: {scaledPreview.sodiumMg}
-                  {t.dailyEntry.mgUnit}
-                </p>
-              )}
-              {showPotassium && scaledPreview?.potassiumMg !== undefined && (
-                <p>
-                  {t.dailyEntry.potassiumLabel}: {scaledPreview.potassiumMg}
-                  {t.dailyEntry.mgUnit}
-                </p>
-              )}
-              {showMagnesium && scaledPreview?.magnesiumMg !== undefined && (
-                <p>
-                  {t.dailyEntry.magnesiumLabel}: {scaledPreview.magnesiumMg}
-                  {t.dailyEntry.mgUnit}
-                </p>
-              )}
-              {totalPreview && todayTotalPreview && (
-                <p className="text-base">{todayTotalPreview}</p>
-              )}
-              {totalPreview && todayRemainingPreview && (
-                <p className="text-base">{todayRemainingPreview}</p>
-              )}
-              {totalPreview && macrosInconsistent && (
-                <p>{t.dailyEntry.macroMismatchNote}</p>
-              )}
-            </div>
-          )}
-
-          <FormSection heading={t.dailyEntry.itemEmotionLabel}>
-            <EmotionPicker
-              value={emotion}
-              onChange={onEmotionChange}
-              options={MEAL_EMOTIONS}
-              labelFor={t.dailyEntry.mealEmotionLabel}
-              contextLabel={name || undefined}
-              size="icon-xl"
-            />
-          </FormSection>
-
-          <FormSection heading={t.dailyEntry.itemNoteLabel}>
-            <Textarea
-              aria-label={t.dailyEntry.itemNoteLabel}
-              placeholder={t.dailyEntry.itemNotePlaceholder}
-              value={note}
-              maxLength={NOTE_MAX_LENGTH}
-              onChange={(e) => onNoteChange(e.target.value)}
-              rows={2}
-            />
-            <span className="self-end text-xs text-muted-foreground">
-              {note.length}/{NOTE_MAX_LENGTH}
-            </span>
-          </FormSection>
+          <MealItemEditorSections
+            homemade={homemade}
+            onHomemadeChange={onHomemadeChange}
+            amount={amount}
+            onAmountChange={onAmountChange}
+            protein={protein}
+            onProteinChange={onProteinChange}
+            fat={fat}
+            onFatChange={onFatChange}
+            carbs={carbs}
+            onCarbsChange={onCarbsChange}
+            fiber={fiber}
+            onFiberChange={onFiberChange}
+            showFiber={showFiber}
+            sodium={sodium}
+            onSodiumChange={onSodiumChange}
+            potassium={potassium}
+            onPotassiumChange={onPotassiumChange}
+            magnesium={magnesium}
+            onMagnesiumChange={onMagnesiumChange}
+            showSodium={showSodium}
+            showPotassium={showPotassium}
+            showMagnesium={showMagnesium}
+            amountG={amountG}
+            onAmountGChange={onAmountGChange}
+            onAmountGBlur={onAmountGBlur}
+            macroMode={macroMode}
+            onMacroModeChange={onMacroModeChange}
+            servings={servings}
+            servingMode={servingMode}
+            onServingModeChange={onServingModeChange}
+            servingCount={servingCount}
+            onServingCountChange={onServingCountChange}
+            emotion={emotion}
+            onEmotionChange={onEmotionChange}
+            name={name}
+            note={note}
+            onNoteChange={onNoteChange}
+            onSave={onSave}
+            scaledPreview={scaledPreview}
+            totalPreview={totalPreview}
+            macrosInconsistent={macrosInconsistent}
+            todayTotalPreview={todayTotalPreview}
+            todayRemainingPreview={todayRemainingPreview}
+          />
         </div>
 
         {/* Footer with the primary action, below the scrollable fields

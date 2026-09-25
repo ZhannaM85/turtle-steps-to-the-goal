@@ -85,6 +85,7 @@ export const dailyEntry: DailyEntryDict = {
     itemNamePlaceholder: 'Создать блюдо?',
     itemBrandLabel: 'Бренд (необязательно)',
     itemBrandPlaceholder: 'например, Ермолино',
+    homemadeDishLabel: 'Домашнее',
     itemQuantitySectionLabel: 'Количество',
     itemNutritionSectionLabel: (isPer100g) =>
       isPer100g ? 'Пищевая ценность (на 100 г)' : 'Пищевая ценность',

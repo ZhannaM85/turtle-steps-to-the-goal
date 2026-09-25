@@ -119,6 +119,40 @@ describe('MealItemEditorSheet brand disclosure (#993)', () => {
     expect(screen.getByLabelText('Brand (optional)')).toHaveValue('Ермолино')
   })
 
+  it('shows Homemade unchecked beside a collapsed brand (#994)', async () => {
+    const user = userEvent.setup()
+    const onHomemadeChange = vi.fn()
+    const onBrandChange = vi.fn()
+    render(
+      <MealItemEditorSheet
+        {...sheetElement().props}
+        onHomemadeChange={onHomemadeChange}
+        onBrandChange={onBrandChange}
+      />,
+    )
+
+    const homemade = screen.getByRole('checkbox', { name: 'Homemade' })
+    expect(homemade).not.toBeChecked()
+    expect(screen.getByRole('button', { name: 'Brand (optional)' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    )
+
+    await user.click(homemade)
+    expect(onHomemadeChange).toHaveBeenCalledWith(true)
+    expect(onBrandChange).not.toHaveBeenCalled()
+  })
+
+  it('uses the Russian homemade label and can start checked (#994)', () => {
+    useLocaleStore.getState().setLocale('ru')
+    render(
+      <MealItemEditorSheet {...sheetElement('Ермолино').props} homemade />,
+    )
+
+    expect(screen.getByRole('checkbox', { name: 'Домашнее' })).toBeChecked()
+    expect(screen.getByLabelText('Бренд (необязательно)')).toHaveValue('Ермолино')
+  })
+
   it('opens when a brand arrives while the sheet is already open', () => {
     const view = renderSheet()
     expect(screen.queryByLabelText('Brand (optional)')).not.toBeInTheDocument()

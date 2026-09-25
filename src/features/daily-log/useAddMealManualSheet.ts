@@ -28,6 +28,8 @@ import {
   type PortionScaleBase,
 } from './addMealDialogHelpers'
 import { IndexedDbMealItemRepository } from '@/infrastructure/persistence/indexeddb'
+import { useMealItemStore } from '@/stores'
+import { catalogHomemadeForName } from './homemadeFoodFilter'
 
 const mealItemRepositoryForBarcodeLookup = new IndexedDbMealItemRepository()
 
@@ -58,6 +60,7 @@ export function useAddMealManualSheet({
     },
     favorite?: boolean,
     barcode?: string,
+    homemade?: boolean,
   ) => Promise<unknown> | unknown
   setSearch: (value: string) => void
 }) {
@@ -282,6 +285,7 @@ export function useAddMealManualSheet({
         },
         favoriteToSave,
         barcodeToSave,
+        manualDraft.homemade,
       )
     }
   }
@@ -292,6 +296,10 @@ export function useAddMealManualSheet({
     setActiveServings(undefined)
     setIsConfirmingPick(false)
     const draft = draftFromCalorieItem(item)
+    draft.homemade = catalogHomemadeForName(
+      draft.name,
+      useMealItemStore.getState().items,
+    )
     portionScaleBaseRef.current = portionScaleBaseFromDraft(draft)
     setManualDraft(draft)
     setIsManualOpen(true)

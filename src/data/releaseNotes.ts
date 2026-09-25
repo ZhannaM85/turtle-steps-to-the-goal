@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 969,
+    issue: 994,
+    date: '2026-09-25T20:41:29+03:00',
+    en: 'You can mark a dish as homemade and show only those dishes in meal search.',
+    ru: 'Блюдо можно отметить как домашнее и показать в поиске только такие блюда.',
+  },
+  {
     version: 968,
     issue: 993,
     date: '2026-09-25T20:27:44+03:00',

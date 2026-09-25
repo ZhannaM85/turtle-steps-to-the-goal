@@ -150,6 +150,40 @@ describe('useMealItemStore', () => {
     expect(useMealItemStore.getState().items[0].favorite).toBe(true)
   })
 
+  it('touch sets homemade on the catalog dish and leaves it off by default (#994)', async () => {
+    await useMealItemStore.getState().touch('Борщ', { amountKcal: 80 })
+    expect(useMealItemStore.getState().items[0].homemade).toBeUndefined()
+
+    await useMealItemStore
+      .getState()
+      .touch('Борщ', { amountKcal: 90 }, undefined, undefined, true)
+
+    expect(useMealItemStore.getState().items[0].homemade).toBe(true)
+    expect(useMealItemStore.getState().items[0].brand).toBeUndefined()
+  })
+
+  it('touch with homemade omitted keeps an existing homemade flag (#994)', async () => {
+    await useMealItemStore
+      .getState()
+      .touch('Борщ', { amountKcal: 80 }, undefined, undefined, true)
+
+    await useMealItemStore.getState().touch('Борщ', { amountKcal: 90 })
+
+    expect(useMealItemStore.getState().items[0].homemade).toBe(true)
+  })
+
+  it('touch with homemade false clears the flag (#994)', async () => {
+    await useMealItemStore
+      .getState()
+      .touch('Борщ', { amountKcal: 80 }, undefined, undefined, true)
+
+    await useMealItemStore
+      .getState()
+      .touch('Борщ', { amountKcal: 90 }, undefined, undefined, false)
+
+    expect(useMealItemStore.getState().items[0].homemade).toBeUndefined()
+  })
+
   it('touch(name, nutrition, favorite, barcode) sets barcode on a brand-new item (#256)', async () => {
     await useMealItemStore
       .getState()

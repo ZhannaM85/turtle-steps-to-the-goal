@@ -77,6 +77,7 @@ export const dailyEntry: DailyEntryDict = {
     itemNamePlaceholder: 'Add a dish?',
     itemBrandLabel: 'Brand (optional)',
     itemBrandPlaceholder: 'e.g. Perdue',
+    homemadeDishLabel: 'Homemade',
     itemQuantitySectionLabel: 'Quantity',
     itemNutritionSectionLabel: (isPer100g) =>
       isPer100g ? 'Nutrition (per 100g)' : 'Nutrition',

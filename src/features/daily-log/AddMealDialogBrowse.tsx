@@ -14,6 +14,7 @@ import {
 } from './searchOnlineFoods'
 import { AddMealPickableItemList } from './AddMealPickableItemList'
 import { AddMealQuickActionCard } from './AddMealQuickActionCard'
+import { HomemadeFoodFilterChip } from './HomemadeFoodFilterChip'
 import type { PickableItem } from './addMealDialogHelpers'
 
 export function AddMealDialogBrowse({
@@ -43,6 +44,8 @@ export function AddMealDialogBrowse({
   onPickOnlineHit,
   onChangeSearch,
   onClearSearch,
+  homemadeOnly,
+  onToggleHomemadeOnly,
   mealNoteField,
   showEmptyMealNote,
 }: {
@@ -72,6 +75,8 @@ export function AddMealDialogBrowse({
   onPickOnlineHit: (hit: OnlineFoodHit) => void
   onChangeSearch: (value: string) => void
   onClearSearch: () => void
+  homemadeOnly: boolean
+  onToggleHomemadeOnly: () => void
   mealNoteField: ReactNode
   showEmptyMealNote: boolean
 }) {
@@ -136,6 +141,10 @@ export function AddMealDialogBrowse({
           <ScanBarcode aria-hidden="true" />
         </Button>
       </div>
+      <HomemadeFoodFilterChip
+        pressed={homemadeOnly}
+        onToggle={onToggleHomemadeOnly}
+      />
 
       {query ? (
         <div className="flex flex-col gap-3">
@@ -169,7 +178,7 @@ export function AddMealDialogBrowse({
             />
           )}
 
-          {search.trim().length >= OFF_SEARCH_MIN_CHARS && (
+          {!homemadeOnly && search.trim().length >= OFF_SEARCH_MIN_CHARS && (
             <div className="flex flex-col gap-2 border-t border-border pt-3">
               <Button
                 type="button"
@@ -231,6 +240,22 @@ export function AddMealDialogBrowse({
             </div>
           )}
         </div>
+      ) : homemadeOnly ? (
+        recentItems.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            {t.dailyEntry.noFoodResultsText}
+          </p>
+        ) : (
+          <AddMealPickableItemList
+            items={recentItems}
+            textFor={textFor}
+            isFavorite={isFavorite}
+            onToggleFavorite={onToggleFavorite}
+            onPick={onPick}
+            t={t}
+            locale={locale}
+          />
+        )
       ) : (
         <>
           {recentItems.length > 0 && (

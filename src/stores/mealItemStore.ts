@@ -54,6 +54,9 @@ interface MealItemStoreState {
      * fallback filled in the form before saving). Omitted preserves
      * whatever the item already had, same reasoning as favorite above. */
     barcode?: string,
+    /** #994 — homemade catalog flag from Add/Edit dish. Omitted preserves
+     * the existing value. `false` clears it. */
+    homemade?: boolean,
   ) => Promise<void>
   /** Renames a library item. If another item already has the target name,
    * merges into it (deletes this one) instead of violating the unique
@@ -131,7 +134,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       })
     }
   },
-  touch: async (name, nutrition, favorite, barcode) => {
+  touch: async (name, nutrition, favorite, barcode, homemade) => {
     const trimmed = normalizeTextSpaces(name).trim()
     if (!trimmed) return
     const code = barcode?.replace(/\s+/g, '').trim() || undefined
@@ -179,6 +182,10 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       if (code) item.barcode = code
       else delete item.barcode
     }
+    // #994 — same omit-preserves rule as favorite, but `false` clears the
+    // flag so an unchecked box does not stay homemade.
+    if (homemade === true) item.homemade = true
+    else if (homemade === false) delete item.homemade
     await mealItemRepository.upsert(item)
     set({ items: await mealItemRepository.getAll() })
   },
