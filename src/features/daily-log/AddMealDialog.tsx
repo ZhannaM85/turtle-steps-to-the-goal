@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react'
 import type { CalorieItem, Emotion } from '@/domain/dailyEntry'
 import { type NutritionFactId } from '@/domain/nutritionFacts'
 import { useLocale, useTranslation } from '@/i18n'
-import { mealLabelSuggestionsForLocale } from '@/shared/lib/mealLabel'
+import {
+  mealLabelSuggestionsForLocale,
+  repeatMealDisplayLabel,
+} from '@/shared/lib/mealLabel'
 import { useOnlineStatus } from '@/shared/hooks'
 import {
   useFoodOverrideStore,
@@ -107,6 +110,9 @@ export function AddMealDialog({
 }: AddMealDialogProps) {
   const t = useTranslation()
   const locale = useLocale()
+  // #997 — a cleared name stays empty in the field, but the repeat
+  // button and confirm title still need a real meal type.
+  const repeatQuotedName = repeatMealDisplayLabel(t, mealLabel, mealPosition)
   const isOnline = useOnlineStatus()
   const eatingReasonTrackingEnabled = useEatingReasonTrackingStore(
     (state) => state.enabled,
@@ -297,7 +303,7 @@ export function AddMealDialog({
                       className="w-full"
                       onClick={() => setIsRepeatOpen(true)}
                     >
-                      {t.dailyEntry.repeatMealLabel(mealLabel)}
+                      {t.dailyEntry.repeatMealLabel(repeatQuotedName)}
                     </Button>
                   )}
                   {eatingReasonTrackingEnabled && onEatingReasonsChange && (
@@ -395,7 +401,7 @@ export function AddMealDialog({
             <RepeatMealDialog
               open={isRepeatOpen}
               onOpenChange={setIsRepeatOpen}
-              mealLabel={mealLabel}
+              mealLabel={repeatQuotedName}
               items={previousMeal.items}
               onConfirm={handleRepeatConfirm}
             />

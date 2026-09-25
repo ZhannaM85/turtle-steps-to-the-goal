@@ -10,7 +10,8 @@ export interface RepeatMealDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   /** The label shown in the dialog title — the *new* meal's own title
-   * (next unused Settings/built-in template, #843/#844), matching
+   * (next unused Settings/built-in template, #843/#844), or the
+   * positional meal type when that title is blank (#997), matching
    * what `repeatMealLabel` already shows on the trigger button. */
   mealLabel: string
   items: CalorieItem[]

@@ -169,8 +169,12 @@ export const dailyEntry: DailyEntryDict = {
       minutes === 0
         ? `${hours} ч с последнего приёма`
         : `${hours} ч ${minutes} м с последнего приёма`,
-    repeatMealLabel: (mealLabel) => `Повторить вчерашний «${mealLabel}»`,
-    repeatMealDialogTitle: (mealLabel) => `Повторить «${mealLabel}»`,
+    repeatMealLabel: (mealLabel) =>
+      mealLabel.trim()
+        ? `Повторить вчерашний «${mealLabel.trim()}»`
+        : 'Повторить вчерашний',
+    repeatMealDialogTitle: (mealLabel) =>
+      mealLabel.trim() ? `Повторить «${mealLabel.trim()}»` : 'Повторить',
     copyYesterdayMealsLabel: 'Скопировать вчерашние приёмы пищи',
     copyDayMealsDialogTitle: 'Скопировать вчерашние приёмы пищи',
     orDivider: 'или',

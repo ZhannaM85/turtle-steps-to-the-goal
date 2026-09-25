@@ -44,6 +44,23 @@ export function effectiveMealLabel(
 }
 
 /**
+ * #997 — name quoted by "Repeat yesterday's …" and its confirm title.
+ * The action copies yesterday's same-position foods (#190) and quotes
+ * this meal's title, not yesterday's free-text (#843). A cleared field
+ * stays blank in the input (#568) but must not render empty quotes; use
+ * the positional type (Завтрак / Breakfast / …) an unlabeled meal already
+ * displays as.
+ */
+export function repeatMealDisplayLabel(
+  t: Dictionary,
+  mealLabel: string,
+  mealPosition?: number,
+): string {
+  const position = mealPosition != null && mealPosition > 0 ? mealPosition : 1
+  return effectiveMealLabel(t, position, mealLabel)
+}
+
+/**
  * Value for the Add/Edit meal name field (#568) — unlike
  * `effectiveMealLabel`, an explicit empty string stays empty so clearing
  * the field does not reseed the positional default mid-typing.

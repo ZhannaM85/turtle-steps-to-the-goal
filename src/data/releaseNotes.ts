@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 972,
+    issue: 997,
+    date: '2026-09-25T21:26:00+03:00',
+    en: 'Clearing a meal name no longer leaves empty quotes on Repeat yesterday\'s meal, which then names the meal type, such as Breakfast.',
+    ru: 'Если очистить название приёма пищи, «Повторить вчерашний» показывает тип приёма, например «Завтрак», а не пустые кавычки.',
+  },
+  {
     version: 971,
     issue: 996,
     date: '2026-09-25T21:18:16+03:00',

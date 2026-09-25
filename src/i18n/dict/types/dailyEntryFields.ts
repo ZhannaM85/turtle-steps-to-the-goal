@@ -294,7 +294,9 @@ export interface DailyEntryFieldsDict {
      * only shown when the day before has a meal at this same position
      * (#141's positional identity, not label matching). Clones that
      * meal's items (name/macros/amountG only, not time/note/emotion) in
-     * one tap, for a routine that's logged the same way most days. */
+     * one tap, for a routine that's logged the same way most days.
+     * #997: callers pass the positional meal type when the name field is
+     * blank. A blank argument omits the quotes instead of rendering «». */
     repeatMealLabel: (mealLabel: string) => string
     /** #202: title of the preview dialog "Repeat yesterday's [meal]" opens
      * into — lets a specific dish be unchecked before confirming, rather

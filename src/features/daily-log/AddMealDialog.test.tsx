@@ -1522,6 +1522,37 @@ describe('AddMealDialog (#454)', () => {
         screen.queryByRole('button', { name: /Repeat yesterday's/ }),
       ).not.toBeInTheDocument()
     })
+
+    it('uses the positional meal type when the name is cleared (#997)', async () => {
+      const user = userEvent.setup()
+      render(
+        <ControlledAddMealDialog
+          {...defaultProps}
+          mealLabel="Dinner"
+          mealPosition={2}
+          previousMeal={{
+            label: 'Lunch two',
+            items: [{ id: 'yi1', name: 'Eggs', amountKcal: 150 }],
+          }}
+        />,
+      )
+
+      expect(
+        screen.getByRole('button', { name: "Repeat yesterday's Dinner" }),
+      ).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'Clear meal name' }))
+      expect(screen.getByLabelText('Meal name')).toHaveValue('')
+      expect(
+        screen.queryByRole('button', { name: /Lunch two/ }),
+      ).not.toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole('button', { name: "Repeat yesterday's Lunch" }),
+      )
+      expect(
+        screen.getByRole('heading', { name: 'Repeat Lunch' }),
+      ).toBeInTheDocument()
+    })
   })
 
   describe('logging a recipe', () => {

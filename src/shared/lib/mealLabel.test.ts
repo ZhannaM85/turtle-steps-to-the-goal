@@ -4,6 +4,7 @@ import {
   defaultTimeEatenForMealLabel,
   editableMealLabel,
   effectiveMealLabel,
+  repeatMealDisplayLabel,
   effectiveTimeEaten,
   localizeLeftoverEnglishMealPresets,
   mealLabelSuggestionsForLocale,
@@ -26,6 +27,24 @@ describe('mealLabel helpers', () => {
     expect(editableMealLabel(en, 1, undefined)).toBe('Breakfast')
     expect(editableMealLabel(en, 1, '')).toBe('')
     expect(editableMealLabel(en, 1, 'Brunch')).toBe('Brunch')
+  })
+
+  it('repeatMealDisplayLabel uses the positional meal type when the name is blank (#997)', () => {
+    expect(repeatMealDisplayLabel(en, '', 1)).toBe('Breakfast')
+    expect(repeatMealDisplayLabel(en, '   ', 2)).toBe('Lunch')
+    expect(repeatMealDisplayLabel(en, 'Dinner', 1)).toBe('Dinner')
+    expect(repeatMealDisplayLabel(en, '', 5)).toBe('Meal 5')
+    expect(repeatMealDisplayLabel(en, '', undefined)).toBe('Breakfast')
+    expect(repeatMealDisplayLabel(ru, '', 4)).toBe('Перекус')
+    expect(ru.dailyEntry.repeatMealLabel(repeatMealDisplayLabel(ru, '', 1))).toBe(
+      'Повторить вчерашний «Завтрак»',
+    )
+    expect(ru.dailyEntry.repeatMealLabel('')).toBe('Повторить вчерашний')
+    expect(ru.dailyEntry.repeatMealLabel('  ')).toBe('Повторить вчерашний')
+    expect(ru.dailyEntry.repeatMealDialogTitle('')).toBe('Повторить')
+    expect(ru.dailyEntry.repeatMealDialogTitle('Ужин')).toBe('Повторить «Ужин»')
+    expect(en.dailyEntry.repeatMealLabel('')).toBe("Repeat yesterday's meal")
+    expect(en.dailyEntry.repeatMealDialogTitle('')).toBe('Repeat meal')
   })
 
   it('seedAddMealLabelFromPrevious keeps templates and drops free-text (#843)', () => {
