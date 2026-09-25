@@ -140,13 +140,16 @@ export function AddMealDialogBrowse({
       {query ? (
         <div className="flex flex-col gap-3">
           {matches.length === 0 ? (
-            <div className="flex flex-col items-start gap-1.5">
+            <div className="flex flex-col items-start gap-2">
               <p className="text-sm text-muted-foreground">
                 {t.dailyEntry.noFoodResultsText}
               </p>
+              <p className="text-sm text-muted-foreground">
+                {t.dailyEntry.cantFindItLeadIn}
+              </p>
               <Button
                 type="button"
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 className="self-start"
                 onClick={onOpenManualAdd}

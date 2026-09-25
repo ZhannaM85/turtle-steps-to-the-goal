@@ -15,6 +15,9 @@ export interface DailyEntryMealsDict {
      * Recent list back to its 3-item cap. Reported live after the initial
      * "Show all" had no way back. */
     collapseRecentLabel: string
+    /** #991 — empty-search lead-in, kept as plain text beside the action. */
+    cantFindItLeadIn: string
+    /** #991 — empty-search manual add, a bordered button like search online. */
     cantFindItAddManuallyLabel: string
     /** #459 — the quick-action row's bordered cards (Add food / Scan
      * barcode / Log recipe), replacing the old plain-text links.

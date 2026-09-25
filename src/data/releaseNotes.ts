@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 966,
+    issue: 991,
+    date: '2026-09-25T20:05:00+03:00',
+    en: 'When a food search finds nothing, Add manually is a button you can tap, like Search online.',
+    ru: 'Если поиск продукта ничего не нашёл, «Добавить вручную» теперь кнопка, как «Искать онлайн».',
+  },
+  {
     version: 965,
     issue: 990,
     date: '2026-09-25T19:50:00+03:00',
