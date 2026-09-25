@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 971,
+    issue: 996,
+    date: '2026-09-25T21:18:16+03:00',
+    en: 'The add-food screen scrolls before any dish is added, including while the keyboard is open.',
+    ru: 'Экран добавления еды можно прокручивать ещё до добавления блюда, в том числе при открытой клавиатуре.',
+  },
+  {
     version: 970,
     issue: 995,
     date: '2026-09-25T20:55:17+03:00',

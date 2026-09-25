@@ -1590,6 +1590,31 @@ describe('AddMealDialog (#454)', () => {
     expect(done).not.toHaveClass('h-8')
   })
 
+  it('scrolls an empty meal without waiting for the Done footer (#996)', () => {
+    render(<ControlledAddMealDialog {...defaultProps} />)
+
+    expect(screen.queryByRole('button', { name: 'Done' })).not.toBeInTheDocument()
+    const scroll = screen.getByTestId('add-meal-scroll')
+    expect(scroll).toHaveClass(
+      'absolute',
+      'inset-0',
+      'overflow-y-auto',
+      'overscroll-y-contain',
+    )
+    expect(scroll.parentElement).toHaveClass(
+      'h-0',
+      'min-h-0',
+      'grow',
+      'basis-0',
+      'overflow-hidden',
+    )
+    expect(scroll.parentElement?.parentElement).toHaveClass(
+      'flex',
+      'flex-col',
+      'overflow-hidden',
+    )
+  })
+
   it('pins Done in a flex footer instead of sticky inside the scroll (#775)', () => {
     render(
       <AddMealDialog
@@ -1605,6 +1630,7 @@ describe('AddMealDialog (#454)', () => {
     const done = screen.getByRole('button', { name: 'Done' })
     expect(done.parentElement).toHaveClass('shrink-0')
     expect(done.parentElement).not.toHaveClass('sticky')
+    expect(screen.getByTestId('add-meal-scroll').contains(done)).toBe(false)
   })
 
   it('matches dish-sheet 48px height on meal name, time, and note (#730)', () => {

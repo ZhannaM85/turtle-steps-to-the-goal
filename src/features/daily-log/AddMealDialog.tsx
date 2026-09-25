@@ -15,6 +15,7 @@ import {
   useEatingReasonTrackingStore,
   useTrackedFieldsStore,
 } from '@/stores'
+import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
@@ -250,112 +251,128 @@ export function AddMealDialog({
             event.preventDefault()
           }}
         >
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            <AddMealDialogHeader
-              mealLabel={mealLabel}
-              onMealLabelChange={onMealLabelChange}
-              timeEaten={timeEaten}
-              onTimeEatenChange={onTimeEatenChange}
-              mealLabelSuggestions={mealLabelSuggestions}
-              onSaveMealNameAsTemplate={addMealLabelPreset}
-            />
-            <div className="mt-3 flex flex-col gap-4">
-              <AddMealDialogNotices
-                isConfirmingDiscard={isConfirmingDiscard}
-                onConfirmDiscard={onConfirmDiscard}
-                onCancelDiscard={onCancelDiscard}
-                discardConfirmLabel={discardConfirmLabel}
-                confirmRemoveItemId={confirmRemoveItemId}
-                onConfirmRemoveItem={(itemId) => {
-                  onRemoveItem(itemId)
-                  setConfirmRemoveItemId(null)
-                }}
-                onCancelRemoveItem={() => setConfirmRemoveItemId(null)}
+          {/* #996 — WebKit sizes a lone `flex-1` / `overflow-y-auto` child to
+              its content (`flex-basis: 0%` does not resolve against `h-dvh`),
+              so this sheet clips until the Готово footer mounts and forces
+              the row to shrink. Height 0 + flex-grow pins the frame to the
+              free space with or without that footer; the absolute child is
+              the scrollport, so its content cannot inflate the frame. */}
+          <div className="relative h-0 min-h-0 grow basis-0 overflow-hidden">
+            <div
+              data-testid="add-meal-scroll"
+              className={cn(
+                'absolute inset-0 overflow-y-auto overscroll-y-contain',
+                items.length === 0 &&
+                  !showDoneWhenEmpty &&
+                  'pb-[calc(env(safe-area-inset-bottom)+1.25rem)]',
+              )}
+            >
+              <AddMealDialogHeader
+                mealLabel={mealLabel}
+                onMealLabelChange={onMealLabelChange}
+                timeEaten={timeEaten}
+                onTimeEatenChange={onTimeEatenChange}
+                mealLabelSuggestions={mealLabelSuggestions}
+                onSaveMealNameAsTemplate={addMealLabelPreset}
               />
-              <div className="flex flex-col gap-4">
-                {previousMeal && previousMeal.items.length > 0 && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="xl"
-                    className="w-full"
-                    onClick={() => setIsRepeatOpen(true)}
-                  >
-                    {t.dailyEntry.repeatMealLabel(mealLabel)}
-                  </Button>
-                )}
-                {eatingReasonTrackingEnabled && onEatingReasonsChange && (
-                  <EatingReasonPicker
-                    id="add-meal-eating-reason"
-                    value={eatingReasons}
-                    onChange={onEatingReasonsChange}
+              <div className="mt-3 flex flex-col gap-4">
+                <AddMealDialogNotices
+                  isConfirmingDiscard={isConfirmingDiscard}
+                  onConfirmDiscard={onConfirmDiscard}
+                  onCancelDiscard={onCancelDiscard}
+                  discardConfirmLabel={discardConfirmLabel}
+                  confirmRemoveItemId={confirmRemoveItemId}
+                  onConfirmRemoveItem={(itemId) => {
+                    onRemoveItem(itemId)
+                    setConfirmRemoveItemId(null)
+                  }}
+                  onCancelRemoveItem={() => setConfirmRemoveItemId(null)}
+                />
+                <div className="flex flex-col gap-4">
+                  {previousMeal && previousMeal.items.length > 0 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="xl"
+                      className="w-full"
+                      onClick={() => setIsRepeatOpen(true)}
+                    >
+                      {t.dailyEntry.repeatMealLabel(mealLabel)}
+                    </Button>
+                  )}
+                  {eatingReasonTrackingEnabled && onEatingReasonsChange && (
+                    <EatingReasonPicker
+                      id="add-meal-eating-reason"
+                      value={eatingReasons}
+                      onChange={onEatingReasonsChange}
+                    />
+                  )}
+                  <AddMealDialogBrowse
+                    mealLabel={mealLabel}
+                    search={search}
+                    query={catalog.query}
+                    matches={catalog.matches}
+                    recentItems={catalog.recentItems}
+                    allMealItemsCount={catalog.allMealItems.length}
+                    recentCount={catalog.recentCount}
+                    showAllRecent={catalog.showAllRecent}
+                    onToggleShowAllRecent={() =>
+                      catalog.setShowAllRecent((current) => !current)
+                    }
+                    recentVisible={recentVisible}
+                    onToggleRecentVisible={toggleRecentVisible}
+                    textFor={catalog.textFor}
+                    isFavorite={catalog.isFavorite}
+                    onToggleFavorite={catalog.handleToggleFavorite}
+                    onPick={sheet.openPickedItemSheet}
+                    onDeleteItem={catalog.deletePickableItem}
+                    deleteMode={catalog.deleteMode}
+                    onOpenManualAdd={sheet.openManualAdd}
+                    onOpenBarcode={() => setIsBarcodeOpen(true)}
+                    onOpenRecipe={() => setIsRecipeOpen(true)}
+                    onImportSharedFood={() => {
+                      useFoodShareUiStore.getState().setOnImported((result) => {
+                        const item = calorieItemFromImportedFood(result)
+                        if (item) onAppendItems([item])
+                      })
+                      useFoodShareUiStore.getState().setEntryOpen(true)
+                    }}
+                    onlineHits={catalog.onlineHits}
+                    onlineSearchStatus={catalog.onlineSearchStatus}
+                    onlineRemoteStatus={catalog.onlineRemoteStatus}
+                    onRunOnlineSearch={() => {
+                      void catalog.runOnlineSearch()
+                    }}
+                    onPickOnlineHit={catalog.pickOnlineHit}
+                    onChangeSearch={catalog.changeSearch}
+                    onClearSearch={catalog.clearSearch}
+                    homemadeOnly={catalog.homemadeOnly}
+                    onToggleHomemadeOnly={catalog.toggleHomemadeOnly}
+                    mealNoteField={mealNoteField}
+                    showEmptyMealNote={items.length === 0}
                   />
-                )}
-                <AddMealDialogBrowse
-                  mealLabel={mealLabel}
-                  search={search}
-                  query={catalog.query}
-                  matches={catalog.matches}
-                  recentItems={catalog.recentItems}
-                  allMealItemsCount={catalog.allMealItems.length}
-                  recentCount={catalog.recentCount}
-                  showAllRecent={catalog.showAllRecent}
-                  onToggleShowAllRecent={() =>
-                    catalog.setShowAllRecent((current) => !current)
-                  }
-                  recentVisible={recentVisible}
-                  onToggleRecentVisible={toggleRecentVisible}
-                  textFor={catalog.textFor}
-                  isFavorite={catalog.isFavorite}
-                  onToggleFavorite={catalog.handleToggleFavorite}
-                  onPick={sheet.openPickedItemSheet}
-                  onDeleteItem={catalog.deletePickableItem}
-                  deleteMode={catalog.deleteMode}
-                  onOpenManualAdd={sheet.openManualAdd}
-                  onOpenBarcode={() => setIsBarcodeOpen(true)}
-                  onOpenRecipe={() => setIsRecipeOpen(true)}
-                  onImportSharedFood={() => {
-                    useFoodShareUiStore.getState().setOnImported((result) => {
-                      const item = calorieItemFromImportedFood(result)
-                      if (item) onAppendItems([item])
-                    })
-                    useFoodShareUiStore.getState().setEntryOpen(true)
-                  }}
-                  onlineHits={catalog.onlineHits}
-                  onlineSearchStatus={catalog.onlineSearchStatus}
-                  onlineRemoteStatus={catalog.onlineRemoteStatus}
-                  onRunOnlineSearch={() => {
-                    void catalog.runOnlineSearch()
-                  }}
-                  onPickOnlineHit={catalog.pickOnlineHit}
-                  onChangeSearch={catalog.changeSearch}
-                  onClearSearch={catalog.clearSearch}
-                  homemadeOnly={catalog.homemadeOnly}
-                  onToggleHomemadeOnly={catalog.toggleHomemadeOnly}
-                  mealNoteField={mealNoteField}
-                  showEmptyMealNote={items.length === 0}
-                />
-                <AddMealDialogComposition
-                  items={items}
-                  mealLabel={mealLabel}
-                  reaction={reaction}
-                  onReactionChange={onReactionChange}
-                  mealNoteField={mealNoteField}
-                  showDoneWhenEmpty={showDoneWhenEmpty}
-                  todayTotalPreview={todayTotalPreview}
-                  todayRemainingPreview={todayRemainingPreview}
-                  newlySatisfiedFactIds={newlySatisfiedFactIds}
-                  onStartEditItem={sheet.startEditItem}
-                  onShareItem={compositionActions.shareOne}
-                  onShareComposition={() => compositionActions.shareMany(items)}
-                  onShareSelected={compositionActions.shareMany}
-                  onCreateRecipe={compositionActions.openRecipe}
-                  onRequestRemoveItem={setConfirmRemoveItemId}
-                  onDeleteMeal={onDeleteMeal}
-                  mealPosition={mealPosition}
-                  isConfirmingMealDelete={isConfirmingMealDelete}
-                  onConfirmingMealDeleteChange={setIsConfirmingMealDelete}
-                />
+                  <AddMealDialogComposition
+                    items={items}
+                    mealLabel={mealLabel}
+                    reaction={reaction}
+                    onReactionChange={onReactionChange}
+                    mealNoteField={mealNoteField}
+                    showDoneWhenEmpty={showDoneWhenEmpty}
+                    todayTotalPreview={todayTotalPreview}
+                    todayRemainingPreview={todayRemainingPreview}
+                    newlySatisfiedFactIds={newlySatisfiedFactIds}
+                    onStartEditItem={sheet.startEditItem}
+                    onShareItem={compositionActions.shareOne}
+                    onShareComposition={() => compositionActions.shareMany(items)}
+                    onShareSelected={compositionActions.shareMany}
+                    onCreateRecipe={compositionActions.openRecipe}
+                    onRequestRemoveItem={setConfirmRemoveItemId}
+                    onDeleteMeal={onDeleteMeal}
+                    mealPosition={mealPosition}
+                    isConfirmingMealDelete={isConfirmingMealDelete}
+                    onConfirmingMealDeleteChange={setIsConfirmingMealDelete}
+                  />
+                </div>
               </div>
             </div>
           </div>
