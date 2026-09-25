@@ -6,10 +6,6 @@ import type { MealItem } from '@/domain/mealItem'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { formatBarcodeDisplay } from '@/shared/lib/formatBarcode'
-import {
-  limitToMaxFractionDigits,
-  roundToMaxFractionDigits,
-} from '@/shared/lib/limitDecimalInput'
 import { formatMacroGrams } from '@/shared/lib/macroDisplay'
 import {
   formatComputedTotal,
@@ -21,11 +17,11 @@ import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
-import { Input } from '@/shared/ui/input'
 import { Textarea } from '@/shared/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { BrandAutocomplete } from './BrandAutocomplete'
 import { EmotionPicker } from './EmotionPicker'
+import { MealItemNumberField } from './MealItemNumberField'
 import { MealNoteAutocomplete } from './MealNoteAutocomplete'
 import { isInconsistentMacros } from './unusualEntryThresholds'
 
@@ -168,76 +164,6 @@ function FormSection({
         </div>
       )}
       {children}
-    </div>
-  )
-}
-
-function NumberField({
-  label,
-  icon,
-  value,
-  onChange,
-  onBlur,
-  onEnter,
-  maxFractionDigits,
-}: {
-  label: string
-  /** Leading emoji (#344 redesign) — e.g. 🌿 for protein, 💧 for fat.
-   * Purely decorative (aria-hidden), matching the design mockup's
-   * icon-per-nutrition-field treatment. Omitted for fields the mockup
-   * doesn't give an icon to (the plain kcal/quantity fields). */
-  icon?: string
-  value: string
-  onChange: (value: string) => void
-  onBlur?: () => void
-  onEnter: () => void
-  /** #800 — kcal/macros cap at 2 decimals; quantity fields omit this. */
-  maxFractionDigits?: 2
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
-        {icon && (
-          <span aria-hidden="true" className="text-base leading-none">
-            {icon}
-          </span>
-        )}
-        {label}
-      </span>
-      <Input
-        type="text"
-        inputMode="decimal"
-        aria-label={label}
-        value={value}
-        onChange={(e) =>
-          onChange(
-            maxFractionDigits === 2
-              ? limitToMaxFractionDigits(e.target.value, maxFractionDigits)
-              : e.target.value,
-          )
-        }
-        onPaste={
-          maxFractionDigits === 2
-            ? (e) => {
-                e.preventDefault()
-                onChange(
-                  roundToMaxFractionDigits(
-                    e.clipboardData.getData('text'),
-                    maxFractionDigits,
-                  ),
-                )
-              }
-            : undefined
-        }
-        onBlur={onBlur}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault()
-            onEnter()
-          }
-        }}
-        className="h-12 text-base"
-      />
     </div>
   )
 }
@@ -554,7 +480,7 @@ export function MealItemEditorSheet({
             )}
 
             <div className="grid grid-cols-2 gap-4">
-              <NumberField
+              <MealItemNumberField
                 label={
                   macroMode === 'per100g'
                     ? t.dailyEntry.addCaloriesLabel
@@ -581,14 +507,14 @@ export function MealItemEditorSheet({
                * between the two so switching modes doesn't leave a stale
                * number read in the wrong unit. */}
               {servingMode !== 'grams' && onServingCountChange ? (
-                <NumberField
+                <MealItemNumberField
                   label={t.dailyEntry.servingCountLabel}
                   value={servingCount}
                   onChange={onServingCountChange}
                   onEnter={onSave}
                 />
               ) : (
-                <NumberField
+                <MealItemNumberField
                   label={
                     macroMode === 'per100g'
                       ? t.dailyEntry.itemPortionsLabel
@@ -610,8 +536,12 @@ export function MealItemEditorSheet({
               macroMode === 'per100g',
             )}
           >
-            <div className="grid grid-cols-2 gap-4">
-              <NumberField
+            {/* #990 — three macros on one row. Fiber and electrolytes
+             * stay on the following 2-column grid; "Клетчатка" is longer
+             * than "Углеводы" and is not part of this row. */}
+            <div className="grid grid-cols-3 gap-2">
+              <MealItemNumberField
+                compact
                 icon="🌿"
                 label={t.dailyEntry.proteinLabel}
                 value={protein}
@@ -619,7 +549,8 @@ export function MealItemEditorSheet({
                 onEnter={onSave}
                 maxFractionDigits={2}
               />
-              <NumberField
+              <MealItemNumberField
+                compact
                 icon="💧"
                 label={t.dailyEntry.fatLabel}
                 value={fat}
@@ -627,7 +558,8 @@ export function MealItemEditorSheet({
                 onEnter={onSave}
                 maxFractionDigits={2}
               />
-              <NumberField
+              <MealItemNumberField
+                compact
                 icon="🟤"
                 label={t.dailyEntry.carbsLabel}
                 value={carbs}
@@ -635,50 +567,54 @@ export function MealItemEditorSheet({
                 onEnter={onSave}
                 maxFractionDigits={2}
               />
-              {/* #341 — its own field rather than folded into the shared
-               * macrosSummaryTextCompact-based total preview below, which
-               * would ripple fiber into every other place that same
-               * compact summary renders (meal-item rows, History's table
-               * cells) — deliberately out of scope for that issue.
-               * #582 — gated by Settings → What to track → Fiber. */}
-              {showFiber && (
-                <NumberField
-                  icon="🌿"
-                  label={t.dailyEntry.fiberLabel}
-                  value={fiber}
-                  onChange={onFiberChange}
-                  onEnter={onSave}
-                  maxFractionDigits={2}
-                />
-              )}
-              {showSodium && onSodiumChange && (
-                <NumberField
-                  icon="🧂"
-                  label={t.dailyEntry.sodiumLabel}
-                  value={sodium}
-                  onChange={onSodiumChange}
-                  onEnter={onSave}
-                />
-              )}
-              {showPotassium && onPotassiumChange && (
-                <NumberField
-                  icon="🍌"
-                  label={t.dailyEntry.potassiumLabel}
-                  value={potassium}
-                  onChange={onPotassiumChange}
-                  onEnter={onSave}
-                />
-              )}
-              {showMagnesium && onMagnesiumChange && (
-                <NumberField
-                  icon="🥬"
-                  label={t.dailyEntry.magnesiumLabel}
-                  value={magnesium}
-                  onChange={onMagnesiumChange}
-                  onEnter={onSave}
-                />
-              )}
             </div>
+            {(showFiber || showSodium || showPotassium || showMagnesium) && (
+              <div className="grid grid-cols-2 gap-4">
+                {/* #341 — its own field rather than folded into the shared
+                 * macrosSummaryTextCompact-based total preview below, which
+                 * would ripple fiber into every other place that same
+                 * compact summary renders (meal-item rows, History's table
+                 * cells) — deliberately out of scope for that issue.
+                 * #582 — gated by Settings → What to track → Fiber. */}
+                {showFiber && (
+                  <MealItemNumberField
+                    icon="🌿"
+                    label={t.dailyEntry.fiberLabel}
+                    value={fiber}
+                    onChange={onFiberChange}
+                    onEnter={onSave}
+                    maxFractionDigits={2}
+                  />
+                )}
+                {showSodium && onSodiumChange && (
+                  <MealItemNumberField
+                    icon="🧂"
+                    label={t.dailyEntry.sodiumLabel}
+                    value={sodium}
+                    onChange={onSodiumChange}
+                    onEnter={onSave}
+                  />
+                )}
+                {showPotassium && onPotassiumChange && (
+                  <MealItemNumberField
+                    icon="🍌"
+                    label={t.dailyEntry.potassiumLabel}
+                    value={potassium}
+                    onChange={onPotassiumChange}
+                    onEnter={onSave}
+                  />
+                )}
+                {showMagnesium && onMagnesiumChange && (
+                  <MealItemNumberField
+                    icon="🥬"
+                    label={t.dailyEntry.magnesiumLabel}
+                    value={magnesium}
+                    onChange={onMagnesiumChange}
+                    onEnter={onSave}
+                  />
+                )}
+              </div>
+            )}
           </FormSection>
 
           {(totalPreview ||

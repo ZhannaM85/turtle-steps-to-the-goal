@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 965,
+    issue: 990,
+    date: '2026-09-25T19:50:00+03:00',
+    en: 'On Add dish, protein, fat, and carbs now sit together on one row.',
+    ru: 'В «Добавить блюдо» белки, жиры и углеводы теперь стоят в одном ряду.',
+  },
+  {
     version: 964,
     issue: 989,
     date: '2026-09-25T09:18:47+03:00',

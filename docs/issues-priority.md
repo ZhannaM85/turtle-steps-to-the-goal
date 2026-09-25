@@ -123,7 +123,7 @@ _Day boundary is the calendar date. Late-night logs stay on the open day page. D
 
 ## Tier 171 — Live feedback (2026-09-25)
 
-_Create recipe from a meal: warn when a selected food, the same ingredient set, or the typed title is already a recipe, and offer to add the new recipe in place of those foods. Meal search finds saved recipes by name._
+_Create recipe from a meal: warn when a selected food, the same ingredient set, or the typed title is already a recipe, and offer to add the new recipe in place of those foods. Meal search finds saved recipes by name. Add dish: protein, fat, and carbs on one row._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -131,4 +131,5 @@ _Create recipe from a meal: warn when a selected food, the same ingredient set, 
 | [#987](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/987) | 🔍 Pending validation | Create recipe: after save, offer to add recipe and replace selected ingredients | After «Создать рецепт» saves, the meal asks whether to add that recipe. «Добавить» inserts one serving and removes the foods that were selected; «Не добавлять» leaves the meal unchanged. The recipe stays in the library either way. Awaiting on-device confirmation |
 | [#988](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/988) | 🔍 Pending validation | Create recipe: warn when the same foods, or the typed title, already exist as a recipe | «Создать рецепт» still lists selected dishes whose names match a saved recipe (#986). It also warns when another recipe has the same set of foods (normalized name, order ignored, grams ignored) and names that recipe, and when «Название рецепта» matches a saved name the same way. «Скопировать название» fills the title. Save stays available for any non-empty title. Awaiting on-device confirmation |
 | [#989](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/989) | 🔍 Pending validation | Meal search: saved recipes not found (e.g. «Бутер» → empty) | Meal Поиск… only searched recent library foods and the built-in list, so a saved recipe never matched. Search now includes recipe names with the same trim and case-insensitive substring as other dishes. «Бутер» finds «Бутерброд с форелью». Recent foods are unchanged. Awaiting on-device confirmation |
+| [#990](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/990) | 🔍 Pending validation | Добавить блюдо: белки / жиры / углеводы in one compact row | Nutrition used a 2-column grid, so carbs wrapped under protein and fat. Protein, fat, and carbs now share one 3-column row with a tighter gap and single-line labels; the inputs stay full height. Fiber and electrolytes stay on the next rows. Awaiting on-device confirmation |
 
