@@ -36,15 +36,24 @@ describe('mealLabel helpers', () => {
     expect(repeatMealDisplayLabel(en, '', 5)).toBe('Meal 5')
     expect(repeatMealDisplayLabel(en, '', undefined)).toBe('Breakfast')
     expect(repeatMealDisplayLabel(ru, '', 4)).toBe('Перекус')
-    expect(ru.dailyEntry.repeatMealLabel(repeatMealDisplayLabel(ru, '', 1))).toBe(
-      'Повторить вчерашний «Завтрак»',
+    expect(
+      ru.dailyEntry.repeatMealDialogTitle(repeatMealDisplayLabel(ru, '', 1)),
+    ).toBe('Повторить вчерашний завтрак?')
+    expect(ru.dailyEntry.repeatMealDialogTitle('')).toBe(
+      'Повторить вчерашний приём пищи?',
     )
-    expect(ru.dailyEntry.repeatMealLabel('')).toBe('Повторить вчерашний')
-    expect(ru.dailyEntry.repeatMealLabel('  ')).toBe('Повторить вчерашний')
-    expect(ru.dailyEntry.repeatMealDialogTitle('')).toBe('Повторить')
-    expect(ru.dailyEntry.repeatMealDialogTitle('Ужин')).toBe('Повторить «Ужин»')
-    expect(en.dailyEntry.repeatMealLabel('')).toBe("Repeat yesterday's meal")
-    expect(en.dailyEntry.repeatMealDialogTitle('')).toBe('Repeat meal')
+    expect(ru.dailyEntry.repeatMealDialogTitle('  ')).toBe(
+      'Повторить вчерашний приём пищи?',
+    )
+    expect(ru.dailyEntry.repeatMealDialogTitle('Ужин')).toBe(
+      'Повторить вчерашний ужин?',
+    )
+    expect(en.dailyEntry.repeatMealDialogTitle('')).toBe(
+      "Repeat yesterday's meal?",
+    )
+    expect(en.dailyEntry.repeatMealDialogTitle('Dinner')).toBe(
+      "Repeat yesterday's dinner?",
+    )
   })
 
   it('seedAddMealLabelFromPrevious keeps templates and drops free-text (#843)', () => {

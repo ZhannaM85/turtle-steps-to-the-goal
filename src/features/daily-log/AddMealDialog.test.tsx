@@ -1527,9 +1527,14 @@ describe('AddMealDialog (#454)', () => {
         />,
       )
 
-      await user.click(
-        screen.getByRole('button', { name: "Repeat yesterday's Breakfast" }),
-      )
+      const repeat = screen.getByRole('button', {
+        name: "Repeat yesterday's breakfast?",
+      })
+      expect(repeat).not.toHaveAttribute('title')
+      expect(repeat).not.toHaveClass('w-full')
+      expect(screen.getByTestId('add-meal-header')).toContainElement(repeat)
+      expect(screen.getByTestId('add-meal-scroll')).not.toContainElement(repeat)
+      await user.click(repeat)
       await user.click(screen.getByRole('button', { name: 'Add selected' }))
 
       // A repeated item is also touched into the personal library, so once
@@ -1543,7 +1548,7 @@ describe('AddMealDialog (#454)', () => {
       render(<ControlledAddMealDialog {...defaultProps} />)
 
       expect(
-        screen.queryByRole('button', { name: /Repeat yesterday's/ }),
+        screen.queryByRole('button', { name: /Repeat yesterday's/i }),
       ).not.toBeInTheDocument()
     })
 
@@ -1562,19 +1567,20 @@ describe('AddMealDialog (#454)', () => {
       )
 
       expect(
-        screen.getByRole('button', { name: "Repeat yesterday's Dinner" }),
+        screen.getByRole('button', { name: "Repeat yesterday's dinner?" }),
       ).toBeInTheDocument()
       await user.click(screen.getByRole('button', { name: 'Clear meal name' }))
       expect(screen.getByLabelText('Meal name')).toHaveValue('')
       expect(
         screen.queryByRole('button', { name: /Lunch two/ }),
       ).not.toBeInTheDocument()
+      expect(screen.queryByText(/«\s*»/)).not.toBeInTheDocument()
 
       await user.click(
-        screen.getByRole('button', { name: "Repeat yesterday's Lunch" }),
+        screen.getByRole('button', { name: "Repeat yesterday's lunch?" }),
       )
       expect(
-        screen.getByRole('heading', { name: 'Repeat Lunch' }),
+        screen.getByRole('heading', { name: "Repeat yesterday's lunch?" }),
       ).toBeInTheDocument()
     })
   })

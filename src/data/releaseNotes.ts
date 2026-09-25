@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 975,
+    issue: 1000,
+    date: '2026-09-25T23:31:39+03:00',
+    en: 'Repeat yesterday’s meal is now a small icon next to the meal name and time, and a tap asks you to confirm before those dishes are added.',
+    ru: '«Повторить вчерашний» теперь маленький значок рядом с названием и временем приёма пищи, и нажатие спрашивает подтверждение, прежде чем добавить эти блюда.',
+  },
+  {
     version: 974,
     issue: 999,
     date: '2026-09-25T23:21:42+03:00',

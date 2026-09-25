@@ -11,8 +11,8 @@ export interface RepeatMealDialogProps {
   onOpenChange: (open: boolean) => void
   /** The label shown in the dialog title — the *new* meal's own title
    * (next unused Settings/built-in template, #843/#844), or the
-   * positional meal type when that title is blank (#997), matching
-   * what `repeatMealLabel` already shows on the trigger button. */
+   * positional meal type when that title is blank (#997). The sheet
+   * asks "Repeat yesterday's [meal]?" (#1000). */
   mealLabel: string
   items: CalorieItem[]
   /** Called with just the checked subset (#202) — cloning (fresh ids,

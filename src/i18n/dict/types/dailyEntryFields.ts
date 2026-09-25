@@ -290,17 +290,11 @@ export interface DailyEntryFieldsDict {
     sinceLastMealDuration: (hours: number, minutes: number, seconds: number) => string
     /** #792 — static gap on a meal card (hours + minutes, no seconds). */
     sinceLastMealOnCard: (hours: number, minutes: number) => string
-    /** #190: "Repeat yesterday's [meal]" quick action on the add row —
-     * only shown when the day before has a meal at this same position
-     * (#141's positional identity, not label matching). Clones that
-     * meal's items (name/macros/amountG only, not time/note/emotion) in
-     * one tap, for a routine that's logged the same way most days.
-     * #997: callers pass the positional meal type when the name field is
-     * blank. A blank argument omits the quotes instead of rendering «». */
-    repeatMealLabel: (mealLabel: string) => string
-    /** #202: title of the preview dialog "Repeat yesterday's [meal]" opens
-     * into — lets a specific dish be unchecked before confirming, rather
-     * than #190's original all-or-nothing immediate commit. */
+    /** #1000 — name of the repeat icon and the confirm sheet. #190/#202
+     * still copy yesterday's same-position foods after the user confirms,
+     * with dishes unchecked first. #997: callers pass the positional meal
+     * type when the name field is blank. A blank argument names the meal
+     * without empty quotes. */
     repeatMealDialogTitle: (mealLabel: string) => string
     /** #253 — "Copy yesterday's meals": whole-day sibling of #190/#202's
      * single-meal repeat above, reusing the exact same preview/selective-

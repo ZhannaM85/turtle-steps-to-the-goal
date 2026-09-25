@@ -1,4 +1,4 @@
-import { X } from 'lucide-react'
+import { RotateCcw, X } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -15,6 +15,8 @@ export function AddMealDialogHeader({
   onTimeEatenChange,
   mealLabelSuggestions,
   onSaveMealNameAsTemplate,
+  repeatYesterdayLabel,
+  onRepeatYesterday,
 }: {
   mealLabel: string
   onMealLabelChange: (value: string) => void
@@ -22,6 +24,9 @@ export function AddMealDialogHeader({
   onTimeEatenChange: (value: string) => void
   mealLabelSuggestions: string[]
   onSaveMealNameAsTemplate: (name: string) => void
+  /** #1000 — set only when yesterday has foods to copy. No title tooltip. */
+  repeatYesterdayLabel?: string
+  onRepeatYesterday?: () => void
 }) {
   const t = useTranslation()
   return (
@@ -79,6 +84,18 @@ export function AddMealDialogHeader({
             </Button>
           )}
         </div>
+        {onRepeatYesterday && repeatYesterdayLabel && (
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-touch"
+            className="shrink-0"
+            aria-label={repeatYesterdayLabel}
+            onClick={onRepeatYesterday}
+          >
+            <RotateCcw aria-hidden="true" />
+          </Button>
+        )}
       </div>
       <div className="flex flex-wrap gap-3">
         {mealLabelSuggestions.map((name) => (

@@ -44,10 +44,10 @@ export function effectiveMealLabel(
 }
 
 /**
- * #997 — name quoted by "Repeat yesterday's …" and its confirm title.
- * The action copies yesterday's same-position foods (#190) and quotes
- * this meal's title, not yesterday's free-text (#843). A cleared field
- * stays blank in the input (#568) but must not render empty quotes; use
+ * #997 / #1000 — name used in "Repeat yesterday's …?". The action
+ * copies yesterday's same-position foods (#190) and names this meal's
+ * title, not yesterday's free-text (#843). A cleared field stays blank
+ * in the input (#568) but the confirm must not render empty quotes; use
  * the positional type (Завтрак / Breakfast / …) an unlabeled meal already
  * displays as.
  */

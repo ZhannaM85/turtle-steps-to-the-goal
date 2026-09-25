@@ -110,9 +110,9 @@ export function AddMealDialog({
 }: AddMealDialogProps) {
   const t = useTranslation()
   const locale = useLocale()
-  // #997 — a cleared name stays empty in the field, but the repeat
-  // button and confirm title still need a real meal type.
-  const repeatQuotedName = repeatMealDisplayLabel(t, mealLabel, mealPosition)
+  // #997 / #1000 — a cleared name stays empty in the field, but the
+  // confirm still needs a real meal type (never empty quotes).
+  const repeatMealName = repeatMealDisplayLabel(t, mealLabel, mealPosition)
   const isOnline = useOnlineStatus()
   const eatingReasonTrackingEnabled = useEatingReasonTrackingStore(
     (state) => state.enabled,
@@ -267,6 +267,14 @@ export function AddMealDialog({
             onTimeEatenChange={onTimeEatenChange}
             mealLabelSuggestions={mealLabelSuggestions}
             onSaveMealNameAsTemplate={addMealLabelPreset}
+            repeatYesterdayLabel={t.dailyEntry.repeatMealDialogTitle(
+              repeatMealName,
+            )}
+            onRepeatYesterday={
+              previousMeal && previousMeal.items.length > 0
+                ? () => setIsRepeatOpen(true)
+                : undefined
+            }
           />
           {/* #996 — WebKit sizes a lone `flex-1` / `overflow-y-auto` child to
               its content (`flex-basis: 0%` does not resolve against `h-dvh`),
@@ -298,17 +306,6 @@ export function AddMealDialog({
                   onCancelRemoveItem={() => setConfirmRemoveItemId(null)}
                 />
                 <div className="flex flex-col gap-4">
-                  {previousMeal && previousMeal.items.length > 0 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="xl"
-                      className="w-full"
-                      onClick={() => setIsRepeatOpen(true)}
-                    >
-                      {t.dailyEntry.repeatMealLabel(repeatQuotedName)}
-                    </Button>
-                  )}
                   {eatingReasonTrackingEnabled && onEatingReasonsChange && (
                     <EatingReasonPicker
                       id="add-meal-eating-reason"
@@ -404,7 +401,7 @@ export function AddMealDialog({
             <RepeatMealDialog
               open={isRepeatOpen}
               onOpenChange={setIsRepeatOpen}
-              mealLabel={repeatQuotedName}
+              mealLabel={repeatMealName}
               items={previousMeal.items}
               onConfirm={handleRepeatConfirm}
             />
