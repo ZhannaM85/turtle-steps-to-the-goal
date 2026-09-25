@@ -123,7 +123,7 @@ _Day boundary is the calendar date. Late-night logs stay on the open day page. D
 
 ## Tier 171 — Live feedback (2026-09-25)
 
-_Create recipe from a meal: warn when a selected food, the same ingredient set, or the typed title is already a recipe, and offer to add the new recipe in place of those foods. Meal search finds saved recipes by name. Add dish: protein, fat, and carbs on one row. Empty food search shows manual add as a button and prefills the dish name from the query._
+_Create recipe from a meal: warn when a selected food, the same ingredient set, or the typed title is already a recipe, and offer to add the new recipe in place of those foods. Meal search finds saved recipes by name. Add dish: protein, fat, and carbs on one row, and the optional brand starts collapsed. Empty food search shows manual add as a button and prefills the dish name from the query._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
@@ -134,4 +134,5 @@ _Create recipe from a meal: warn when a selected food, the same ingredient set, 
 | [#990](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/990) | 🔍 Pending validation | Добавить блюдо: белки / жиры / углеводы in one compact row | Nutrition used a 2-column grid, so carbs wrapped under protein and fat. Protein, fat, and carbs now share one 3-column row with a tighter gap and single-line labels; the inputs stay full height. Fiber and electrolytes stay on the next rows. Awaiting on-device confirmation |
 | [#991](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/991) | 🔍 Pending validation | Meal search empty state: «Добавить вручную» should look like an action | When a food search has no matches, «Не нашли?» stays plain text and «Добавить вручную» is a bordered button like «Искать онлайн». Tapping it still opens manual add. Awaiting on-device confirmation |
 | [#992](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/992) | 🔍 Pending validation | Добавить вручную: prefill Название блюда from meal search query | Empty-state «Добавить вручную» opens «Добавить блюдо» with the typed search in «Название блюда» (still editable). The Add food shortcut and other entry paths stay blank. Awaiting on-device confirmation |
+| [#993](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/993) | 🔍 Pending validation | Добавить блюдо: collapse Бренд by default | «Бренд (необязательно)» starts as a compact disclosure. Tapping it opens the field. A dish that already has a brand opens expanded with that value. Awaiting on-device confirmation |
 

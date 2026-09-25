@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { useLocaleStore } from '@/i18n'
 import { MealItemEditorSheet } from './MealItemEditorSheet'
 
@@ -7,15 +8,15 @@ afterEach(() => {
   useLocaleStore.setState({ locale: 'en' })
 })
 
-function renderSheet() {
-  render(
+function sheetElement(brand = '') {
+  return (
     <MealItemEditorSheet
       open
       onOpenChange={vi.fn()}
       title="Добавить блюдо"
       name="Гуляш"
       onNameChange={vi.fn()}
-      brand=""
+      brand={brand}
       onBrandChange={vi.fn()}
       amount="110"
       onAmountChange={vi.fn()}
@@ -41,8 +42,12 @@ function renderSheet() {
       note=""
       onNoteChange={vi.fn()}
       onSave={vi.fn()}
-    />,
+    />
   )
+}
+
+function renderSheet(brand = '') {
+  return render(sheetElement(brand))
 }
 
 describe('MealItemEditorSheet nutrition row (#990)', () => {
@@ -69,5 +74,57 @@ describe('MealItemEditorSheet nutrition row (#990)', () => {
     const fiber = screen.getByRole('textbox', { name: 'Клетчатка' })
     expect(fiber.closest('.grid')).not.toBe(macroRow)
     expect(fiber.closest('.grid')).toHaveClass('grid-cols-2')
+  })
+})
+
+describe('MealItemEditorSheet brand disclosure (#993)', () => {
+  it('starts collapsed when the brand is empty and opens on tap', async () => {
+    const user = userEvent.setup()
+    renderSheet()
+
+    const toggle = screen.getByRole('button', { name: 'Brand (optional)' })
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    expect(toggle.querySelector('[data-slot="collapse-chevron"]')).toHaveClass(
+      'bg-transparent',
+    )
+    expect(screen.queryByLabelText('Brand (optional)')).not.toBeInTheDocument()
+
+    await user.click(toggle)
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByLabelText('Brand (optional)')).toHaveValue('')
+    expect(toggle.querySelector('[data-slot="collapse-chevron"]')).toHaveClass(
+      'rotate-180',
+    )
+  })
+
+  it('uses the Russian label as the collapsed disclosure', () => {
+    useLocaleStore.getState().setLocale('ru')
+    renderSheet()
+
+    expect(
+      screen.getByRole('button', { name: 'Бренд (необязательно)' }),
+    ).toHaveAttribute('aria-expanded', 'false')
+    expect(
+      screen.queryByLabelText('Бренд (необязательно)'),
+    ).not.toBeInTheDocument()
+  })
+
+  it('shows an existing brand expanded', () => {
+    renderSheet('Ермолино')
+
+    expect(
+      screen.getByRole('button', { name: 'Brand (optional)' }),
+    ).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByLabelText('Brand (optional)')).toHaveValue('Ермолино')
+  })
+
+  it('opens when a brand arrives while the sheet is already open', () => {
+    const view = renderSheet()
+    expect(screen.queryByLabelText('Brand (optional)')).not.toBeInTheDocument()
+
+    view.rerender(sheetElement('Perdue'))
+
+    expect(screen.getByLabelText('Brand (optional)')).toHaveValue('Perdue')
   })
 })

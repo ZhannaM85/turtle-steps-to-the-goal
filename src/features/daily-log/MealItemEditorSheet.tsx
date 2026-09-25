@@ -19,8 +19,8 @@ import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Textarea } from '@/shared/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
-import { BrandAutocomplete } from './BrandAutocomplete'
 import { EmotionPicker } from './EmotionPicker'
+import { MealItemBrandField } from './MealItemBrandField'
 import { MealItemNumberField } from './MealItemNumberField'
 import { MealNoteAutocomplete } from './MealNoteAutocomplete'
 import { isInconsistentMacros } from './unusualEntryThresholds'
@@ -31,8 +31,8 @@ export interface MealItemEditorSheetProps {
   title: string
   name: string
   onNameChange: (value: string) => void
-  /** Optional brand name (#248), e.g. "Perdue" — shown right after the
-   * dish name field. */
+  /** Optional brand name (#248), e.g. "Perdue" — right after the dish
+   * name. Collapsed until opened (#993); a non-empty brand starts open. */
   brand: string
   onBrandChange: (value: string) => void
   amount: string
@@ -413,18 +413,13 @@ export function MealItemEditorSheet({
             </div>
           </FormSection>
 
-          <FormSection heading={t.dailyEntry.itemBrandLabel}>
-            <BrandAutocomplete
-              ariaLabel={t.dailyEntry.itemBrandLabel}
-              placeholder={t.dailyEntry.itemBrandPlaceholder}
-              value={brand}
-              onChange={onBrandChange}
-              onSubmit={onSave}
-              mealItems={mealItems}
-              enabled={open}
-              className="h-12 text-base"
-            />
-          </FormSection>
+          <MealItemBrandField
+            open={open}
+            brand={brand}
+            onBrandChange={onBrandChange}
+            onSubmit={onSave}
+            mealItems={mealItems}
+          />
 
           <FormSection heading={t.dailyEntry.itemQuantitySectionLabel}>
             <ToggleGroup

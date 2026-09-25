@@ -721,6 +721,7 @@ describe('AddMealDialog (#454)', () => {
     await user.clear(name)
     await user.type(name, 'Grilled Salmon')
 
+    await user.click(screen.getByRole('button', { name: 'Brand (optional)' }))
     const brand = screen.getByLabelText('Brand (optional)')
     expect(brand).toHaveValue('')
     await user.type(brand, 'Ocean Fresh')

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 968,
+    issue: 993,
+    date: '2026-09-25T20:27:44+03:00',
+    en: 'On Add dish, Brand stays collapsed until you open it, and it stays open when the dish already has a brand.',
+    ru: 'В «Добавить блюдо» бренд свёрнут, пока вы его не откроете, и сразу показан, если у блюда он уже есть.',
+  },
+  {
     version: 967,
     issue: 992,
     date: '2026-09-25T20:16:38+03:00',
