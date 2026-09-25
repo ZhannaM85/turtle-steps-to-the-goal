@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 962,
+    issue: 987,
+    date: '2026-09-25T08:47:01+03:00',
+    en: 'After you save a recipe from a meal, you can add that recipe and remove the foods you used to make it.',
+    ru: 'После сохранения рецепта из приёма пищи его можно добавить в этот приём и убрать блюда, из которых он собран.',
+  },
+  {
     version: 961,
     issue: 986,
     date: '2026-09-25T08:36:02+03:00',

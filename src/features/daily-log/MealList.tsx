@@ -40,6 +40,10 @@ import { AddMealDialog } from './AddMealDialog'
 import { CopyDayMealsDialog } from './CopyDayMealsDialog'
 import { SinceLastMealTimer } from './SinceLastMealTimer'
 import { MealListItem } from './MealListItem'
+import {
+  replaceSelectedItemsInEntries,
+  replaceSelectedItemsInEntry,
+} from './replaceMealSelectionWithRecipe'
 import { useMealKcalVsLastSameMeal } from './useMealKcalVsLastSameMeal'
 
 // Every curated food's name in either locale (#150) — names an item picked
@@ -651,6 +655,21 @@ export function MealList({
   // Lets the flyout's own "meal so far" list drop a mistakenly-added item
   // without leaving the dialog — same "a group with its last item removed
   // is itself removed" invariant CalorieEntry.items documents.
+  function replaceItemsInNewMeal(
+    removeIds: readonly string[],
+    added: CalorieItem,
+  ) {
+    if (!inProgressMealId) return
+    setCalorieEntries(
+      replaceSelectedItemsInEntries(
+        calorieEntries,
+        inProgressMealId,
+        removeIds,
+        added,
+      ),
+    )
+  }
+
   function removeItemFromNewMeal(itemId: string) {
     if (!inProgressMealId) return
     setCalorieEntries(
@@ -796,6 +815,16 @@ export function MealList({
 
   // Draft-only remove — emptying the draft does not delete the day meal
   // until Done (#509). Close restores the baseline.
+  function replaceItemsInEditingMeal(
+    removeIds: readonly string[],
+    added: CalorieItem,
+  ) {
+    if (!editingMealDraft) return
+    setEditingMealDraft(
+      replaceSelectedItemsInEntry(editingMealDraft, removeIds, added),
+    )
+  }
+
   function removeItemFromEditingMeal(itemId: string) {
     if (!editingMealDraft) return
     setEditingMealDraft({
@@ -964,6 +993,7 @@ export function MealList({
           onEatingReasonsChange={setEditingMealEatingReasons}
           onAppendItems={appendItemsToEditingMeal}
           onRemoveItem={removeItemFromEditingMeal}
+          onReplaceItems={replaceItemsInEditingMeal}
           onUpdateItem={updateItemInEditingMeal}
           onDeleteMeal={deleteEditingMeal}
           // #566 — exclude the meal being edited; the dialog adds `items`
@@ -1059,6 +1089,7 @@ export function MealList({
           onEatingReasonsChange={updateNewMealEatingReasons}
           onAppendItems={appendItemsToNewMeal}
           onRemoveItem={removeItemFromNewMeal}
+          onReplaceItems={replaceItemsInNewMeal}
           onUpdateItem={updateItemInNewMeal}
           // #566 — same as edit overlay: in-progress meal is already in
           // `calorieEntries` once the first dish is saved, and dialog

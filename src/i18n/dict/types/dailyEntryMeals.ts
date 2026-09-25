@@ -39,6 +39,11 @@ export interface DailyEntryMealsDict {
     createRecipeExistingRecipesWarning: string
     createRecipeCopyExistingNameButton: string
     createRecipeCopyExistingNameLabel: (name: string) => string
+    /** #987 — after a successful save, offer to log the recipe in this meal. */
+    createRecipeAddToMealTitle: string
+    createRecipeAddToMealPrompt: (name: string) => string
+    createRecipeAddToMealYes: string
+    createRecipeAddToMealNo: string
     wasItTastyLabel: string
     doneAddingMealButton: string
     /** #494 — confirm before X/escape discards an in-progress new meal

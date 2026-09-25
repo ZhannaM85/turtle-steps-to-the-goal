@@ -60,6 +60,8 @@ export interface AddMealDialogProps {
   onAppendItems: (items: CalorieItem[]) => void
   onRemoveItem: (itemId: string) => void
   onUpdateItem?: (item: CalorieItem) => void
+  /** #987 — drop the foods used to build a recipe and insert that recipe line. */
+  onReplaceItems?: (removeIds: readonly string[], added: CalorieItem) => void
   onDeleteMeal?: () => void
   todayTotals?: {
     kcal: number
@@ -96,6 +98,7 @@ export function AddMealDialog({
   onAppendItems,
   onRemoveItem,
   onUpdateItem,
+  onReplaceItems,
   onDeleteMeal,
   todayTotals,
   dailyCalorieTargetKcal,
@@ -212,7 +215,10 @@ export function AddMealDialog({
     t,
     locale,
   })
-  const compositionActions = useMealCompositionActions(catalog.mealItems)
+  const compositionActions = useMealCompositionActions(
+    catalog.mealItems,
+    onReplaceItems,
+  )
   const manualSheetBarcode =
     sheet.pendingBarcode ??
     (sheet.manualDraft.name.trim()

@@ -82,4 +82,73 @@ describe('CreateRecipeFromMealDialog (#983)', () => {
       expect.objectContaining({ name: 'Бутерброд' }),
     )
   })
+
+  it('offers to add the saved recipe and leaves the meal alone when declined (#987)', async () => {
+    const user = userEvent.setup()
+    const onSave = vi.fn()
+    const onOpenChange = vi.fn()
+    const onAddToMeal = vi.fn()
+
+    render(
+      <CreateRecipeFromMealDialog
+        open
+        onOpenChange={onOpenChange}
+        items={weighed}
+        recipes={[]}
+        onSave={onSave}
+        onAddToMeal={onAddToMeal}
+      />,
+    )
+
+    await user.type(screen.getByLabelText('Recipe name'), 'Sandwich')
+    await user.click(screen.getByRole('button', { name: 'Save recipe' }))
+
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Sandwich' }),
+    )
+    expect(onAddToMeal).not.toHaveBeenCalled()
+    expect(
+      await screen.findByRole('heading', { name: 'You created a recipe' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Add “Sandwich” to this meal and remove the foods you used?',
+      ),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: "Don't add" }))
+    expect(onAddToMeal).not.toHaveBeenCalled()
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  it('adds the saved recipe only after confirm (#987)', async () => {
+    const user = userEvent.setup()
+    const onSave = vi.fn()
+    const onOpenChange = vi.fn()
+    const onAddToMeal = vi.fn()
+
+    render(
+      <CreateRecipeFromMealDialog
+        open
+        onOpenChange={onOpenChange}
+        items={weighed}
+        recipes={[]}
+        onSave={onSave}
+        onAddToMeal={onAddToMeal}
+      />,
+    )
+
+    await user.type(screen.getByLabelText('Recipe name'), 'Sandwich')
+    await user.click(screen.getByRole('button', { name: 'Save recipe' }))
+    await user.click(
+      await screen.findByRole('button', { name: 'Add recipe' }),
+    )
+
+    expect(onAddToMeal).toHaveBeenCalledTimes(1)
+    expect(onAddToMeal).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Sandwich' }),
+      weighed,
+    )
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
 })

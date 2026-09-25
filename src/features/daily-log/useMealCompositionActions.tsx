@@ -8,9 +8,13 @@ import {
 } from '@/features/food-share'
 import { useRecipeStore } from '@/stores'
 import { CreateRecipeFromMealDialog } from './CreateRecipeFromMealDialog'
+import { calorieItemForRecipeServing } from './replaceMealSelectionWithRecipe'
 
 /** #982 share dialogs plus the #983 recipe sheet, kept out of AddMealDialog. */
-export function useMealCompositionActions(library: readonly MealItem[]): {
+export function useMealCompositionActions(
+  library: readonly MealItem[],
+  onReplaceItems?: (removeIds: readonly string[], added: CalorieItem) => void,
+): {
   shareOne: (item: CalorieItem) => void
   shareMany: (items: readonly CalorieItem[]) => void
   openRecipe: (items: readonly CalorieItem[]) => void
@@ -58,6 +62,12 @@ export function useMealCompositionActions(library: readonly MealItem[]): {
           recipes={recipes}
           onSave={async (recipe: Recipe) => {
             await upsertRecipe(recipe)
+          }}
+          onAddToMeal={(recipe, sourceItems) => {
+            onReplaceItems?.(
+              sourceItems.map((item) => item.id),
+              calorieItemForRecipeServing(recipe, sourceItems),
+            )
           }}
         />
       </>

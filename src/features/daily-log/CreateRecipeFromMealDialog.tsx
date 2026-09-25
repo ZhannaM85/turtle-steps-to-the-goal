@@ -25,30 +25,53 @@ export function CreateRecipeFromMealDialog({
   items,
   recipes,
   onSave,
+  onAddToMeal,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   items: readonly CalorieItem[] | null
   recipes: readonly Pick<Recipe, 'id' | 'name'>[]
   onSave: (recipe: Recipe) => void | Promise<void>
+  /** #987 — called only when she confirms adding the saved recipe. */
+  onAddToMeal?: (recipe: Recipe, sourceItems: readonly CalorieItem[]) => void
 }) {
   const t = useTranslation()
+  const [saved, setSaved] = useState<Recipe | null>(null)
+
+  function handleOpenChange(next: boolean) {
+    if (!next) setSaved(null)
+    onOpenChange(next)
+  }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent closeLabel={t.recipes.closeRecipeDialogLabel}>
-        <DialogTitle>{t.dailyEntry.createRecipeFromMealTitle}</DialogTitle>
-        <DialogDescription>
-          {t.dailyEntry.createRecipeFromMealDescription}
-        </DialogDescription>
-        {open && items && items.length > 0 ? (
-          <CreateRecipeFields
-            items={items}
-            recipes={recipes}
-            onOpenChange={onOpenChange}
-            onSave={onSave}
+        {saved && items ? (
+          <AddSavedRecipePrompt
+            recipeName={saved.name}
+            onAdd={() => {
+              onAddToMeal?.(saved, items)
+              handleOpenChange(false)
+            }}
+            onSkip={() => handleOpenChange(false)}
           />
-        ) : null}
+        ) : (
+          <>
+            <DialogTitle>{t.dailyEntry.createRecipeFromMealTitle}</DialogTitle>
+            <DialogDescription>
+              {t.dailyEntry.createRecipeFromMealDescription}
+            </DialogDescription>
+            {open && items && items.length > 0 ? (
+              <CreateRecipeFields
+                items={items}
+                recipes={recipes}
+                onOpenChange={handleOpenChange}
+                onSave={onSave}
+                onSaved={onAddToMeal ? setSaved : undefined}
+              />
+            ) : null}
+          </>
+        )}
       </DialogContent>
     </Dialog>
   )
@@ -59,11 +82,13 @@ function CreateRecipeFields({
   recipes,
   onOpenChange,
   onSave,
+  onSaved,
 }: {
   items: readonly CalorieItem[]
   recipes: readonly Pick<Recipe, 'id' | 'name'>[]
   onOpenChange: (open: boolean) => void
   onSave: (recipe: Recipe) => void | Promise<void>
+  onSaved?: (recipe: Recipe) => void
 }) {
   const t = useTranslation()
   const locale = useLocale()
@@ -94,7 +119,8 @@ function CreateRecipeFields({
     setBusy(true)
     try {
       await onSave(recipe)
-      onOpenChange(false)
+      if (onSaved) onSaved(recipe)
+      else onOpenChange(false)
     } finally {
       setBusy(false)
     }
@@ -160,6 +186,34 @@ function CreateRecipeFields({
         </Button>
       </div>
     </div>
+  )
+}
+
+function AddSavedRecipePrompt({
+  recipeName,
+  onAdd,
+  onSkip,
+}: {
+  recipeName: string
+  onAdd: () => void
+  onSkip: () => void
+}) {
+  const t = useTranslation()
+  return (
+    <>
+      <DialogTitle>{t.dailyEntry.createRecipeAddToMealTitle}</DialogTitle>
+      <DialogDescription>
+        {t.dailyEntry.createRecipeAddToMealPrompt(recipeName)}
+      </DialogDescription>
+      <div className="flex flex-wrap gap-2 pt-2">
+        <Button type="button" onClick={onAdd}>
+          {t.dailyEntry.createRecipeAddToMealYes}
+        </Button>
+        <Button type="button" variant="outline" onClick={onSkip}>
+          {t.dailyEntry.createRecipeAddToMealNo}
+        </Button>
+      </div>
+    </>
   )
 }
 

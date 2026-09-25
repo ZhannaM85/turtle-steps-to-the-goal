@@ -211,6 +211,11 @@ export const dailyEntry: DailyEntryDict = {
       'These foods are already saved as recipes',
     createRecipeCopyExistingNameButton: 'Copy name',
     createRecipeCopyExistingNameLabel: (name) => `Copy name “${name}”`,
+    createRecipeAddToMealTitle: 'You created a recipe',
+    createRecipeAddToMealPrompt: (name) =>
+      `Add “${name}” to this meal and remove the foods you used?`,
+    createRecipeAddToMealYes: 'Add recipe',
+    createRecipeAddToMealNo: "Don't add",
     wasItTastyLabel: 'Was it tasty?',
     doneAddingMealButton: 'Done',
     confirmDiscardInProgressMealLabel:

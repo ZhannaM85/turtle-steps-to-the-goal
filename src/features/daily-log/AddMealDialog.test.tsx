@@ -13,6 +13,7 @@ import { buildShareFoodBatchUrl, buildShareFoodUrl } from '@/features/food-share
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useFoodOverrideStore, useMealItemStore, useMealLabelPresetStore, useNutritionFactsStore, useRecipeStore, useAddMealRecentVisibilityStore, useEatingReasonTrackingStore } from '@/stores'
 import { AddMealDialog, type AddMealDialogProps } from './AddMealDialog'
+import { replaceSelectedMealItems } from './replaceMealSelectionWithRecipe'
 
 // Matches FoodPickerDialog.test.tsx's own reasoning — every test here
 // renders the dialog open against the full 300+-item food list. Raised
@@ -131,6 +132,9 @@ function ControlledAddMealDialog({
         setItems((prev) =>
           prev.map((item) => (item.id === updated.id ? updated : item)),
         )
+      }
+      onReplaceItems={(removeIds, added) =>
+        setItems((prev) => replaceSelectedMealItems(prev, removeIds, added))
       }
     />
   )
@@ -567,6 +571,26 @@ describe('AddMealDialog (#454)', () => {
       0,
     )
     expect(kcal).toBe(192)
+
+    expect(
+      await screen.findByRole('heading', { name: 'You created a recipe' }),
+    ).toBeInTheDocument()
+    const mealBefore = screen.getByText('This meal so far').closest('div')!
+    expect(mealBefore).toHaveTextContent('Bread')
+    expect(mealBefore).toHaveTextContent('Butter')
+
+    await user.click(screen.getByRole('button', { name: 'Add recipe' }))
+
+    await waitFor(() => {
+      const meal = screen.getByText('This meal so far').closest('div')!
+      expect(meal).toHaveTextContent('Salmon sandwich')
+      expect(meal).not.toHaveTextContent('Bread')
+      expect(meal).not.toHaveTextContent('Butter')
+    })
+    expect(
+      screen.getByText('Today would be: 192 kcal (was 0 kcal)'),
+    ).toBeInTheDocument()
+    expect(useRecipeStore.getState().recipes).toHaveLength(1)
   })
 
   it('opens a QR-imported dish on the 100g tab (#981)', async () => {
