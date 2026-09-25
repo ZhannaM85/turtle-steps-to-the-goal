@@ -297,12 +297,19 @@ export function useAddMealManualSheet({
     setIsManualOpen(true)
   }
 
-  function openManualAdd() {
+  function openManualAdd(initialName?: string) {
     setPendingBarcode(null)
     setBarcodeNotFoundMessage(false)
     setEditingItemId(null)
     setActiveServings(undefined)
     setIsConfirmingPick(false)
+    // #992 — empty-search «Добавить вручную» passes the typed query.
+    // Other callers omit it, so those paths still open a blank name.
+    const name = typeof initialName === 'string' ? initialName.trim() : ''
+    if (name) {
+      portionScaleBaseRef.current = null
+      setManualDraft({ ...blankManualDraft(), name })
+    }
     setIsManualOpen(true)
   }
 

@@ -62,5 +62,15 @@ describe('empty food search manual add (#991)', () => {
 
     await user.click(addManually)
     expect(onOpenManualAdd).toHaveBeenCalledTimes(1)
+    expect(onOpenManualAdd).toHaveBeenCalledWith('honey pie')
+  })
+
+  it('does not pass the search query from the Add food shortcut (#992)', async () => {
+    const user = userEvent.setup()
+    const onOpenManualAdd = renderEmptySearch()
+
+    await user.click(screen.getByRole('button', { name: 'Add food' }))
+    expect(onOpenManualAdd).toHaveBeenCalledTimes(1)
+    expect(onOpenManualAdd).toHaveBeenCalledWith()
   })
 })

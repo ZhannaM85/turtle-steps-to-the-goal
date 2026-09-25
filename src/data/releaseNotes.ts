@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 967,
+    issue: 992,
+    date: '2026-09-25T20:16:38+03:00',
+    en: 'When a food search finds nothing, Add manually fills the dish name with what you just typed.',
+    ru: 'Если поиск продукта ничего не нашёл, «Добавить вручную» подставляет набранный текст в «Название блюда».',
+  },
+  {
     version: 966,
     issue: 991,
     date: '2026-09-25T20:05:00+03:00',

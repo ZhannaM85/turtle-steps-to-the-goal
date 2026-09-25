@@ -61,7 +61,7 @@ export function AddMealDialogBrowse({
   isFavorite: (item: PickableItem) => boolean
   onToggleFavorite: (item: PickableItem) => void
   onPick: (item: PickableItem) => void
-  onOpenManualAdd: () => void
+  onOpenManualAdd: (initialName?: string) => void
   onOpenBarcode: () => void
   onOpenRecipe: () => void
   onImportSharedFood: () => void
@@ -85,7 +85,7 @@ export function AddMealDialogBrowse({
         <AddMealQuickActionCard
           Icon={Utensils}
           label={t.dailyEntry.quickActionAddFoodLabel}
-          onClick={onOpenManualAdd}
+          onClick={() => onOpenManualAdd()}
         />
         <AddMealQuickActionCard
           Icon={ScanBarcode}
@@ -152,7 +152,7 @@ export function AddMealDialogBrowse({
                 variant="outline"
                 size="sm"
                 className="self-start"
-                onClick={onOpenManualAdd}
+                onClick={() => onOpenManualAdd(search.trim())}
               >
                 {t.dailyEntry.cantFindItAddManuallyLabel}
               </Button>
