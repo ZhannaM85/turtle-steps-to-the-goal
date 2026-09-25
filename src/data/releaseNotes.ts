@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 973,
+    issue: 998,
+    date: '2026-09-25T21:39:18+03:00',
+    en: 'The barcode icon is gone from the meal search field. Scanning still starts from the Scan barcode tile.',
+    ru: 'Значок штрихкода убран из поля «Поиск…» при добавлении еды. Сканирование по-прежнему начинается с плитки «Сканировать штрихкод».',
+  },
+  {
     version: 972,
     issue: 997,
     date: '2026-09-25T21:26:00+03:00',

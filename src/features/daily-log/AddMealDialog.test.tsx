@@ -650,7 +650,10 @@ describe('AddMealDialog (#454)', () => {
       screen.queryByRole('button', { name: 'Clear search' }),
     ).not.toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: 'Scan barcode' }),
+      screen.queryByRole('button', { name: 'Scan barcode' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
     ).toBeInTheDocument()
   })
 
@@ -1042,8 +1045,9 @@ describe('AddMealDialog (#454)', () => {
         addFood,
       )
       expect(
-        screen.getByRole('button', { name: 'Scan barcode' }),
-      ).toBeInTheDocument()
+        screen.queryByRole('button', { name: 'Scan barcode' }),
+      ).not.toBeInTheDocument()
+      expect(scanCard).toBeInTheDocument()
     })
   })
 
@@ -1223,7 +1227,9 @@ describe('AddMealDialog (#454)', () => {
       const user = userEvent.setup()
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+      await user.click(
+        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+      )
 
       // Waits on the sheet's own Save button, not the dish name: "Protein
       // Bar" is in the personal library too (touched above so
@@ -1272,7 +1278,9 @@ describe('AddMealDialog (#454)', () => {
       const user = userEvent.setup()
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+      await user.click(
+        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+      )
       const saveButton = await screen.findByRole(
         'button',
         { name: 'Save' },
@@ -1314,7 +1322,9 @@ describe('AddMealDialog (#454)', () => {
       const user = userEvent.setup()
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+      await user.click(
+        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+      )
 
       const brand = await screen.findByLabelText('Brand (optional)')
       expect(brand).toHaveValue('Siggis')
@@ -1349,7 +1359,9 @@ describe('AddMealDialog (#454)', () => {
       const user = userEvent.setup()
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+      await user.click(
+        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+      )
       await screen.findByLabelText('Brand (optional)')
 
       expect(screen.getByLabelText('kcal/100g')).toHaveValue('198.8')
@@ -1364,7 +1376,9 @@ describe('AddMealDialog (#454)', () => {
       const user = userEvent.setup()
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+      await user.click(
+        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+      )
 
       expect(
         await screen.findByText(
@@ -1390,7 +1404,9 @@ describe('AddMealDialog (#454)', () => {
       const user = userEvent.setup()
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+      await user.click(
+        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+      )
       await screen.findByText('Barcode: 0 000000 000000')
 
       await user.click(screen.getByRole('button', { name: 'Copy barcode' }))
@@ -1411,7 +1427,9 @@ describe('AddMealDialog (#454)', () => {
       const user = userEvent.setup()
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+      await user.click(
+        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+      )
       expect(
         await screen.findByText(
           'No food found for this barcode — you can still add it by hand below.',
@@ -1433,7 +1451,9 @@ describe('AddMealDialog (#454)', () => {
       // Next scan of the same code must resolve locally (prefilled item
       // sheet), not open the not-found sheet again.
       mockScanning('4607001234567')
-      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+      await user.click(
+        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+      )
       const saveButton = await screen.findByRole(
         'button',
         { name: 'Save' },
@@ -1454,7 +1474,9 @@ describe('AddMealDialog (#454)', () => {
       const user = userEvent.setup()
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+      await user.click(
+        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+      )
       await screen.findByText(
         'No food found for this barcode — you can still add it by hand below.',
       )
@@ -1471,7 +1493,9 @@ describe('AddMealDialog (#454)', () => {
       const user = userEvent.setup()
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      await user.click(screen.getByRole('button', { name: 'Scan barcode' }))
+      await user.click(
+        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+      )
       await screen.findByText(
         'No food found for this barcode — you can still add it by hand below.',
       )

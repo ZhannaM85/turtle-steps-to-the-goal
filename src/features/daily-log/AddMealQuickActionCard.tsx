@@ -8,10 +8,8 @@ export function AddMealQuickActionCard({
 }: {
   Icon: LucideIcon
   label: string
-  /** Overrides the visible `label` as the accessible name — needed for the
-   * barcode card, whose visible text ("Scan barcode") would otherwise
-   * collide with the search bar's own same-labeled icon button (#459
-   * deliberately keeps both, reversing #454's one-entry-point decision). */
+  /** Overrides the visible `label` as the accessible name. The barcode
+   * tile includes the meal name (for example "Scan barcode — Breakfast"). */
   ariaLabel?: string
   onClick: () => void
 }) {

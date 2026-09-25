@@ -124,7 +124,7 @@ export function AddMealDialogBrowse({
           placeholder={t.dailyEntry.foodSearchPlaceholder}
           value={search}
           onChange={(e) => onChangeSearch(e.target.value)}
-          className={cn('h-12 text-base', search ? 'pr-20' : 'pr-11')}
+          className={cn('h-12 text-base', search !== '' && 'pr-10')}
         />
         {search !== '' && (
           <Button
@@ -132,22 +132,12 @@ export function AddMealDialogBrowse({
             variant="ghost"
             size="icon-xs"
             aria-label={t.dailyEntry.clearFoodSearchLabel}
-            className="absolute top-1/2 right-10 -translate-y-1/2"
+            className="absolute top-1/2 right-1.5 -translate-y-1/2"
             onClick={onClearSearch}
           >
             <X aria-hidden="true" className="size-3.5" />
           </Button>
         )}
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label={t.dailyEntry.scanBarcodeButton}
-          className="absolute top-1/2 right-1.5 -translate-y-1/2"
-          onClick={onOpenBarcode}
-        >
-          <ScanBarcode aria-hidden="true" />
-        </Button>
       </div>
       <HomemadeFoodFilterChip
         pressed={homemadeOnly}

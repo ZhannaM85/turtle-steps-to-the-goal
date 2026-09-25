@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { AddMealDialogBrowse } from './AddMealDialogBrowse'
@@ -74,6 +74,63 @@ describe('empty food search manual add (#991)', () => {
     await user.click(screen.getByRole('button', { name: 'Add food' }))
     expect(onOpenManualAdd).toHaveBeenCalledTimes(1)
     expect(onOpenManualAdd).toHaveBeenCalledWith()
+  })
+})
+
+describe('meal search barcode entry (#998)', () => {
+  it('keeps the scan tile and has no barcode control in the search field', async () => {
+    const user = userEvent.setup()
+    const onOpenBarcode = vi.fn()
+    render(
+      <AddMealDialogBrowse
+        mealLabel="Breakfast"
+        search="honey"
+        query="honey"
+        matches={[]}
+        recentItems={[]}
+        allMealItemsCount={0}
+        recentCount={3}
+        showAllRecent={false}
+        onToggleShowAllRecent={vi.fn()}
+        recentVisible
+        onToggleRecentVisible={vi.fn()}
+        textFor={() => ''}
+        isFavorite={() => false}
+        onToggleFavorite={vi.fn()}
+        onPick={vi.fn()}
+        onOpenManualAdd={vi.fn()}
+        onOpenBarcode={onOpenBarcode}
+        onOpenRecipe={vi.fn()}
+        onImportSharedFood={vi.fn()}
+        onlineHits={[]}
+        onlineSearchStatus="idle"
+        onlineRemoteStatus={null}
+        onRunOnlineSearch={vi.fn()}
+        onPickOnlineHit={vi.fn()}
+        onChangeSearch={vi.fn()}
+        onClearSearch={vi.fn()}
+        homemadeOnly={false}
+        onToggleHomemadeOnly={vi.fn()}
+        mealNoteField={null}
+        showEmptyMealNote={false}
+      />,
+    )
+
+    const searchField = within(screen.getByLabelText('Search foods').parentElement!)
+    expect(
+      searchField.getByRole('button', { name: 'Clear search' }),
+    ).toBeInTheDocument()
+    expect(
+      searchField.queryByRole('button', { name: 'Scan barcode' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Scan barcode' }),
+    ).not.toBeInTheDocument()
+
+    await user.click(
+      screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+    )
+    expect(onOpenBarcode).toHaveBeenCalledTimes(1)
   })
 })
 
