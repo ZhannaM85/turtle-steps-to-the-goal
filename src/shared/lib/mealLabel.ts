@@ -103,7 +103,7 @@ export function localizeLeftoverEnglishMealPresets(
 }
 
 /** Built-in Breakfast/Lunch/… names in every locale — used to hide
- * other-locale defaults from Add-meal chips (#567). */
+ * other-locale defaults from the Add-meal type list (#567). */
 export function allLocaleDefaultMealNames(): Set<string> {
   return new Set(
     ALL_LOCALES.flatMap(
@@ -115,7 +115,7 @@ export function allLocaleDefaultMealNames(): Set<string> {
 /**
  * #563/#567 — active-locale defaults first, then custom Settings presets
  * that are not a built-in default in any locale (so EN leftovers don't
- * appear beside RU chips after a language switch).
+ * appear beside RU names after a language switch).
  */
 export function mealLabelSuggestionsForLocale(
   t: Dictionary,
@@ -130,7 +130,7 @@ export function mealLabelSuggestionsForLocale(
 
 /**
  * #843 — add-meal may reuse yesterday's same-position title only when that
- * name is a built-in / Settings template (the same chips the flyout
+ * name is a built-in / Settings template (the same names the flyout
  * offers). Free-text custom names stay off the default so they are not
  * invented at log time; add the name in Settings first, then pick it.
  *

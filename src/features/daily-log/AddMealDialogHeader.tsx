@@ -4,6 +4,7 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Chip } from '@/shared/ui/chip'
 import { DialogTitle } from '@/shared/ui/dialog'
+import { MealTypePicker } from './MealTypePicker'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { TimeInput } from '@/shared/ui/time-input'
@@ -97,23 +98,18 @@ export function AddMealDialogHeader({
           </Button>
         )}
       </div>
-      <div className="flex flex-wrap gap-3">
-        {mealLabelSuggestions.map((name) => (
-          <Chip
-            key={name}
-            selected={mealLabel === name}
-            onSelect={() => onMealLabelChange(name)}
-          >
-            {name}
+      <MealTypePicker
+        id="add-meal-type"
+        value={mealLabel}
+        options={mealLabelSuggestions}
+        onChange={onMealLabelChange}
+      />
+      {mealLabel.trim() !== '' &&
+        !mealLabelSuggestions.includes(mealLabel.trim()) && (
+          <Chip onSelect={() => onSaveMealNameAsTemplate(mealLabel)}>
+            {t.dailyEntry.saveMealNameAsTemplateLabel}
           </Chip>
-        ))}
-        {mealLabel.trim() !== '' &&
-          !mealLabelSuggestions.includes(mealLabel.trim()) && (
-            <Chip onSelect={() => onSaveMealNameAsTemplate(mealLabel)}>
-              {t.dailyEntry.saveMealNameAsTemplateLabel}
-            </Chip>
-          )}
-      </div>
+        )}
     </div>
   )
 }

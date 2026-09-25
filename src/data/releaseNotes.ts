@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 976,
+    issue: 1001,
+    date: '2026-09-25T23:59:24+03:00',
+    en: 'On the add-food screen, meal type is a dropdown with the same choices as before, instead of buttons that wrapped onto a second row.',
+    ru: 'На экране добавления еды тип приёма пищи выбирается из списка с теми же вариантами, а не кнопками, которые переносились на вторую строку.',
+  },
+  {
     version: 975,
     issue: 1000,
     date: '2026-09-25T23:31:39+03:00',

@@ -200,7 +200,8 @@ describe('MealList', () => {
       screen.getByRole('button', { name: '+ Add a meal' }),
     )
     expect(screen.getByLabelText('Meal name')).toHaveValue('Breakfast')
-    await user.click(screen.getByRole('button', { name: 'Lunch' }))
+    await user.click(screen.getByRole('button', { name: 'Meal type' }))
+    await user.click(screen.getByRole('option', { name: 'Lunch' }))
     expect(screen.getByLabelText('Meal name')).toHaveValue('Lunch')
 
     await user.click(screen.getByRole('button', { name: 'Add food' }))
@@ -431,7 +432,7 @@ describe('MealList', () => {
     expect(screen.getByLabelText('Time')).toHaveValue('12:00')
   })
 
-  it('keeps the actual time when a built-in name chip is picked (#926)', async () => {
+  it('keeps the actual time when a built-in meal type is picked (#926)', async () => {
     vi.setSystemTime(new Date(2026, 2, 1, 14, 0, 0))
     const user = userEvent.setup()
     render(
@@ -441,12 +442,13 @@ describe('MealList', () => {
 
     await user.click(screen.getByRole('button', { name: '+ Add a meal' }))
     expect(screen.getByLabelText('Time')).toHaveValue('14:00')
-    await user.click(screen.getByRole('button', { name: 'Lunch' }))
+    await user.click(screen.getByRole('button', { name: 'Meal type' }))
+    await user.click(screen.getByRole('option', { name: 'Lunch' }))
     expect(screen.getByLabelText('Meal name')).toHaveValue('Lunch')
     expect(screen.getByLabelText('Time')).toHaveValue('14:00')
   })
 
-  it('keeps the actual time on a custom template chip (#926)', async () => {
+  it('keeps the actual time on a custom meal-type template (#926)', async () => {
     useMealLabelPresetStore.setState({ presets: ['Second breakfast'] })
     const user = userEvent.setup()
     render(
@@ -475,7 +477,8 @@ describe('MealList', () => {
     await user.click(
       screen.getByRole('button', { name: '+ Add another meal' }),
     )
-    await user.click(screen.getByRole('button', { name: 'Second breakfast' }))
+    await user.click(screen.getByRole('button', { name: 'Meal type' }))
+    await user.click(screen.getByRole('option', { name: 'Second breakfast' }))
     expect(screen.getByLabelText('Meal name')).toHaveValue('Second breakfast')
     expect(screen.getByLabelText('Time')).toHaveValue('12:00')
   })
@@ -486,12 +489,13 @@ describe('MealList', () => {
 
     await user.click(screen.getByRole('button', { name: '+ Add a meal' }))
     fireEvent.change(screen.getByLabelText('Time'), { target: { value: '14:00' } })
-    await user.click(screen.getByRole('button', { name: 'Lunch' }))
+    await user.click(screen.getByRole('button', { name: 'Meal type' }))
+    await user.click(screen.getByRole('option', { name: 'Lunch' }))
 
     expect(screen.getByLabelText('Time')).toHaveValue('14:00')
   })
 
-  it('does not rewrite an already-timed meal when its name chip changes (#862)', async () => {
+  it('does not rewrite an already-timed meal when its meal type changes (#862)', async () => {
     useMealLabelPresetStore.setState({ presets: ['Second breakfast'] })
     const user = userEvent.setup()
     render(
@@ -512,7 +516,8 @@ describe('MealList', () => {
 
     await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
     expect(screen.getByLabelText('Time')).toHaveValue('07:15')
-    await user.click(screen.getByRole('button', { name: 'Second breakfast' }))
+    await user.click(screen.getByRole('button', { name: 'Meal type' }))
+    await user.click(screen.getByRole('option', { name: 'Second breakfast' }))
     expect(screen.getByLabelText('Meal name')).toHaveValue('Second breakfast')
     expect(screen.getByLabelText('Time')).toHaveValue('07:15')
   })
@@ -963,7 +968,8 @@ describe('MealList', () => {
 
       await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
       const dialog = screen.getByRole('dialog', { name: 'Breakfast' })
-      await user.click(within(dialog).getByRole('button', { name: 'Dinner' }))
+      await user.click(within(dialog).getByRole('button', { name: 'Meal type' }))
+      await user.click(within(dialog).getByRole('option', { name: 'Dinner' }))
       expect(within(dialog).getByLabelText('Meal name')).toHaveValue('Dinner')
       await user.click(within(dialog).getByRole('button', { name: 'Done' }))
 

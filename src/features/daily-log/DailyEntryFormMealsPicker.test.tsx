@@ -26,7 +26,8 @@ describe('DailyEntryForm', () => {
 
           await user.click(screen.getByRole('button', { name: '+ Add a meal' }))
           fireEvent.change(screen.getByLabelText('Time'), { target: { value: '14:00' } })
-          await user.click(screen.getByRole('button', { name: 'Lunch' }))
+          await user.click(screen.getByRole('button', { name: 'Meal type' }))
+          await user.click(screen.getByRole('option', { name: 'Lunch' }))
           expect(screen.getByLabelText('Time')).toHaveValue('14:00')
           await openAddItemFlow(user)
           await user.type(screen.getByLabelText('kcal/100g'), '200')

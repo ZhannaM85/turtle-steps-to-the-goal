@@ -66,6 +66,8 @@ export const dailyEntry: DailyEntryDict = {
     mealLabelFieldLabel: 'Meal name',
     clearMealLabelFieldLabel: 'Clear meal name',
     saveMealNameAsTemplateLabel: 'Save as template',
+    mealTypeFieldLabel: 'Meal type',
+    mealTypeUnsetLabel: 'Not selected',
     defaultMealNamePresets: ['Breakfast', 'Lunch', 'Dinner', 'Snack'],
     saveButton: 'Save',
     saveAndAddAnotherButton: 'Save and add one more',
