@@ -101,6 +101,11 @@ export function recipeFromMealSelection(
   }
 }
 
+/** A saved recipe the create-recipe sheet can compare against (#986, #988). */
+export type SavedRecipeLookup = Pick<Recipe, 'id' | 'name'> & {
+  ingredients?: readonly Pick<RecipeIngredient, 'name'>[]
+}
+
 /** A selected dish whose name is already a saved recipe (#986). */
 export interface ExistingRecipeInSelection {
   /** Trimmed name of the selected dish, as shown in the meal. */
@@ -108,6 +113,32 @@ export interface ExistingRecipeInSelection {
   /** Stored recipe title to put in «Название рецепта». */
   recipeName: string
   recipeId: string
+}
+
+/** A saved recipe named in a create-recipe warning (#988). */
+export interface SavedRecipeMatch {
+  recipeName: string
+  recipeId: string
+}
+
+interface StoredRecipeName {
+  id: string
+  name: string
+}
+
+function recipesByNormalizedName(
+  recipes: readonly Pick<Recipe, 'id' | 'name'>[],
+): Map<string, StoredRecipeName[]> {
+  const byKey = new Map<string, StoredRecipeName[]>()
+  for (const recipe of recipes) {
+    const recipeName = recipe.name.trim()
+    const key = normalizeMealLibraryName(recipeName)
+    if (!key) continue
+    const list = byKey.get(key)
+    if (list) list.push({ id: recipe.id, name: recipeName })
+    else byKey.set(key, [{ id: recipe.id, name: recipeName }])
+  }
+  return byKey
 }
 
 /**
@@ -120,16 +151,7 @@ export function existingRecipesInMealSelection(
   items: readonly Pick<CalorieItem, 'name'>[],
   recipes: readonly Pick<Recipe, 'id' | 'name'>[],
 ): ExistingRecipeInSelection[] {
-  const byKey = new Map<string, { id: string; name: string }[]>()
-  for (const recipe of recipes) {
-    const recipeName = recipe.name.trim()
-    const key = normalizeMealLibraryName(recipeName)
-    if (!key) continue
-    const list = byKey.get(key)
-    if (list) list.push({ id: recipe.id, name: recipeName })
-    else byKey.set(key, [{ id: recipe.id, name: recipeName }])
-  }
-
+  const byKey = recipesByNormalizedName(recipes)
   const seen = new Set<string>()
   const matches: ExistingRecipeInSelection[] = []
   for (const item of items) {
@@ -149,4 +171,70 @@ export function existingRecipesInMealSelection(
     })
   }
   return matches
+}
+
+/**
+ * #988 — identity of the foods, not the portion.
+ * A logged dish and a recipe ingredient do not share an id (both are new
+ * UUIDs per row), and grams are how much was used. Equality is the set of
+ * normalized food names: trim, collapse spaces, case-insensitive, order
+ * does not matter, repeated names count once.
+ */
+function ingredientNameSetKey(
+  names: readonly (string | undefined)[],
+): string | null {
+  const keys = new Set<string>()
+  for (const name of names) {
+    const trimmed = name?.trim()
+    if (!trimmed) continue
+    const key = normalizeMealLibraryName(trimmed)
+    if (key) keys.add(key)
+  }
+  if (keys.size === 0) return null
+  return [...keys].sort().join('\u0000')
+}
+
+/** Saved recipes whose foods are the same set as the selection (#988). */
+export function recipesWithSameIngredients(
+  items: readonly Pick<CalorieItem, 'name'>[],
+  recipes: readonly SavedRecipeLookup[],
+): SavedRecipeMatch[] {
+  const wanted = ingredientNameSetKey(items.map((item) => item.name))
+  if (!wanted) return []
+  const matches: SavedRecipeMatch[] = []
+  const seen = new Set<string>()
+  for (const recipe of recipes) {
+    if (!recipe.ingredients || seen.has(recipe.id)) continue
+    const key = ingredientNameSetKey(
+      recipe.ingredients.map((ingredient) => ingredient.name),
+    )
+    if (key !== wanted) continue
+    const recipeName = recipe.name.trim()
+    if (!recipeName) continue
+    seen.add(recipe.id)
+    matches.push({ recipeName, recipeId: recipe.id })
+  }
+  return matches
+}
+
+/**
+ * #988 — the typed «Название рецепта» matches a saved recipe the same way
+ * #986 matches a selected dish: trim, collapse spaces, case-insensitive.
+ * Exact display matches come first; other stored spellings follow.
+ */
+export function recipesMatchingTypedTitle(
+  typedName: string,
+  recipes: readonly Pick<Recipe, 'id' | 'name'>[],
+): SavedRecipeMatch[] {
+  const display = typedName.trim()
+  const key = normalizeMealLibraryName(display)
+  if (!key) return []
+  const hits = recipesByNormalizedName(recipes).get(key)
+  if (!hits || hits.length === 0) return []
+  const exact = hits.filter((hit) => hit.name === display)
+  const rest = hits.filter((hit) => hit.name !== display)
+  return [...exact, ...rest].map((hit) => ({
+    recipeName: hit.name,
+    recipeId: hit.id,
+  }))
 }

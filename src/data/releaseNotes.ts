@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 963,
+    issue: 988,
+    date: '2026-09-25T09:02:49+03:00',
+    en: 'Creating a recipe from a meal now also warns when those foods are already a saved recipe, or when the title you type is already used, and you can copy that name.',
+    ru: 'При создании рецепта из приёма пищи теперь также видно, если такой набор блюд уже сохранён как рецепт или если введённое название уже занято, и это название можно скопировать.',
+  },
+  {
     version: 962,
     issue: 987,
     date: '2026-09-25T08:47:01+03:00',

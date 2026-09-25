@@ -16,7 +16,9 @@ import {
   existingRecipesInMealSelection,
   mealSelectionTotals,
   recipeFromMealSelection,
-  type ExistingRecipeInSelection,
+  recipesMatchingTypedTitle,
+  recipesWithSameIngredients,
+  type SavedRecipeLookup,
 } from './mealSelectionRecipe'
 
 export function CreateRecipeFromMealDialog({
@@ -30,7 +32,7 @@ export function CreateRecipeFromMealDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
   items: readonly CalorieItem[] | null
-  recipes: readonly Pick<Recipe, 'id' | 'name'>[]
+  recipes: readonly SavedRecipeLookup[]
   onSave: (recipe: Recipe) => void | Promise<void>
   /** #987 — called only when she confirms adding the saved recipe. */
   onAddToMeal?: (recipe: Recipe, sourceItems: readonly CalorieItem[]) => void
@@ -85,7 +87,7 @@ function CreateRecipeFields({
   onSaved,
 }: {
   items: readonly CalorieItem[]
-  recipes: readonly Pick<Recipe, 'id' | 'name'>[]
+  recipes: readonly SavedRecipeLookup[]
   onOpenChange: (open: boolean) => void
   onSave: (recipe: Recipe) => void | Promise<void>
   onSaved?: (recipe: Recipe) => void
@@ -95,6 +97,12 @@ function CreateRecipeFields({
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
   const existingRecipes = existingRecipesInMealSelection(items, recipes)
+  const sameIngredients = recipesWithSameIngredients(items, recipes)
+  const titleTaken = recipesMatchingTypedTitle(name, recipes)
+  function copyRecipeName(recipeName: string) {
+    setName(recipeName)
+    void navigator.clipboard?.writeText(recipeName).catch(() => {})
+  }
   const totals = mealSelectionTotals(items)
   const macros = macrosSummaryTextCompact(
     totals.proteinG,
@@ -150,12 +158,23 @@ function CreateRecipeFields({
       <p className="text-sm text-muted-foreground">
         {t.recipes.servingsCountLabel(1)}
       </p>
-      <ExistingRecipeWarning
-        matches={existingRecipes}
-        onCopyName={(recipeName) => {
-          setName(recipeName)
-          void navigator.clipboard?.writeText(recipeName).catch(() => {})
-        }}
+      <RecipeMatchWarning
+        message={t.dailyEntry.createRecipeExistingRecipesWarning}
+        rows={existingRecipes.map((match) => ({
+          key: match.recipeId,
+          label: match.ingredientName,
+          copyName: match.recipeName,
+        }))}
+        onCopyName={copyRecipeName}
+      />
+      <RecipeMatchWarning
+        message={t.dailyEntry.createRecipeSameIngredientsWarning}
+        rows={sameIngredients.map((match) => ({
+          key: match.recipeId,
+          label: match.recipeName,
+          copyName: match.recipeName,
+        }))}
+        onCopyName={copyRecipeName}
       />
       <div className="flex flex-col gap-1">
         <Label htmlFor="create-recipe-from-meal-name">
@@ -168,6 +187,15 @@ function CreateRecipeFields({
           placeholder={t.recipes.recipeNamePlaceholder}
         />
       </div>
+      <RecipeMatchWarning
+        message={t.dailyEntry.createRecipeTitleTakenWarning}
+        rows={titleTaken.map((match) => ({
+          key: match.recipeId,
+          label: match.recipeName,
+          copyName: match.recipeName,
+        }))}
+        onCopyName={copyRecipeName}
+      />
       <div className="flex flex-wrap gap-2">
         <Button
           type="button"
@@ -217,37 +245,36 @@ function AddSavedRecipePrompt({
   )
 }
 
-function ExistingRecipeWarning({
-  matches,
+function RecipeMatchWarning({
+  message,
+  rows,
   onCopyName,
 }: {
-  matches: readonly ExistingRecipeInSelection[]
+  message: string
+  rows: readonly { key: string; label: string; copyName: string }[]
   onCopyName: (recipeName: string) => void
 }) {
   const t = useTranslation()
-  if (matches.length === 0) return null
+  if (rows.length === 0) return null
   return (
     <div
       role="status"
       className="flex flex-col gap-2 rounded-lg border border-status-warn/40 bg-status-warn/15 p-3 text-sm text-foreground"
     >
-      <p>{t.dailyEntry.createRecipeExistingRecipesWarning}</p>
+      <p>{message}</p>
       <ul className="flex flex-col gap-2">
-        {matches.map((match) => (
-          <li
-            key={match.recipeId}
-            className="flex items-center justify-between gap-2"
-          >
-            <span>{match.ingredientName}</span>
+        {rows.map((row) => (
+          <li key={row.key} className="flex items-center justify-between gap-2">
+            <span>{row.label}</span>
             <Button
               type="button"
               variant="outline"
               size="sm"
               className="shrink-0"
               aria-label={t.dailyEntry.createRecipeCopyExistingNameLabel(
-                match.recipeName,
+                row.copyName,
               )}
-              onClick={() => onCopyName(match.recipeName)}
+              onClick={() => onCopyName(row.copyName)}
             >
               {t.dailyEntry.createRecipeCopyExistingNameButton}
             </Button>

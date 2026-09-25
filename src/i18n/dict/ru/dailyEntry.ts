@@ -219,6 +219,9 @@ export const dailyEntry: DailyEntryDict = {
     createRecipeCopyExistingNameButton: 'Скопировать название',
     createRecipeCopyExistingNameLabel: (name) =>
       `Скопировать название «${name}»`,
+    createRecipeSameIngredientsWarning:
+      'Такой набор блюд уже сохранён как рецепт',
+    createRecipeTitleTakenWarning: 'Рецепт с таким названием уже есть',
     createRecipeAddToMealTitle: 'Вы создали рецепт',
     createRecipeAddToMealPrompt: (name) =>
       `Добавить «${name}» в этот приём пищи и убрать блюда, из которых он собран?`,

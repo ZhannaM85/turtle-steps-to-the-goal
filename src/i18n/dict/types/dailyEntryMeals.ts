@@ -39,6 +39,10 @@ export interface DailyEntryMealsDict {
     createRecipeExistingRecipesWarning: string
     createRecipeCopyExistingNameButton: string
     createRecipeCopyExistingNameLabel: (name: string) => string
+    /** #988 — the selected foods are already the ingredients of a recipe. */
+    createRecipeSameIngredientsWarning: string
+    /** #988 — the typed recipe title matches a saved recipe name. */
+    createRecipeTitleTakenWarning: string
     /** #987 — after a successful save, offer to log the recipe in this meal. */
     createRecipeAddToMealTitle: string
     createRecipeAddToMealPrompt: (name: string) => string

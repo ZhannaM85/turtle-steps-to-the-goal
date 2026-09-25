@@ -9,6 +9,14 @@ const weighed: CalorieItem[] = [
   { id: 'b', name: 'Butter', amountKcal: 98, amountG: 100 },
 ]
 
+function statusWithText(text: string) {
+  const status = screen.getByText(text).closest('[role="status"]')
+  if (!(status instanceof HTMLElement)) {
+    throw new Error(`missing status: ${text}`)
+  }
+  return status
+}
+
 describe('CreateRecipeFromMealDialog (#983)', () => {
   it('shows per 100 g calories when the selection has no macros', () => {
     render(
@@ -80,6 +88,122 @@ describe('CreateRecipeFromMealDialog (#983)', () => {
     await user.click(save)
     expect(onSave).toHaveBeenCalledWith(
       expect.objectContaining({ name: 'Бутерброд' }),
+    )
+  })
+
+  it('warns when the same foods are already a recipe and copies that name (#988)', async () => {
+    const user = userEvent.setup()
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    vi.spyOn(navigator.clipboard, 'writeText').mockImplementation(writeText)
+    const onSave = vi.fn()
+    const foods: CalorieItem[] = [
+      { id: 'a', name: 'Батон семейный', amountKcal: 94, amountG: 36 },
+      { id: 'b', name: 'Масло', amountKcal: 98, amountG: 13 },
+      { id: 'c', name: 'Форель', amountKcal: 74, amountG: 75 },
+    ]
+
+    render(
+      <CreateRecipeFromMealDialog
+        open
+        onOpenChange={() => {}}
+        items={foods}
+        recipes={[
+          {
+            id: 'sandwich',
+            name: 'Бутерброд с форелью',
+            ingredients: [
+              { name: 'Форель' },
+              { name: 'Батон семейный' },
+              { name: 'Масло' },
+            ],
+          },
+        ]}
+        onSave={onSave}
+      />,
+    )
+
+    const warning = statusWithText(
+      'This combination of foods is already a recipe',
+    )
+    expect(warning).toHaveTextContent('Бутерброд с форелью')
+    expect(
+      screen.queryByText('These foods are already saved as recipes'),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByText('A recipe with this name already exists'),
+    ).not.toBeInTheDocument()
+
+    const save = screen.getByRole('button', { name: 'Save recipe' })
+    expect(save).toBeDisabled()
+    await user.click(
+      within(warning).getByRole('button', {
+        name: 'Copy name “Бутерброд с форелью”',
+      }),
+    )
+    expect(screen.getByLabelText('Recipe name')).toHaveValue(
+      'Бутерброд с форелью',
+    )
+    expect(writeText).toHaveBeenCalledWith('Бутерброд с форелью')
+    expect(
+      screen.getByText('A recipe with this name already exists'),
+    ).toBeInTheDocument()
+    expect(save).toBeEnabled()
+    await user.click(save)
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Бутерброд с форелью' }),
+    )
+  })
+
+  it('shows name, combination, and typed-title warnings together and still saves (#988)', async () => {
+    const user = userEvent.setup()
+    const onSave = vi.fn()
+    const foods: CalorieItem[] = [
+      { id: 'a', name: 'Батон семейный', amountKcal: 94, amountG: 36 },
+      { id: 'b', name: 'Масло', amountKcal: 98, amountG: 13 },
+      { id: 'c', name: 'Форель', amountKcal: 74, amountG: 75 },
+    ]
+
+    render(
+      <CreateRecipeFromMealDialog
+        open
+        onOpenChange={() => {}}
+        items={foods}
+        recipes={[
+          { id: 'r-bread', name: 'Батон семейный' },
+          {
+            id: 'sandwich',
+            name: 'Бутерброд с форелью',
+            ingredients: [
+              { name: 'Масло' },
+              { name: 'Форель' },
+              { name: 'Батон семейный' },
+            ],
+          },
+        ]}
+        onSave={onSave}
+      />,
+    )
+
+    expect(
+      statusWithText('These foods are already saved as recipes'),
+    ).toHaveTextContent('Батон семейный')
+    expect(
+      statusWithText('This combination of foods is already a recipe'),
+    ).toHaveTextContent('Бутерброд с форелью')
+
+    const name = screen.getByLabelText('Recipe name')
+    await user.type(name, 'бутерброд с форелью')
+    const titleWarning = statusWithText(
+      'A recipe with this name already exists',
+    )
+    expect(titleWarning).toHaveTextContent('Бутерброд с форелью')
+    expect(screen.getAllByRole('status')).toHaveLength(3)
+
+    const save = screen.getByRole('button', { name: 'Save recipe' })
+    expect(save).toBeEnabled()
+    await user.click(save)
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'бутерброд с форелью' }),
     )
   })
 

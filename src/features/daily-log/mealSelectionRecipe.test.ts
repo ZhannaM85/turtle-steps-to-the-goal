@@ -3,6 +3,8 @@ import {
   existingRecipesInMealSelection,
   mealSelectionTotals,
   recipeFromMealSelection,
+  recipesMatchingTypedTitle,
+  recipesWithSameIngredients,
 } from './mealSelectionRecipe'
 
 const bread = {
@@ -156,5 +158,112 @@ describe('existingRecipesInMealSelection (#986)', () => {
         recipeId: 'r-bread',
       },
     ])
+  })
+})
+
+const sandwichIngredients = [
+  { name: 'Форель', amountG: 100 },
+  { name: 'батон   семейный', amountG: 50 },
+  { name: 'Масло', amountG: 10 },
+]
+
+describe('recipesWithSameIngredients (#988)', () => {
+  const sandwich = {
+    id: 'sandwich',
+    name: 'Бутерброд с форелью',
+    ingredients: sandwichIngredients,
+  }
+
+  it('matches the same foods in any order, ignoring grams', () => {
+    expect(
+      recipesWithSameIngredients([bread, butter, trout], [sandwich]),
+    ).toEqual([
+      {
+        recipeName: 'Бутерброд с форелью',
+        recipeId: 'sandwich',
+      },
+    ])
+  })
+
+  it('treats repeated names as one food and skips blank names', () => {
+    expect(
+      recipesWithSameIngredients(
+        [bread, bread, { name: '  ' }, butter, trout],
+        [sandwich],
+      ),
+    ).toEqual([
+      {
+        recipeName: 'Бутерброд с форелью',
+        recipeId: 'sandwich',
+      },
+    ])
+  })
+
+  it('does not match a subset, a superset, or a recipe without ingredients', () => {
+    expect(
+      recipesWithSameIngredients([bread, butter], [sandwich]),
+    ).toEqual([])
+    expect(
+      recipesWithSameIngredients(
+        [bread, butter, trout, { name: 'Сыр' }],
+        [sandwich, { id: 'bare', name: 'Бутерброд с форелью' }],
+      ),
+    ).toEqual([])
+  })
+
+  it('lists every saved recipe with that set, in store order', () => {
+    expect(
+      recipesWithSameIngredients(
+        [trout, bread, butter],
+        [
+          { id: 'other', name: 'Суп', ingredients: [{ name: 'Форель' }] },
+          sandwich,
+          {
+            id: 'again',
+            name: '  Второй бутерброд  ',
+            ingredients: [
+              { name: 'Масло' },
+              { name: 'Форель' },
+              { name: 'Батон семейный' },
+            ],
+          },
+        ],
+      ),
+    ).toEqual([
+      {
+        recipeName: 'Бутерброд с форелью',
+        recipeId: 'sandwich',
+      },
+      {
+        recipeName: 'Второй бутерброд',
+        recipeId: 'again',
+      },
+    ])
+  })
+})
+
+describe('recipesMatchingTypedTitle (#988)', () => {
+  const recipes = [
+    { id: 'r1', name: 'Батон семейный' },
+    { id: 'r2', name: 'Бутерброд с форелью' },
+    { id: 'r3', name: 'бутерброд с форелью' },
+  ]
+
+  it('matches collapsed spaces and case, and lists the exact spelling first', () => {
+    expect(recipesMatchingTypedTitle('бутерброд с форелью', recipes)).toEqual([
+      { recipeName: 'бутерброд с форелью', recipeId: 'r3' },
+      { recipeName: 'Бутерброд с форелью', recipeId: 'r2' },
+    ])
+    expect(
+      recipesMatchingTypedTitle('  БУТЕРБРОД   с   форелью  ', recipes),
+    ).toEqual([
+      { recipeName: 'Бутерброд с форелью', recipeId: 'r2' },
+      { recipeName: 'бутерброд с форелью', recipeId: 'r3' },
+    ])
+  })
+
+  it('does not match an empty title or a partial name', () => {
+    expect(recipesMatchingTypedTitle('   ', recipes)).toEqual([])
+    expect(recipesMatchingTypedTitle('Бутер', recipes)).toEqual([])
   })
 })
