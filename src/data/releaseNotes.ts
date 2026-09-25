@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 961,
+    issue: 986,
+    date: '2026-09-25T08:36:02+03:00',
+    en: 'Creating a recipe from a meal now lists selected foods that are already recipes, and you can copy that name into the title.',
+    ru: 'При создании рецепта из приёма пищи видно, какие выбранные блюда уже есть как рецепты, и это название можно скопировать в поле «Название рецепта».',
+  },
+  {
     version: 960,
     issue: 985,
     date: '2026-09-24T11:40:27+03:00',

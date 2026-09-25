@@ -35,6 +35,10 @@ export interface DailyEntryMealsDict {
     createRecipeFromMealDescription: string
     createRecipeFromMealPer100gLabel: string
     createRecipeFromMealSaveButton: string
+    /** #986 — selected dishes that already match a saved recipe. */
+    createRecipeExistingRecipesWarning: string
+    createRecipeCopyExistingNameButton: string
+    createRecipeCopyExistingNameLabel: (name: string) => string
     wasItTastyLabel: string
     doneAddingMealButton: string
     /** #494 — confirm before X/escape discards an in-progress new meal

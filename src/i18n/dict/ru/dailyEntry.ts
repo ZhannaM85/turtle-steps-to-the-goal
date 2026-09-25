@@ -215,6 +215,10 @@ export const dailyEntry: DailyEntryDict = {
       'Выбранные блюда станут одним рецептом. Калории и БЖУ суммируются, а значения на 100 г считаются от общего веса.',
     createRecipeFromMealPer100gLabel: 'На 100 г',
     createRecipeFromMealSaveButton: 'Сохранить рецепт',
+    createRecipeExistingRecipesWarning: 'Эти блюда уже есть как рецепты',
+    createRecipeCopyExistingNameButton: 'Скопировать название',
+    createRecipeCopyExistingNameLabel: (name) =>
+      `Скопировать название «${name}»`,
     wasItTastyLabel: 'Было вкусно?',
     doneAddingMealButton: 'Готово',
     confirmDiscardInProgressMealLabel:

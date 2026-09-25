@@ -16,6 +16,7 @@ export function useMealCompositionActions(library: readonly MealItem[]): {
   openRecipe: (items: readonly CalorieItem[]) => void
   dialogs: ReactNode
 } {
+  const recipes = useRecipeStore((state) => state.recipes)
   const upsertRecipe = useRecipeStore((state) => state.upsertRecipe)
   const [shareItem, setShareItem] = useState<MealItem | null>(null)
   const [shareBatch, setShareBatch] = useState<MealItem[] | null>(null)
@@ -54,6 +55,7 @@ export function useMealCompositionActions(library: readonly MealItem[]): {
             if (!next) setRecipeItems(null)
           }}
           items={recipeItems}
+          recipes={recipes}
           onSave={async (recipe: Recipe) => {
             await upsertRecipe(recipe)
           }}

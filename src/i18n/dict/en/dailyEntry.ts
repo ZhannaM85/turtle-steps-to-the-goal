@@ -207,6 +207,10 @@ export const dailyEntry: DailyEntryDict = {
       'The selected foods become one recipe. Calories and macros are added up, and the per 100 g values are scaled from the total weight.',
     createRecipeFromMealPer100gLabel: 'Per 100 g',
     createRecipeFromMealSaveButton: 'Save recipe',
+    createRecipeExistingRecipesWarning:
+      'These foods are already saved as recipes',
+    createRecipeCopyExistingNameButton: 'Copy name',
+    createRecipeCopyExistingNameLabel: (name) => `Copy name “${name}”`,
     wasItTastyLabel: 'Was it tasty?',
     doneAddingMealButton: 'Done',
     confirmDiscardInProgressMealLabel:

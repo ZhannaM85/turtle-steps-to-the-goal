@@ -119,3 +119,13 @@ _Day boundary is the calendar date. Late-night logs stay on the open day page. D
 | [#984](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/984) | 🔍 Pending validation | Remove day-start setting and Start today now; late-night logs stay on the open day page | Removed Settings «Начало дня» and the Day banner «Начать сегодняшний день сейчас». «Сегодня» and Overview through-now ranges use the calendar date, including after midnight. A new meal is saved on the day page that is open. Clocks before 06:00 on that same entry still sort after the evening meals (fasting / last meal). Already-logged history is not rewritten. Awaiting on-device confirmation |
 | [#985](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/985) | 🔍 Pending validation | Day: sort water chips by time | Water chips followed save order, so the two-column grid could show 11:33 before 10:33. The Day list sorts a copy by clock time, earliest first (untimed chips stay after timed ones). Totals, storage, and add/delete are unchanged. Awaiting on-device confirmation |
 
+---
+
+## Tier 171 — Live feedback (2026-09-25)
+
+_Create recipe: say which selected foods are already recipes, and copy that name._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#986](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/986) | 🔍 Pending validation | Create recipe: warn when selected ingredients already exist as recipes + copy name | «Создать рецепт» lists selected dishes whose names match a saved recipe (same normalized name as the food library; recipes stay keyed by id). «Скопировать название» fills «Название рецепта» with the stored name and also copies it. Save stays available for any non-empty title. Awaiting on-device confirmation |
+

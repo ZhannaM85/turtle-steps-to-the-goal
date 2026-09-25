@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  existingRecipesInMealSelection,
   mealSelectionTotals,
   recipeFromMealSelection,
 } from './mealSelectionRecipe'
@@ -79,5 +80,81 @@ describe('mealSelectionRecipe (#983)', () => {
       proteinG: 3,
     })
     expect(recipeFromMealSelection('   ', [bread])).toBeNull()
+  })
+})
+
+describe('existingRecipesInMealSelection (#986)', () => {
+  const recipes = [
+    { id: 'r-bread', name: 'Батон семейный' },
+    { id: 'r-butter', name: '  Масло  ' },
+    { id: 'r-other', name: 'Масло сливочное' },
+  ]
+
+  it('lists selected dishes whose names match a saved recipe', () => {
+    expect(
+      existingRecipesInMealSelection([bread, butter, trout], recipes),
+    ).toEqual([
+      {
+        ingredientName: 'Батон семейный',
+        recipeName: 'Батон семейный',
+        recipeId: 'r-bread',
+      },
+      {
+        ingredientName: 'Масло',
+        recipeName: 'Масло',
+        recipeId: 'r-butter',
+      },
+    ])
+  })
+
+  it('matches case and extra spaces, and copies the stored recipe name', () => {
+    expect(
+      existingRecipesInMealSelection(
+        [{ name: 'батон   семейный' }],
+        [
+          { id: 'r1', name: 'Батон семейный' },
+          { id: 'r2', name: 'батон семейный' },
+        ],
+      ),
+    ).toEqual([
+      {
+        ingredientName: 'батон   семейный',
+        recipeName: 'Батон семейный',
+        recipeId: 'r1',
+      },
+    ])
+  })
+
+  it('prefers the recipe whose display name matches the dish exactly', () => {
+    expect(
+      existingRecipesInMealSelection(
+        [{ name: 'батон семейный' }],
+        [
+          { id: 'r1', name: 'Батон семейный' },
+          { id: 'r2', name: 'батон семейный' },
+        ],
+      ),
+    ).toEqual([
+      {
+        ingredientName: 'батон семейный',
+        recipeName: 'батон семейный',
+        recipeId: 'r2',
+      },
+    ])
+  })
+
+  it('lists a repeated dish once and skips a blank name', () => {
+    expect(
+      existingRecipesInMealSelection(
+        [bread, { name: '  ' }, bread],
+        recipes,
+      ),
+    ).toEqual([
+      {
+        ingredientName: 'Батон семейный',
+        recipeName: 'Батон семейный',
+        recipeId: 'r-bread',
+      },
+    ])
   })
 })

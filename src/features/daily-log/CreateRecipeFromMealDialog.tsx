@@ -12,17 +12,24 @@ import {
 } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
-import { mealSelectionTotals, recipeFromMealSelection } from './mealSelectionRecipe'
+import {
+  existingRecipesInMealSelection,
+  mealSelectionTotals,
+  recipeFromMealSelection,
+  type ExistingRecipeInSelection,
+} from './mealSelectionRecipe'
 
 export function CreateRecipeFromMealDialog({
   open,
   onOpenChange,
   items,
+  recipes,
   onSave,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   items: readonly CalorieItem[] | null
+  recipes: readonly Pick<Recipe, 'id' | 'name'>[]
   onSave: (recipe: Recipe) => void | Promise<void>
 }) {
   const t = useTranslation()
@@ -37,6 +44,7 @@ export function CreateRecipeFromMealDialog({
         {open && items && items.length > 0 ? (
           <CreateRecipeFields
             items={items}
+            recipes={recipes}
             onOpenChange={onOpenChange}
             onSave={onSave}
           />
@@ -48,10 +56,12 @@ export function CreateRecipeFromMealDialog({
 
 function CreateRecipeFields({
   items,
+  recipes,
   onOpenChange,
   onSave,
 }: {
   items: readonly CalorieItem[]
+  recipes: readonly Pick<Recipe, 'id' | 'name'>[]
   onOpenChange: (open: boolean) => void
   onSave: (recipe: Recipe) => void | Promise<void>
 }) {
@@ -59,6 +69,7 @@ function CreateRecipeFields({
   const locale = useLocale()
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
+  const existingRecipes = existingRecipesInMealSelection(items, recipes)
   const totals = mealSelectionTotals(items)
   const macros = macrosSummaryTextCompact(
     totals.proteinG,
@@ -113,6 +124,13 @@ function CreateRecipeFields({
       <p className="text-sm text-muted-foreground">
         {t.recipes.servingsCountLabel(1)}
       </p>
+      <ExistingRecipeWarning
+        matches={existingRecipes}
+        onCopyName={(recipeName) => {
+          setName(recipeName)
+          void navigator.clipboard?.writeText(recipeName).catch(() => {})
+        }}
+      />
       <div className="flex flex-col gap-1">
         <Label htmlFor="create-recipe-from-meal-name">
           {t.recipes.recipeNameLabel}
@@ -141,6 +159,47 @@ function CreateRecipeFields({
           {t.recipes.cancelLabel}
         </Button>
       </div>
+    </div>
+  )
+}
+
+function ExistingRecipeWarning({
+  matches,
+  onCopyName,
+}: {
+  matches: readonly ExistingRecipeInSelection[]
+  onCopyName: (recipeName: string) => void
+}) {
+  const t = useTranslation()
+  if (matches.length === 0) return null
+  return (
+    <div
+      role="status"
+      className="flex flex-col gap-2 rounded-lg border border-status-warn/40 bg-status-warn/15 p-3 text-sm text-foreground"
+    >
+      <p>{t.dailyEntry.createRecipeExistingRecipesWarning}</p>
+      <ul className="flex flex-col gap-2">
+        {matches.map((match) => (
+          <li
+            key={match.recipeId}
+            className="flex items-center justify-between gap-2"
+          >
+            <span>{match.ingredientName}</span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="shrink-0"
+              aria-label={t.dailyEntry.createRecipeCopyExistingNameLabel(
+                match.recipeName,
+              )}
+              onClick={() => onCopyName(match.recipeName)}
+            >
+              {t.dailyEntry.createRecipeCopyExistingNameButton}
+            </Button>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
