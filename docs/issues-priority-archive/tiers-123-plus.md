@@ -770,6 +770,7 @@ _Create recipe from a meal: warn when a selected food, the same ingredient set, 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#998](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/998) | ✅ Done | Meal search: remove duplicate barcode icon; keep Сканировать штрихкод tile | Confirmed on-device 2026-09-26 — in-field barcode icon gone; «Сканировать штрихкод» tile still opens the scanner. |
 | [#999](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/999) | ✅ Done | Add food: sticky header so close ✕ doesn’t overlap scroll content | Confirmed on-device 2026-09-26 — meal title/close stay fixed above the scroll frame; list content scrolls below. |
 | [#1000](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1000) | ✅ Done | Meal screen: demote «Повторить вчерашний …» to icon + confirm | Confirmed on-device 2026-09-26 — full-width repeat button replaced by circular-arrow icon + dish-preview confirm; blank title uses meal type, not empty quotes. |
 | [#1001](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1001) | ✅ Done | Meal screen: meal-type chips → dropdown | Confirmed on-device 2026-09-26 — meal type is one dropdown (incl. templates); choosing sets the name without changing the time. Superseded layout-wise by #1002. |
