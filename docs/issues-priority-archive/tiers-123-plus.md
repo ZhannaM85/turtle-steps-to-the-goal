@@ -770,4 +770,5 @@ _Meal screen: the name field is the meal-type dropdown. The extra «Тип пр�
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#1003](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1003) | ✅ Done | Meal screen: info icon next to repeat-yesterday control | Confirmed on-device 2026-09-26 — info tip beside the repeat arrow explains yesterday’s meal of this type; tap-to-confirm unchanged. |
 | [#1004](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1004) | ✅ Done | Добавить блюдо: nutrition summary readable (no mid-line wrap) | Confirmed on-device 2026-09-26 — live summary keeps totals; kcal and Б/Ж/У tokens stay on one line; «(было …)» is its own line. |
