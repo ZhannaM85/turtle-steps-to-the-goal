@@ -11,6 +11,10 @@ import type {
 } from '@/domain/customMetric'
 import type { WeeklyNote } from '@/domain/weeklyNote'
 import type { PlannedMeal } from '@/domain/plannedMeal'
+import {
+  backfillDailyEntryCholesterol,
+  backfillMealItemCholesterol,
+} from '@/domain/cholesterol'
 
 export class AppDatabase extends Dexie {
   goals!: Table<Goal, string>
@@ -295,6 +299,37 @@ export class AppDatabase extends Dexie {
       weeklyNotes: '&weekStart',
       plannedMeals: 'id, date',
     })
+    // #1008: stamp LDL labels onto existing dishes and library foods.
+    // Same store shape. See backfillCholesterol.ts for the match rules.
+    this.version(15)
+      .stores({
+        goals: 'id, createdAt',
+        dailyEntries: 'id, &date',
+        mealItems: 'id, &name, &barcode',
+        foodOverrides: '&foodId',
+        recipes: 'id',
+        customMetrics: 'id',
+        customMetricEntries: 'id, metricId, &[metricId+date]',
+        customCorrelations: 'id',
+        weeklyNotes: '&weekStart',
+        plannedMeals: 'id, date',
+      })
+      .upgrade((tx) =>
+        Promise.all([
+          tx
+            .table('dailyEntries')
+            .toCollection()
+            .modify((entry: DailyEntry) => {
+              backfillDailyEntryCholesterol(entry)
+            }),
+          tx
+            .table('mealItems')
+            .toCollection()
+            .modify((item: MealItem) => {
+              backfillMealItemCholesterol(item)
+            }),
+        ]),
+      )
   }
 }
 

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 983,
+    issue: 1008,
+    date: '2026-09-26T20:54:04+03:00',
+    en: 'Foods on the Day page show a small LDL label (helps, neutral, moderate, limit, high, or unknown). Tap it to read a short reason.',
+    ru: 'Блюда на странице дня показывают короткую метку по ЛПНП (помогает, нейтрально, умеренно, лимит, высокое или неизвестно). Нажмите, чтобы прочитать короткую причину.',
+  },
+  {
     version: 982,
     issue: 1007,
     date: '2026-09-26T17:44:18+03:00',

@@ -54,9 +54,10 @@ _Reported from iPhone PDF previews and local Chrome._
 
 ## Tier 172 — Live feedback (2026-09-26)
 
-_The meal-name list fits its longest option and opens over the sheet instead of pushing the page down. Meal search collapses the same dish when the name and per-100 g nutrition match, even if the saved portions differ. Zepp screenshot fill keeps visceral fat from the «Висцеральный жир» row._
+_The meal-name list fits its longest option and opens over the sheet instead of pushing the page down. Meal search collapses the same dish when the name and per-100 g nutrition match, even if the saved portions differ. Zepp screenshot fill keeps visceral fat from the «Висцеральный жир» row. Day foods show a compact LDL-impact label._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1007](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1007) | 🔍 Pending validation | Zepp screenshot: visceral fat parsed as 6 instead of 14 | «Висцеральный жир 14» was saved as 6 — the «6 элементов не достигли цели» count. A bare 6 above that header is dropped, a leading 6 on the visceral line loses to the row value (including the next lines), and eng-tessdata `3neMeHToB` / `Bucuepa…` still map to 14. Same screen still reads жир 28,7 · вода 50,8 · кости 3,07 · мышцы 57,31. Awaiting on-device confirmation |
+| [#1008](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1008) | 🔍 Pending validation | LDL-friendly label on each Day food | Each logged dish shows a compact LDL label (helps / neutral / moderate / limit / high / unknown). Tap shows a short reason. Existing foods are matched by exact name from the seed list; everything else stays unknown. Калории и БЖУ не меняются. Awaiting on-device confirmation |
 

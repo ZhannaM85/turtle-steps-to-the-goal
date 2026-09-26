@@ -70,6 +70,16 @@ export interface MealItem {
   /** #994 — homemade dish. Independent of `brand` (manufacturers). Omitted
    * on existing rows, which means not homemade. */
   homemade?: boolean
+  /** #1008 — same qualitative LDL label as `CalorieItem`. Omitted until
+   * backfill or the next save stamps it from the seed by name. */
+  cholesterolImpact?:
+    | 'beneficial'
+    | 'neutral'
+    | 'moderate'
+    | 'limit'
+    | 'high'
+    | 'unknown'
+  cholesterolReason?: string
   /**
    * #541 — how this library row was created when not from normal logging.
    * Lets Settings remove backfilled rows without wiping day meal history.

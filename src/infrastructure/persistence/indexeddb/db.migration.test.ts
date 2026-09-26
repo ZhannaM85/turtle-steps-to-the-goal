@@ -107,6 +107,8 @@ describe('AppDatabase v1 -> v2 migration', () => {
           {
             id: expect.any(String),
             amountKcal: 1600,
+            // #1008 v15 stamps unmatched dishes as unknown.
+            cholesterolImpact: 'unknown',
           },
         ],
         createdAt: '2026-01-01T00:00:00.000Z',
@@ -153,6 +155,7 @@ describe('AppDatabase v4 -> v5 migration', () => {
         proteinG: 30,
         fatG: 12,
         carbsG: 8,
+        cholesterolImpact: 'unknown',
       },
     ])
   })

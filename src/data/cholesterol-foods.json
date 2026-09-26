@@ -1,0 +1,504 @@
+{
+  "schemaVersion": 1,
+  "description": "MVP LDL-oriented classifications for the 98 unique foods logged in Turtle Steps from 2026-08-26 through 2026-09-26. These are qualitative classifications, not measured saturated-fat values.",
+  "impactLevels": {
+    "beneficial": "Actively supports an LDL-lowering eating pattern, typically through fiber, legumes, whole grains, nuts, or fish replacing higher-saturated-fat foods.",
+    "neutral": "Low concern for LDL but does not meaningfully lower LDL by itself.",
+    "moderate": "Mixed or recipe-dependent; may contribute saturated fat but is not a concentrated source.",
+    "limit": "Meaningful source of saturated fat or a less favorable processed/rich food; frequency and portion matter.",
+    "high": "Especially concentrated source of saturated fat.",
+    "unknown": "Insufficient or inconsistent information for a responsible classification."
+  },
+  "foods": [
+    {
+      "name": "Био-скир Ананас Кокос экспонента",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Fat-free high-protein dairy; not an LDL-lowering food, but very low in saturated fat."
+    },
+    {
+      "name": "Спагетти с куриным оладьями",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Mixed prepared dish; chicken is relatively lean, but the fritters and preparation add fat."
+    },
+    {
+      "name": "Фруктово-ореховый батончик с кокосом",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Contains nuts, but coconut can contribute saturated fat; exact balance depends on the recipe."
+    },
+    {
+      "name": "Напиток Exponenta",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Fat-free high-protein drink; very low saturated-fat impact."
+    },
+    {
+      "name": "Пудинг безлактозный «High Protein» со вкусом ванили",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Low-fat high-protein dairy dessert; relatively low saturated-fat impact."
+    },
+    {
+      "name": "Биточки из индейки",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Turkey-based dish; generally a relatively lean protein unless substantial added fat is used."
+    },
+    {
+      "name": "Сырники домашние",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Cottage-cheese-based dish; saturated fat depends on dairy fat content and frying fat."
+    },
+    {
+      "name": "Мороженое пломбир крем брюле",
+      "cholesterolImpact": "limit",
+      "cholesterolReason": "Cream-based ice cream is a meaningful source of saturated dairy fat."
+    },
+    {
+      "name": "Оладьи куриные с кабачками",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Chicken is relatively lean, but frying and recipe ingredients add fat."
+    },
+    {
+      "name": "Соус Тартар",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Mostly oil-based sauce; not an LDL-lowering food, but usually less saturated-fat-dense than butter or cream sauces."
+    },
+    {
+      "name": "BIO-SKYR Дыня Канталупа",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Fat-free high-protein dairy; very low saturated-fat impact."
+    },
+    {
+      "name": "Čokolada Ritter mlečna celi bademi",
+      "cholesterolImpact": "limit",
+      "cholesterolReason": "Milk chocolate contains saturated fat; almonds add unsaturated fat but do not remove that contribution."
+    },
+    {
+      "name": "Сыр фасованный Маасдам",
+      "cholesterolImpact": "limit",
+      "cholesterolReason": "Hard cheese is a concentrated source of saturated dairy fat."
+    },
+    {
+      "name": "Хлеб Двинский",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Bread is generally low in saturated fat; fiber benefit depends on whole-grain content."
+    },
+    {
+      "name": "Филе куриной грудки запечённое с прованскими травами",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Lean poultry with little saturated fat."
+    },
+    {
+      "name": "Тарт с малиной",
+      "cholesterolImpact": "limit",
+      "cholesterolReason": "Pastry commonly contains butter/cream and is likely a meaningful saturated-fat source."
+    },
+    {
+      "name": "Паста творожная десертная кокос-миндаль",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Contains dairy fat and coconut; likely some saturated fat, though portion-level impact is moderate."
+    },
+    {
+      "name": "Зелёный горошек",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Legume providing fiber, including soluble fiber, with very little saturated fat."
+    },
+    {
+      "name": "Яйцо",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Contains dietary cholesterol but relatively little saturated fat; dietary cholesterol is not the primary LDL target."
+    },
+    {
+      "name": "Морковный торт",
+      "cholesterolImpact": "limit",
+      "cholesterolReason": "Rich cake; frosting and added fats can make it a significant saturated-fat source."
+    },
+    {
+      "name": "Майонезный соус \"Тайский\"",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Primarily vegetable-oil-based; high in total fat but usually not dominated by saturated fat."
+    },
+    {
+      "name": "Творог Высоко белковый Мягкий",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Relatively low-fat high-protein dairy; low saturated-fat impact."
+    },
+    {
+      "name": "Джем \"Тропические фрукты\"",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Essentially fat-free; does not help lower LDL but contributes little saturated fat."
+    },
+    {
+      "name": "Пудинг шоколадный",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Dairy dessert with some fat; saturated-fat content depends on formulation."
+    },
+    {
+      "name": "Масло сливочное",
+      "cholesterolImpact": "high",
+      "cholesterolReason": "Very concentrated source of saturated dairy fat."
+    },
+    {
+      "name": "Зерновой хлеб «Геркулес»",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Grain bread can contribute useful dietary fiber; benefit depends on actual whole-grain content."
+    },
+    {
+      "name": "Филе куриной грудки",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Lean poultry with little saturated fat."
+    },
+    {
+      "name": "Соус майонезный",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Usually based mainly on vegetable oil; high total fat does not automatically mean high saturated fat."
+    },
+    {
+      "name": "Пудинг молочный «High Protein» со вкусом шоколада",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Low-fat high-protein dairy dessert; relatively low saturated-fat impact."
+    },
+    {
+      "name": "Фруктовый десерт \"Клубника\"",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Very low fat; little direct effect on LDL."
+    },
+    {
+      "name": "Шоколад молочный с цельным фундуком",
+      "cholesterolImpact": "limit",
+      "cholesterolReason": "Milk chocolate contributes saturated fat; hazelnuts contribute unsaturated fat."
+    },
+    {
+      "name": "Рис воздушный в сахарном сиропе",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Very low fat and fiber; neither a major LDL concern nor an LDL-lowering food."
+    },
+    {
+      "name": "Филе куриной грудки \"Сувлаки\"",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Lean poultry with relatively little saturated fat."
+    },
+    {
+      "name": "Bio-Skyr черника-голубика",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Fat-free high-protein dairy; very low saturated-fat impact."
+    },
+    {
+      "name": "Паприкаш",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Chicken can be relatively lean, but sour cream and the exact recipe can add saturated fat."
+    },
+    {
+      "name": "Творог зернёный со сливками",
+      "cholesterolImpact": "limit",
+      "cholesterolReason": "Cream increases the saturated dairy-fat content compared with low-fat cottage cheese."
+    },
+    {
+      "name": "Hulala Spray",
+      "cholesterolImpact": "limit",
+      "cholesterolReason": "Whipped topping is a concentrated fat product; formulation may include substantial saturated fat."
+    },
+    {
+      "name": "Сахар",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Contains no saturated fat or fiber; not a direct LDL-lowering food."
+    },
+    {
+      "name": "Творожок чизкейк",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Sweetened dairy product with some saturated dairy fat."
+    },
+    {
+      "name": "Напиток молочный",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Milk-based drink; impact depends on fat percentage, which is not specified."
+    },
+    {
+      "name": "хлеб fazer стройный рецепт",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Bread is generally low in saturated fat; fiber benefit cannot be established from the name alone."
+    },
+    {
+      "name": "Творог 2%",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Low-fat cottage cheese; relatively low saturated-fat contribution."
+    },
+    {
+      "name": "Сметана 15%",
+      "cholesterolImpact": "limit",
+      "cholesterolReason": "Meaningful source of saturated dairy fat."
+    },
+    {
+      "name": "Макароны с фаршем",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Mixed dish; saturated-fat impact depends strongly on the type and fat percentage of minced meat."
+    },
+    {
+      "name": "Potato patties with mushrooms",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Fried potato dish; fat profile depends on frying fat and recipe."
+    },
+    {
+      "name": "Пеламида атлантическая",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Oily fish provides predominantly unsaturated fats and can replace higher-saturated-fat protein choices."
+    },
+    {
+      "name": "Молоко ультрапастеризованное 1.5%",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Low-fat milk; modest saturated-fat contribution."
+    },
+    {
+      "name": "Наполеон",
+      "cholesterolImpact": "limit",
+      "cholesterolReason": "Butter/cream pastry is typically rich in saturated fat."
+    },
+    {
+      "name": "Торт печеночный",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Liver-based prepared dish; often contains mayonnaise/oil and its fat profile is recipe-dependent."
+    },
+    {
+      "name": "Сэндвич-ролл с ломтиками филе форели",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Trout is favorable, but sauce and prepared wrap ingredients make the overall profile mixed."
+    },
+    {
+      "name": "Exoonenta norm-pre персик-абрикос",
+      "cholesterolImpact": "unknown",
+      "cholesterolReason": "The logged macronutrients appear inconsistent, so the fat profile cannot be classified confidently."
+    },
+    {
+      "name": "Caramel pudding",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Low-fat high-protein-style pudding based on the logged macros; relatively low saturated-fat impact."
+    },
+    {
+      "name": "Джем лесные ягоды",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Fat-free; does not lower LDL but contributes essentially no saturated fat."
+    },
+    {
+      "name": "Protein Tvorog",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Fat-free high-protein cottage cheese; very low saturated-fat impact."
+    },
+    {
+      "name": "Творожная запеканка",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Cottage-cheese-based dish; saturated fat depends on cottage cheese, dairy additions and recipe."
+    },
+    {
+      "name": "Молоко Домик в деревне ультрапастеризованное 3,2 %",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Whole milk contains more saturated dairy fat than low-fat milk."
+    },
+    {
+      "name": "Куриные котлеты жареные",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Chicken is relatively lean, but frying and recipe ingredients increase fat."
+    },
+    {
+      "name": "Картофельный салат с капустой",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Contains cabbage and some fiber; fat profile depends on dressing, but logged total fat is moderate."
+    },
+    {
+      "name": "Vaniljekremost i melkesjokolade",
+      "cholesterolImpact": "limit",
+      "cholesterolReason": "Cream-cheese and milk-chocolate product is likely rich in saturated dairy/cocoa fat."
+    },
+    {
+      "name": "Печень в пикантном соусе",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Liver is high in dietary cholesterol; sauce and recipe determine saturated-fat content."
+    },
+    {
+      "name": "Картофельное пюре",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Potatoes themselves are low-fat, but mash often contains butter or milk; exact recipe matters."
+    },
+    {
+      "name": "Рыбные зразы с зелёным горошком",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Fish plus green peas provides a favorable combination of protein, unsaturated fat and some fiber."
+    },
+    {
+      "name": "Коктейль молочный ванильный",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Very low-fat high-protein milk drink based on the logged macros."
+    },
+    {
+      "name": "Гречневая крупа",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Whole grain providing fiber with very little saturated fat."
+    },
+    {
+      "name": "Фрикадельки в томатном соусе",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Meat-based dish; saturated-fat impact depends on the meat blend and fat percentage."
+    },
+    {
+      "name": "Шоколад",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "The logged product is a very low-fat high-protein item despite its name; classification follows the logged macros."
+    },
+    {
+      "name": "Чебурек",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Fried meat pastry; both meat and frying contribute fat, with composition depending on recipe."
+    },
+    {
+      "name": "Чечевица с курицей",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Lentils provide soluble fiber and chicken supplies relatively lean protein."
+    },
+    {
+      "name": "Майонезный соус Тайский пряный",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Primarily vegetable-oil-based; total fat is high but saturated fat is usually comparatively low."
+    },
+    {
+      "name": "Хлеб С Кукурузой",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Low in saturated fat; likely only a modest fiber source."
+    },
+    {
+      "name": "Вензель с малиной",
+      "cholesterolImpact": "limit",
+      "cholesterolReason": "Rich pastry is likely to contain butter or other solid fats and can contribute saturated fat."
+    },
+    {
+      "name": "Чахохбили",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Chicken-based dish; saturated-fat content depends on the cut of chicken and preparation."
+    },
+    {
+      "name": "Помидор",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Very low saturated fat, but not a major source of LDL-lowering soluble fiber."
+    },
+    {
+      "name": "Лук репчатый",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Low saturated fat and some fiber, but the usual portion is not a major LDL-lowering intervention."
+    },
+    {
+      "name": "Капустные котлеты",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Cabbage contributes fiber; preparation adds some fat, so overall impact is modest."
+    },
+    {
+      "name": "Пастуший пирог",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Meat and mashed-potato dish; saturated fat depends on meat, butter and dairy used."
+    },
+    {
+      "name": "Джем яблочный",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Fat-free; little meaningful fiber after processing, so not an LDL-lowering food."
+    },
+    {
+      "name": "Торт фисташка-малина",
+      "cholesterolImpact": "limit",
+      "cholesterolReason": "Rich cake with high total fat; likely contains meaningful saturated fat despite nuts."
+    },
+    {
+      "name": "Рыба, запеченная с морковью и луком",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Fish provides favorable fats and vegetables add some fiber."
+    },
+    {
+      "name": "Запеканка с изюмом",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Cottage-cheese-based casserole; saturated fat depends on dairy fat and recipe."
+    },
+    {
+      "name": "Жареный капустный пирожок",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Cabbage adds some fiber, but frying and pastry contribute substantial fat."
+    },
+    {
+      "name": "Свекольный салат с орехами",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Beetroot contributes fiber and nuts provide unsaturated fats; dressing can modify the overall profile."
+    },
+    {
+      "name": "Чипсы Lays",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Usually based on vegetable oil and not necessarily high in saturated fat; not an LDL-lowering food."
+    },
+    {
+      "name": "Belvita печенье утреннее",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Processed biscuit; may contain some fiber but also added fats, with exact saturated-fat content unknown."
+    },
+    {
+      "name": "Курник",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Pastry plus chicken; dough and added fats make the profile mixed."
+    },
+    {
+      "name": "Эклер с заварным кремом",
+      "cholesterolImpact": "limit",
+      "cholesterolReason": "Pastry and custard commonly provide butter/cream-derived saturated fat."
+    },
+    {
+      "name": "Голубцы со свининой и говядиной",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Cabbage is favorable, but pork/beef filling can contribute saturated fat."
+    },
+    {
+      "name": "Форель",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Oily fish provides predominantly unsaturated fats and is useful as a replacement for higher-saturated-fat proteins."
+    },
+    {
+      "name": "сметана простоква",
+      "cholesterolImpact": "limit",
+      "cholesterolReason": "Sour cream is a meaningful source of saturated dairy fat."
+    },
+    {
+      "name": "Джем \"груша и банан\"",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "Fat-free; little meaningful LDL-lowering fiber in jam."
+    },
+    {
+      "name": "Бутерброд с форелью",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Trout provides favorable unsaturated fats; overall benefit depends on bread and any butter/sauce used."
+    },
+    {
+      "name": "Пудинг творожный",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Cottage-cheese dessert with some fat; likely contributes some saturated dairy fat."
+    },
+    {
+      "name": "Tvorog",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Cottage cheese with unspecified fat percentage; logged fat suggests a moderate dairy-fat contribution."
+    },
+    {
+      "name": "Дениш с голубикой",
+      "cholesterolImpact": "limit",
+      "cholesterolReason": "Laminated pastry commonly contains substantial butter or other solid fat."
+    },
+    {
+      "name": "Прошуто милано",
+      "cholesterolImpact": "limit",
+      "cholesterolReason": "Processed pork with a meaningful fat contribution; not a preferred protein choice for LDL lowering."
+    },
+    {
+      "name": "Био-скир гранат",
+      "cholesterolImpact": "neutral",
+      "cholesterolReason": "High-protein skyr; logged as essentially fat-free."
+    },
+    {
+      "name": "Гуляш",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Beef-based dish; beef contributes saturated fat, while the exact amount depends on the cut and recipe."
+    },
+    {
+      "name": "Медово-ореховый пирог",
+      "cholesterolImpact": "moderate",
+      "cholesterolReason": "Nuts provide unsaturated fats, but cake ingredients can add saturated fat; exact balance depends on the recipe."
+    }
+  ]
+}

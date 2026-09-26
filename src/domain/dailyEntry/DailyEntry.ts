@@ -85,6 +85,17 @@ export interface CalorieItem {
    * behavior `emotion`/`favorite` already have, since a note is
    * situational to *this* logging, not a stable fact about the dish. */
   noteText?: string
+  /** #1008 — qualitative LDL pattern for this dish. Optional on the type
+   * so older fixtures still compile; a missing value is classified from
+   * the name (or shown as unknown). Never a calorie or macro input. */
+  cholesterolImpact?:
+    | 'beneficial'
+    | 'neutral'
+    | 'moderate'
+    | 'limit'
+    | 'high'
+    | 'unknown'
+  cholesterolReason?: string
 }
 
 export interface CalorieEntry {

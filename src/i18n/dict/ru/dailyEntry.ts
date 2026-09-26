@@ -454,4 +454,12 @@ export const dailyEntry: DailyEntryDict = {
     editItemSheetTitle: 'Редактировать блюдо',
     closeItemEditorLabel: 'Закрыть редактор блюда',
     editItemLabel: 'Редактировать блюдо',
+    cholesterolLdlImpactLabel: 'Влияние на ЛПНП',
+    cholesterolImpactBeneficial: 'Помогает',
+    cholesterolImpactNeutral: 'Нейтрально',
+    cholesterolImpactModerate: 'Умеренно',
+    cholesterolImpactLimit: 'Лимит',
+    cholesterolImpactHigh: 'Высокое',
+    cholesterolImpactUnknown: 'Неизвестно',
+    cholesterolImpactButtonLabel: (level) => `Влияние на ЛПНП: ${level}`,
   }

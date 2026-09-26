@@ -356,4 +356,13 @@ export interface DailyEntryFieldsDict {
     copyBarcodeLabel: string
     barcodeCopiedLabel: string
     barcodeCopiedToastMessage: string
+    /** #1008 — compact LDL label on a Day food row. */
+    cholesterolLdlImpactLabel: string
+    cholesterolImpactBeneficial: string
+    cholesterolImpactNeutral: string
+    cholesterolImpactModerate: string
+    cholesterolImpactLimit: string
+    cholesterolImpactHigh: string
+    cholesterolImpactUnknown: string
+    cholesterolImpactButtonLabel: (level: string) => string
 }

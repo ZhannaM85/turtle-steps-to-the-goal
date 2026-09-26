@@ -67,6 +67,11 @@ const calorieItemSchema = z.object({
   // Per-dish free-text note (#344) — same purely-additive reasoning as
   // fiberG above, distinct from the meal-group's own `note` (below).
   noteText: z.string().optional(),
+  // #1008 — qualitative LDL label. Optional so older backups still parse.
+  cholesterolImpact: z
+    .enum(['beneficial', 'neutral', 'moderate', 'limit', 'high', 'unknown'])
+    .optional(),
+  cholesterolReason: z.string().optional(),
 })
 
 // Domain type is `string`, but some historical rows (and thus JSON
@@ -213,6 +218,11 @@ const mealItemSchema = z.object({
   servings: z
     .array(z.object({ en: z.string(), ru: z.string(), grams: z.number() }))
     .optional(),
+  // #1008 — same LDL label as a logged dish. Optional on older backups.
+  cholesterolImpact: z
+    .enum(['beneficial', 'neutral', 'moderate', 'limit', 'high', 'unknown'])
+    .optional(),
+  cholesterolReason: z.string().optional(),
 })
 
 // Per-device curated-food-list customizations (#90) — same #113

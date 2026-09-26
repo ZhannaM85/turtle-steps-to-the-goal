@@ -431,4 +431,12 @@ export const dailyEntry: DailyEntryDict = {
     editItemSheetTitle: 'Edit item',
     closeItemEditorLabel: 'Close item editor',
     editItemLabel: 'Edit item',
+    cholesterolLdlImpactLabel: 'LDL impact',
+    cholesterolImpactBeneficial: 'Helps',
+    cholesterolImpactNeutral: 'Neutral',
+    cholesterolImpactModerate: 'Moderate',
+    cholesterolImpactLimit: 'Limit',
+    cholesterolImpactHigh: 'High',
+    cholesterolImpactUnknown: 'Unknown',
+    cholesterolImpactButtonLabel: (level) => `LDL impact: ${level}`,
   }

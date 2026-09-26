@@ -8,6 +8,7 @@ import type {
   DayTotals,
   Emotion,
 } from '@/domain/dailyEntry'
+import { stampCalorieEntriesCholesterol } from '@/domain/cholesterol'
 import {
   applyEatingReasons,
   calorieEntryCarbs,
@@ -173,7 +174,7 @@ export function MealList({
   )
 
   function setCalorieEntries(next: CalorieEntry[]) {
-    onChange(next)
+    onChange(stampCalorieEntriesCholesterol(next))
   }
 
   // #190: the day immediately before `date` — fetched to power "Repeat

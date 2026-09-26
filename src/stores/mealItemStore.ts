@@ -6,6 +6,7 @@ import {
   planMealLibraryBackfill,
 } from '@/domain/mealItem'
 import { IndexedDbMealItemRepository } from '@/infrastructure/persistence/indexeddb'
+import { withCholesterolClassification } from '@/domain/cholesterol'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 
 const mealItemRepository = new IndexedDbMealItemRepository()
@@ -186,7 +187,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
     // flag so an unchecked box does not stay homemade.
     if (homemade === true) item.homemade = true
     else if (homemade === false) delete item.homemade
-    await mealItemRepository.upsert(item)
+    await mealItemRepository.upsert(withCholesterolClassification(item))
     set({ items: await mealItemRepository.getAll() })
   },
   rename: async (id, name) => {
@@ -198,11 +199,13 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
     if (collision && collision.id !== id) {
       await mealItemRepository.delete(id)
     } else {
-      await mealItemRepository.upsert({
-        ...current,
-        name: trimmed,
-        updatedAt: new Date().toISOString(),
-      })
+      await mealItemRepository.upsert(
+        withCholesterolClassification({
+          ...current,
+          name: trimmed,
+          updatedAt: new Date().toISOString(),
+        }),
+      )
     }
     set({ items: await mealItemRepository.getAll() })
   },
@@ -293,7 +296,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
     const plan = planMealLibraryBackfill(entries, existing)
     const now = new Date().toISOString()
     for (const candidate of plan.candidates) {
-      const item: MealItem = {
+      const item: MealItem = withCholesterolClassification({
         id: crypto.randomUUID(),
         name: candidate.name,
         createdAt: now,
@@ -308,7 +311,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
         lastPotassiumMg: candidate.potassiumMg,
         lastMagnesiumMg: candidate.magnesiumMg,
         source,
-      }
+      })
       await mealItemRepository.upsert(item)
     }
     set({ items: await mealItemRepository.getAll(), status: 'ready' })
@@ -343,30 +346,34 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       const nameOwner = await mealItemRepository.findByName(trimmed)
       if (nameOwner && nameOwner.id !== current.id) {
         await mealItemRepository.delete(current.id)
-        await mealItemRepository.upsert({
-          ...nameOwner,
-          updatedAt: now,
-          lastAmountKcal: nutrition.amountKcal ?? nameOwner.lastAmountKcal,
-          lastProteinG: nutrition.proteinG ?? nameOwner.lastProteinG,
-          lastFatG: nutrition.fatG ?? nameOwner.lastFatG,
-          lastCarbsG: nutrition.carbsG ?? nameOwner.lastCarbsG,
-          lastAmountG: nutrition.amountG ?? nameOwner.lastAmountG,
-          barcode: barcode ?? nameOwner.barcode,
-          servings: servings ?? nameOwner.servings,
-        })
+        await mealItemRepository.upsert(
+          withCholesterolClassification({
+            ...nameOwner,
+            updatedAt: now,
+            lastAmountKcal: nutrition.amountKcal ?? nameOwner.lastAmountKcal,
+            lastProteinG: nutrition.proteinG ?? nameOwner.lastProteinG,
+            lastFatG: nutrition.fatG ?? nameOwner.lastFatG,
+            lastCarbsG: nutrition.carbsG ?? nameOwner.lastCarbsG,
+            lastAmountG: nutrition.amountG ?? nameOwner.lastAmountG,
+            barcode: barcode ?? nameOwner.barcode,
+            servings: servings ?? nameOwner.servings,
+          }),
+        )
       } else {
-        await mealItemRepository.upsert({
-          ...current,
-          name: trimmed,
-          updatedAt: now,
-          lastAmountKcal: nutrition.amountKcal ?? current.lastAmountKcal,
-          lastProteinG: nutrition.proteinG ?? current.lastProteinG,
-          lastFatG: nutrition.fatG ?? current.lastFatG,
-          lastCarbsG: nutrition.carbsG ?? current.lastCarbsG,
-          lastAmountG: nutrition.amountG ?? current.lastAmountG,
-          barcode: barcode ?? current.barcode,
-          servings: servings ?? current.servings,
-        })
+        await mealItemRepository.upsert(
+          withCholesterolClassification({
+            ...current,
+            name: trimmed,
+            updatedAt: now,
+            lastAmountKcal: nutrition.amountKcal ?? current.lastAmountKcal,
+            lastProteinG: nutrition.proteinG ?? current.lastProteinG,
+            lastFatG: nutrition.fatG ?? current.lastFatG,
+            lastCarbsG: nutrition.carbsG ?? current.lastCarbsG,
+            lastAmountG: nutrition.amountG ?? current.lastAmountG,
+            barcode: barcode ?? current.barcode,
+            servings: servings ?? current.servings,
+          }),
+        )
       }
     } else {
       const existingByName = await mealItemRepository.findByName(trimmed)
@@ -388,7 +395,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
         source: existingByName?.source,
         servings: servings ?? existingByName?.servings,
       }
-      await mealItemRepository.upsert(item)
+      await mealItemRepository.upsert(withCholesterolClassification(item))
     }
     set({ items: await mealItemRepository.getAll(), status: 'ready' })
   },
