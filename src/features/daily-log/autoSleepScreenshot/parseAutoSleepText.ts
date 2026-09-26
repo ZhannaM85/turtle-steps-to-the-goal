@@ -181,12 +181,27 @@ function asleepBeforeNextDayChip(
 }
 
 /**
- * Sleep Rating star/quality is often 6–8h. Hypnogram Y-axis `DEEP` can
- * glue onto that duration. Real deep sleep (z icon) is the short one.
- * Same 4h cap as lastShortClockDuration (#762, #771).
+ * Hypnogram Y-axis `DEEP` can glue onto star/quality (often 5–8h). A
+ * labeled DEEP line still has to be under 4h (#762, #771). Circled-z
+ * itself can be over 4h (#1016); that value is chosen only when a longer
+ * star row is also present — see deepHoursFromCandidates.
  */
 function isPlausibleDeepHours(hours: number): boolean {
   return hours < 4
+}
+
+/**
+ * Circled-z is the shorter Sleep Rating duration. A lone duration at or
+ * above 4h is the star/quality row with no z icon (#772, #980's 5h 56m)
+ * and must stay empty. When both rows are present and z is over 4h
+ * (5h 4m vs star 8h 6m), z is still the shorter one (#1016).
+ */
+function deepHoursFromCandidates(candidates: number[]): number | undefined {
+  const unique = [...new Set(candidates)]
+  const short = unique.filter((hours) => isPlausibleDeepHours(hours))
+  if (short.length > 0) return Math.min(...short)
+  if (unique.length >= 2) return Math.min(...unique)
+  return undefined
 }
 
 /**
@@ -312,13 +327,9 @@ export function parseAutoSleepText(
   if (reading.deepSleepHours === undefined && reading.sleepHours !== undefined) {
     const smaller = kept
       .map((item) => item.hours)
-      .filter(
-        (hours) =>
-          hours < reading.sleepHours! && isPlausibleDeepHours(hours),
-      )
-    if (smaller.length > 0) {
-      reading.deepSleepHours = Math.min(...smaller)
-    }
+      .filter((hours) => hours < reading.sleepHours!)
+    const deep = deepHoursFromCandidates(smaller)
+    if (deep !== undefined) reading.deepSleepHours = deep
   }
 
   // OCR often glues the Sleep Rating legend onto the title line
@@ -326,11 +337,10 @@ export function parseAutoSleepText(
   // the word "rating", so z-icon `0h 45m` never entered `kept` (#771).
   if (reading.deepSleepHours === undefined && reading.sleepHours !== undefined) {
     const fromAll = durationsOn(text.replace(/\s+/g, ' ')).filter(
-      (hours) => hours < reading.sleepHours! && isPlausibleDeepHours(hours),
+      (hours) => hours < reading.sleepHours!,
     )
-    if (fromAll.length > 0) {
-      reading.deepSleepHours = Math.min(...fromAll)
-    }
+    const deep = deepHoursFromCandidates(fromAll)
+    if (deep !== undefined) reading.deepSleepHours = deep
   }
 
   // History-only fallbacks when tiles have no `Xh Ym` / labels (#758).

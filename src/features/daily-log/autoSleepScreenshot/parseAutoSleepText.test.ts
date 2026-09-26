@@ -300,4 +300,55 @@ TODAY 9h 22m
     expect(reading.sleepHours).toBe(9.37)
     expect(reading.deepSleepHours).toBeUndefined()
   })
+
+  it('reads circled-z 5h 4m when that deep duration is over 4h (#1016)', () => {
+    // Fri 25 → Sat 26 Today shot: header and moon are 8h 53m, star is
+    // 8h 6m, circled-z is 5h 4m. The old <4h cap dropped the z row.
+    const text = `
+FRIDAY 25 > SATURDAY 26
+8h 53m
+Sleep Efficiency: 94%.
+Sleep Session
+AWAKE LIGHT STILL DEEP
+00:15 - 09:45
+8:53 / 9:30
+Time Asleep Sleep Rating
+TODAY
+8h 53m
+SLEEP BANK
+5,1% debt
+8h 53m
+8h 6m
+5h 4m
+71
+`
+    expect(parseAutoSleepText(text, '2026-09-26')).toEqual({
+      sleepHours: 8.88,
+      deepSleepHours: 5.07,
+      date: '2026-09-26',
+    })
+  })
+
+  it('reads circled-z 5h 4m glued onto the Sleep Rating line (#1016)', () => {
+    const text = `
+FRIDAY 25 > SATURDAY 26
+8h 53m
+Sleep Rating 8h 53m 8h 6m 5h 4m
+`
+    expect(parseAutoSleepText(text, '2026-09-26')).toMatchObject({
+      sleepHours: 8.88,
+      deepSleepHours: 5.07,
+    })
+  })
+
+  it('does not take the star row as deep when circled-z is missing (#1016)', () => {
+    const text = `
+TUESDAY 22 > WEDNESDAY 23
+8h 2m
+5h 56m
+`
+    const reading = parseAutoSleepText(text, '2026-09-23')
+    expect(reading.sleepHours).toBe(8.03)
+    expect(reading.deepSleepHours).toBeUndefined()
+  })
 })

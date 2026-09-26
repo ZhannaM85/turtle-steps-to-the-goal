@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 988,
+    issue: 1016,
+    date: '2026-09-26T22:28:28+03:00',
+    en: 'An AutoSleep screenshot now fills deep sleep when that time is longer than 4 hours, such as 5h 4m.',
+    ru: 'Скриншот AutoSleep теперь заполняет глубокий сон, если это время длиннее 4 часов, например 5 ч 4 м.',
+  },
+  {
     version: 987,
     issue: 1014,
     date: '2026-09-26T22:24:00+03:00',
