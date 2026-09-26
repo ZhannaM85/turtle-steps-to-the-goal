@@ -167,6 +167,9 @@ export const dailyEntry: DailyEntryDict = {
         ? `Repeat yesterday's ${name.toLowerCase()}?`
         : "Repeat yesterday's meal?"
     },
+    repeatMealInfoLabel: "About repeating yesterday's meal",
+    repeatMealInfoText:
+      "Repeats yesterday's meal of this type. You confirm the dishes before they are added.",
     copyYesterdayMealsLabel: "Copy yesterday's meals",
     copyDayMealsDialogTitle: "Copy yesterday's meals",
     orDivider: 'or',

@@ -175,6 +175,9 @@ export const dailyEntry: DailyEntryDict = {
         ? `Повторить вчерашний ${name.toLowerCase()}?`
         : 'Повторить вчерашний приём пищи?'
     },
+    repeatMealInfoLabel: 'Про повтор вчерашнего приёма пищи',
+    repeatMealInfoText:
+      'Повторяет вчерашний приём пищи этого типа. Блюда добавляются только после подтверждения.',
     copyYesterdayMealsLabel: 'Скопировать вчерашние приёмы пищи',
     copyDayMealsDialogTitle: 'Скопировать вчерашние приёмы пищи',
     orDivider: 'или',

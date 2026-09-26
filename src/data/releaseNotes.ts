@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 978,
+    issue: 1003,
+    date: '2026-09-26T14:19:36+03:00',
+    en: 'On the add-food screen, an info icon next to the repeat arrow explains that it copies yesterday’s meal of this type.',
+    ru: 'На экране добавления еды значок информации рядом со стрелкой повтора объясняет, что она копирует вчерашний приём пищи этого типа.',
+  },
+  {
     version: 977,
     issue: 1002,
     date: '2026-09-26T14:01:09+03:00',

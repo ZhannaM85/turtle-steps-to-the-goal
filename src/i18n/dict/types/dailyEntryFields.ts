@@ -296,6 +296,10 @@ export interface DailyEntryFieldsDict {
      * type when the name field is blank. A blank argument names the meal
      * without empty quotes. */
     repeatMealDialogTitle: (mealLabel: string) => string
+    /** #1003 — ⓘ beside the repeat icon. Explains the arrow; the arrow
+     * itself still opens the confirm sheet. */
+    repeatMealInfoLabel: string
+    repeatMealInfoText: string
     /** #253 — "Copy yesterday's meals": whole-day sibling of #190/#202's
      * single-meal repeat above, reusing the exact same preview/selective-
      * pick pattern extended over every meal group in the source day rather

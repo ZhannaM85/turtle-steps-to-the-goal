@@ -3,6 +3,7 @@ import { useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
 import { Chip } from '@/shared/ui/chip'
 import { DialogTitle } from '@/shared/ui/dialog'
+import { ControlWithInfo, InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Label } from '@/shared/ui/label'
 import { TimeInput } from '@/shared/ui/time-input'
 import { MealTypePicker } from './MealTypePicker'
@@ -23,7 +24,8 @@ export function AddMealDialogHeader({
   onTimeEatenChange: (value: string) => void
   mealLabelSuggestions: string[]
   onSaveMealNameAsTemplate: (name: string) => void
-  /** #1000 — set only when yesterday has foods to copy. No title tooltip. */
+  /** #1000 — set only when yesterday has foods to copy. No title tooltip.
+   * #1003 — the same condition shows the info tip beside the arrow. */
   repeatYesterdayLabel?: string
   onRepeatYesterday?: () => void
 }) {
@@ -68,16 +70,22 @@ export function AddMealDialogHeader({
           )}
         </div>
         {onRepeatYesterday && repeatYesterdayLabel && (
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-touch"
-            className="shrink-0"
-            aria-label={repeatYesterdayLabel}
-            onClick={onRepeatYesterday}
-          >
-            <RotateCcw aria-hidden="true" />
-          </Button>
+          <ControlWithInfo className="shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-touch"
+              className="shrink-0"
+              aria-label={repeatYesterdayLabel}
+              onClick={onRepeatYesterday}
+            >
+              <RotateCcw aria-hidden="true" />
+            </Button>
+            <InfoTooltip
+              text={t.dailyEntry.repeatMealInfoText}
+              label={t.dailyEntry.repeatMealInfoLabel}
+            />
+          </ControlWithInfo>
         )}
       </div>
       {mealLabel.trim() !== '' &&

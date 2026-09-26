@@ -148,9 +148,10 @@ _Create recipe from a meal: warn when a selected food, the same ingredient set, 
 
 ## Tier 172 — Live feedback (2026-09-26)
 
-_Meal screen: the name field is the meal-type dropdown. The extra «Тип приёма пищи» row from #1001 is removed._
+_Meal screen: the name field is the meal-type dropdown. The extra «Тип приёма пищи» row from #1001 is removed. An info icon beside the repeat-yesterday arrow explains that it copies yesterday’s meal of this type._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1002](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1002) | 🔍 Pending validation | Meal screen: «Название приёма пищи» is the dropdown; no extra «Тип» row | Corrects #1001. There is no «Тип приёма пищи» row. The name slot is that dropdown (Завтрак / Обед / Ужин / Перекус and saved templates), showing the current value and a chevron, on the same row as the time and the repeat icon. Choosing an option still sets the meal name and the note placeholder. The name cannot be typed. Awaiting on-device confirmation |
+| [#1003](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1003) | 🔍 Pending validation | Meal screen: info icon next to repeat-yesterday control | The circular-arrow repeat control stays: tap still opens the confirm sheet with this meal’s name. An info icon beside it, on the same row as the time and the arrow, uses the existing info tip and explains that it repeats yesterday’s meal of this type. The full-width «Повторить вчерашний» button stays gone. Awaiting on-device confirmation |
 
