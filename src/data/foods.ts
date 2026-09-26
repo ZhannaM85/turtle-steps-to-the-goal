@@ -28,8 +28,8 @@
  * one exists. Seeded for the most obviously ambiguous-in-grams foods only,
  * not attempted for the rest of the list.
  *
- * #1010: LDL staples are merged onto these rows (macros and LDL on the
- * same record). `cholesterol-foods.json` is not a second list for them.
+ * #1010 / #1011: LDL staples live on these rows (macros and LDL on the
+ * same record). The catalog is the only food list meal search uses.
  */
 import { mergeLdlStaples } from './ldlStapleFoods'
 
@@ -70,8 +70,8 @@ export interface FoodItem {
    * exists), seeded for a handful of foods where "how many grams" isn't
    * obvious — not attempted for most of the list. */
   servings?: FoodServing[]
-  /** #1010 — LDL label on the catalog row itself. Omitted on older rows;
-   * those names still fall through to the cholesterol seed. */
+  /** #1010 — LDL label on the catalog row itself. Omitted when this food
+   * has no catalog label. */
   cholesterolImpact?:
     | 'beneficial'
     | 'neutral'

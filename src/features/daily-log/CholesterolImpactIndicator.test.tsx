@@ -172,10 +172,15 @@ describe('Day food row cholesterol label (#1008)', () => {
     ).toHaveAttribute('data-cholesterol-impact', 'unknown')
   })
 
-  it('classifies a saved dish from its name when the field is still empty', () => {
+  it('classifies an empty field from the catalog, and leaves other names unknown', () => {
+    const { unmount } = render(<HistoricalRow name="Овсянка" />)
+    expect(
+      screen.getByRole('button', { name: 'LDL impact: Helps' }),
+    ).toBeInTheDocument()
+    unmount()
     render(<HistoricalRow name="Масло сливочное" />)
     expect(
-      screen.getByRole('button', { name: 'LDL impact: High' }),
+      screen.getByRole('button', { name: 'LDL impact: Unknown' }),
     ).toBeInTheDocument()
   })
 })

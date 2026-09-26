@@ -1,14 +1,10 @@
-import seedFile from '@/data/cholesterol-foods.json'
 import { foods } from '@/data/foods'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 import {
   isCholesterolImpact,
   type CholesterolClassification,
   type CholesterolImpact,
-  type CholesterolSeedFile,
 } from './cholesterolTypes'
-
-const seed = seedFile as CholesterolSeedFile
 
 /**
  * Conservative name key: Unicode spaces → ASCII, trim, collapse runs of
@@ -41,21 +37,6 @@ function addLabel(index: NameIndex, label: string, row: IndexedFood): void {
   }
 }
 
-function indexSeed(file: CholesterolSeedFile): NameIndex {
-  const index: NameIndex = { byExact: new Map(), byKey: new Map() }
-  for (const food of file.foods) {
-    if (!food.name || !isCholesterolImpact(food.cholesterolImpact)) continue
-    const row: IndexedFood = {
-      name: food.name,
-      cholesterolImpact: food.cholesterolImpact,
-    }
-    const reason = food.cholesterolReason?.trim()
-    if (reason) row.cholesterolReason = reason
-    addLabel(index, food.name, row)
-  }
-  return index
-}
-
 /** Catalog rows that carry LDL. Russian name is canonical; the English
  * label finds the same record. Names without a label are not indexed. */
 function indexCatalog(): NameIndex {
@@ -75,7 +56,6 @@ function indexCatalog(): NameIndex {
   return index
 }
 
-const seedIndex = indexSeed(seed)
 const catalogIndex = indexCatalog()
 
 function toClassification(food: IndexedFood): CholesterolClassification {
@@ -104,10 +84,11 @@ function lookup(index: NameIndex, name: string): IndexedFood | undefined {
 }
 
 /**
- * A catalog food that carries LDL wins (Russian name, or that row's
- * English label). Otherwise the cholesterol seed — diary history for
- * names that are not on a catalog row. A key that collapses two different
- * names is ignored. Anything else is `unknown` with no reason.
+ * LDL for a name comes from the food catalog only (#1011). A key that
+ * collapses two different names is ignored. Anything the catalog does not
+ * label is `unknown` with no reason — including a diary name that used to
+ * live only on the removed cholesterol list. A stamp already stored on
+ * that row is left alone by the backfill.
  */
 export function classifyFoodName(
   name: string | undefined,
@@ -115,11 +96,5 @@ export function classifyFoodName(
   if (!name || !cholesterolMatchKey(name)) return UNKNOWN
   const fromCatalog = lookup(catalogIndex, name)
   if (fromCatalog) return toClassification(fromCatalog)
-  const fromSeed = lookup(seedIndex, name)
-  if (fromSeed) return toClassification(fromSeed)
   return UNKNOWN
-}
-
-export function cholesterolSeed(): CholesterolSeedFile {
-  return seed
 }

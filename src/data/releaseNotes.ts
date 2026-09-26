@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 986,
+    issue: 1011,
+    date: '2026-09-26T22:19:20+03:00',
+    en: 'Foods you already logged keep their LDL label. A newly added food shows one only when that food is in meal search.',
+    ru: 'Уже записанные продукты сохраняют метку ЛПНП. Новый продукт показывает её, только если он есть в поиске блюд.',
+  },
+  {
     version: 985,
     issue: 1010,
     date: '2026-09-26T22:06:11+03:00',

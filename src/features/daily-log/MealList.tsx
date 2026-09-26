@@ -174,7 +174,7 @@ export function MealList({
   )
 
   function setCalorieEntries(next: CalorieEntry[]) {
-    onChange(stampCalorieEntriesCholesterol(next))
+    onChange(stampCalorieEntriesCholesterol(next, calorieEntries))
   }
 
   // #190: the day immediately before `date` — fetched to power "Repeat

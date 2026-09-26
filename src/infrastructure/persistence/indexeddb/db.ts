@@ -299,8 +299,9 @@ export class AppDatabase extends Dexie {
       weeklyNotes: '&weekStart',
       plannedMeals: 'id, date',
     })
-    // #1008: stamp LDL labels onto existing dishes and library foods.
-    // Same store shape. See backfillCholesterol.ts for the match rules.
+    // #1008: stamp LDL labels onto existing dishes and library foods from
+    // the food catalog. A stored label stays when the catalog has none
+    // (#1011). Same store shape. See backfillCholesterol.ts.
     this.version(15)
       .stores({
         goals: 'id, createdAt',
@@ -330,8 +331,9 @@ export class AppDatabase extends Dexie {
             }),
         ]),
       )
-    // #1009: same stamp as v15, so English reasons already stored become
-    // the Russian seed text. Impact matching is unchanged.
+    // #1009: same stamp as v15, so a catalog food picks up its Russian
+    // reason. A name the catalog does not label keeps its stored stamp
+    // (#1011).
     this.version(16)
       .stores({
         goals: 'id, createdAt',
