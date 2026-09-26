@@ -766,11 +766,12 @@ _AutoSleep screenshot confirm: compare scanned sleep with yesterday. Meal cards:
 
 ## Tier 169 — Live iPhone feedback (2026-09-23)
 
-_AutoSleep screenshot scan left deep sleep empty when the circled-z row was a whole number of hours._
+_AutoSleep screenshot scan left deep sleep empty when the circled-z row was a whole number of hours. Edit meal / QR share defaults Количество to 100 г. Open / pending items from this tier remain in the active file._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#980](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/980) | ✅ Done | AutoSleep scan: failed to read deep sleep | Confirmed on-device 2026-09-23 — circled-z `3h Om` OCR fills Глубокий сон as 3 ч 0 м; total sleep still parses. |
+| [#981](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/981) | ✅ Done | Edit meal / QR share: default Количество tab should be 100 г, not Порция | Confirmed on-device 2026-09-26 — edit / QR-imported lines open on 100 г; switching to Порция still converts. |
 
 ---
 
