@@ -14,6 +14,7 @@ import { buildShareFoodBatchUrl, buildShareFoodUrl } from '@/features/food-share
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useFoodOverrideStore, useMealItemStore, useMealLabelPresetStore, useNutritionFactsStore, useRecipeStore, useAddMealRecentVisibilityStore, useEatingReasonTrackingStore } from '@/stores'
 import { AddMealDialog, type AddMealDialogProps } from './AddMealDialog'
+import { matchSplitText } from './matchSplitText'
 import { replaceSelectedMealItems } from './replaceMealSelectionWithRecipe'
 
 // Matches FoodPickerDialog.test.tsx's own reasoning — every test here
@@ -814,7 +815,7 @@ describe('AddMealDialog (#454)', () => {
     await user.type(screen.getByLabelText('× 100g'), '0.2')
 
     expect(
-      screen.getByText('Total: 112 kcal · P 2g · F 7g · C 9g'),
+      screen.getByText(matchSplitText('Total: 112 kcal · P 2g · F 7g · C 9g')),
     ).toBeInTheDocument()
 
     await user.click(screen.getByRole('radio', { name: 'Portion' }))

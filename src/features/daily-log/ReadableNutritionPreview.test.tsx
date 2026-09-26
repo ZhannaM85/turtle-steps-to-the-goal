@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { matchSplitText } from './matchSplitText'
 import { ReadableNutritionPreview } from './ReadableNutritionPreview'
 
 function span(text: string) {
@@ -32,6 +33,13 @@ describe('ReadableNutritionPreview (#1004)', () => {
     expect(screen.getByText(span(' · У 6г)'))).toBeInTheDocument()
     expect(screen.getByText(span('Итог за сегодня будет:'))).toBeInTheDocument()
     expect(screen.getByText(span(' 1 030 ккал'))).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        matchSplitText(
+          'Итог за сегодня будет: 1 030 ккал · Б 40г · Ж 46г · У 114г (было 350 ккал · Б 26г · Ж 24г · У 6г)',
+        ),
+      ),
+    ).toBeInTheDocument()
   })
 
   it('keeps the entry total macros whole, including the last one', () => {

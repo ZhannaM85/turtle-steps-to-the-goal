@@ -65,7 +65,14 @@ export function ReadableNutritionPreview({
   return (
     <p className={cn('flex w-full min-w-0 flex-col gap-0.5', className)}>
       <PreviewRow row="current" text={current} splitLabel />
-      {previous !== null && <PreviewRow row="previous" text={previous} />}
+      {previous !== null && (
+        <>
+          {/* Keeps the space before "(было …)" in the sentence for reading
+           * and copy, without giving the line a wrap point. */}
+          <span className="sr-only"> </span>
+          <PreviewRow row="previous" text={previous} />
+        </>
+      )}
     </p>
   )
 }

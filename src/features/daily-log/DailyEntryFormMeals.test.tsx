@@ -12,6 +12,7 @@ import {
   openAddItemFlow,
   render,
 } from './dailyEntryFormTestUtils'
+import { matchSplitText } from './matchSplitText'
 
 describe('DailyEntryForm', () => {
   describe('calories', () => {
@@ -298,7 +299,9 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('× 100g'), '0.5')
 
       expect(
-        screen.getByText('Total: 100 kcal · P 10g · F 5g · C 2g'),
+        screen.getByText(
+          matchSplitText('Total: 100 kcal · P 10g · F 5g · C 2g'),
+        ),
       ).toBeInTheDocument()
     })
 

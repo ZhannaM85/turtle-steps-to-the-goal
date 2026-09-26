@@ -12,6 +12,7 @@ import {
   openAddItemFlow,
   render,
 } from './dailyEntryFormTestUtils'
+import { matchSplitText } from './matchSplitText'
 
 describe('DailyEntryForm', () => {
   describe('calories', () => {
@@ -214,7 +215,9 @@ describe('DailyEntryForm', () => {
           await user.click(screen.getByRole('radio', { name: 'Portion' }))
           await user.type(screen.getByLabelText('kcal'), '450')
 
-          expect(screen.getByText('Total: 450 kcal')).toBeInTheDocument()
+          expect(
+            screen.getByText(matchSplitText('Total: 450 kcal')),
+          ).toBeInTheDocument()
         })
 
         it('converts a typed per-100g rate to an absolute total when switching to per-portion', async () => {
