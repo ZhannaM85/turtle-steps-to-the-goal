@@ -793,6 +793,7 @@ _AutoSleep screenshot confirm: compare scanned sleep with yesterday. Meal cards:
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#976](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/976) | ✅ Done | AutoSleep scan modal: delta vs yesterday for sleep and deep sleep | Confirmed on-device 2026-09-26 — confirm modal shows ↑/↓ vs yesterday under Часов сна and Глубокий сон. |
 | [#979](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/979) | ✅ Done | iOS: tap status bar scrolls the active screen to the top | Confirmed on-device 2026-09-26 — status-bar / header tap scrolls `#main-content` (and nested overflow) to the top, matching my-money. |
 
 ---
