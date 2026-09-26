@@ -330,6 +330,37 @@ export class AppDatabase extends Dexie {
             }),
         ]),
       )
+    // #1009: same stamp as v15, so English reasons already stored become
+    // the Russian seed text. Impact matching is unchanged.
+    this.version(16)
+      .stores({
+        goals: 'id, createdAt',
+        dailyEntries: 'id, &date',
+        mealItems: 'id, &name, &barcode',
+        foodOverrides: '&foodId',
+        recipes: 'id',
+        customMetrics: 'id',
+        customMetricEntries: 'id, metricId, &[metricId+date]',
+        customCorrelations: 'id',
+        weeklyNotes: '&weekStart',
+        plannedMeals: 'id, date',
+      })
+      .upgrade((tx) =>
+        Promise.all([
+          tx
+            .table('dailyEntries')
+            .toCollection()
+            .modify((entry: DailyEntry) => {
+              backfillDailyEntryCholesterol(entry)
+            }),
+          tx
+            .table('mealItems')
+            .toCollection()
+            .modify((item: MealItem) => {
+              backfillMealItemCholesterol(item)
+            }),
+        ]),
+      )
   }
 }
 

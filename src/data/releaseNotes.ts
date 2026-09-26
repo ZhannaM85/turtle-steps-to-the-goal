@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 984,
+    issue: 1009,
+    date: '2026-09-26T21:48:04+03:00',
+    en: 'LDL tips on the Day page now explain each label in Russian.',
+    ru: 'Подсказки по ЛПНП на странице дня объясняют метку по-русски.',
+  },
+  {
     version: 983,
     issue: 1008,
     date: '2026-09-26T20:54:04+03:00',

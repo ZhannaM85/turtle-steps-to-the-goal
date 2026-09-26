@@ -104,14 +104,44 @@ describe('CholesterolImpactIndicator (#1008)', () => {
     }
   })
 
-  it('uses the Russian level names', () => {
+  it('uses Russian labels and tip chrome for every impact', async () => {
     useLocaleStore.setState({ locale: 'ru' satisfies Locale })
+    const user = userEvent.setup()
+    const labels = [
+      ['beneficial', 'Помогает'],
+      ['neutral', 'Нейтрально'],
+      ['moderate', 'Умеренно'],
+      ['limit', 'Лимит'],
+      ['high', 'Высокое'],
+      ['unknown', 'Неизвестно'],
+    ] as const
+    const reason =
+      'Мясное блюдо: влияние насыщенных жиров зависит от состава мяса и процента жирности.'
     render(
-      <CholesterolImpactIndicator impact="beneficial" reason="Fiber." />,
+      <ul>
+        {labels.map(([impact]) => (
+          <li key={impact}>
+            <CholesterolImpactIndicator impact={impact} reason={reason} />
+          </li>
+        ))}
+      </ul>,
     )
-    expect(
-      screen.getByRole('button', { name: 'Влияние на ЛПНП: Помогает' }),
-    ).toBeInTheDocument()
+
+    for (const [impact, label] of labels) {
+      const button = screen.getByRole('button', {
+        name: `Влияние на ЛПНП: ${label}`,
+      })
+      expect(button).toHaveAttribute('data-cholesterol-impact', impact)
+      expect(button).toHaveTextContent(label)
+      expect(button).not.toHaveTextContent(/[A-Za-z]{3,}/)
+    }
+
+    await user.click(
+      screen.getByRole('button', { name: 'Влияние на ЛПНП: Умеренно' }),
+    )
+    expect(screen.getByTestId('cholesterol-impact-reason')).toHaveTextContent(
+      `Влияние на ЛПНП / 🟡 Умеренно / ${reason}`,
+    )
   })
 })
 

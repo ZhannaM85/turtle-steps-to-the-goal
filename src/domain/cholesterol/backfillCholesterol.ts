@@ -19,6 +19,11 @@ import {
  * day from the Day page stamps new dishes the same way; a name that is
  * not in the seed stays `unknown`. The JSON file is the only copy of the
  * mappings and can grow later without a code list.
+ *
+ * #1009 — IndexedDB v16 runs this stamp again after the seed reasons
+ * were translated. A stored English `cholesterolReason` is replaced by
+ * the Russian seed text. The match is still the exact name. Calories,
+ * macros, grams, the meal, the date, and the time are still not written.
  */
 
 type CholesterolCarrier = {
