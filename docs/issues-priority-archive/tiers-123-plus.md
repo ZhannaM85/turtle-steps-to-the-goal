@@ -814,11 +814,12 @@ _AutoSleep screenshot scan left deep sleep empty when the circled-z row was a wh
 
 ## Tier 170 — Live feedback (2026-09-24)
 
-_Day boundary is the calendar date. Late-night logs stay on the open day page. Day water chips follow clock order. Open / pending items from this tier remain in the active file._
+_Day boundary is the calendar date. Late-night logs stay on the open day page. Day water chips follow clock order._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#984](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/984) | ✅ Done | Remove day-start setting and Start today now; late-night logs stay on the open day page | Confirmed on-device 2026-09-26 — no day-start setting / Start today now; «Сегодня» is calendar date; meals stay on the open day page after midnight. |
+| [#985](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/985) | ✅ Done | Day: sort water chips by time | Confirmed on-device 2026-09-26 — water chips list earliest clock time first; untimed chips stay after timed ones. |
 
 ---
 
