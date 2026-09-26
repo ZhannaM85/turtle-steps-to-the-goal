@@ -754,6 +754,16 @@ _Reported from Settings Export vs Day morning section comparison. Open / pending
 
 ---
 
+## Tier 166 — Live iPhone feedback (2026-09-20)
+
+_Exact 0.1 kg weekly loss counted as missed; past-goal reached date vs week end; bottom nav hiding while scrolling. Open / pending items from this tier remain in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#971](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/971) | ✅ Done | Goal: exact 0.1 kg loss marked not reached (59.8 → 59.7) | Confirmed on-device 2026-09-26 — exact 0.1 kg loss (59.8 → 59.7) counts as reached after 1-decimal rounding. |
+
+---
+
 ## Tier 168 — Live iPhone feedback (2026-09-22)
 
 _AutoSleep screenshot confirm: compare scanned sleep with yesterday. Meal cards: compare calories with the last day that had that meal. Add-meal search sits directly above the dish list. Status-bar tap scrolls the active screen to the top. Open / pending items from this tier remain in the active file._
