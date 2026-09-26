@@ -104,7 +104,6 @@ _Edit meal quantity tab; share a meal composition as one QR or link; create a re
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#982](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/982) | 🔍 Pending validation | Share multiple foods at once via one QR code or link | Section share beside «Состав приёма пищи» encodes every named dish as one `?shareFood=` link. Two or more foods use `v: 2` `{ items: [v: 1, …] }`; one dish stays `v: 1`. The recipient reviews the list and adds all of them (existing barcode/name matches update). Per-row share is unchanged. Awaiting on-device confirmation |
-| [#983](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/983) | 🔍 Pending validation | Create recipe from selected meal foods (long-press multi-select) | Long-press a row in «Состав приёма пищи» to select dishes. «Поделиться выбранным» (2+ foods) sends that subset as one `?shareFood=` link. «Создать рецепт» saves one recipe with one serving; ingredients are the selected dishes, calories and macros are summed, and per 100 g is scaled from the total weight. Section share and per-row share stay. Awaiting on-device confirmation |
 
 ---
 

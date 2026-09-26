@@ -772,6 +772,7 @@ _AutoSleep screenshot scan left deep sleep empty when the circled-z row was a wh
 |---|--------|-------|-------|
 | [#980](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/980) | ✅ Done | AutoSleep scan: failed to read deep sleep | Confirmed on-device 2026-09-23 — circled-z `3h Om` OCR fills Глубокий сон as 3 ч 0 м; total sleep still parses. |
 | [#981](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/981) | ✅ Done | Edit meal / QR share: default Количество tab should be 100 г, not Порция | Confirmed on-device 2026-09-26 — edit / QR-imported lines open on 100 г; switching to Порция still converts. |
+| [#983](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/983) | ✅ Done | Create recipe from selected meal foods (long-press multi-select) | Confirmed on-device 2026-09-26 — long-press select → «Создать рецепт» saves one recipe from selected dishes; share-selected stays for 2+. |
 
 ---
 
