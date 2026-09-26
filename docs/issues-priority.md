@@ -58,7 +58,6 @@ _Exact 0.1 kg weekly loss counted as missed; past-goal reached date vs week end;
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#973](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/973) | 🔍 Pending validation | Bottom footer/nav disappears while scrolling, reappears on scroll release | App bottom tab bar, not the PDF diary footer. `visualViewport` `scroll` during a finger pan was treated as a keyboard shrink (#188/#970), so the bar unmounted for the gesture and returned on touch end. Hide only while a soft keyboard is open or animating closed; no-keyboard shrinks stay visible. Awaiting on-device confirmation |
 | [#974](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/974) | 🔍 Pending validation | Bottom nav: match my-money — always visible, no visualViewport hide | Locked to my-money: tab bar always mounted. Removed `useVisualViewportShrunk` / `visualViewportTabBar` / `useIsTextInputFocused` hide-and-unmount (including #970 stale-gap translate and #973 keyboard-only hide). Soft-keyboard overlap is an accepted tradeoff; dialogs keep `dvh` + overflow scroll. Awaiting on-device confirmation |
 
 ---

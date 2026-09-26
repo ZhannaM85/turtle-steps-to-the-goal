@@ -772,6 +772,7 @@ _Exact 0.1 kg weekly loss counted as missed; past-goal reached date vs week end;
 |---|--------|-------|-------|
 | [#971](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/971) | ✅ Done | Goal: exact 0.1 kg loss marked not reached (59.8 → 59.7) | Confirmed on-device 2026-09-26 — exact 0.1 kg loss (59.8 → 59.7) counts as reached after 1-decimal rounding. |
 | [#972](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/972) | ✅ Done | Past goals: don’t show mid-week achieved date | Confirmed on-device 2026-09-26 — reached past goals show week-end date, not mid-week met date. |
+| [#973](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/973) | ✅ Done | Bottom footer/nav disappears while scrolling, reappears on scroll release | Confirmed on-device 2026-09-26 — tab bar no longer hides on finger pan; superseding always-visible approach is #974. |
 
 ---
 
