@@ -75,7 +75,7 @@ describe('classifyFoodName (#1011)', () => {
 
   it('leaves a name the catalog does not label unknown', () => {
     expect(classifyFoodName(MEATBALLS)).toEqual({ cholesterolImpact: 'unknown' })
-    expect(classifyFoodName('Масло сливочное')).toEqual({
+    expect(classifyFoodName('Куриная грудка')).toEqual({
       cholesterolImpact: 'unknown',
     })
     expect(classifyFoodName('Сыр фасованный Маасдам')).toEqual({

@@ -30,7 +30,9 @@
  *
  * #1010 / #1011: LDL staples live on these rows (macros and LDL on the
  * same record). The catalog is the only food list meal search uses.
+ * #1017: logged foods upsert onto that same list by exact Russian name.
  */
+import { mergeLoggedCatalogFoods } from './loggedCatalogFoods'
 import { mergeLdlStaples } from './ldlStapleFoods'
 
 /** #254 — an optional named serving size (e.g. "1 slice", "1 medium"), a
@@ -473,4 +475,6 @@ const curatedFoods: FoodItem[] = [
   { id: 'stewed-eggplant-tomato', en: 'Stewed eggplant with tomatoes', ru: 'Баклажаны тушеные с помидорами', kcal100: 189.3, protein100: 2.1, fat100: 17.7, carbs100: 5.7 },
 ]
 
-export const foods: FoodItem[] = mergeLdlStaples(curatedFoods)
+export const foods: FoodItem[] = mergeLoggedCatalogFoods(
+  mergeLdlStaples(curatedFoods),
+)

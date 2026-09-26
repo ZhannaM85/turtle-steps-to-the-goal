@@ -214,7 +214,7 @@ describe('Day food row cholesterol label (#1008)', () => {
       screen.getByRole('button', { name: 'LDL impact: Helps' }),
     ).toBeInTheDocument()
     unmount()
-    render(<HistoricalRow name="Масло сливочное" />)
+    render(<HistoricalRow name="Куриная грудка" />)
     expect(
       screen.getByRole('button', { name: 'LDL impact: Unknown' }),
     ).toBeInTheDocument()

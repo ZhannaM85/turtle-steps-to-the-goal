@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 992,
+    issue: 1017,
+    date: '2026-09-27T00:33:00+03:00',
+    en: 'Meal search now includes foods from your log, such as the crème brûlée cone and Maasdam cheese, with calories, macros per 100 g, and an LDL note.',
+    ru: 'В поиске блюд появились продукты из дневника, например мороженое «Сахарная трубочка» и сыр Маасдам, с калориями, БЖУ на 100 г и пометкой про ЛПНП.',
+  },
+  {
     version: 991,
     issue: 1015,
     date: '2026-09-26T23:46:00+03:00',
