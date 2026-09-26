@@ -88,10 +88,11 @@ _Create recipe from a meal: warn when a selected food, the same ingredient set, 
 
 ## Tier 172 — Live feedback (2026-09-26)
 
-_The meal-name list fits its longest option and opens over the sheet instead of pushing the page down. Meal search collapses the same dish when the name and per-100 g nutrition match, even if the saved portions differ._
+_The meal-name list fits its longest option and opens over the sheet instead of pushing the page down. Meal search collapses the same dish when the name and per-100 g nutrition match, even if the saved portions differ. Zepp screenshot fill keeps visceral fat from the «Висцеральный жир» row._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1005](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1005) | 🔍 Pending validation | Meal name dropdown: fit content width + overlay | The open «Название приёма пищи» list is at least as wide as the closed control and grows to the longest option, so «Ночная еда» stays on one line. It is `absolute` (z-30, opaque) over the sheet, so opening it does not grow the header or push «Почему я сейчас ем?» down. Closed name, time, repeat, and info stay on the same row. Awaiting on-device confirmation |
 | [#1006](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1006) | 🔍 Pending validation | Meal search dedupe: match by per-100 г macros | «Бутер» still listed two «Бутерброд с форелью» rows (129 ккал в прошлый раз vs 266 ккал на порцию) because #995 compared absolute kcal/БЖУ. The key is now the normalized name plus kcal and Б/Ж/У per 100 г, derived from `lastAmountG` or ingredient grams ÷ servings. A 1-unit / 5% slack keeps rounding from splitting twins; a different density (266 vs 300 per 100 г) stays two rows. A recipe still wins over a dish. Long-press delete is unchanged. Awaiting on-device confirmation |
+| [#1007](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1007) | 🔍 Pending validation | Zepp screenshot: visceral fat parsed as 6 instead of 14 | «Висцеральный жир 14» was saved as 6 — the «6 элементов не достигли цели» count. A bare 6 above that header is dropped, a leading 6 on the visceral line loses to the row value (including the next lines), and eng-tessdata `3neMeHToB` / `Bucuepa…` still map to 14. Same screen still reads жир 28,7 · вода 50,8 · кости 3,07 · мышцы 57,31. Awaiting on-device confirmation |
 

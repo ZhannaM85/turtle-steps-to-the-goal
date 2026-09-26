@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 982,
+    issue: 1007,
+    date: '2026-09-26T17:44:18+03:00',
+    en: 'Zepp screenshot fill reads visceral fat from the visceral-fat row (14 on this screen), not the “6 items missed their goal” heading.',
+    ru: 'Заполнение из скриншота Zepp читает висцеральный жир из строки «Висцеральный жир» (14 на этом экране), а не число из заголовка «6 элементов не достигли цели».',
+  },
+  {
     version: 981,
     issue: 1006,
     date: '2026-09-26T17:29:30+03:00',

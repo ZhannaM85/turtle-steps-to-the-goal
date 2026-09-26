@@ -83,7 +83,7 @@ interface FieldSpec {
 const FIELD_SPECS: FieldSpec[] = [
   {
     key: 'visceralFatRating',
-    label: /visceral(?:\s*fat)?|висцеральн|bucuepan/i,
+    label: /visceral(?:\s*fat)?|висцеральн|bucuep/i,
     min: 1,
     max: 20,
   },
@@ -119,13 +119,19 @@ const SKIP_LINE_RE =
 /** Section chrome on the English goals screen (#757) — not a metric. */
 const ATTENTION_COUNT_RE = /\d+\s+items?\s+needs?\s+your\s+attention/i
 
-/** Russian goals headers: "6 элементов не достигли цели" / "Достигнуто 2 цели" (#773). */
+/**
+ * Russian goals headers: "6 элементов не достигли цели" / "Достигнуто 2 цели"
+ * (#773). eng tessdata also emits `3neMeHToB` / `eJleMeHToB` for элементов (#1007).
+ */
 const GOAL_COUNT_RE =
-  /\d+\s+(?:элемент\w*|anement\w*)|(?:достигнут[оае]|reached|aocturr\w*)\s+\d+|\d+\s+(?:цел\w*|yenu\w*)/gi
+  /\d+\s+(?:элемент\w*|anement\w*|items?|elements?|\S*(?:neMe|leMe|JleM|3neM))|(?:достигнут[оае]|reached|aocturr\w*|focturn\w*)\s+\d+|\d+\s+(?:цел\w*|yenu\w*|goals?)/gi
+
+const SECTION_HEADER_RE =
+  /элемент|anement|element|\bitems?\b|attention|нужда|goal|цел|yenu|focturn|достиг|neMe|leMe|JleM|3neM/i
 
 const NUMBER_RE = /(\d{1,3}(?:[.,]\d{1,2})?)\s*(%|％|kg|кг|kr)?/gi
 
-const VISCERAL_LABEL_RE = /visceral|висцеральн|bucuepan/i
+const VISCERAL_LABEL_RE = /visceral|висцеральн|bucuep/i
 
 /** Thin `1` in `14` often OCR as `l` / `I` / `|`, or as `1 4` (#773). */
 function restoreOcrVisceralDigits(line: string): string {
@@ -247,6 +253,42 @@ function lineWindow(lines: string[], index: number): string {
     .join(' ')
 }
 
+function isSectionHeaderLine(line: string): boolean {
+  if (FIELD_SPECS.some((spec) => spec.label.test(line))) return false
+  return SECTION_HEADER_RE.test(line)
+}
+
+/**
+ * "6" on its own line above "элементов не достигли цели" (#1007). Dropping
+ * the header line later orphans that count, and unlabeled fallback then
+ * saves it as visceral fat.
+ */
+function dropBareSectionCounts(lines: string[]): string[] {
+  const kept: string[] = []
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!
+    const next = lines[i + 1]
+    if (
+      /^\d{1,2}$/.test(line) &&
+      next &&
+      !/^\d/.test(next) &&
+      isSectionHeaderLine(next)
+    ) {
+      continue
+    }
+    kept.push(line)
+  }
+  return kept
+}
+
+/** Lines after the visceral label, not the count that sits in front of it. */
+function visceralLinesAfterLabel(lines: string[], index: number): string {
+  return [lines[index + 1], lines[index + 2], lines[index + 3]]
+    .filter(Boolean)
+    .map((line) => restoreOcrVisceralDigits(line!))
+    .join(' ')
+}
+
 function fillFromLabeledLines(
   lines: string[],
   reading: ZeppBodyCompositionReading,
@@ -276,14 +318,19 @@ function fillFromLabeledLines(
         labelMatch != null
           ? source.slice(labelMatch.index + labelMatch[0].length)
           : source
-      const windowText =
-        spec.key === 'visceralFatRating'
-          ? restoreOcrVisceralDigits(lineWindow(lines, i))
-          : lineWindow(lines, i)
+      // #1007 — a leading "6" (goals-header count on the same OCR line) must
+      // not beat 14 on the visceral row. Numbers after the label, then the
+      // next lines, then a number that OCR placed before the label.
+      const beforeLabel =
+        labelMatch != null ? source.slice(0, labelMatch.index) : ''
       const value =
-        pickForSpec(spec, numbersOn(afterLabel)) ??
-        pickForSpec(spec, numbersOn(source)) ??
-        pickForSpec(spec, numbersOn(windowText))
+        spec.key === 'visceralFatRating'
+          ? (pickForSpec(spec, numbersOn(afterLabel)) ??
+            pickForSpec(spec, numbersOn(visceralLinesAfterLabel(lines, i))) ??
+            pickForSpec(spec, numbersOn(beforeLabel)))
+          : (pickForSpec(spec, numbersOn(afterLabel)) ??
+            pickForSpec(spec, numbersOn(source)) ??
+            pickForSpec(spec, numbersOn(lineWindow(lines, i))))
       if (value !== undefined) reading[spec.key] = value
     }
   }
@@ -427,13 +474,15 @@ export function parseZeppBodyCompositionText(
 ): ZeppBodyCompositionReading {
   const reading: ZeppBodyCompositionReading = {}
   const normalized = text.replace(/\u00a0/g, ' ')
-  const lines = normalized
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
+  const lines = dropBareSectionCounts(
+    normalized
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean),
+  )
 
   fillFromLabeledLines(lines, reading)
-  fillFromUnlabeledFallback(normalized, reading)
+  fillFromUnlabeledFallback(lines.join('\n'), reading)
 
   const date = parseScreenshotDate(normalized, asOfDate)
   if (date) reading.date = date

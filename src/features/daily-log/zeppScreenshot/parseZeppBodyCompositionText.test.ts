@@ -342,6 +342,101 @@ Mbiwupi 56,88 kr
     expect(reading.muscleMassKg).toBe(56.88)
   })
 
+  it('reads visceral 14 from the 26 September goals screen, not the 6-элементов header (#1007)', () => {
+    const text = `
+Антон Мышковский
+26 сентября в 12:27
+6 элементов не достигли цели
+ИМТ 26,7
+Выше среднего
+Жир 28,7%
+Высокий
+Вода 50,8 %
+Недостаточный
+Основной обмен 1 563 ккал
+Цели не достигнуты
+Висцеральный жир 14
+Выше среднего
+Костная масса 3,07 кг
+Недостаточный
+1 элемент нуждается в вашем внимании
+Белок 16,7 %
+Нормальный
+Достигнута 1 цель
+Мышцы 57,31 кг
+Нормальный
+`
+    expect(parseZeppBodyCompositionText(text, '2026-09-26')).toMatchObject({
+      bodyFatPercent: 28.7,
+      muscleMassKg: 57.31,
+      bodyWaterPercent: 50.8,
+      visceralFatRating: 14,
+      boneMassKg: 3.07,
+      date: '2026-09-26',
+    })
+  })
+
+  it('does not let a bare 6 above "элементов не достигли цели" become visceral fat (#1007)', () => {
+    const text = `
+6
+элементов не достигли цели
+Жир 28,7%
+Вода 50,8 %
+Основной обмен 1 563 ккал
+Цели не достигнуты
+Висцеральный жир
+Выше среднего
+Костная масса 3,07 кг
+14
+1 элемент нуждается в вашем внимании
+Достигнута 1 цель
+Мышцы 57,31 кг
+`
+    expect(parseZeppBodyCompositionText(text, '2026-09-26')).toMatchObject({
+      bodyFatPercent: 28.7,
+      muscleMassKg: 57.31,
+      bodyWaterPercent: 50.8,
+      visceralFatRating: 14,
+      boneMassKg: 3.07,
+    })
+  })
+
+  it('does not take a leading 6 on the visceral line when 14 is the row value (#1007)', () => {
+    const text = `
+6 Висцеральный жир
+14
+Жир 28,7%
+Вода 50,8 %
+Костная масса 3,07 кг
+Мышцы 57,31 кг
+`
+    expect(parseZeppBodyCompositionText(text, '2026-09-26')).toMatchObject({
+      bodyFatPercent: 28.7,
+      muscleMassKg: 57.31,
+      bodyWaterPercent: 50.8,
+      visceralFatRating: 14,
+      boneMassKg: 3.07,
+    })
+  })
+
+  it('reads Bucuepa… Kup 14 when the header count is OCR’d as 6 3neMeHToB (#1007)', () => {
+    const text = `
+6 3neMeHToB He focturnn Yenn
+Kup 28,7%
+Bona 50,8%
+BucuepaJlbHbI Kup 14
+KoctHaa macca 3,07 kr
+Mbiwupi 57,31 kr
+`
+    expect(parseZeppBodyCompositionText(text, '2026-09-26')).toMatchObject({
+      bodyFatPercent: 28.7,
+      muscleMassKg: 57.31,
+      bodyWaterPercent: 50.8,
+      visceralFatRating: 14,
+      boneMassKg: 3.07,
+    })
+  })
+
   it('returns empty when the text is unrelated', () => {
     const reading = parseZeppBodyCompositionText('hello world', '2026-08-17')
     expect(hasZeppBodyCompositionValues(reading)).toBe(false)
