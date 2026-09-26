@@ -770,6 +770,7 @@ _Create recipe from a meal: warn when a selected food, the same ingredient set, 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#993](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/993) | ✅ Done | Добавить блюдо: collapse Бренд by default | Confirmed on-device 2026-09-26 — brand starts collapsed; expands on tap; existing brand opens expanded. |
 | [#994](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/994) | ✅ Done | Домашнее checkbox on dish + meal-search filter | Confirmed on-device 2026-09-26 — «Домашнее» on the library dish; meal-search chip filters homemade dishes; name search still finds them. |
 | [#997](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/997) | ✅ Done | Repeat yesterday's meal shows empty «» when the meal name is cleared | Confirmed on-device 2026-09-26 — cleared meal title uses positional meal type (Завтрак / …), not empty quotes. |
 | [#998](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/998) | ✅ Done | Meal search: remove duplicate barcode icon; keep Сканировать штрихкод tile | Confirmed on-device 2026-09-26 — in-field barcode icon gone; «Сканировать штрихкод» tile still opens the scanner. |
