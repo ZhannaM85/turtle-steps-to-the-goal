@@ -64,7 +64,6 @@ export const dailyEntry: DailyEntryDict = {
     backLabel: 'Back',
     mealNotFoundText: "This meal couldn't be found.",
     mealLabelFieldLabel: 'Meal name',
-    clearMealLabelFieldLabel: 'Clear meal name',
     saveMealNameAsTemplateLabel: 'Save as template',
     mealTypeUnsetLabel: 'Not selected',
     defaultMealNamePresets: ['Breakfast', 'Lunch', 'Dinner', 'Snack'],

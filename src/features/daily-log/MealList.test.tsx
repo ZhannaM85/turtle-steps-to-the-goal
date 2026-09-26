@@ -215,7 +215,7 @@ describe('MealList', () => {
     expect(screen.getByText('Salad')).toBeInTheDocument()
   })
 
-  it('allows clearing the meal name without the default reseeding (#568/#845)', async () => {
+  it('keeps the suggested meal name on the dropdown (#568/#845/#1002)', async () => {
     const user = userEvent.setup()
     render(
       <ControlledMealList calorieEntries={[]} date="2026-03-01" />,
@@ -227,9 +227,11 @@ describe('MealList', () => {
     )
     const nameField = screen.getByLabelText('Meal name')
     expect(nameField).toHaveTextContent('Breakfast')
+    expect(nameField).toHaveAttribute('aria-haspopup', 'listbox')
     expect(screen.queryByRole('textbox', { name: 'Meal name' })).not.toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Clear meal name' }))
-    expect(nameField).toHaveTextContent('Not selected')
+    expect(
+      screen.queryByRole('button', { name: 'Clear meal name' }),
+    ).not.toBeInTheDocument()
   })
 
   it('does not prefill yesterday’s free-text title on a new meal (#843)', async () => {

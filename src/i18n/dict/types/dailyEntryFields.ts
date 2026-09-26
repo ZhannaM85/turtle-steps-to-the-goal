@@ -139,8 +139,6 @@ export interface DailyEntryFieldsDict {
     /** Custom meal name field (#110) — aria-label composed with mealLabel(n),
      * same pattern as itemNameLabel etc. */
     mealLabelFieldLabel: string
-    /** #845 — clear the read-only meal name selection (does not enable typing). */
-    clearMealLabelFieldLabel: string
     /** #869 — save a current name that is not already a template. */
     saveMealNameAsTemplateLabel: string
     /** Closed meal-name dropdown when the selection is cleared (#845/#1002). */

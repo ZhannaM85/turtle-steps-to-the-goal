@@ -63,7 +63,6 @@ export const dailyEntry: DailyEntryDict = {
     backLabel: 'Назад',
     mealNotFoundText: 'Этот приём пищи не найден.',
     mealLabelFieldLabel: 'Название приёма пищи',
-    clearMealLabelFieldLabel: 'Очистить название приёма пищи',
     saveMealNameAsTemplateLabel: 'Сохранить как шаблон',
     mealTypeUnsetLabel: 'Не выбрано',
     defaultMealNamePresets: ['Завтрак', 'Обед', 'Ужин', 'Перекус'],

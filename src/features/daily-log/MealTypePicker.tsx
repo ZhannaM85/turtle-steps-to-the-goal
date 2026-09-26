@@ -1,15 +1,14 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { Check, ChevronDown, X } from 'lucide-react'
+import { Check, ChevronDown } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { cn } from '@/shared/lib/utils'
-import { Button } from '@/shared/ui/button'
 import { Label } from '@/shared/ui/label'
 
 /**
- * #1002 — the meal-name slot is the dropdown (#1001's list: Breakfast /
- * Lunch / Dinner / Snack, plus Settings templates). Same closed affordance
- * as Why am I eating? (#774): current value and a chevron. Clearing (#845)
- * stays on this control and does not bring back a text field.
+ * #1002 — the meal-name slot is the dropdown that used to sit under
+ * «Тип приёма пищи» (Breakfast / Lunch / Dinner / Snack, plus Settings
+ * templates). Closed affordance matches Why am I eating? (#774): the
+ * current value and a chevron, with no separate type row.
  */
 export function MealTypePicker({
   id,
@@ -63,49 +62,25 @@ export function MealTypePicker({
   return (
     <div ref={rootRef} className={cn('flex min-w-0 flex-col gap-1.5', className)}>
       {!hideLabel && <Label htmlFor={fieldId}>{label}</Label>}
-      <div className="relative">
-        <button
-          type="button"
-          id={fieldId}
-          aria-label={label}
-          aria-haspopup="listbox"
-          aria-expanded={open}
-          aria-controls={listId}
-          className="flex h-12 w-full min-w-0 items-center gap-2 rounded-lg border border-input bg-transparent px-2.5 text-left text-base transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30 md:text-sm"
-          onClick={() => setOpen((current) => !current)}
-        >
-          <span
-            className={cn(
-              'min-w-0 flex-1 truncate',
-              trimmed !== '' && 'pr-9',
-            )}
-          >
-            {summary}
-          </span>
-          <ChevronDown
-            aria-hidden="true"
-            className={cn(
-              'size-4 shrink-0 text-muted-foreground transition-transform',
-              open && 'rotate-180',
-            )}
-          />
-        </button>
-        {trimmed !== '' && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-xs"
-            aria-label={t.dailyEntry.clearMealLabelFieldLabel}
-            className="absolute top-1/2 right-9 -translate-y-1/2"
-            onClick={() => {
-              onChange('')
-              setOpen(false)
-            }}
-          >
-            <X aria-hidden="true" className="size-3.5" />
-          </Button>
-        )}
-      </div>
+      <button
+        type="button"
+        id={fieldId}
+        aria-label={label}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={listId}
+        className="flex h-12 w-full min-w-0 items-center gap-2 rounded-lg border border-input bg-transparent px-2.5 text-left text-base transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30 md:text-sm"
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span className="min-w-0 flex-1 truncate">{summary}</span>
+        <ChevronDown
+          aria-hidden="true"
+          className={cn(
+            'size-4 shrink-0 text-muted-foreground transition-transform',
+            open && 'rotate-180',
+          )}
+        />
+      </button>
       {open && (
         <ul
           id={listId}

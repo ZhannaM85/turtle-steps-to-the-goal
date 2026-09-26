@@ -231,24 +231,17 @@ describe('AddMealDialog (#454)', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('clears the meal name without enabling typing (#845)', async () => {
-    const user = userEvent.setup()
-    const onMealLabelChange = vi.fn()
-    render(
-      <ControlledAddMealDialog
-        {...defaultProps}
-        onMealLabelChange={onMealLabelChange}
-      />,
-    )
+  it('shows the meal name as a chevron dropdown with no clear control (#845/#1002)', () => {
+    render(<ControlledAddMealDialog {...defaultProps} />)
 
-    await user.click(screen.getByRole('button', { name: 'Clear meal name' }))
-    expect(onMealLabelChange).toHaveBeenCalledWith('')
-    const nameField = screen.getByLabelText('Meal name')
-    expect(nameField).toHaveTextContent('Not selected')
+    const nameField = screen.getByRole('button', { name: 'Meal name' })
+    expect(nameField).toHaveTextContent('Breakfast')
+    expect(nameField).toHaveAttribute('aria-haspopup', 'listbox')
     expect(screen.queryByRole('textbox', { name: 'Meal name' })).not.toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: 'Clear meal name' }),
     ).not.toBeInTheDocument()
+    expect(screen.queryByText('Meal type')).not.toBeInTheDocument()
   })
 
   it('does not offer other-locale default meal names in the dropdown (#567)', async () => {
@@ -1573,12 +1566,12 @@ describe('AddMealDialog (#454)', () => {
       ).not.toBeInTheDocument()
     })
 
-    it('uses the positional meal type when the name is cleared (#997)', async () => {
+    it('uses the positional meal type when the meal name is empty (#997)', async () => {
       const user = userEvent.setup()
       render(
         <ControlledAddMealDialog
           {...defaultProps}
-          mealLabel="Dinner"
+          mealLabel=""
           mealPosition={2}
           previousMeal={{
             label: 'Lunch two',
@@ -1587,10 +1580,6 @@ describe('AddMealDialog (#454)', () => {
         />,
       )
 
-      expect(
-        screen.getByRole('button', { name: "Repeat yesterday's dinner?" }),
-      ).toBeInTheDocument()
-      await user.click(screen.getByRole('button', { name: 'Clear meal name' }))
       expect(screen.getByLabelText('Meal name')).toHaveTextContent('Not selected')
       expect(
         screen.queryByRole('button', { name: /Lunch two/ }),
