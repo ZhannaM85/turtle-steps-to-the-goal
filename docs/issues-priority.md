@@ -52,16 +52,6 @@ _Reported from iPhone PDF previews and local Chrome._
 
 ---
 
-## Tier 169 — Live feedback (2026-09-23)
-
-_Edit meal quantity tab; share a meal composition as one QR or link; create a recipe from selected meal foods._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#982](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/982) | 🔍 Pending validation | Share multiple foods at once via one QR code or link | Section share beside «Состав приёма пищи» encodes every named dish as one `?shareFood=` link. Two or more foods use `v: 2` `{ items: [v: 1, …] }`; one dish stays `v: 1`. The recipient reviews the list and adds all of them (existing barcode/name matches update). Per-row share is unchanged. Awaiting on-device confirmation |
-
----
-
 ## Tier 171 — Live feedback (2026-09-25)
 
 _Create recipe from a meal: warn when a selected food, the same ingredient set, or the typed title is already a recipe, and offer to add the new recipe in place of those foods. Meal search finds saved recipes by name, collapses identical name-and-macro rows, and can delete an unused copy with a long-press. Add dish: protein, fat, and carbs on one row, and the optional brand starts collapsed. Empty food search shows manual add as a button and prefills the dish name from the query. Dishes can be marked homemade and filtered in meal search. The empty add-food sheet scrolls before any dish is added. Repeat yesterday's meal keeps a meal-type name when the meal title is cleared, and that action is now an icon in the name/time row. The meal search field no longer has its own barcode icon. The add-food title and close stay fixed while the sheet scrolls. Meal type is a dropdown instead of wrapping name chips._
