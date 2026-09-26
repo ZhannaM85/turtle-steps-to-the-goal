@@ -1,19 +1,16 @@
+import { renderHook } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import type { CalorieItem } from '@/domain/dailyEntry'
 import { backfillDailyEntryCholesterol } from '@/domain/cholesterol'
 import { draftFromPickableItem } from '@/features/daily-log/addMealDialogHelpers'
-import { rankBySearchMatch } from '@/shared/lib/searchRank'
+import { useAddMealCatalog } from '@/features/daily-log/useAddMealCatalog'
+import {
+  useFoodOverrideStore,
+  useMealItemStore,
+  useRecipeStore,
+} from '@/stores'
 import { foods } from './foods'
 import { LDL_STAPLE_FOODS, mergeLdlStaples } from './ldlStapleFoods'
-
-function searchCatalog(query: string) {
-  const normalized = query.trim().toLowerCase()
-  return rankBySearchMatch(
-    foods.filter((food) => food.ru.toLowerCase().includes(normalized)),
-    normalized,
-    (food) => food.ru,
-  )
-}
 
 describe('LDL staple catalog (#1010)', () => {
   it('merges each staple once and leaves a second merge unchanged', () => {
@@ -60,25 +57,64 @@ describe('LDL staple catalog (#1010)', () => {
     expect(cookedOats?.cholesterolImpact).toBeUndefined()
   })
 
-  it('meal search finds flaxseeds and oatmeal with per-100 g macros', () => {
-    const flax = searchCatalog('Семена льна')[0]
-    const oats = searchCatalog('Овсянка')[0]
-    expect(flax?.ru).toBe('Семена льна')
-    expect(flax).toMatchObject({
+  it('meal search returns the catalog row, LDL included, with no cholesterol-list join', () => {
+    useMealItemStore.setState({ items: [] })
+    useRecipeStore.setState({ recipes: [] })
+    useFoodOverrideStore.setState({ overrides: [] })
+
+    const flaxRecord = foods.find((food) => food.ru === 'Семена льна')
+    const oatsRecord = foods.find((food) => food.ru === 'Овсянка')
+    expect(flaxRecord?.cholesterolReason).toMatch(/клетчатк/)
+    expect(flaxRecord?.cholesterolReason).not.toMatch(/LDL/)
+
+    const flaxSearch = renderHook(() =>
+      useAddMealCatalog({
+        locale: 'ru',
+        isOnline: false,
+        search: 'Семена льна',
+        setSearch: () => {},
+        openPickedItemSheet: () => {},
+      }),
+    )
+    const flaxHit = flaxSearch.result.current.matches.find(
+      (item) => item.source === 'food' && item.food.ru === 'Семена льна',
+    )
+    expect(flaxHit?.source).toBe('food')
+    if (flaxHit?.source !== 'food') return
+    expect(flaxHit.food).toBe(flaxRecord)
+    expect(flaxHit.food).toMatchObject({
       kcal100: 534,
       protein100: 18.3,
       fat100: 42.2,
       carbs100: 28.9,
       cholesterolImpact: 'beneficial',
+      cholesterolReason: flaxRecord?.cholesterolReason,
     })
-    expect(oats?.ru).toBe('Овсянка')
-    expect(oats).toMatchObject({
+
+    const oatsSearch = renderHook(() =>
+      useAddMealCatalog({
+        locale: 'ru',
+        isOnline: false,
+        search: 'Овсянка',
+        setSearch: () => {},
+        openPickedItemSheet: () => {},
+      }),
+    )
+    const oatsHit = oatsSearch.result.current.matches.find(
+      (item) => item.source === 'food' && item.food.ru === 'Овсянка',
+    )
+    expect(oatsHit?.source).toBe('food')
+    if (oatsHit?.source !== 'food') return
+    expect(oatsHit.food).toBe(oatsRecord)
+    expect(oatsHit.food).toMatchObject({
       kcal100: 71,
       protein100: 2.5,
       fat100: 1.5,
       carbs100: 12,
+      cholesterolImpact: 'beneficial',
     })
-    const draft = draftFromPickableItem({ source: 'food', food: flax! }, 'ru')
+
+    const draft = draftFromPickableItem(flaxHit, 'ru')
     expect(draft.draft).toMatchObject({
       name: 'Семена льна',
       amount: '534',
