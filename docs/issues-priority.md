@@ -148,10 +148,11 @@ _Create recipe from a meal: warn when a selected food, the same ingredient set, 
 
 ## Tier 172 — Live feedback (2026-09-26)
 
-_Meal screen: the name field is the meal-type dropdown. The extra «Тип приёма пищи» row from #1001 is removed. An info icon beside the repeat-yesterday arrow explains that it copies yesterday’s meal of this type._
+_Meal screen: the name field is the meal-type dropdown. The extra «Тип приёма пищи» row from #1001 is removed. An info icon beside the repeat-yesterday arrow explains that it copies yesterday’s meal of this type. Add dish: the live nutrition summary no longer wraps in the middle of a macro._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1002](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1002) | 🔍 Pending validation | Meal screen: «Название приёма пищи» is the dropdown; no extra «Тип» row | Corrects #1001. There is no «Тип приёма пищи» row. The name slot is that dropdown (Завтрак / Обед / Ужин / Перекус and saved templates), showing the current value and a chevron, on the same row as the time and the repeat icon. Choosing an option still sets the meal name and the note placeholder. The name cannot be typed. Awaiting on-device confirmation |
 | [#1003](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1003) | 🔍 Pending validation | Meal screen: info icon next to repeat-yesterday control | The circular-arrow repeat control stays: tap still opens the confirm sheet with this meal’s name. An info icon beside it, on the same row as the time and the arrow, uses the existing info tip and explains that it repeats yesterday’s meal of this type. The full-width «Повторить вчерашний» button stays gone. Awaiting on-device confirmation |
+| [#1004](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1004) | 🔍 Pending validation | Добавить блюдо: nutrition summary readable (no mid-line wrap) | The live summary under the macros keeps the same totals. Each kcal figure and each Б/Ж/У token stays on one line (`whitespace-nowrap`); «(было …)» is its own line. Awaiting on-device confirmation |
 

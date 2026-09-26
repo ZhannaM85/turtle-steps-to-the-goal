@@ -153,6 +153,41 @@ describe('MealItemEditorSheet brand disclosure (#993)', () => {
     expect(screen.getByLabelText('Бренд (необязательно)')).toHaveValue('Ермолино')
   })
 
+  it('keeps each macro whole and puts the previous total on its own line (#1004)', () => {
+    useLocaleStore.getState().setLocale('ru')
+    render(
+      <MealItemEditorSheet
+        {...sheetElement().props}
+        todayTotalPreview="Итог за сегодня будет: 1 030 ккал · Б 40г · Ж 46г · У 114г (было 350 ккал · Б 26г · Ж 24г · У 6г)"
+        todayRemainingPreview="Останется: 375 ккал (было 1 055 ккал)"
+      />,
+    )
+
+    const carbs = screen.getByText(
+      (_content, element) =>
+        element?.tagName === 'SPAN' &&
+        element.classList.contains('whitespace-nowrap') &&
+        element.textContent === ' · У 114г',
+    )
+    const previous = screen.getByText(
+      (_content, element) =>
+        element?.tagName === 'SPAN' &&
+        element.textContent === '(было 350 ккал',
+    )
+    expect(carbs.closest('[data-preview-row]')).toHaveAttribute(
+      'data-preview-row',
+      'current',
+    )
+    expect(previous.closest('[data-preview-row]')).toHaveAttribute(
+      'data-preview-row',
+      'previous',
+    )
+    expect(screen.getByText('Итого:').closest('[data-preview-row]')).toHaveAttribute(
+      'data-preview-row',
+      'current',
+    )
+  })
+
   it('opens when a brand arrives while the sheet is already open', () => {
     const view = renderSheet()
     expect(screen.queryByLabelText('Brand (optional)')).not.toBeInTheDocument()

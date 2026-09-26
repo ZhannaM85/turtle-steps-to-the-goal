@@ -10,6 +10,7 @@ import { EmotionPicker } from './EmotionPicker'
 import { MealItemFormSection } from './MealItemFormSection'
 import { MealItemHomemadeCheckbox } from './MealItemHomemadeCheckbox'
 import { MealItemNumberField } from './MealItemNumberField'
+import { ReadableNutritionPreview } from './ReadableNutritionPreview'
 
 const NOTE_MAX_LENGTH = 200
 
@@ -287,21 +288,21 @@ export function MealItemEditorSections({
         <div className="flex flex-col gap-1.5 px-1 text-sm text-muted-foreground">
           {scaledPreview && (
             <p className="flex items-baseline gap-1.5">
-              <span className="text-xl font-semibold tabular-nums">
+              <span className="text-xl font-semibold tabular-nums whitespace-nowrap">
                 {formatNumber(scaledPreview.amountKcal, locale, 0)}{' '}
                 {t.dailyEntry.kcalUnit}
               </span>
               {scaledPreview.amountG !== undefined && (
-                <span>
+                <span className="whitespace-nowrap">
                   · {formatMacroGrams(scaledPreview.amountG, locale, t)}
                 </span>
               )}
             </p>
           )}
           {totalPreview && (
-            <p>
-              {t.dailyEntry.computedTotalPrefix} {totalPreview}
-            </p>
+            <ReadableNutritionPreview
+              text={`${t.dailyEntry.computedTotalPrefix} ${totalPreview}`}
+            />
           )}
           {showFiber && scaledPreview?.fiberG !== undefined && (
             <p>
@@ -328,10 +329,16 @@ export function MealItemEditorSections({
             </p>
           )}
           {totalPreview && todayTotalPreview && (
-            <p className="text-base">{todayTotalPreview}</p>
+            <ReadableNutritionPreview
+              text={todayTotalPreview}
+              className="text-base"
+            />
           )}
           {totalPreview && todayRemainingPreview && (
-            <p className="text-base">{todayRemainingPreview}</p>
+            <ReadableNutritionPreview
+              text={todayRemainingPreview}
+              className="text-base"
+            />
           )}
           {totalPreview && macrosInconsistent && (
             <p>{t.dailyEntry.macroMismatchNote}</p>

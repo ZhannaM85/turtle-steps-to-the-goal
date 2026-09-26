@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 979,
+    issue: 1004,
+    date: '2026-09-26T14:34:08+03:00',
+    en: 'On Add a dish, the calorie summary keeps each number together and shows the previous total on its own line.',
+    ru: 'В «Добавить блюдо» сводка калорий и БЖУ больше не разрывает число посередине строки, а «было» стоит отдельно.',
+  },
+  {
     version: 978,
     issue: 1003,
     date: '2026-09-26T14:19:36+03:00',
