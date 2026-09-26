@@ -139,3 +139,13 @@ _Create recipe from a meal: warn when a selected food, the same ingredient set, 
 | [#995](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/995) | 🔍 Pending validation | Meal search: one row for the same name and macros, long-press delete | «Бутер» listed two «Бутерброд с форелью» rows with the same kcal and БЖУ. Hits that share a display name and the same rounded kcal/protein/fat/carbs now show once; a recipe wins over a dish. Long-press or right-click opens a confirm dialog. An extra catalog copy is removed and the row stays. Deleting the last dish or recipe is blocked when a saved meal still uses that name, so history lines stay put. Awaiting on-device confirmation |
 | [#996](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/996) | 🔍 Pending validation | Add food: not scrollable until first food / Готово appears | The sheet’s only flex child (`flex-1` / `overflow-y-auto`) sized to its content on WebKit until the Готово footer mounted, so `overflow-hidden` clipped the empty meal and nothing scrolled. The scroll frame is now height 0 + flex-grow with an absolute inset scrollport, independent of that footer. Awaiting on-device confirmation |
 
+---
+
+## Tier 172 — Live feedback (2026-09-26)
+
+_The meal-name list fits its longest option and opens over the sheet instead of pushing the page down._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1005](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1005) | 🔍 Pending validation | Meal name dropdown: fit content width + overlay | The open «Название приёма пищи» list is at least as wide as the closed control and grows to the longest option, so «Ночная еда» stays on one line. It is `absolute` (z-30, opaque) over the sheet, so opening it does not grow the header or push «Почему я сейчас ем?» down. Closed name, time, repeat, and info stay on the same row. Awaiting on-device confirmation |
+

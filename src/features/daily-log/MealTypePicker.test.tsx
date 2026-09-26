@@ -72,4 +72,33 @@ describe('MealTypePicker (#1001/#1002)', () => {
       'Not selected',
     )
   })
+
+  it('opens a content-width overlay so the row does not grow (#1005)', async () => {
+    const user = userEvent.setup()
+    render(
+      <MealTypePicker
+        value="Ужин"
+        options={['Завтрак', 'Обед', 'Ужин', 'Перекус', 'Ночная еда']}
+        onChange={vi.fn()}
+      />,
+    )
+
+    const trigger = screen.getByRole('button', { name: 'Meal name' })
+    await user.click(trigger)
+
+    const list = screen.getByRole('listbox', { name: 'Meal name' })
+    expect(trigger.parentElement).toContainElement(list)
+    expect(trigger.parentElement).toHaveClass('relative', 'z-30')
+    expect(list).toHaveClass(
+      'absolute',
+      'top-full',
+      'z-30',
+      'w-max',
+      'min-w-full',
+      'bg-popover',
+    )
+    expect(screen.getByRole('option', { name: 'Ночная еда' })).toHaveClass(
+      'whitespace-nowrap',
+    )
+  })
 })

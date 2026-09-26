@@ -9,6 +9,12 @@ import { Label } from '@/shared/ui/label'
  * «Тип приёма пищи» (Breakfast / Lunch / Dinner / Snack, plus Settings
  * templates). Closed affordance matches Why am I eating? (#774): the
  * current value and a chevron, with no separate type row.
+ *
+ * #1005 — the open list is taken out of flow. The name shares a row with
+ * the time and the repeat control, so an in-flow list was both narrower
+ * than «Ночная еда» and tall enough to push the sheet down. The menu is
+ * at least as wide as the trigger, grows to the longest option, and stays
+ * inside the sheet (clear of the close control).
  */
 export function MealTypePicker({
   id,
@@ -60,7 +66,14 @@ export function MealTypePicker({
   }
 
   return (
-    <div ref={rootRef} className={cn('flex min-w-0 flex-col gap-1.5', className)}>
+    <div
+      ref={rootRef}
+      className={cn(
+        'relative flex min-w-0 flex-col gap-1.5',
+        open && 'z-30',
+        className,
+      )}
+    >
       {!hideLabel && <Label htmlFor={fieldId}>{label}</Label>}
       <button
         type="button"
@@ -86,7 +99,7 @@ export function MealTypePicker({
           id={listId}
           role="listbox"
           aria-label={label}
-          className="max-h-64 overflow-y-auto overscroll-y-contain rounded-lg border border-input bg-background py-1"
+          className="absolute top-full left-0 z-30 mt-1 max-h-64 w-max min-w-full max-w-[calc(100vw-4.5rem)] overflow-y-auto overscroll-y-contain rounded-lg border border-input bg-popover py-1 shadow-md"
         >
           {options.map((name) => {
             const selected = value === name
@@ -96,7 +109,7 @@ export function MealTypePicker({
                   type="button"
                   role="option"
                   aria-selected={selected}
-                  className="flex w-full items-center gap-2 px-2.5 py-2 text-left text-base"
+                  className="flex w-full items-center gap-2 px-2.5 py-2 text-left text-base whitespace-nowrap"
                   onClick={() => choose(name)}
                 >
                   <Check

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 980,
+    issue: 1005,
+    date: '2026-09-26T17:21:35+03:00',
+    en: 'On the add-food screen, the meal-name list is wide enough for each name and opens over the page instead of leaving a gap.',
+    ru: 'На экране добавления еды список названия приёма пищи показывает имя в одну строку и открывается поверх страницы, без пустого промежутка.',
+  },
+  {
     version: 979,
     issue: 1004,
     date: '2026-09-26T14:34:08+03:00',
