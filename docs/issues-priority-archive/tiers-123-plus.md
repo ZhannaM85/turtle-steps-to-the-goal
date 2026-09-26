@@ -742,6 +742,16 @@ _Reported from an iPhone PDF export and the Day screen._
 
 ---
 
+## Tier 165 — Live iPhone feedback (2026-09-19)
+
+_Intermittent layout issue observed after returning to the installed app._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#970](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/970) | ✅ Done | Keep bottom navigation anchored after resuming from background | Confirmed on-device 2026-09-26 — in-flow tab bar + `#main-content` scrollport; bar stays anchored after resume from background. |
+
+---
+
 ## Tier 166 — Settings vs Day chevron chrome (2026-09-18)
 
 _Reported from Settings Export vs Day morning section comparison. Open / pending items from this tier remain in the active file._

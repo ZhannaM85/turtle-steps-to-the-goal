@@ -52,16 +52,6 @@ _Reported from iPhone PDF previews and local Chrome._
 
 ---
 
-## Tier 165 — Live iPhone feedback (2026-09-19)
-
-_Intermittent layout issue observed after returning to the installed app._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#970](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/970) | 🔍 Pending validation | Keep bottom navigation anchored after resuming from background | Still reproduced after #974. Root cause: `position: fixed; bottom: 0` on the tab bar — iOS PWA resume can leave `visualViewport` shortened, so WebKit anchors the bar mid-page over Day content. Matched my-money: flex-column shell, `html/body/#root` overflow hidden, inner `#main-content` scrollport, in-flow `shrink-0` footer (no fixed/translate compensate). Awaiting on-device confirmation |
-
----
-
 ## Tier 166 — Live iPhone feedback (2026-09-20)
 
 _Exact 0.1 kg weekly loss counted as missed; past-goal reached date vs week end; bottom nav hiding while scrolling._
