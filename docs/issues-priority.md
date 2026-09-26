@@ -52,16 +52,6 @@ _Reported from iPhone PDF previews and local Chrome._
 
 ---
 
-## Tier 168 — Live iPhone feedback (2026-09-22)
-
-_AutoSleep screenshot confirm: compare scanned sleep with yesterday. Meal cards: compare calories with the last day that had that meal. Add-meal search sits directly above the dish list. Status-bar tap scrolls the active screen to the top._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#978](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/978) | 🔍 Pending validation | Meal screen: food search directly above the dish list | Add-meal browse order is now the 2×2 actions (add / barcode / recipe / QR), then Поиск…, then Недавние or search results. The action grid no longer sits between the field and the list it filters; the barcode icon on the field stays. Awaiting on-device confirmation |
-
----
-
 ## Tier 169 — Live feedback (2026-09-23)
 
 _Edit meal quantity tab; share a meal composition as one QR or link; create a recipe from selected meal foods._
