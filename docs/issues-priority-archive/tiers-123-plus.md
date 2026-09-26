@@ -777,6 +777,16 @@ _Exact 0.1 kg weekly loss counted as missed; past-goal reached date vs week end;
 
 ---
 
+## Tier 167 — Live iPhone feedback (2026-09-21)
+
+_Overview graphs excluding today._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#975](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/975) | ✅ Done | Обзор graphs: week/month range ends yesterday, excludes today | Confirmed on-device 2026-09-26 — through-now Week/Month/Year ranges include calendar today when appropriate. |
+
+---
+
 ## Tier 168 — Live iPhone feedback (2026-09-22)
 
 _AutoSleep screenshot confirm: compare scanned sleep with yesterday. Meal cards: compare calories with the last day that had that meal. Add-meal search sits directly above the dish list. Status-bar tap scrolls the active screen to the top. Open / pending items from this tier remain in the active file._

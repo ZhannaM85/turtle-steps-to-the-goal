@@ -52,16 +52,6 @@ _Reported from iPhone PDF previews and local Chrome._
 
 ---
 
-## Tier 167 — Live iPhone feedback (2026-09-21)
-
-_Overview graphs excluding today._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#975](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/975) | 🔍 Pending validation | Обзор graphs: week/month range ends yesterday, excludes today | Through-now Week/Month/Year windows used day-start “today,” so a morning weigh-in before that cutoff (or after starting the day early) sat on calendar today while the graph ended yesterday. Range end is the local calendar day after 06:00; overnight still follows day-start. Awaiting on-device confirmation |
-
----
-
 ## Tier 168 — Live iPhone feedback (2026-09-22)
 
 _AutoSleep screenshot confirm: compare scanned sleep with yesterday. Meal cards: compare calories with the last day that had that meal. Add-meal search sits directly above the dish list. Status-bar tap scrolls the active screen to the top._
