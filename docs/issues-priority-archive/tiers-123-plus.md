@@ -770,6 +770,7 @@ _Create recipe from a meal: warn when a selected food, the same ingredient set, 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#990](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/990) | ✅ Done | Добавить блюдо: белки / жиры / углеводы in one compact row | Confirmed on-device 2026-09-26 — protein, fat, and carbs share one compact row; fiber and electrolytes stay below. |
 | [#991](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/991) | ✅ Done | Meal search empty state: «Добавить вручную» should look like an action | Confirmed on-device 2026-09-26 — «Добавить вручную» is a bordered button like «Искать онлайн»; «Не нашли?» stays plain text. |
 | [#992](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/992) | ✅ Done | Добавить вручную: prefill Название блюда from meal search query | Confirmed on-device 2026-09-26 — empty-state manual add prefills «Название блюда» from the search query. |
 | [#993](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/993) | ✅ Done | Добавить блюдо: collapse Бренд by default | Confirmed on-device 2026-09-26 — brand starts collapsed; expands on tap; existing brand opens expanded. |
