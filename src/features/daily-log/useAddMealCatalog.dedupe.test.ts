@@ -87,4 +87,58 @@ describe('meal search catalog dedupe (#995)', () => {
       ),
     ).toBe(true)
   })
+
+  it('returns one trout row when the logged portion and the recipe share per-100g macros (#1006)', () => {
+    useMealItemStore.setState({
+      items: [
+        {
+          ...dish('logged', 'Бутерброд с форелью', 129),
+          lastProteinG: 9,
+          lastFatG: 7,
+          lastCarbsG: 9,
+          lastAmountG: 100,
+        },
+      ],
+    })
+    useRecipeStore.setState({
+      recipes: [
+        {
+          ...savedRecipe('recipe', 'Бутерброд с форелью', 266),
+          ingredients: [
+            {
+              id: 'recipe-ing',
+              name: 'part',
+              amountKcal: 266,
+              proteinG: 18,
+              fatG: 13,
+              carbsG: 19,
+              amountG: 200,
+            },
+          ],
+        },
+      ],
+    })
+
+    const { result } = renderHook(() =>
+      useAddMealCatalog({
+        locale: 'ru',
+        isOnline: false,
+        search: 'Бутер',
+        setSearch: () => {},
+        openPickedItemSheet: () => {},
+      }),
+    )
+
+    const trout = result.current.matches.filter((item) => {
+      const name =
+        item.source === 'recipe'
+          ? item.recipe.name
+          : item.source === 'mealItem'
+            ? item.mealItem.name
+            : item.food.ru
+      return name === 'Бутерброд с форелью'
+    })
+    expect(trout).toHaveLength(1)
+    expect(trout[0]?.source).toBe('recipe')
+  })
 })

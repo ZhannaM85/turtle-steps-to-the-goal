@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 981,
+    issue: 1006,
+    date: '2026-09-26T17:29:30+03:00',
+    en: 'Meal search lists one row when the name and the calories and macros per 100 g match, even if the saved portions differ.',
+    ru: 'Поиск еды показывает одну строку, если совпадают название и калории с БЖУ на 100 г, даже когда порции разного веса.',
+  },
+  {
     version: 980,
     issue: 1005,
     date: '2026-09-26T17:21:35+03:00',

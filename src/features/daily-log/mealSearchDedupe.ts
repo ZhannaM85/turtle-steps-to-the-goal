@@ -1,11 +1,13 @@
+import type { Recipe } from '@/domain/recipe'
 import { recipePerServing } from '@/domain/recipe'
 import { normalizeMealLibraryName } from '@/domain/mealItem'
+import { ratesFromAbsolute } from '@/shared/lib/macroScaling'
 import { itemKey, type PickableItem } from './addMealDialogHelpers'
 
-/** #995 — one search row per display name + the kcal/БЖУ the row shows. */
+/** #995 — one search row per display name and per-100 g nutrition. */
 export interface DedupedMealSearchHit {
   item: PickableItem
-  /** Same name and displayed macros, kept out of the list. */
+  /** Same food, kept out of the list. */
   hidden: PickableItem[]
 }
 
@@ -23,34 +25,108 @@ export function displayedMacroKey(value: number | undefined): string {
   }).format(value)
 }
 
-function macroIdentity(item: PickableItem): string {
-  if (item.source === 'recipe') {
-    const perServing = recipePerServing(item.recipe)
-    return [
-      displayedMacroKey(perServing.amountKcal),
-      displayedMacroKey(perServing.proteinG),
-      displayedMacroKey(perServing.fatG),
-      displayedMacroKey(perServing.carbsG),
-    ].join('|')
-  }
-  if (item.source === 'mealItem') {
-    return [
-      displayedMacroKey(item.mealItem.lastAmountKcal),
-      displayedMacroKey(item.mealItem.lastProteinG),
-      displayedMacroKey(item.mealItem.lastFatG),
-      displayedMacroKey(item.mealItem.lastCarbsG),
-    ].join('|')
-  }
-  return [
-    displayedMacroKey(item.food.kcal100),
-    displayedMacroKey(item.food.protein100),
-    displayedMacroKey(item.food.fat100),
-    displayedMacroKey(item.food.carbs100),
-  ].join('|')
+/**
+ * #1006 — slack so rounding does not split the same dish. One unit covers
+ * a displayed gram (7 vs 6.5 per 100 g). Five percent covers kcal that
+ * land a few units apart after two portion sizes are scaled (129 vs 133
+ * per 100 g). A wider gap stays a different density (266 vs 300 per 100 g).
+ */
+const PER_100G_ABS_TOLERANCE = 1
+const PER_100G_RATIO_TOLERANCE = 0.05
+
+interface Per100gMacros {
+  kcal: number
+  protein: number | undefined
+  fat: number | undefined
+  carbs: number | undefined
 }
 
-function identityKey(item: PickableItem, textFor: (item: PickableItem) => string): string {
-  return `${normalizeMealLibraryName(textFor(item))}\u0000${macroIdentity(item)}`
+function closeEnough(
+  left: number | undefined,
+  right: number | undefined,
+): boolean {
+  if (left === undefined && right === undefined) return true
+  if (left === undefined || right === undefined) return false
+  if (!Number.isFinite(left) || !Number.isFinite(right)) return false
+  const diff = Math.abs(left - right)
+  const scale = Math.max(Math.abs(left), Math.abs(right))
+  return diff <= Math.max(PER_100G_ABS_TOLERANCE, scale * PER_100G_RATIO_TOLERANCE)
+}
+
+function samePer100g(left: Per100gMacros, right: Per100gMacros): boolean {
+  return (
+    closeEnough(left.kcal, right.kcal) &&
+    closeEnough(left.protein, right.protein) &&
+    closeEnough(left.fat, right.fat) &&
+    closeEnough(left.carbs, right.carbs)
+  )
+}
+
+/** Grams in one serving, only when every ingredient recorded a weight. */
+function recipeGramsPerServing(recipe: Recipe): number | undefined {
+  const { ingredients, servings } = recipe
+  if (!Number.isFinite(servings) || servings <= 0 || ingredients.length === 0) {
+    return undefined
+  }
+  if (
+    !ingredients.every(
+      (ingredient) => ingredient.amountG !== undefined && ingredient.amountG > 0,
+    )
+  ) {
+    return undefined
+  }
+  const total = ingredients.reduce(
+    (sum, ingredient) => sum + (ingredient.amountG ?? 0),
+    0,
+  )
+  const perServing = total / servings
+  return perServing > 0 ? perServing : undefined
+}
+
+/**
+ * #1006 — kcal and Б/Ж/У per 100 g. A dish uses `lastAmountG`; a recipe
+ * uses ingredient grams divided by servings. Missing weight is treated as
+ * 100 g (`ratesFromAbsolute`), so two rows that only know absolute totals
+ * still match the way #995 did.
+ */
+function per100gMacros(item: PickableItem): Per100gMacros {
+  if (item.source === 'food') {
+    return {
+      kcal: item.food.kcal100,
+      protein: item.food.protein100,
+      fat: item.food.fat100,
+      carbs: item.food.carbs100,
+    }
+  }
+  if (item.source === 'recipe') {
+    const perServing = recipePerServing(item.recipe)
+    const rates = ratesFromAbsolute(
+      perServing.amountKcal,
+      perServing.proteinG,
+      perServing.fatG,
+      perServing.carbsG,
+      recipeGramsPerServing(item.recipe),
+    )
+    return {
+      kcal: rates.kcal100,
+      protein: rates.protein100,
+      fat: rates.fat100,
+      carbs: rates.carbs100,
+    }
+  }
+  const rates = ratesFromAbsolute(
+    item.mealItem.lastAmountKcal,
+    item.mealItem.lastProteinG,
+    item.mealItem.lastFatG,
+    item.mealItem.lastCarbsG,
+    item.mealItem.lastAmountG,
+  )
+  return {
+    kcal: rates.kcal100,
+    protein: rates.protein100,
+    fat: rates.fat100,
+    carbs: rates.carbs100,
+  }
 }
 
 /** Recipe outranks a saved dish, which outranks a built-in food. */
@@ -60,37 +136,46 @@ function sourceRank(item: PickableItem): number {
   return 0
 }
 
+interface SearchGroup {
+  name: string
+  macros: Per100gMacros
+  items: PickableItem[]
+}
+
 /**
- * #995 — collapse hits that share a display name and the same rounded
- * kcal / protein / fat / carbs. The group's place in the list stays where
- * the first hit was (already search-ranked). A recipe replaces a dish or
- * built-in food in that slot; otherwise the earlier hit stays.
+ * #995 / #1006 — collapse hits that share a display name and the same
+ * per-100 g kcal / protein / fat / carbs. The group's place in the list
+ * stays where the first hit was (already search-ranked). A recipe
+ * replaces a dish or built-in food in that slot; otherwise the earlier
+ * hit stays.
  */
 export function dedupeMealSearchMatches(
   items: readonly PickableItem[],
   textFor: (item: PickableItem) => string,
 ): DedupedMealSearchHit[] {
-  const order: string[] = []
-  const groups = new Map<string, PickableItem[]>()
+  const groups: SearchGroup[] = []
   for (const item of items) {
-    const key = identityKey(item, textFor)
-    const group = groups.get(key)
+    const name = normalizeMealLibraryName(textFor(item))
+    const macros = per100gMacros(item)
+    const group = groups.find(
+      (existing) => existing.name === name && samePer100g(existing.macros, macros),
+    )
     if (!group) {
-      groups.set(key, [item])
-      order.push(key)
-    } else if (!group.some((existing) => itemKey(existing) === itemKey(item))) {
-      group.push(item)
+      groups.push({ name, macros, items: [item] })
+      continue
+    }
+    if (!group.items.some((existing) => itemKey(existing) === itemKey(item))) {
+      group.items.push(item)
     }
   }
 
-  return order.map((key) => {
-    const group = groups.get(key) ?? []
-    const item = group.reduce((best, candidate) =>
+  return groups.map((group) => {
+    const item = group.items.reduce((best, candidate) =>
       sourceRank(candidate) > sourceRank(best) ? candidate : best,
     )
     return {
       item,
-      hidden: group.filter((other) => itemKey(other) !== itemKey(item)),
+      hidden: group.items.filter((other) => itemKey(other) !== itemKey(item)),
     }
   })
 }
