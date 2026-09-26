@@ -144,13 +144,3 @@ _Create recipe from a meal: warn when a selected food, the same ingredient set, 
 | [#1000](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1000) | 🔍 Pending validation | Meal screen: demote «Повторить вчерашний …» to icon + confirm | The full-width repeat button is gone. A circular-arrow icon in the meal name/time row opens the same dish-preview confirm, titled «Повторить вчерашний завтрак?» (this meal’s name, or the positional type when the title is blank — never empty quotes, never yesterday’s free-text). Confirming still adds the checked foods. Awaiting on-device confirmation |
 | [#1001](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1001) | 🔍 Pending validation | Meal screen: meal-type chips → dropdown | The wrapping Breakfast / Lunch / Dinner / Snack row (plus custom templates such as Ночная еда) is one dropdown in the same style as «Почему я сейчас ем?». The closed control shows the current name; choosing an option still sets the meal name and does not change the time. The name field, time, and Save as template stay. Awaiting on-device confirmation |
 
----
-
-## Tier 172 — Live feedback (2026-09-26)
-
-_Meal screen: the name field is the meal-type dropdown. The extra «Тип приёма пищи» row from #1001 is removed. An info icon beside the repeat-yesterday arrow explains that it copies yesterday’s meal of this type. Add dish: the live nutrition summary no longer wraps in the middle of a macro._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#1002](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1002) | 🔍 Pending validation | Meal screen: «Название приёма пищи» is the dropdown; no extra «Тип» row | Corrects #1001. There is no «Тип приёма пищи» row. The name slot is that dropdown (Завтрак / Обед / Ужин / Перекус and saved templates), showing the current value and a chevron, on the same row as the time and the repeat icon. Choosing an option still sets the meal name and the note placeholder. The name cannot be typed. Awaiting on-device confirmation |
-
