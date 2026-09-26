@@ -754,6 +754,16 @@ _Reported from Settings Export vs Day morning section comparison. Open / pending
 
 ---
 
+## Tier 168 — Live iPhone feedback (2026-09-22)
+
+_AutoSleep screenshot confirm: compare scanned sleep with yesterday. Meal cards: compare calories with the last day that had that meal. Add-meal search sits directly above the dish list. Status-bar tap scrolls the active screen to the top. Open / pending items from this tier remain in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#979](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/979) | ✅ Done | iOS: tap status bar scrolls the active screen to the top | Confirmed on-device 2026-09-26 — status-bar / header tap scrolls `#main-content` (and nested overflow) to the top, matching my-money. |
+
+---
+
 ## Tier 169 — Live iPhone feedback (2026-09-23)
 
 _AutoSleep screenshot scan left deep sleep empty when the circled-z row was a whole number of hours._
