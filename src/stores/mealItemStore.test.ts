@@ -353,4 +353,21 @@ describe('useMealItemStore', () => {
 
     expect(useMealItemStore.getState().items).toEqual([])
   })
+
+  it('touch stores an explicit LDL choice and a later save keeps it (#1013)', async () => {
+    await useMealItemStore.getState().touch(
+      'Мой суп',
+      { amountKcal: 90 },
+      undefined,
+      undefined,
+      undefined,
+      { cholesterolImpact: 'limit', cholesterolReason: 'Много сыра.' },
+    )
+    await useMealItemStore.getState().touch('Мой суп', { amountKcal: 100 })
+
+    const saved = useMealItemStore.getState().items[0]
+    expect(saved.cholesterolImpact).toBe('limit')
+    expect(saved.cholesterolReason).toBe('Много сыра.')
+    expect(saved.lastAmountKcal).toBe(100)
+  })
 })

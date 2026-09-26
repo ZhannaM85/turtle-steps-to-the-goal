@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
-import { useMealItemStore } from '@/stores'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { useLdlImpactStore, useMealItemStore } from '@/stores'
 import { blankManualDraft } from './addMealDialogHelpers'
 import { useAddMealManualSheet } from './useAddMealManualSheet'
 
@@ -15,6 +15,10 @@ function renderSheet() {
     }),
   )
 }
+
+beforeEach(() => {
+  useLdlImpactStore.setState({ enabled: false })
+})
 
 describe('openManualAdd dish name (#992)', () => {
   it('prefills the dish name from the search query', () => {
@@ -78,6 +82,7 @@ describe('homemade catalog flag (#994)', () => {
       undefined,
       undefined,
       true,
+      undefined,
     )
   })
 

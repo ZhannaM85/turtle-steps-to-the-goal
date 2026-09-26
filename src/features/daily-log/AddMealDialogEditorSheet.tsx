@@ -1,4 +1,5 @@
 import type { FoodServing } from '@/data/foods'
+import type { CholesterolImpact } from '@/domain/cholesterol'
 import type { MealItem } from '@/domain/mealItem'
 import { useTranslation } from '@/i18n'
 import { MealItemEditorSheet } from './MealItemEditorSheet'
@@ -15,6 +16,7 @@ export function AddMealDialogEditorSheet({
   onNoteChange,
   onEmotionChange,
   onFavoriteChange,
+  onCholesterolChange,
   patchNutrition,
   onAmountGChange,
   onAmountGBlur,
@@ -47,6 +49,10 @@ export function AddMealDialogEditorSheet({
   onNoteChange: (value: string) => void
   onEmotionChange: (value: ManualDraft['emotion']) => void
   onFavoriteChange: (value: boolean) => void
+  onCholesterolChange: (patch: {
+    cholesterolImpact?: CholesterolImpact
+    cholesterolReason?: string
+  }) => void
   patchNutrition: (
     patch: Partial<
       Pick<
@@ -138,6 +144,9 @@ export function AddMealDialogEditorSheet({
       onEmotionChange={onEmotionChange}
       favorite={draft.favorite}
       onFavoriteChange={onFavoriteChange}
+      cholesterolImpact={draft.cholesterolImpact}
+      cholesterolReason={draft.cholesterolReason}
+      onCholesterolChange={onCholesterolChange}
       todayTotalPreview={todayTotalPreview}
       todayRemainingPreview={todayRemainingPreview}
       infoMessage={

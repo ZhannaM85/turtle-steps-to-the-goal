@@ -462,4 +462,8 @@ export const dailyEntry: DailyEntryDict = {
     cholesterolImpactHigh: 'Высокое',
     cholesterolImpactUnknown: 'Неизвестно',
     cholesterolImpactButtonLabel: (level) => `Влияние на ЛПНП: ${level}`,
+    cholesterolImpactFormHint:
+      'Качественная пометка про ЛПНП, не медицинская оценка.',
+    cholesterolReasonLabel: 'Причина (необязательно)',
+    cholesterolReasonPlaceholder: 'Короткая пометка',
   }

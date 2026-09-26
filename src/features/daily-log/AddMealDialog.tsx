@@ -447,6 +447,9 @@ export function AddMealDialog({
             onFavoriteChange={(value) =>
               sheet.setManualDraft((draft) => ({ ...draft, favorite: value }))
             }
+            onCholesterolChange={(patch) =>
+              sheet.setManualDraft((draft) => ({ ...draft, ...patch }))
+            }
             patchNutrition={sheet.patchManualDraftNutrition}
             onAmountGChange={sheet.changeManualDraftAmountG}
             onAmountGBlur={sheet.commitPortionScaleBase}

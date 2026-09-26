@@ -439,4 +439,8 @@ export const dailyEntry: DailyEntryDict = {
     cholesterolImpactHigh: 'High',
     cholesterolImpactUnknown: 'Unknown',
     cholesterolImpactButtonLabel: (level) => `LDL impact: ${level}`,
+    cholesterolImpactFormHint:
+      'A qualitative LDL note, not a medical score.',
+    cholesterolReasonLabel: 'Reason (optional)',
+    cholesterolReasonPlaceholder: 'Short note',
   }

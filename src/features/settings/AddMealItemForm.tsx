@@ -1,6 +1,13 @@
 import { useState } from 'react'
 import { ScanBarcode, Star } from 'lucide-react'
+import {
+  cholesterolChoice,
+  cholesterolForFoodRecord,
+  type CholesterolClassification,
+  type CholesterolImpact,
+} from '@/domain/cholesterol'
 import { useLocale, useTranslation } from '@/i18n'
+import { useLdlImpactStore } from '@/stores'
 import { useOnlineStatus } from '@/shared/hooks'
 import { formatBarcodeDisplay } from '@/shared/lib/formatBarcode'
 import {
@@ -18,6 +25,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { BarcodeScannerDialog, lookupBarcode } from '@/features/daily-log'
+import { CholesterolImpactFields } from '@/features/daily-log/CholesterolImpactFields'
 import {
   macroFieldLabel,
   mealItemRepositoryForBarcodeLookup,
@@ -46,6 +54,7 @@ export function AddMealItemForm({
     },
     favorite: boolean,
     barcode: string | undefined,
+    cholesterol?: CholesterolClassification,
   ) => void
   onCancel: () => void
 }) {
@@ -70,6 +79,9 @@ export function AddMealItemForm({
   const [macroMode, setMacroMode] = useState<'per100g' | 'perPortion'>(
     'per100g',
   )
+  const [cholesterolImpact, setCholesterolImpact] =
+    useState<CholesterolImpact>('unknown')
+  const [cholesterolReason, setCholesterolReason] = useState('')
 
   async function handleBarcodeScanned(scanned: string) {
     const result = await lookupBarcode(
@@ -80,6 +92,9 @@ export function AddMealItemForm({
     setBarcodeNotFoundMessage(false)
     setMacroMode('per100g')
     if (result.source === 'local') {
+      const ldl = cholesterolForFoodRecord(result.item)
+      setCholesterolImpact(ldl.cholesterolImpact)
+      setCholesterolReason(ldl.cholesterolReason ?? '')
       setName(result.item.name)
       setBarcode(result.item.barcode)
       if (result.item.lastAmountKcal === undefined) {
@@ -105,6 +120,8 @@ export function AddMealItemForm({
         setAmountG(String(rates.portions))
       }
     } else if (result.source === 'openFoodFacts') {
+      setCholesterolImpact('unknown')
+      setCholesterolReason('')
       setName(result.name)
       setKcal100(String(result.kcal100))
       setProtein100(result.protein100 === undefined ? '' : String(result.protein100))
@@ -113,6 +130,8 @@ export function AddMealItemForm({
       setAmountG('1')
       setBarcode(scanned)
     } else {
+      setCholesterolImpact('unknown')
+      setCholesterolReason('')
       setBarcodeNotFoundMessage(true)
       setBarcode(scanned)
     }
@@ -187,6 +206,9 @@ export function AddMealItemForm({
       { ...scaled, amountG: scaled.amountG ?? 100 },
       favorite,
       barcode,
+      useLdlImpactStore.getState().enabled
+        ? cholesterolChoice(cholesterolImpact, cholesterolReason)
+        : undefined,
     )
   }
 
@@ -357,6 +379,18 @@ export function AddMealItemForm({
               />
             </div>
           </div>
+          <CholesterolImpactFields
+            impact={cholesterolImpact}
+            reason={cholesterolReason}
+            onCholesterolChange={(patch) => {
+              if (patch.cholesterolImpact) {
+                setCholesterolImpact(patch.cholesterolImpact)
+              }
+              if (patch.cholesterolReason !== undefined) {
+                setCholesterolReason(patch.cholesterolReason)
+              }
+            }}
+          />
           {nutritionPreview && (
             <p className="text-sm text-muted-foreground">
               {t.dailyEntry.computedTotalPrefix} {nutritionPreview}

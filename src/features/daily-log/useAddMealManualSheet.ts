@@ -1,5 +1,9 @@
 import { useRef, useState } from 'react'
 import type { FoodServing } from '@/data/foods'
+import {
+  cholesterolChoice,
+  type CholesterolClassification,
+} from '@/domain/cholesterol'
 import type { CalorieItem } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import type { Locale } from '@/i18n'
@@ -28,7 +32,7 @@ import {
   type PortionScaleBase,
 } from './addMealDialogHelpers'
 import { IndexedDbMealItemRepository } from '@/infrastructure/persistence/indexeddb'
-import { useMealItemStore } from '@/stores'
+import { useLdlImpactStore, useMealItemStore } from '@/stores'
 import { catalogHomemadeForName } from './homemadeFoodFilter'
 
 const mealItemRepositoryForBarcodeLookup = new IndexedDbMealItemRepository()
@@ -61,6 +65,7 @@ export function useAddMealManualSheet({
     favorite?: boolean,
     barcode?: string,
     homemade?: boolean,
+    cholesterol?: CholesterolClassification,
   ) => Promise<unknown> | unknown
   setSearch: (value: string) => void
 }) {
@@ -248,6 +253,12 @@ export function useAddMealManualSheet({
           )
     const barcodeToSave = pendingBarcode ?? undefined
     const favoriteToSave = manualDraft.favorite || undefined
+    const ldlChoice = useLdlImpactStore.getState().enabled
+      ? cholesterolChoice(
+          manualDraft.cholesterolImpact,
+          manualDraft.cholesterolReason,
+        )
+      : undefined
     const newItem: CalorieItem = {
       id: editingItemId ?? crypto.randomUUID(),
       name: trimmedName || undefined,
@@ -255,6 +266,7 @@ export function useAddMealManualSheet({
       ...scaled,
       emotion: manualDraft.emotion,
       noteText: manualDraft.note.trim() || undefined,
+      ...(ldlChoice ?? {}),
     }
     if (editingItemId && onUpdateItem) {
       onUpdateItem(newItem)
@@ -286,6 +298,7 @@ export function useAddMealManualSheet({
         favoriteToSave,
         barcodeToSave,
         manualDraft.homemade,
+        ldlChoice,
       )
     }
   }

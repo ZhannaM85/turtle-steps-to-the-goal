@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { useLocale, useTranslation } from '@/i18n'
 import { cn } from '@/shared/lib/utils'
+import type { CholesterolClassification } from '@/domain/cholesterol'
 import type { MealItem } from '@/domain/mealItem'
 import {
   countMealLibraryNameMatches,
@@ -111,8 +112,9 @@ export function MealItemsSection() {
       carbsG: number | undefined
       amountG: number
     },
+    cholesterol?: CholesterolClassification,
   ) {
-    await touch(name, nutrition)
+    await touch(name, nutrition, undefined, undefined, undefined, cholesterol)
     await offerPropagate(name, { nutrition })
   }
 
@@ -418,8 +420,8 @@ export function MealItemsSection() {
       </div>
       {isAdding && (
         <AddMealItemForm
-          onAdd={(name, nutrition, favorite, barcode) => {
-            touch(name, nutrition, favorite, barcode)
+          onAdd={(name, nutrition, favorite, barcode, cholesterol) => {
+            touch(name, nutrition, favorite, barcode, undefined, cholesterol)
             setIsAdding(false)
           }}
           onCancel={() => setIsAdding(false)}

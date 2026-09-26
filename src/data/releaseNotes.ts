@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 990,
+    issue: 1013,
+    date: '2026-09-26T23:00:53+03:00',
+    en: 'When LDL notes are on, adding or editing a food lets you set its LDL note and an optional reason; a new food starts as unknown.',
+    ru: 'Если пометки про ЛПНП включены, при добавлении или изменении блюда можно указать влияние на ЛПНП и короткую причину; новое блюдо начинается с «неизвестно».',
+  },
+  {
     version: 989,
     issue: 1012,
     date: '2026-09-26T22:47:31+03:00',

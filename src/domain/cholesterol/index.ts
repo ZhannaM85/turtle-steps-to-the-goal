@@ -11,6 +11,10 @@ export {
   classifyFoodName,
 } from './classifyFoodCholesterol'
 export {
+  applyUserCholesterol,
+  cholesterolChoice,
+} from './applyUserCholesterol'
+export {
   applyCholesterolInPlace,
   backfillDailyEntryCholesterol,
   backfillMealItemCholesterol,

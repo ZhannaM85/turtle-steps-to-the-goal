@@ -1,7 +1,15 @@
 import { useState } from 'react'
 import { Check, Pencil, Share2, Star, Trash2 } from 'lucide-react'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
+import {
+  cholesterolChoice,
+  cholesterolForFoodRecord,
+  type CholesterolClassification,
+  type CholesterolImpact,
+} from '@/domain/cholesterol'
 import type { MealItem, MealItemServing } from '@/domain/mealItem'
+import { CholesterolImpactFields } from '@/features/daily-log/CholesterolImpactFields'
+import { useLdlImpactStore } from '@/stores'
 import { formatBarcodeDisplay } from '@/shared/lib/formatBarcode'
 import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
 import {
@@ -47,6 +55,7 @@ export function MealItemRow({
       carbsG: number | undefined
       amountG: number
     },
+    cholesterol?: CholesterolClassification,
   ) => void | Promise<void>
   onSaveBarcode: (
     id: string,
@@ -90,6 +99,9 @@ export function MealItemRow({
   const [macroMode, setMacroMode] = useState<'per100g' | 'perPortion'>(
     'per100g',
   )
+  const [cholesterolImpact, setCholesterolImpact] =
+    useState<CholesterolImpact>('unknown')
+  const [cholesterolReason, setCholesterolReason] = useState('')
 
   async function commit() {
     const trimmed = value.trim()
@@ -146,6 +158,9 @@ export function MealItemRow({
       setCarbs100(rates.carbs100 === undefined ? '' : String(rates.carbs100))
       setAmountG(String(rates.portions))
     }
+    const ldl = cholesterolForFoodRecord(item)
+    setCholesterolImpact(ldl.cholesterolImpact)
+    setCholesterolReason(ldl.cholesterolReason ?? '')
     setMacroMode('per100g')
     setIsEditingNutrition(true)
   }
@@ -219,10 +234,16 @@ export function MealItemRow({
               amountG,
             )
       const nameForSave = value.trim() || item.name
-      await onSaveNutrition(nameForSave, {
-        ...scaled,
-        amountG: scaled.amountG ?? 100,
-      })
+      await onSaveNutrition(
+        nameForSave,
+        {
+          ...scaled,
+          amountG: scaled.amountG ?? 100,
+        },
+        useLdlImpactStore.getState().enabled
+          ? cholesterolChoice(cholesterolImpact, cholesterolReason)
+          : undefined,
+      )
     }
     const barcodeResult = await onSaveBarcode(item.id, nextBarcode)
     if (barcodeResult.takenBy && barcodeResult.takenById) {
@@ -525,6 +546,18 @@ export function MealItemRow({
               />
             </div>
           </div>
+          <CholesterolImpactFields
+            impact={cholesterolImpact}
+            reason={cholesterolReason}
+            onCholesterolChange={(patch) => {
+              if (patch.cholesterolImpact) {
+                setCholesterolImpact(patch.cholesterolImpact)
+              }
+              if (patch.cholesterolReason !== undefined) {
+                setCholesterolReason(patch.cholesterolReason)
+              }
+            }}
+          />
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"

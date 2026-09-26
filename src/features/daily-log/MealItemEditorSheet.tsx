@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Check, Clipboard, Star } from 'lucide-react'
 import type { FoodServing } from '@/data/foods'
+import type { CholesterolImpact } from '@/domain/cholesterol'
 import type { MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import { useLocale, useTranslation } from '@/i18n'
@@ -100,6 +101,13 @@ export interface MealItemEditorSheetProps {
    * starts blank regardless of which name was selected. */
   note: string
   onNoteChange: (value: string) => void
+  /** #1013 — LDL on this food. The fields hide when Settings is off. */
+  cholesterolImpact?: CholesterolImpact
+  cholesterolReason?: string
+  onCholesterolChange?: (patch: {
+    cholesterolImpact?: CholesterolImpact
+    cholesterolReason?: string
+  }) => void
   /** #260: today's prospective running total once this draft is saved,
    * e.g. "Today would be: 1,850 kcal (was 1,550)" — only passed by the
    * add-a-new-meal flow, where nothing about this draft is reflected in
@@ -204,6 +212,9 @@ export function MealItemEditorSheet({
   onFavoriteChange,
   note,
   onNoteChange,
+  cholesterolImpact = 'unknown',
+  cholesterolReason = '',
+  onCholesterolChange,
   todayTotalPreview,
   todayRemainingPreview,
   infoMessage,
@@ -436,6 +447,9 @@ export function MealItemEditorSheet({
             macrosInconsistent={macrosInconsistent}
             todayTotalPreview={todayTotalPreview}
             todayRemainingPreview={todayRemainingPreview}
+            cholesterolImpact={cholesterolImpact}
+            cholesterolReason={cholesterolReason}
+            onCholesterolChange={onCholesterolChange}
           />
         </div>
 

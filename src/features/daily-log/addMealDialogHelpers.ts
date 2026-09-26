@@ -1,4 +1,8 @@
 import { type FoodItem, type FoodServing, foods } from '@/data/foods'
+import {
+  cholesterolForFoodRecord,
+  type CholesterolImpact,
+} from '@/domain/cholesterol'
 import type { CalorieItem, MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import type { Recipe } from '@/domain/recipe'
@@ -60,6 +64,20 @@ export function blankManualDraft() {
     emotion: undefined as MealEmotion | undefined,
     favorite: false,
     homemade: false,
+    cholesterolImpact: 'unknown' as CholesterolImpact,
+    cholesterolReason: '',
+  }
+}
+
+function cholesterolDraftFrom(record: {
+  name?: string
+  cholesterolImpact?: CholesterolImpact
+  cholesterolReason?: string
+}) {
+  const classified = cholesterolForFoodRecord(record)
+  return {
+    cholesterolImpact: classified.cholesterolImpact,
+    cholesterolReason: classified.cholesterolReason ?? '',
   }
 }
 
@@ -203,6 +221,11 @@ export function draftFromPickableItem(
         emotion: undefined,
         favorite: false,
         homemade: false,
+        ...cholesterolDraftFrom({
+          name: food.ru,
+          cholesterolImpact: food.cholesterolImpact,
+          cholesterolReason: food.cholesterolReason,
+        }),
       },
       portionScaleBase: null,
     }
@@ -250,6 +273,7 @@ export function draftFromPickableItem(
         emotion: undefined,
         favorite: false,
         homemade: mealItem.homemade === true,
+        ...cholesterolDraftFrom(mealItem),
       },
       portionScaleBase: null,
     }
@@ -281,6 +305,7 @@ export function draftFromPickableItem(
     emotion: undefined,
     favorite: false,
     homemade: mealItem.homemade === true,
+    ...cholesterolDraftFrom(mealItem),
   }
   return { draft, portionScaleBase: portionScaleBaseFromDraft(draft) }
 }
@@ -430,6 +455,7 @@ export function draftFromCalorieItem(item: CalorieItem): ManualDraft {
     emotion: item.emotion,
     favorite: false,
     homemade: false,
+    ...cholesterolDraftFrom(item),
   }
 }
 
@@ -468,5 +494,6 @@ export function libraryPickRatesPatch(
     amountG: String(rates.portions),
     macroMode: 'per100g',
     homemade: item.homemade === true,
+    ...cholesterolDraftFrom(item),
   }
 }

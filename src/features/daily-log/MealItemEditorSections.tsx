@@ -1,4 +1,5 @@
 import type { FoodServing } from '@/data/foods'
+import type { CholesterolImpact } from '@/domain/cholesterol'
 import type { MealEmotion } from '@/domain/dailyEntry'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
@@ -6,6 +7,7 @@ import { formatMacroGrams } from '@/shared/lib/macroDisplay'
 import type { scaleFromPer100g, totalFromPortion } from '@/shared/lib/macroScaling'
 import { Textarea } from '@/shared/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import { CholesterolImpactFields } from './CholesterolImpactFields'
 import { EmotionPicker } from './EmotionPicker'
 import { MealItemFormSection } from './MealItemFormSection'
 import { MealItemHomemadeCheckbox } from './MealItemHomemadeCheckbox'
@@ -64,6 +66,9 @@ export function MealItemEditorSections({
   macrosInconsistent,
   todayTotalPreview,
   todayRemainingPreview,
+  cholesterolImpact,
+  cholesterolReason,
+  onCholesterolChange,
 }: {
   homemade: boolean
   onHomemadeChange: (homemade: boolean) => void
@@ -108,6 +113,12 @@ export function MealItemEditorSections({
   macrosInconsistent: boolean
   todayTotalPreview?: string
   todayRemainingPreview?: string
+  cholesterolImpact?: CholesterolImpact
+  cholesterolReason?: string
+  onCholesterolChange?: (patch: {
+    cholesterolImpact?: CholesterolImpact
+    cholesterolReason?: string
+  }) => void
 }) {
   const t = useTranslation()
   const locale = useLocale()
@@ -279,6 +290,12 @@ export function MealItemEditorSections({
           </div>
         )}
       </MealItemFormSection>
+
+      <CholesterolImpactFields
+        impact={cholesterolImpact ?? 'unknown'}
+        reason={cholesterolReason ?? ''}
+        onCholesterolChange={onCholesterolChange}
+      />
 
       {(totalPreview ||
         (scaledPreview?.fiberG !== undefined && totalPreview) ||

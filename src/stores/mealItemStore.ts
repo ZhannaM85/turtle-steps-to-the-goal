@@ -6,7 +6,11 @@ import {
   planMealLibraryBackfill,
 } from '@/domain/mealItem'
 import { IndexedDbMealItemRepository } from '@/infrastructure/persistence/indexeddb'
-import { withCholesterolClassification } from '@/domain/cholesterol'
+import {
+  applyUserCholesterol,
+  withCholesterolClassification,
+  type CholesterolClassification,
+} from '@/domain/cholesterol'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
 
 const mealItemRepository = new IndexedDbMealItemRepository()
@@ -58,6 +62,8 @@ interface MealItemStoreState {
     /** #994 — homemade catalog flag from Add/Edit dish. Omitted preserves
      * the existing value. `false` clears it. */
     homemade?: boolean,
+    /** #1013 — LDL from the add/edit form. Omitted keeps classification. */
+    cholesterol?: CholesterolClassification,
   ) => Promise<void>
   /** Renames a library item. If another item already has the target name,
    * merges into it (deletes this one) instead of violating the unique
@@ -135,7 +141,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       })
     }
   },
-  touch: async (name, nutrition, favorite, barcode, homemade) => {
+  touch: async (name, nutrition, favorite, barcode, homemade, cholesterol) => {
     const trimmed = normalizeTextSpaces(name).trim()
     if (!trimmed) return
     const code = barcode?.replace(/\s+/g, '').trim() || undefined
@@ -187,8 +193,9 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
     // flag so an unchecked box does not stay homemade.
     if (homemade === true) item.homemade = true
     else if (homemade === false) delete item.homemade
+    const classified = withCholesterolClassification(item, existing?.name)
     await mealItemRepository.upsert(
-      withCholesterolClassification(item, existing?.name),
+      cholesterol ? applyUserCholesterol(classified, cholesterol) : classified,
     )
     set({ items: await mealItemRepository.getAll() })
   },

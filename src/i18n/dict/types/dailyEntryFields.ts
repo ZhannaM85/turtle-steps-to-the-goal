@@ -365,4 +365,8 @@ export interface DailyEntryFieldsDict {
     cholesterolImpactHigh: string
     cholesterolImpactUnknown: string
     cholesterolImpactButtonLabel: (level: string) => string
+    /** #1013 — add/edit food. Qualitative guidance, not a score. */
+    cholesterolImpactFormHint: string
+    cholesterolReasonLabel: string
+    cholesterolReasonPlaceholder: string
 }
