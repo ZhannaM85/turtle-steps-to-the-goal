@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { CholesterolImpact } from '@/domain/cholesterol'
 import { useLocaleStore, useTranslation, type Locale } from '@/i18n'
-import { useNutritionFactsStore } from '@/stores'
+import { useLdlImpactStore, useNutritionFactsStore } from '@/stores'
 import { CholesterolImpactIndicator } from './CholesterolImpactIndicator'
 import { MealListItem } from './MealListItem'
 
@@ -69,6 +69,7 @@ function HistoricalRow({
 beforeEach(() => {
   useLocaleStore.setState({ locale: 'en' })
   useNutritionFactsStore.setState({ enabled: false })
+  useLdlImpactStore.setState({ enabled: false })
 })
 
 describe('CholesterolImpactIndicator (#1008)', () => {
@@ -146,6 +147,41 @@ describe('CholesterolImpactIndicator (#1008)', () => {
 })
 
 describe('Day food row cholesterol label (#1008)', () => {
+  beforeEach(() => {
+    useLdlImpactStore.setState({ enabled: true })
+  })
+
+  it('hides the LDL label until Settings turns it on (#1012)', async () => {
+    const user = userEvent.setup()
+    const reason = 'Hard cheese is a concentrated source of saturated dairy fat.'
+    useLdlImpactStore.setState({ enabled: false })
+    const view = render(
+      <HistoricalRow
+        name="Сыр фасованный Маасдам"
+        impact="limit"
+        reason={reason}
+      />,
+    )
+
+    expect(screen.queryByTestId('cholesterol-impact')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /LDL impact/ })).not.toBeInTheDocument()
+    expect(screen.getByText('Сыр фасованный Маасдам')).toBeInTheDocument()
+
+    useLdlImpactStore.setState({ enabled: true })
+    view.rerender(
+      <HistoricalRow
+        name="Сыр фасованный Маасдам"
+        impact="limit"
+        reason={reason}
+      />,
+    )
+
+    const button = screen.getByRole('button', { name: 'LDL impact: Limit' })
+    expect(button).toHaveAttribute('data-cholesterol-impact', 'limit')
+    await user.click(button)
+    expect(screen.getByTestId('cholesterol-impact-reason')).toHaveTextContent(reason)
+  })
+
   it('shows a backfilled historical dish and its reason', async () => {
     const user = userEvent.setup()
     render(

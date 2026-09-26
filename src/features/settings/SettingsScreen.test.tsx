@@ -12,6 +12,7 @@ import {
   usePlannedMealsTrackingStore,
   useEatingReasonTrackingStore,
   useCopyYesterdayMealsStore,
+  useLdlImpactStore,
   useMealKcalVsYesterdayStore,
   useLocalTransferStore,
   useProfileStore,
@@ -66,6 +67,7 @@ beforeEach(() => {
   })
   useCopyYesterdayMealsStore.setState({ enabled: false })
   useMealKcalVsYesterdayStore.setState({ enabled: true })
+  useLdlImpactStore.setState({ enabled: false })
   useLocalTransferStore.setState({ enabled: false })
   useMicronutrientTrackingStore.setState({
     tracked: { sodium: false, potassium: false, magnesium: false },
@@ -110,6 +112,7 @@ afterEach(() => {
   })
   useCopyYesterdayMealsStore.setState({ enabled: false })
   useMealKcalVsYesterdayStore.setState({ enabled: true })
+  useLdlImpactStore.setState({ enabled: false })
   useLocalTransferStore.setState({ enabled: false })
   useMicronutrientTrackingStore.setState({
     tracked: { sodium: false, potassium: false, magnesium: false },
@@ -670,6 +673,24 @@ describe('SettingsScreen', () => {
 
       expect(copyToggle).toBeChecked()
       expect(useCopyYesterdayMealsStore.getState().enabled).toBe(true)
+    })
+
+    it('defaults LDL impact off, and shows the Day note when selected (#1012)', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      const toggle = trackedSwitch('Show LDL impact', 'Other')
+      expect(toggle).not.toBeChecked()
+      expect(
+        screen.getByText(
+          'A compact note on each Day food. Qualitative guidance, not a medical score.',
+        ),
+      ).toBeInTheDocument()
+
+      await user.click(toggle)
+
+      expect(toggle).toBeChecked()
+      expect(useLdlImpactStore.getState().enabled).toBe(true)
     })
 
     it('defaults meal kcal vs yesterday on, and switches it off when selected (#836)', async () => {

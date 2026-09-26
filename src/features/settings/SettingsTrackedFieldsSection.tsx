@@ -7,6 +7,7 @@ import {
   useDigestionTrackingStore,
   useEatingReasonTrackingStore,
   useCopyYesterdayMealsStore,
+  useLdlImpactStore,
   useMealKcalVsYesterdayStore,
   useMicronutrientTrackingStore,
   usePlannedMealsTrackingStore,
@@ -33,6 +34,7 @@ type UnifiedTrackedKey =
   | 'eatingReason'
   | 'copyYesterdayMeals'
   | 'mealKcalVsYesterday'
+  | 'ldlImpact'
 
 export function SettingsTrackedFieldsSection() {
   const t = useTranslation()
@@ -80,6 +82,8 @@ export function SettingsTrackedFieldsSection() {
   const setMealKcalVsYesterdayEnabled = useMealKcalVsYesterdayStore(
     (state) => state.setEnabled,
   )
+  const ldlImpactEnabled = useLdlImpactStore((state) => state.enabled)
+  const setLdlImpactEnabled = useLdlImpactStore((state) => state.setEnabled)
   const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
   const setMicronutrientTracked = useMicronutrientTrackingStore(
     (state) => state.setTracked,
@@ -109,6 +113,7 @@ export function SettingsTrackedFieldsSection() {
     'plannedMeals',
     'copyYesterdayMeals',
     'mealKcalVsYesterday',
+    'ldlImpact',
   ]
 
   function isFieldTracked(key: UnifiedTrackedKey): boolean {
@@ -120,6 +125,7 @@ export function SettingsTrackedFieldsSection() {
     if (key === 'eatingReason') return eatingReasonTrackingEnabled
     if (key === 'copyYesterdayMeals') return copyYesterdayMealsEnabled
     if (key === 'mealKcalVsYesterday') return mealKcalVsYesterdayEnabled
+    if (key === 'ldlImpact') return ldlImpactEnabled
     return trackedFields[key]
   }
 
@@ -132,6 +138,7 @@ export function SettingsTrackedFieldsSection() {
     else if (key === 'eatingReason') setEatingReasonTrackingEnabled(value)
     else if (key === 'copyYesterdayMeals') setCopyYesterdayMealsEnabled(value)
     else if (key === 'mealKcalVsYesterday') setMealKcalVsYesterdayEnabled(value)
+    else if (key === 'ldlImpact') setLdlImpactEnabled(value)
     else setTrackedField(key, value)
   }
 
@@ -224,6 +231,11 @@ export function SettingsTrackedFieldsSection() {
         return {
           label: t.settings.mealKcalVsYesterdayTrackingLabel,
           description: t.settings.trackedFieldHintMealKcalVsYesterday,
+        }
+      case 'ldlImpact':
+        return {
+          label: t.settings.ldlImpactTrackingLabel,
+          description: t.settings.trackedFieldHintLdlImpact,
         }
       case 'eatingReason':
         return {

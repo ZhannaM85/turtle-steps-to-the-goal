@@ -16,6 +16,7 @@ export { usePlannedMealsTrackingStore } from './plannedMealsTrackingStore'
 export { useEatingReasonTrackingStore } from './eatingReasonTrackingStore'
 export { useCopyYesterdayMealsStore } from './copyYesterdayMealsStore'
 export { useMealKcalVsYesterdayStore } from './mealKcalVsYesterdayStore'
+export { useLdlImpactStore } from './ldlImpactStore'
 export { useSinceLastMealTimerStore } from './sinceLastMealTimerStore'
 export { useWaterTrackingStore } from './waterTrackingStore'
 export {

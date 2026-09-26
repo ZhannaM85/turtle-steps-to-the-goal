@@ -6,6 +6,7 @@ import {
   useDigestionTrackingStore,
   useEatingReasonTrackingStore,
   useEntryComparisonStore,
+  useLdlImpactStore,
   useMealKcalVsYesterdayStore,
   useNutritionFactsStore,
   usePlannedMealsTrackingStore,
@@ -32,6 +33,7 @@ export const PORTABLE_DAY_TOGGLE_KEYS = [
   'entryComparison',
   'copyYesterdayMeals',
   'mealKcalVsYesterday',
+  'ldlImpact',
 ] as const
 
 export type PortableDayToggleKey = (typeof PORTABLE_DAY_TOGGLE_KEYS)[number]
@@ -89,6 +91,10 @@ export const PORTABLE_DAY_TOGGLES: Record<
     get: () => useMealKcalVsYesterdayStore.getState().enabled,
     set: (enabled) => useMealKcalVsYesterdayStore.setState({ enabled }),
   },
+  ldlImpact: {
+    get: () => useLdlImpactStore.getState().enabled,
+    set: (enabled) => useLdlImpactStore.setState({ enabled }),
+  },
 }
 
 export const portableDayToggleSchema = z.object({
@@ -103,6 +109,7 @@ export const portableDayToggleSchema = z.object({
   entryComparison: z.boolean().optional(),
   copyYesterdayMeals: z.boolean().optional(),
   mealKcalVsYesterday: z.boolean().optional(),
+  ldlImpact: z.boolean().optional(),
 })
 
 export function collectPortableDayToggles(): Record<

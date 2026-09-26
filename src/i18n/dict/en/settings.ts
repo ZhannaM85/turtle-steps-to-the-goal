@@ -169,6 +169,7 @@ export const settings: SettingsDict = {
     saveCustomEatingReasonLabel: (name) => `Save "${name}"`,
     copyYesterdayMealsTrackingLabel: "Copy yesterday's meals",
     mealKcalVsYesterdayTrackingLabel: 'Meal kcal vs yesterday',
+    ldlImpactTrackingLabel: 'Show LDL impact',
     trackingPresetLabel: 'Layout preset',
     trackingPresetDescription:
       "Quick starting point for Day: Simple keeps weight, meals/calories, and your weekly target; Full turns everything on. You can still adjust anything below afterward.",
@@ -214,6 +215,8 @@ export const settings: SettingsDict = {
       'A Day button that copies yesterday’s meals into today.',
     trackedFieldHintMealKcalVsYesterday:
       'On each meal card, an up/down arrow for calories versus the latest earlier meal with the same name (green if less, red if more).',
+    trackedFieldHintLdlImpact:
+      'A compact note on each Day food. Qualitative guidance, not a medical score.',
     trackedFieldHintEatingReason:
       'Reason chips when adding or editing a meal.',
     trackedFieldHintSodium:

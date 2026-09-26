@@ -191,6 +191,8 @@ export interface SettingsDict {
     /** #836 — Day meal-card vs-yesterday kcal arrows (default on, same
      * family as entry comparisons #664). */
     mealKcalVsYesterdayTrackingLabel: string
+    /** #1012 — opt-in compact LDL note on each Day food (default off). */
+    ldlImpactTrackingLabel: string
     /** #237: unified "what to track" section — folds cycle/digestion
      * tracking's own opt-in toggles in with the 5 fields below, which
      * didn't have an opt-out at all before this. */
@@ -238,6 +240,7 @@ export interface SettingsDict {
     trackedFieldHintPlannedMeals: string
     trackedFieldHintCopyYesterdayMeals: string
     trackedFieldHintMealKcalVsYesterday: string
+    trackedFieldHintLdlImpact: string
     trackedFieldHintEatingReason: string
     trackedFieldHintSodium: string
     trackedFieldHintPotassium: string

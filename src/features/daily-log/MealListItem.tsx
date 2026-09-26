@@ -35,6 +35,7 @@ import { CholesterolImpactIndicator } from './CholesterolImpactIndicator'
 import { ConfirmDeleteEntryBar } from './ConfirmDeleteEntryBar'
 import {
   useEatingReasonTrackingStore,
+  useLdlImpactStore,
   useMealSlotDefaultTimesStore,
   useNutritionFactsStore,
 } from '@/stores'
@@ -130,6 +131,7 @@ export function MealListItem({
   )
   const eatingReasons = mealEatingReasons(entry)
   const nutritionFactsEnabled = useNutritionFactsStore((state) => state.enabled)
+  const ldlImpactEnabled = useLdlImpactStore((state) => state.enabled)
   const mealNutritionFacts = nutritionFactsEnabled
     ? evaluateMealNutritionFacts({
         proteinG: calorieEntryProtein(entry) ?? 0,
@@ -292,7 +294,9 @@ export function MealListItem({
           const itemEmotionOption = MEAL_EMOTIONS.find(
             (e) => e.value === item.emotion,
           )
-          const cholesterol = cholesterolForFoodRecord(item)
+          const cholesterol = ldlImpactEnabled
+            ? cholesterolForFoodRecord(item)
+            : null
           return (
             <li
               key={item.id}
@@ -336,10 +340,12 @@ export function MealListItem({
                   <span>· {formatMacroGrams(item.amountG, locale, t)}</span>
                 )}
               </p>
-              <CholesterolImpactIndicator
-                impact={cholesterol.cholesterolImpact}
-                reason={cholesterol.cholesterolReason}
-              />
+              {cholesterol && (
+                <CholesterolImpactIndicator
+                  impact={cholesterol.cholesterolImpact}
+                  reason={cholesterol.cholesterolReason}
+                />
+              )}
               {/* Own row, split from kcal/amount above (#462 follow-up) —
                * at the bigger #464 font size, kcal+amount+macros+reaction
                * all on one line wrapped mid-number on a phone width. */}

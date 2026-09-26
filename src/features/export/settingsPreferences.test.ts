@@ -45,6 +45,7 @@ describe('portable Day toggles (#861)', () => {
       nutritionFacts: false,
       sinceLastMealTimer: true,
       entryComparison: false,
+      ldlImpact: false,
     })
     expect(PORTABLE_DAY_TOGGLES.alcoholTracking.get()).toBe(false)
     expect(PORTABLE_DAY_TOGGLES.eatingReasonTracking.get()).toBe(false)
@@ -54,6 +55,7 @@ describe('portable Day toggles (#861)', () => {
     expect(PORTABLE_DAY_TOGGLES.entryComparison.get()).toBe(false)
     expect(PORTABLE_DAY_TOGGLES.copyYesterdayMeals.get()).toBe(true)
     expect(PORTABLE_DAY_TOGGLES.mealKcalVsYesterday.get()).toBe(true)
+    expect(PORTABLE_DAY_TOGGLES.ldlImpact.get()).toBe(false)
   })
 
   it('leaves omitted portable toggles on the device alone', () => {
@@ -77,6 +79,7 @@ describe('portable Day toggles (#861)', () => {
       entryComparison: false,
       copyYesterdayMeals: true,
       mealKcalVsYesterday: false,
+      ldlImpact: false,
     })
     expect(parsed.success).toBe(true)
   })

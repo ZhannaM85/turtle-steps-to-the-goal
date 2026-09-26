@@ -171,6 +171,7 @@ export const settings: SettingsDict = {
     saveCustomEatingReasonLabel: (name) => `Сохранить «${name}»`,
     copyYesterdayMealsTrackingLabel: 'Копировать вчерашние приёмы пищи',
     mealKcalVsYesterdayTrackingLabel: 'Ккал приёма со вчера',
+    ldlImpactTrackingLabel: 'Показывать влияние на ЛПНП',
     trackingPresetLabel: 'Пресет макета',
     trackingPresetDescription:
       'Быстрая отправная точка для дня: «Просто» оставляет вес, приёмы пищи/калории и недельную цель; «Полностью» включает всё. Всё ниже по-прежнему можно настроить вручную.',
@@ -217,6 +218,8 @@ export const settings: SettingsDict = {
       'Кнопка на экране «День», которая копирует вчерашние приёмы пищи в сегодня.',
     trackedFieldHintMealKcalVsYesterday:
       'На карточке приёма пищи — стрелка калорий относительно последнего предыдущего приёма с тем же названием (зелёная, если меньше, красная, если больше).',
+    trackedFieldHintLdlImpact:
+      'Компактная пометка у каждого блюда на экране «День». Качественный ориентир, не медицинская оценка.',
     trackedFieldHintEatingReason:
       'Причины при добавлении или изменении приёма пищи.',
     trackedFieldHintSodium:

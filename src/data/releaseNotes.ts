@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 989,
+    issue: 1012,
+    date: '2026-09-26T22:47:31+03:00',
+    en: 'Settings can show or hide the LDL note on each Day food; it stays hidden until you turn it on, and saved notes are kept either way.',
+    ru: 'В настройках можно показать или скрыть пометку про ЛПНП у блюд на экране «День»: она скрыта, пока вы её не включите, а сохранённые пометки при этом не стираются.',
+  },
+  {
     version: 988,
     issue: 1016,
     date: '2026-09-26T22:28:28+03:00',
