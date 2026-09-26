@@ -78,7 +78,6 @@ _Create recipe from a meal: warn when a selected food, the same ingredient set, 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#987](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/987) | 🔍 Pending validation | Create recipe: after save, offer to add recipe and replace selected ingredients | After «Создать рецепт» saves, the meal asks whether to add that recipe. «Добавить» inserts one serving and removes the foods that were selected; «Не добавлять» leaves the meal unchanged. The recipe stays in the library either way. Awaiting on-device confirmation |
 | [#996](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/996) | 🔍 Pending validation | Add food: not scrollable until first food / Готово appears | The sheet’s only flex child (`flex-1` / `overflow-y-auto`) sized to its content on WebKit until the Готово footer mounted, so `overflow-hidden` clipped the empty meal and nothing scrolled. The scroll frame is now height 0 + flex-grow with an absolute inset scrollport, independent of that footer. Awaiting on-device confirmation |
 
 ---
