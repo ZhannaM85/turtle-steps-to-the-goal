@@ -27,7 +27,12 @@
  * of cooked rice/pasta), using standard USDA/FDA reference amounts where
  * one exists. Seeded for the most obviously ambiguous-in-grams foods only,
  * not attempted for the rest of the list.
+ *
+ * #1010: LDL staples are merged onto these rows (macros and LDL on the
+ * same record). `cholesterol-foods.json` is not a second list for them.
  */
+import { mergeLdlStaples } from './ldlStapleFoods'
+
 /** #254 — an optional named serving size (e.g. "1 slice", "1 medium"), a
  * convenience alternative to guessing how many grams a serving actually
  * is. Purely a friendlier input path — converts to the same gram-based
@@ -65,9 +70,20 @@ export interface FoodItem {
    * exists), seeded for a handful of foods where "how many grams" isn't
    * obvious — not attempted for most of the list. */
   servings?: FoodServing[]
+  /** #1010 — LDL label on the catalog row itself. Omitted on older rows;
+   * those names still fall through to the cholesterol seed. */
+  cholesterolImpact?:
+    | 'beneficial'
+    | 'neutral'
+    | 'moderate'
+    | 'limit'
+    | 'high'
+    | 'unknown'
+  /** Russian reason shown on the Day page. Same record as the macros. */
+  cholesterolReason?: string
 }
 
-export const foods: FoodItem[] = [
+const curatedFoods: FoodItem[] = [
   // Meat & poultry
   { id: 'chicken-breast', en: 'Chicken breast', ru: 'Куриная грудка', kcal100: 165, protein100: 31, fat100: 3.6, carbs100: 0 },
   { id: 'chicken-thigh', en: 'Chicken thigh', ru: 'Куриное бедро', kcal100: 209, protein100: 26, fat100: 10.9, carbs100: 0 },
@@ -456,3 +472,5 @@ export const foods: FoodItem[] = [
   { id: 'fried-fish-cutlets', en: 'Fried fish cutlets', ru: 'Биточки рыбные жареные', kcal100: 232.1, protein100: 12.3, fat100: 15, carbs100: 12.7 },
   { id: 'stewed-eggplant-tomato', en: 'Stewed eggplant with tomatoes', ru: 'Баклажаны тушеные с помидорами', kcal100: 189.3, protein100: 2.1, fat100: 17.7, carbs100: 5.7 },
 ]
+
+export const foods: FoodItem[] = mergeLdlStaples(curatedFoods)

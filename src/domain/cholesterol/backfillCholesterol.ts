@@ -10,15 +10,15 @@ import {
  * #1008 — retrospective LDL labels.
  *
  * IndexedDB v15 walks existing `dailyEntries` dishes and `mealItems` rows
- * in place. Each name is matched to `src/data/cholesterol-foods.json` by
- * exact string, or by trim + collapsed whitespace + case-fold. No fuzzy
- * match. Unmatched names become `unknown` and lose any reason. Only
- * `cholesterolImpact` and `cholesterolReason` are written — calories,
- * macros, grams, the meal, the date, and the time stay put. No rows are
- * inserted or deleted, so a second run ends on the same records. Saving a
- * day from the Day page stamps new dishes the same way; a name that is
- * not in the seed stays `unknown`. The JSON file is the only copy of the
- * mappings and can grow later without a code list.
+ * in place. Each name is matched to a catalog food that carries LDL, or
+ * else to `src/data/cholesterol-foods.json`, by exact string or by trim +
+ * collapsed whitespace + case-fold. No fuzzy match. Unmatched names become
+ * `unknown` and lose any reason. Only `cholesterolImpact` and
+ * `cholesterolReason` are written — calories, macros, grams, the meal,
+ * the date, and the time stay put. No rows are inserted or deleted, so a
+ * second run ends on the same records. Saving a day from the Day page
+ * stamps new dishes the same way. Catalog rows are the source of truth
+ * for foods that set a label; the JSON seed covers other historical names.
  *
  * #1009 — IndexedDB v16 runs this stamp again after the seed reasons
  * were translated. A stored English `cholesterolReason` is replaced by

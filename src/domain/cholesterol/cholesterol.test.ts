@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { CalorieItem, DailyEntry } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import seedFile from '@/data/cholesterol-foods.json'
+import { foods } from '@/data/foods'
 import {
   CHOLESTEROL_IMPACTS,
   backfillDailyEntryCholesterol,
@@ -44,7 +45,7 @@ describe('cholesterol seed JSON (#1008)', () => {
     expect(Object.keys(seed.impactLevels).sort()).toEqual(
       [...CHOLESTEROL_IMPACTS].sort(),
     )
-    expect(seed.foods).toHaveLength(113)
+    expect(seed.foods).toHaveLength(98)
 
     const names = seed.foods.map((food) => food.name)
     expect(new Set(names).size).toBe(names.length)
@@ -64,7 +65,7 @@ describe('cholesterol seed JSON (#1008)', () => {
         (impactCounts[food.cholesterolImpact] ?? 0) + 1
     }
     expect(impactCounts).toEqual({
-      beneficial: 25,
+      beneficial: 10,
       neutral: 38,
       moderate: 31,
       limit: 17,
@@ -101,7 +102,7 @@ describe('classifyFoodName (#1008)', () => {
     )
   })
 
-  it('classifies the added staples as beneficial from the Russian name only', () => {
+  it('classifies the catalog staples from the food row, not the seed list', () => {
     const added = [
       'Овсянка',
       'Перловка',
@@ -121,14 +122,22 @@ describe('classifyFoodName (#1008)', () => {
     ]
     for (const name of added) {
       expect(classifyFoodName(name).cholesterolImpact).toBe('beneficial')
+      expect(
+        cholesterolSeed().foods.some((food) => food.name === name),
+      ).toBe(false)
     }
-    const oats = cholesterolSeed().foods.find((food) => food.name === 'Овсянка')
+    const oats = foods.find((food) => food.ru === 'Овсянка')
+    expect(oats?.cholesterolImpact).toBe('beneficial')
     expect(oats?.cholesterolReason).toMatch(/клетчатк/)
     expect(oats?.cholesterolReason).toMatch(/ЛПНП/)
     expect(oats?.cholesterolReason).not.toMatch(/LDL/)
-    expect(oats?.nameEn).toBe('Oatmeal')
-    expect(classifyFoodName('Oatmeal')).toEqual({ cholesterolImpact: 'unknown' })
-    expect(classifyFoodName('Овсянка').cholesterolReason).toBe(oats?.cholesterolReason)
+    expect(oats?.en).toBe('Oatmeal')
+    expect(classifyFoodName('Oatmeal').cholesterolReason).toBe(
+      oats?.cholesterolReason,
+    )
+    expect(classifyFoodName('Овсянка').cholesterolReason).toBe(
+      oats?.cholesterolReason,
+    )
   })
 
   it('leaves an unmatched name unknown, including a brand-new food', () => {

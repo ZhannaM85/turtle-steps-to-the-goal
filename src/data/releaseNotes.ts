@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 985,
+    issue: 1010,
+    date: '2026-09-26T22:06:11+03:00',
+    en: 'Oatmeal, flaxseeds, and other LDL-friendly staples now show up in meal search with calories and macros per 100 g.',
+    ru: 'Овсянка, семена льна и другие продукты, полезные для ЛПНП, теперь находятся в поиске блюд с калориями и БЖУ на 100 г.',
+  },
+  {
     version: 984,
     issue: 1009,
     date: '2026-09-26T21:48:04+03:00',

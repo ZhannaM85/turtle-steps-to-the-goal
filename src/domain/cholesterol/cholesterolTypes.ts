@@ -16,9 +16,10 @@ export interface CholesterolClassification {
 }
 
 /**
- * Shape of `src/data/cholesterol-foods.json`. The file is the only copy.
- * Matching and the Day label use `name` and `cholesterolReason` only.
- * English and nutrition metadata are kept on the row and are not required.
+ * Shape of `src/data/cholesterol-foods.json`. Migration seed for diary
+ * names that are not on a catalog food (#1010). Catalog rows that set
+ * `cholesterolImpact` are the source of truth for those foods. Matching
+ * and the Day label use `name` and `cholesterolReason` only.
  */
 export interface CholesterolSeedFood {
   name: string
