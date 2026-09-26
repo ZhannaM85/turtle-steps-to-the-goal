@@ -58,7 +58,6 @@ _AutoSleep screenshot confirm: compare scanned sleep with yesterday. Meal cards:
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#977](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/977) | 🔍 Pending validation | Meal delta: compare to last day with that meal, not only yesterday | Day meal cards compare kcal with the latest earlier day that has the same meal name. Yesterday still says “compared to yesterday”; an older day is named with the app date. No prior meal of that name omits the line (not treated as zero). Awaiting on-device confirmation |
 | [#978](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/978) | 🔍 Pending validation | Meal screen: food search directly above the dish list | Add-meal browse order is now the 2×2 actions (add / barcode / recipe / QR), then Поиск…, then Недавние or search results. The action grid no longer sits between the field and the list it filters; the barcode icon on the field stays. Awaiting on-device confirmation |
 
 ---
