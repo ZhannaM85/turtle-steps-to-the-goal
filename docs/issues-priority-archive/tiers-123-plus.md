@@ -764,6 +764,16 @@ _AutoSleep screenshot scan left deep sleep empty when the circled-z row was a wh
 
 ---
 
+## Tier 171 — Live feedback (2026-09-25)
+
+_Create recipe from a meal: warn when a selected food, the same ingredient set, or the typed title is already a recipe, and offer to add the new recipe in place of those foods. Meal search finds saved recipes by name, collapses identical name-and-macro rows, and can delete an unused copy with a long-press. Add dish: protein, fat, and carbs on one row, and the optional brand starts collapsed. Empty food search shows manual add as a button and prefills the dish name from the query. Dishes can be marked homemade and filtered in meal search. The empty add-food sheet scrolls before any dish is added. Repeat yesterday's meal keeps a meal-type name when the meal title is cleared, and that action is now an icon in the name/time row. The meal search field no longer has its own barcode icon. The add-food title and close stay fixed while the sheet scrolls. Meal type is a dropdown instead of wrapping name chips. Open / pending items from this tier remain in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1001](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1001) | ✅ Done | Meal screen: meal-type chips → dropdown | Confirmed on-device 2026-09-26 — meal type is one dropdown (incl. templates); choosing sets the name without changing the time. Superseded layout-wise by #1002. |
+
+---
+
 ## Tier 172 — Live feedback (2026-09-26)
 
 _Meal screen: the name field is the meal-type dropdown. The extra «Тип приёма пищи» row from #1001 is removed. An info icon beside the repeat-yesterday arrow explains that it copies yesterday’s meal of this type. Add dish: the live nutrition summary no longer wraps in the middle of a macro._
