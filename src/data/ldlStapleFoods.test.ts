@@ -14,7 +14,7 @@ import { LDL_STAPLE_FOODS, mergeLdlStaples } from './ldlStapleFoods'
 
 describe('LDL staple catalog (#1010)', () => {
   it('merges each staple once and leaves a second merge unchanged', () => {
-    expect(LDL_STAPLE_FOODS).toHaveLength(15)
+    expect(LDL_STAPLE_FOODS).toHaveLength(16)
     for (const staple of LDL_STAPLE_FOODS) {
       const rows = foods.filter((food) => food.ru === staple.nameRu)
       expect(rows).toHaveLength(1)
@@ -159,5 +159,60 @@ describe('LDL staple catalog (#1010)', () => {
     expect(dish?.carbsG).toBe(2)
     expect(dish?.amountG).toBe(10)
     expect(dish?.name).toBe('Семена льна')
+  })
+
+  it('finds Салат Коул слоу with per-100 g macros and beneficial LDL (#1014)', () => {
+    useMealItemStore.setState({ items: [] })
+    useRecipeStore.setState({ recipes: [] })
+    useFoodOverrideStore.setState({ overrides: [] })
+
+    const rows = foods.filter((food) => food.ru === 'Салат Коул слоу')
+    expect(rows).toHaveLength(1)
+    const salad = rows[0]
+    expect(salad).toMatchObject({
+      id: 'salad-coleslaw',
+      en: 'Coleslaw',
+      kcal100: 95,
+      protein100: 1.4,
+      fat100: 7.5,
+      carbs100: 6.3,
+      cholesterolImpact: 'beneficial',
+    })
+    expect(salad?.cholesterolReason).toMatch(/ЛПНП/)
+    expect(salad?.cholesterolReason).not.toMatch(/LDL/)
+
+    const usda = foods.find((food) => food.id === 'coleslaw')
+    expect(usda).toMatchObject({
+      ru: 'Коулслоу (салат из капусты)',
+      kcal100: 159,
+      protein100: 0.88,
+      fat100: 11.8,
+      carbs100: 12.4,
+    })
+    expect(usda?.cholesterolImpact).toBeUndefined()
+
+    const search = renderHook(() =>
+      useAddMealCatalog({
+        locale: 'ru',
+        isOnline: false,
+        search: 'Салат Коул слоу',
+        setSearch: () => {},
+        openPickedItemSheet: () => {},
+      }),
+    )
+    const hit = search.result.current.matches.find(
+      (item) => item.source === 'food' && item.food.ru === 'Салат Коул слоу',
+    )
+    expect(hit?.source).toBe('food')
+    if (hit?.source !== 'food') return
+    expect(hit.food).toBe(salad)
+    expect(hit.food).toMatchObject({
+      kcal100: 95,
+      protein100: 1.4,
+      fat100: 7.5,
+      carbs100: 6.3,
+      cholesterolImpact: 'beneficial',
+      cholesterolReason: salad?.cholesterolReason,
+    })
   })
 })

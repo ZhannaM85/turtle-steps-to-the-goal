@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 987,
+    issue: 1014,
+    date: '2026-09-26T22:24:00+03:00',
+    en: 'Coleslaw now shows up in meal search with calories, macros per 100 g, and a helpful LDL label.',
+    ru: 'Салат Коул слоу теперь находится в поиске блюд с калориями, БЖУ на 100 г и меткой, полезной для ЛПНП.',
+  },
+  {
     version: 986,
     issue: 1011,
     date: '2026-09-26T22:19:20+03:00',

@@ -1,7 +1,7 @@
 import type { FoodItem } from './foods'
 
 /**
- * #1010 — fifteen LDL staples on the searchable catalog.
+ * #1010 / #1014 — LDL foods on the searchable catalog.
  * Macros are per 100 g. Russian reasons use «ЛПНП», not the Latin LDL
  * from the source sheet. Exact `ru` matches update that row in place.
  */
@@ -194,6 +194,18 @@ export const LDL_STAPLE_FOODS: LdlStapleFood[] = [
     cholesterolImpact: 'beneficial',
     cholesterolReason:
       'Псиллиум — концентрированный источник растворимой клетчатки, которая помогает снижать ЛПНП.',
+  },
+  {
+    id: 'salad-coleslaw',
+    nameRu: 'Салат Коул слоу',
+    nameEn: 'Coleslaw',
+    kcal100: 95,
+    protein100: 1.4,
+    fat100: 7.5,
+    carbs100: 6.3,
+    cholesterolImpact: 'beneficial',
+    cholesterolReason:
+      'Капуста и морковь дают клетчатку при относительно небольшом количестве насыщенных жиров. Хороший овощной салат для рациона, направленного на снижение ЛПНП.',
   },
 ]
 
