@@ -241,6 +241,20 @@ export interface SettingsDict {
     trackedFieldHintCopyYesterdayMeals: string
     trackedFieldHintMealKcalVsYesterday: string
     trackedFieldHintLdlImpact: string
+    /** #1015 — paste JSON into the searchable food catalog. */
+    catalogFoodImportLabel: string
+    catalogFoodImportDescription: string
+    catalogFoodImportPlaceholder: string
+    catalogFoodImportButton: string
+    catalogFoodImportInvalidJson: string
+    catalogFoodImportWrongBasis: string
+    catalogFoodImportEmpty: string
+    catalogFoodImportMissingName: string
+    catalogFoodImportMissingMacros: string
+    catalogFoodImportNotFood: string
+    catalogFoodImportSaveFailed: string
+    catalogFoodImportSuccess: (added: number, updated: number) => string
+    catalogFoodImportFailure: (label: string, reason: string) => string
     trackedFieldHintEatingReason: string
     trackedFieldHintSodium: string
     trackedFieldHintPotassium: string

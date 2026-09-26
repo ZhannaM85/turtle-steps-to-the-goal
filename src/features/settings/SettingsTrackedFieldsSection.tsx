@@ -21,6 +21,7 @@ import {
 import { Button } from '@/shared/ui/button'
 import { CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { CustomEatingReasonsEditor } from './CustomEatingReasonsEditor'
+import { CatalogFoodImportSection } from './CatalogFoodImportSection'
 import { SettingsPinnableCard } from './SettingsPinnableCard'
 import { TrackedFieldToggleRow } from './TrackedFieldToggleRow'
 
@@ -434,6 +435,7 @@ export function SettingsTrackedFieldsSection() {
               {renderTrackedRows(screenshotTrackedKeys)}
             </div>
           )}
+          <CatalogFoodImportSection />
         </CardContent>
       </SettingsPinnableCard>
     </>

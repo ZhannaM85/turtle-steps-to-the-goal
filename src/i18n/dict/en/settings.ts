@@ -217,6 +217,23 @@ export const settings: SettingsDict = {
       'On each meal card, an up/down arrow for calories versus the latest earlier meal with the same name (green if less, red if more).',
     trackedFieldHintLdlImpact:
       'A compact note on each Day food. Qualitative guidance, not a medical score.',
+    catalogFoodImportLabel: 'Import catalog foods',
+    catalogFoodImportDescription:
+      'Paste one food or a list. Calories and macros are per 100 g. The same Russian name updates that catalog food. Your diary stays as it is.',
+    catalogFoodImportPlaceholder:
+      '{ "nameRu": "…", "caloriesPer100g": 0, "proteinPer100g": 0, "fatPer100g": 0, "carbsPer100g": 0 }',
+    catalogFoodImportButton: 'Import foods',
+    catalogFoodImportInvalidJson: 'That text is not valid JSON.',
+    catalogFoodImportWrongBasis: 'Nutrition has to be per 100 g.',
+    catalogFoodImportEmpty: 'No foods to import.',
+    catalogFoodImportMissingName: 'A Russian name is required.',
+    catalogFoodImportMissingMacros:
+      'Calories and macros per 100 g are required.',
+    catalogFoodImportNotFood: 'That entry is not a food.',
+    catalogFoodImportSaveFailed: 'Could not save these foods.',
+    catalogFoodImportSuccess: (added, updated) =>
+      `Added ${added}, updated ${updated}.`,
+    catalogFoodImportFailure: (label, reason) => `${label}: ${reason}`,
     trackedFieldHintEatingReason:
       'Reason chips when adding or editing a meal.',
     trackedFieldHintSodium:

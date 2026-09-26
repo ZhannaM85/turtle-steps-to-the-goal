@@ -4,6 +4,7 @@ import { type FoodItem, type FoodServing, foods } from '@/data/foods'
 import type { MealEmotion } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
+import { mergeCatalogFoodImports } from '@/domain/catalogFoodImport'
 import { applyFoodOverrides } from '@/shared/lib/applyFoodOverrides'
 import { formatKcal, macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
 import { MEAL_EMOTIONS } from '@/shared/lib/emotionIcons'
@@ -11,7 +12,11 @@ import { ratesFromAbsolute } from '@/shared/lib/macroScaling'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { rankBySearchMatch } from '@/shared/lib/searchRank'
 import { cn } from '@/shared/lib/utils'
-import { useFoodOverrideStore, useMealItemStore } from '@/stores'
+import {
+  useCatalogFoodImportStore,
+  useFoodOverrideStore,
+  useMealItemStore,
+} from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
@@ -161,12 +166,18 @@ export function FoodPickerDialog({
   // per mount, same pattern as useMealItemStore in DailyEntryForm.
   const foodOverrides = useFoodOverrideStore((state) => state.overrides)
   const loadFoodOverrides = useFoodOverrideStore((state) => state.loadOverrides)
+  const catalogImports = useCatalogFoodImportStore((state) => state.imports)
+  const loadCatalogFoodImports = useCatalogFoodImportStore((state) => state.load)
   const setFoodFavorite = useFoodOverrideStore((state) => state.setFavorite)
   useEffect(() => {
     loadFoodOverrides()
+    void loadCatalogFoodImports()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  const visibleFoods = applyFoodOverrides(foods, foodOverrides)
+  const visibleFoods = mergeCatalogFoodImports(
+    applyFoodOverrides(foods, foodOverrides),
+    catalogImports,
+  )
 
   // Every pickable item regardless of the current search text (#183) — a
   // dish checked while visible needs to stay counted toward
@@ -227,7 +238,11 @@ export function FoodPickerDialog({
   const matches = query
     ? sortFavoritesFirst(
         rankBySearchMatch(
-          allItems.filter((item) => textFor(item).toLowerCase().includes(query)),
+          allItems.filter((item) => {
+            if (textFor(item).toLowerCase().includes(query)) return true
+            if (item.source !== 'food') return false
+            return `${item.food.ru} ${item.food.en}`.toLowerCase().includes(query)
+          }),
           query,
           textFor,
         ),

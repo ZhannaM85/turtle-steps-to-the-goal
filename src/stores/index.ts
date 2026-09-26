@@ -35,6 +35,7 @@ export {
 } from './dashboardPeriodStore'
 export type { WeekStart } from './weekStartStore'
 export { useFoodOverrideStore } from './foodOverrideStore'
+export { useCatalogFoodImportStore } from './catalogFoodImportStore'
 export { useMealLabelPresetStore } from './mealLabelPresetStore'
 export { useDailyReminderStore } from './dailyReminderStore'
 export { useCustomChartSelectionStore } from './customChartSelectionStore'

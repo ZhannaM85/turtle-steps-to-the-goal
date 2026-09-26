@@ -8,6 +8,7 @@ import {
 } from '@/shared/lib/mealLabel'
 import { useOnlineStatus } from '@/shared/hooks'
 import {
+  useCatalogFoodImportStore,
   useFoodOverrideStore,
   useMealItemStore,
   useMealLabelPresetStore,
@@ -121,6 +122,7 @@ export function AddMealDialog({
   const recipes = useRecipeStore((state) => state.recipes)
   const loadRecipes = useRecipeStore((state) => state.loadRecipes)
   const loadFoodOverrides = useFoodOverrideStore((state) => state.loadOverrides)
+  const loadCatalogFoodImports = useCatalogFoodImportStore((state) => state.load)
   const recentVisible = useAddMealRecentVisibilityStore(
     (state) => state.recentVisible,
   )
@@ -140,6 +142,7 @@ export function AddMealDialog({
   useEffect(() => {
     loadRecipes()
     loadFoodOverrides()
+    void loadCatalogFoodImports()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

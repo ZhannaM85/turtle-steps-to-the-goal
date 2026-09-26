@@ -1,10 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { foods } from '@/data/foods'
+import { mergeCatalogFoodImports } from '@/domain/catalogFoodImport'
 import type { MealItem } from '@/domain/mealItem'
 import type { Locale } from '@/i18n'
 import { applyFoodOverrides } from '@/shared/lib/applyFoodOverrides'
 import { rankBySearchMatch } from '@/shared/lib/searchRank'
-import { useFoodOverrideStore, useMealItemStore, useRecipeStore } from '@/stores'
+import {
+  useCatalogFoodImportStore,
+  useFoodOverrideStore,
+  useMealItemStore,
+  useRecipeStore,
+} from '@/stores'
 import { foodItemFromOff } from './foodItemFromOff'
 import {
   OFF_SEARCH_MIN_CHARS,
@@ -46,6 +52,7 @@ export function useAddMealCatalog({
   const mealItems = useMealItemStore((state) => state.items)
   const recipes = useRecipeStore((state) => state.recipes)
   const foodOverrides = useFoodOverrideStore((state) => state.overrides)
+  const catalogImports = useCatalogFoodImportStore((state) => state.imports)
   const setFoodFavorite = useFoodOverrideStore((state) => state.setFavorite)
   const toggleMealItemFavorite = useMealItemStore((state) => state.toggleFavorite)
   const [showAllRecent, setShowAllRecent] = useState(false)
@@ -72,7 +79,10 @@ export function useAddMealCatalog({
     setOnlineRemoteStatus(null)
   }
 
-  const visibleFoods = applyFoodOverrides(foods, foodOverrides)
+  const visibleFoods = mergeCatalogFoodImports(
+    applyFoodOverrides(foods, foodOverrides),
+    catalogImports,
+  )
   const allMealItems: PickableItem[] = mealItems
     .filter(
       (item): item is MealItem & { lastAmountKcal: number } =>
@@ -128,13 +138,19 @@ export function useAddMealCatalog({
       ? allMealItems
       : allMealItems.slice(0, RECENT_COUNT)
   const searchableItems = filterToHomemadeDishes(allItems, homemadeOnly)
+  function matchesQuery(item: PickableItem): boolean {
+    if (textFor(item).toLowerCase().includes(query)) return true
+    // #1015 — the paste identity is the Russian name. Search it (and the
+    // English name) even when the UI language shows the other one.
+    if (item.source !== 'food') return false
+    return `${item.food.ru} ${item.food.en}`.toLowerCase().includes(query)
+  }
+
   const dedupedMatches = query
     ? dedupeMealSearchMatches(
         sortFavoritesFirst(
           rankBySearchMatch(
-            searchableItems.filter((item) =>
-              textFor(item).toLowerCase().includes(query),
-            ),
+            searchableItems.filter(matchesQuery),
             query,
             textFor,
           ),

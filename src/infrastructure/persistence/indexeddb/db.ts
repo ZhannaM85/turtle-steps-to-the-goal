@@ -2,6 +2,7 @@ import Dexie, { type Table } from 'dexie'
 import type { Goal } from '@/domain/goal'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { MealItem } from '@/domain/mealItem'
+import type { CatalogFoodImport } from '@/domain/catalogFoodImport'
 import type { FoodOverride } from '@/domain/foodOverride'
 import type { Recipe } from '@/domain/recipe'
 import type {
@@ -21,6 +22,7 @@ export class AppDatabase extends Dexie {
   dailyEntries!: Table<DailyEntry, string>
   mealItems!: Table<MealItem, string>
   foodOverrides!: Table<FoodOverride, string>
+  catalogFoodImports!: Table<CatalogFoodImport, string>
   recipes!: Table<Recipe, string>
   customMetrics!: Table<CustomMetric, string>
   customMetricEntries!: Table<CustomMetricEntry, string>
@@ -363,6 +365,21 @@ export class AppDatabase extends Dexie {
             }),
         ]),
       )
+    // #1015: user-pasted catalog foods, keyed by exact Russian name.
+    // New store only — diary rows are not migrated.
+    this.version(17).stores({
+      goals: 'id, createdAt',
+      dailyEntries: 'id, &date',
+      mealItems: 'id, &name, &barcode',
+      foodOverrides: '&foodId',
+      catalogFoodImports: '&nameRu',
+      recipes: 'id',
+      customMetrics: 'id',
+      customMetricEntries: 'id, metricId, &[metricId+date]',
+      customCorrelations: 'id',
+      weeklyNotes: '&weekStart',
+      plannedMeals: 'id, date',
+    })
   }
 }
 

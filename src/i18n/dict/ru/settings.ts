@@ -220,6 +220,22 @@ export const settings: SettingsDict = {
       'На карточке приёма пищи — стрелка калорий относительно последнего предыдущего приёма с тем же названием (зелёная, если меньше, красная, если больше).',
     trackedFieldHintLdlImpact:
       'Компактная пометка у каждого блюда на экране «День». Качественный ориентир, не медицинская оценка.',
+    catalogFoodImportLabel: 'Импорт продуктов в каталог',
+    catalogFoodImportDescription:
+      'Вставьте один продукт или список. Калории и БЖУ — на 100 г. То же русское название обновляет эту строку каталога. Дневник не меняется.',
+    catalogFoodImportPlaceholder:
+      '{ "nameRu": "…", "caloriesPer100g": 0, "proteinPer100g": 0, "fatPer100g": 0, "carbsPer100g": 0 }',
+    catalogFoodImportButton: 'Импортировать продукты',
+    catalogFoodImportInvalidJson: 'Этот текст — не JSON.',
+    catalogFoodImportWrongBasis: 'Нужны значения на 100 г.',
+    catalogFoodImportEmpty: 'Нет продуктов для импорта.',
+    catalogFoodImportMissingName: 'Нужно русское название.',
+    catalogFoodImportMissingMacros: 'Нужны калории и БЖУ на 100 г.',
+    catalogFoodImportNotFood: 'Это не продукт.',
+    catalogFoodImportSaveFailed: 'Не удалось сохранить эти продукты.',
+    catalogFoodImportSuccess: (added, updated) =>
+      `Добавлено: ${added}, обновлено: ${updated}.`,
+    catalogFoodImportFailure: (label, reason) => `${label}: ${reason}`,
     trackedFieldHintEatingReason:
       'Причины при добавлении или изменении приёма пищи.',
     trackedFieldHintSodium:

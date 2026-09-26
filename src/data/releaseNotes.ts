@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 991,
+    issue: 1015,
+    date: '2026-09-26T23:46:00+03:00',
+    en: 'In Settings you can paste a food into meal search, with calories, macros per 100 g, and an LDL note.',
+    ru: 'В настройках можно вставить продукт в поиск блюд: калории, БЖУ на 100 г и пометка про ЛПНП.',
+  },
+  {
     version: 990,
     issue: 1013,
     date: '2026-09-26T23:00:53+03:00',
