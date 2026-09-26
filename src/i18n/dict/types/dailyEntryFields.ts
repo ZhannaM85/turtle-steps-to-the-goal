@@ -143,9 +143,7 @@ export interface DailyEntryFieldsDict {
     clearMealLabelFieldLabel: string
     /** #869 — save a current name that is not already a template. */
     saveMealNameAsTemplateLabel: string
-    /** #1001 — meal-type dropdown that replaced the wrapping name chips. */
-    mealTypeFieldLabel: string
-    /** Closed meal-type control when the name field is cleared (#845/#1001). */
+    /** Closed meal-name dropdown when the selection is cleared (#845/#1002). */
     mealTypeUnsetLabel: string
     /** Built-in quick-pick suggestions for the custom meal name field
      * (#110) — offered as one-click adds in Settings, not auto-seeded into

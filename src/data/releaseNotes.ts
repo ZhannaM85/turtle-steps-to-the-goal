@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 977,
+    issue: 1002,
+    date: '2026-09-26T14:01:09+03:00',
+    en: 'On the add-food screen, the meal name is the dropdown of meal types and saved templates, beside the time and the repeat icon.',
+    ru: 'На экране добавления еды название приёма пищи — это список типов и сохранённых шаблонов, рядом со временем и значком повтора.',
+  },
+  {
     version: 976,
     issue: 1001,
     date: '2026-09-25T23:59:24+03:00',

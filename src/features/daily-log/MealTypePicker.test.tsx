@@ -26,12 +26,12 @@ function Controlled({
   )
 }
 
-describe('MealTypePicker (#1001)', () => {
+describe('MealTypePicker (#1001/#1002)', () => {
   it('shows the current choice closed and lists the same options when opened', async () => {
     const user = userEvent.setup()
     render(<Controlled />)
 
-    const trigger = screen.getByRole('button', { name: 'Meal type' })
+    const trigger = screen.getByRole('button', { name: 'Meal name' })
     expect(trigger).toHaveTextContent('Breakfast')
     expect(trigger).toHaveAttribute('aria-expanded', 'false')
     expect(screen.queryByRole('option', { name: 'Lunch' })).not.toBeInTheDocument()
@@ -56,11 +56,11 @@ describe('MealTypePicker (#1001)', () => {
     const onChange = vi.fn()
     render(<Controlled onChange={onChange} />)
 
-    await user.click(screen.getByRole('button', { name: 'Meal type' }))
+    await user.click(screen.getByRole('button', { name: 'Meal name' }))
     await user.click(screen.getByRole('option', { name: 'Lunch' }))
 
     expect(onChange).toHaveBeenCalledWith('Lunch')
-    const trigger = screen.getByRole('button', { name: 'Meal type' })
+    const trigger = screen.getByRole('button', { name: 'Meal name' })
     expect(trigger).toHaveTextContent('Lunch')
     expect(trigger).toHaveAttribute('aria-expanded', 'false')
     expect(screen.queryByRole('option', { name: 'Lunch' })).not.toBeInTheDocument()
@@ -68,7 +68,7 @@ describe('MealTypePicker (#1001)', () => {
 
   it('shows Not selected when the name is cleared', () => {
     render(<MealTypePicker value="" options={OPTIONS} onChange={vi.fn()} />)
-    expect(screen.getByRole('button', { name: 'Meal type' })).toHaveTextContent(
+    expect(screen.getByRole('button', { name: 'Meal name' })).toHaveTextContent(
       'Not selected',
     )
   })

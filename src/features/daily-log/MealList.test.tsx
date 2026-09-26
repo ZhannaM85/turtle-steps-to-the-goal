@@ -199,10 +199,10 @@ describe('MealList', () => {
     await user.click(
       screen.getByRole('button', { name: '+ Add a meal' }),
     )
-    expect(screen.getByLabelText('Meal name')).toHaveValue('Breakfast')
-    await user.click(screen.getByRole('button', { name: 'Meal type' }))
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Breakfast')
+    await user.click(screen.getByRole('button', { name: 'Meal name' }))
     await user.click(screen.getByRole('option', { name: 'Lunch' }))
-    expect(screen.getByLabelText('Meal name')).toHaveValue('Lunch')
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Lunch')
 
     await user.click(screen.getByRole('button', { name: 'Add food' }))
     await user.type(screen.getByLabelText('Dish name'), 'Salad')
@@ -226,10 +226,10 @@ describe('MealList', () => {
       screen.getByRole('button', { name: '+ Add a meal' }),
     )
     const nameField = screen.getByLabelText('Meal name')
-    expect(nameField).toHaveValue('Breakfast')
-    expect(nameField).toHaveAttribute('readonly')
+    expect(nameField).toHaveTextContent('Breakfast')
+    expect(screen.queryByRole('textbox', { name: 'Meal name' })).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Clear meal name' }))
-    expect(nameField).toHaveValue('')
+    expect(nameField).toHaveTextContent('Not selected')
   })
 
   it('does not prefill yesterday’s free-text title on a new meal (#843)', async () => {
@@ -275,7 +275,7 @@ describe('MealList', () => {
 
     // #844 — Lunch is already used today, so the next unused template
     // (Dinner) is the default. Yesterday's free-text «Lunch two» stays off.
-    expect(screen.getByLabelText('Meal name')).toHaveValue('Dinner')
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Dinner')
     expect(
       screen.getByRole('button', { name: "Repeat yesterday's dinner?" }),
     ).toBeInTheDocument()
@@ -327,7 +327,7 @@ describe('MealList', () => {
 
     // Unlabeled first meal displays as Breakfast; next unused is Lunch.
     // Repeat still copies yesterday's foods under that unused title.
-    expect(screen.getByLabelText('Meal name')).toHaveValue('Lunch')
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Lunch')
     expect(
       screen.getByRole('button', { name: "Repeat yesterday's lunch?" }),
     ).toBeInTheDocument()
@@ -378,7 +378,7 @@ describe('MealList', () => {
       screen.getByRole('button', { name: '+ Add another meal' }),
     )
 
-    expect(screen.getByLabelText('Meal name')).toHaveValue('Dinner')
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Dinner')
     expect(screen.queryByDisplayValue('Lunch')).not.toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: "Repeat yesterday's dinner?" }),
@@ -428,7 +428,7 @@ describe('MealList', () => {
       screen.getByRole('button', { name: '+ Add another meal' }),
     )
 
-    expect(screen.getByLabelText('Meal name')).toHaveValue('Night food')
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Night food')
     expect(screen.getByLabelText('Time')).toHaveValue('12:00')
   })
 
@@ -442,9 +442,9 @@ describe('MealList', () => {
 
     await user.click(screen.getByRole('button', { name: '+ Add a meal' }))
     expect(screen.getByLabelText('Time')).toHaveValue('14:00')
-    await user.click(screen.getByRole('button', { name: 'Meal type' }))
+    await user.click(screen.getByRole('button', { name: 'Meal name' }))
     await user.click(screen.getByRole('option', { name: 'Lunch' }))
-    expect(screen.getByLabelText('Meal name')).toHaveValue('Lunch')
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Lunch')
     expect(screen.getByLabelText('Time')).toHaveValue('14:00')
   })
 
@@ -477,9 +477,9 @@ describe('MealList', () => {
     await user.click(
       screen.getByRole('button', { name: '+ Add another meal' }),
     )
-    await user.click(screen.getByRole('button', { name: 'Meal type' }))
+    await user.click(screen.getByRole('button', { name: 'Meal name' }))
     await user.click(screen.getByRole('option', { name: 'Second breakfast' }))
-    expect(screen.getByLabelText('Meal name')).toHaveValue('Second breakfast')
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Second breakfast')
     expect(screen.getByLabelText('Time')).toHaveValue('12:00')
   })
 
@@ -489,7 +489,7 @@ describe('MealList', () => {
 
     await user.click(screen.getByRole('button', { name: '+ Add a meal' }))
     fireEvent.change(screen.getByLabelText('Time'), { target: { value: '14:00' } })
-    await user.click(screen.getByRole('button', { name: 'Meal type' }))
+    await user.click(screen.getByRole('button', { name: 'Meal name' }))
     await user.click(screen.getByRole('option', { name: 'Lunch' }))
 
     expect(screen.getByLabelText('Time')).toHaveValue('14:00')
@@ -516,9 +516,9 @@ describe('MealList', () => {
 
     await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
     expect(screen.getByLabelText('Time')).toHaveValue('07:15')
-    await user.click(screen.getByRole('button', { name: 'Meal type' }))
+    await user.click(screen.getByRole('button', { name: 'Meal name' }))
     await user.click(screen.getByRole('option', { name: 'Second breakfast' }))
-    expect(screen.getByLabelText('Meal name')).toHaveValue('Second breakfast')
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Second breakfast')
     expect(screen.getByLabelText('Time')).toHaveValue('07:15')
   })
 
@@ -532,10 +532,9 @@ describe('MealList', () => {
     await user.click(
       screen.getByRole('button', { name: '+ Add a meal' }),
     )
-    const nameField = screen.getByLabelText('Meal name')
-    expect(nameField).toHaveValue('Breakfast')
-    await user.type(nameField, 'Brunch')
-    expect(nameField).toHaveValue('Breakfast')
+    expect(screen.queryByRole('textbox', { name: 'Meal name' })).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Breakfast')
+    expect(screen.queryByText('Meal type')).not.toBeInTheDocument()
   })
 
   it("shows an item's own quantity in grams when recorded, omits it when not (#206)", () => {
@@ -968,9 +967,9 @@ describe('MealList', () => {
 
       await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
       const dialog = screen.getByRole('dialog', { name: 'Breakfast' })
-      await user.click(within(dialog).getByRole('button', { name: 'Meal type' }))
+      await user.click(within(dialog).getByRole('button', { name: 'Meal name' }))
       await user.click(within(dialog).getByRole('option', { name: 'Dinner' }))
-      expect(within(dialog).getByLabelText('Meal name')).toHaveValue('Dinner')
+      expect(within(dialog).getByLabelText('Meal name')).toHaveTextContent('Dinner')
       await user.click(within(dialog).getByRole('button', { name: 'Done' }))
 
       expect(screen.getByText('Dinner')).toBeInTheDocument()

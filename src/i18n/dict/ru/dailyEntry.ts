@@ -65,7 +65,6 @@ export const dailyEntry: DailyEntryDict = {
     mealLabelFieldLabel: 'Название приёма пищи',
     clearMealLabelFieldLabel: 'Очистить название приёма пищи',
     saveMealNameAsTemplateLabel: 'Сохранить как шаблон',
-    mealTypeFieldLabel: 'Тип приёма пищи',
     mealTypeUnsetLabel: 'Не выбрано',
     defaultMealNamePresets: ['Завтрак', 'Обед', 'Ужин', 'Перекус'],
     saveButton: 'Сохранить',

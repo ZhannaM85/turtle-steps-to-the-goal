@@ -158,11 +158,13 @@ describe('AddMealDialog (#454)', () => {
     render(<ControlledAddMealDialog {...defaultProps} />)
 
     expect(screen.getByRole('heading', { name: 'Breakfast' })).toBeInTheDocument()
-    expect(screen.getByLabelText('Meal name')).toHaveValue('Breakfast')
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Breakfast')
+    expect(screen.queryByRole('textbox', { name: 'Meal name' })).not.toBeInTheDocument()
+    expect(screen.queryByText('Meal type')).not.toBeInTheDocument()
     expect(screen.getByLabelText('Time')).toHaveValue('08:00')
   })
 
-  it('renames the meal via the meal-type dropdown, not free text (#563/#845/#1001)', async () => {
+  it('renames the meal from the name dropdown, not a separate type row (#563/#845/#1002)', async () => {
     const user = userEvent.setup()
     const onMealLabelChange = vi.fn()
     render(
@@ -172,41 +174,45 @@ describe('AddMealDialog (#454)', () => {
       />,
     )
 
-    const mealType = screen.getByRole('button', { name: 'Meal type' })
-    expect(mealType).toHaveTextContent('Breakfast')
+    const mealName = screen.getByRole('button', { name: 'Meal name' })
+    expect(mealName).toHaveTextContent('Breakfast')
     expect(screen.queryByRole('option', { name: 'Lunch' })).not.toBeInTheDocument()
+    expect(screen.queryByText('Meal type')).not.toBeInTheDocument()
 
-    await user.click(mealType)
+    const row = screen.getByTestId('add-meal-name-row')
+    expect(row).toContainElement(mealName)
+    expect(row).toContainElement(screen.getByLabelText('Time'))
+
+    await user.click(mealName)
     expect(screen.getByRole('option', { name: 'Lunch' })).toBeInTheDocument()
     expect(screen.getByRole('option', { name: 'Dinner' })).toBeInTheDocument()
     expect(screen.getByRole('option', { name: 'Snack' })).toBeInTheDocument()
 
     await user.click(screen.getByRole('option', { name: 'Lunch' }))
     expect(onMealLabelChange).toHaveBeenCalledWith('Lunch')
-    expect(screen.getByLabelText('Meal name')).toHaveValue('Lunch')
+    expect(mealName).toHaveTextContent('Lunch')
     expect(screen.getByRole('heading', { name: 'Lunch' })).toBeInTheDocument()
-    expect(mealType).toHaveTextContent('Lunch')
-
-    const nameField = screen.getByLabelText('Meal name')
-    expect(nameField).toHaveAttribute('readonly')
-    await user.type(nameField, 'Brunch')
-    expect(onMealLabelChange).not.toHaveBeenCalledWith('Brunch')
-    expect(nameField).toHaveValue('Lunch')
+    expect(screen.getByLabelText('Meal note')).toHaveAttribute(
+      'placeholder',
+      'Note about lunch',
+    )
+    expect(screen.queryByRole('option', { name: 'Lunch' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('textbox', { name: 'Meal name' })).not.toBeInTheDocument()
   })
 
-  it('saves a custom meal name as a Settings template without unlocking typing (#869)', async () => {
+  it('saves a custom meal name as a Settings template without a text field (#869)', async () => {
     const user = userEvent.setup()
     render(
       <ControlledAddMealDialog {...defaultProps} mealLabel="Tea time" />,
     )
 
-    expect(screen.getByLabelText('Meal name')).toHaveAttribute('readonly')
+    expect(screen.queryByRole('textbox', { name: 'Meal name' })).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Save as template' }))
 
     expect(useMealLabelPresetStore.getState().presets).toContain('Tea time')
-    const mealType = screen.getByRole('button', { name: 'Meal type' })
-    expect(mealType).toHaveTextContent('Tea time')
-    await user.click(mealType)
+    const mealName = screen.getByRole('button', { name: 'Meal name' })
+    expect(mealName).toHaveTextContent('Tea time')
+    await user.click(mealName)
     expect(screen.getByRole('option', { name: 'Tea time' })).toHaveAttribute(
       'aria-selected',
       'true',
@@ -214,7 +220,7 @@ describe('AddMealDialog (#454)', () => {
     expect(
       screen.queryByRole('button', { name: 'Save as template' }),
     ).not.toBeInTheDocument()
-    expect(screen.getByLabelText('Meal name')).toHaveAttribute('readonly')
+    expect(screen.queryByRole('textbox', { name: 'Meal name' })).not.toBeInTheDocument()
   })
 
   it('does not offer Save as template for a built-in meal type (#869)', () => {
@@ -238,8 +244,8 @@ describe('AddMealDialog (#454)', () => {
     await user.click(screen.getByRole('button', { name: 'Clear meal name' }))
     expect(onMealLabelChange).toHaveBeenCalledWith('')
     const nameField = screen.getByLabelText('Meal name')
-    expect(nameField).toHaveValue('')
-    expect(nameField).toHaveAttribute('readonly')
+    expect(nameField).toHaveTextContent('Not selected')
+    expect(screen.queryByRole('textbox', { name: 'Meal name' })).not.toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: 'Clear meal name' }),
     ).not.toBeInTheDocument()
@@ -252,7 +258,7 @@ describe('AddMealDialog (#454)', () => {
     })
     render(<ControlledAddMealDialog {...defaultProps} />)
 
-    await user.click(screen.getByRole('button', { name: 'Meal type' }))
+    await user.click(screen.getByRole('button', { name: 'Meal name' }))
     expect(screen.getByRole('option', { name: 'Breakfast' })).toBeInTheDocument()
     expect(screen.getByRole('option', { name: 'Brunch' })).toBeInTheDocument()
     expect(
@@ -1547,6 +1553,7 @@ describe('AddMealDialog (#454)', () => {
       expect(repeat).not.toHaveAttribute('title')
       expect(repeat).not.toHaveClass('w-full')
       expect(screen.getByTestId('add-meal-header')).toContainElement(repeat)
+      expect(screen.getByTestId('add-meal-name-row')).toContainElement(repeat)
       expect(screen.getByTestId('add-meal-scroll')).not.toContainElement(repeat)
       await user.click(repeat)
       await user.click(screen.getByRole('button', { name: 'Add selected' }))
@@ -1584,7 +1591,7 @@ describe('AddMealDialog (#454)', () => {
         screen.getByRole('button', { name: "Repeat yesterday's dinner?" }),
       ).toBeInTheDocument()
       await user.click(screen.getByRole('button', { name: 'Clear meal name' }))
-      expect(screen.getByLabelText('Meal name')).toHaveValue('')
+      expect(screen.getByLabelText('Meal name')).toHaveTextContent('Not selected')
       expect(
         screen.queryByRole('button', { name: /Lunch two/ }),
       ).not.toBeInTheDocument()
