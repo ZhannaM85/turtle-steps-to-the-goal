@@ -52,16 +52,6 @@ _Reported from iPhone PDF previews and local Chrome._
 
 ---
 
-## Tier 166 — Live iPhone feedback (2026-09-20)
-
-_Exact 0.1 kg weekly loss counted as missed; past-goal reached date vs week end; bottom nav hiding while scrolling._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#974](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/974) | 🔍 Pending validation | Bottom nav: match my-money — always visible, no visualViewport hide | Locked to my-money: tab bar always mounted. Removed `useVisualViewportShrunk` / `visualViewportTabBar` / `useIsTextInputFocused` hide-and-unmount (including #970 stale-gap translate and #973 keyboard-only hide). Soft-keyboard overlap is an accepted tradeoff; dialogs keep `dvh` + overflow scroll. Awaiting on-device confirmation |
-
----
-
 ## Tier 167 — Live iPhone feedback (2026-09-21)
 
 _Overview graphs excluding today._
