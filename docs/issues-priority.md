@@ -52,16 +52,6 @@ _Reported from iPhone PDF previews and local Chrome._
 
 ---
 
-## Tier 171 — Live feedback (2026-09-25)
-
-_Create recipe from a meal: warn when a selected food, the same ingredient set, or the typed title is already a recipe, and offer to add the new recipe in place of those foods. Meal search finds saved recipes by name, collapses identical name-and-macro rows, and can delete an unused copy with a long-press. Add dish: protein, fat, and carbs on one row, and the optional brand starts collapsed. Empty food search shows manual add as a button and prefills the dish name from the query. Dishes can be marked homemade and filtered in meal search. The empty add-food sheet scrolls before any dish is added. Repeat yesterday's meal keeps a meal-type name when the meal title is cleared, and that action is now an icon in the name/time row. The meal search field no longer has its own barcode icon. The add-food title and close stay fixed while the sheet scrolls. Meal type is a dropdown instead of wrapping name chips._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#996](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/996) | 🔍 Pending validation | Add food: not scrollable until first food / Готово appears | The sheet’s only flex child (`flex-1` / `overflow-y-auto`) sized to its content on WebKit until the Готово footer mounted, so `overflow-hidden` clipped the empty meal and nothing scrolled. The scroll frame is now height 0 + flex-grow with an absolute inset scrollport, independent of that footer. Awaiting on-device confirmation |
-
----
-
 ## Tier 172 — Live feedback (2026-09-26)
 
 _The meal-name list fits its longest option and opens over the sheet instead of pushing the page down. Meal search collapses the same dish when the name and per-100 g nutrition match, even if the saved portions differ. Zepp screenshot fill keeps visceral fat from the «Висцеральный жир» row._
