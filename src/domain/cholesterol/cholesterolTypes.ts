@@ -15,11 +15,19 @@ export interface CholesterolClassification {
   cholesterolReason?: string
 }
 
-/** Shape of `src/data/cholesterol-foods.json`. The file is the only copy. */
+/**
+ * Shape of `src/data/cholesterol-foods.json`. The file is the only copy.
+ * Matching and the Day label use `name` and `cholesterolReason` only.
+ * English and nutrition metadata are kept on the row and are not required.
+ */
 export interface CholesterolSeedFood {
   name: string
   cholesterolImpact: string
   cholesterolReason?: string
+  nameEn?: string
+  cholesterolReasonEn?: string
+  caloriesPer100g?: number
+  state?: string
 }
 
 export interface CholesterolSeedFile {

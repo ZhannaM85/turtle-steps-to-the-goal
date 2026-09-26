@@ -44,7 +44,7 @@ describe('cholesterol seed JSON (#1008)', () => {
     expect(Object.keys(seed.impactLevels).sort()).toEqual(
       [...CHOLESTEROL_IMPACTS].sort(),
     )
-    expect(seed.foods).toHaveLength(98)
+    expect(seed.foods).toHaveLength(113)
 
     const names = seed.foods.map((food) => food.name)
     expect(new Set(names).size).toBe(names.length)
@@ -77,6 +77,34 @@ describe('classifyFoodName (#1008)', () => {
     expect(classifyFoodName('Масло сливочное домашнее').cholesterolReason).toBe(
       undefined,
     )
+  })
+
+  it('classifies the added staples as beneficial from the Russian name only', () => {
+    const added = [
+      'Овсянка',
+      'Перловка',
+      'Чечевица',
+      'Фасоль',
+      'Нут',
+      'Горох',
+      'Брокколи',
+      'Брюссельская капуста',
+      'Морковь',
+      'Баклажаны',
+      'Яблоки',
+      'Цитрусовые',
+      'Семена льна',
+      'Семена чиа',
+      'Псиллиум',
+    ]
+    for (const name of added) {
+      expect(classifyFoodName(name).cholesterolImpact).toBe('beneficial')
+    }
+    const oats = cholesterolSeed().foods.find((food) => food.name === 'Овсянка')
+    expect(oats?.cholesterolReason).toMatch(/клетчатк/)
+    expect(oats?.nameEn).toBe('Oatmeal')
+    expect(classifyFoodName('Oatmeal')).toEqual({ cholesterolImpact: 'unknown' })
+    expect(classifyFoodName('Овсянка').cholesterolReason).toBe(oats?.cholesterolReason)
   })
 
   it('leaves an unmatched name unknown, including a brand-new food', () => {

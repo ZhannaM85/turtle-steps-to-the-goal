@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "description": "MVP LDL-oriented classifications for the 98 unique foods logged in Turtle Steps from 2026-08-26 through 2026-09-26. These are qualitative classifications, not measured saturated-fat values.",
+  "description": "Seed LDL classifications for Turtle Steps foods (113 entries). Primary match key is Russian food name.",
   "impactLevels": {
     "beneficial": "Actively supports an LDL-lowering eating pattern, typically through fiber, legumes, whole grains, nuts, or fish replacing higher-saturated-fat foods.",
     "neutral": "Low concern for LDL but does not meaningfully lower LDL by itself.",
@@ -499,6 +499,141 @@
       "name": "Медово-ореховый пирог",
       "cholesterolImpact": "moderate",
       "cholesterolReason": "Nuts provide unsaturated fats, but cake ingredients can add saturated fat; exact balance depends on the recipe."
+    },
+    {
+      "name": "Овсянка",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Овёс содержит растворимую клетчатку, включая бета-глюкан, которая помогает снижать LDL.",
+      "nameEn": "Oatmeal",
+      "cholesterolReasonEn": "Oats provide soluble fiber, including beta-glucan, which helps lower LDL.",
+      "caloriesPer100g": 71,
+      "state": "cooked"
+    },
+    {
+      "name": "Перловка",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Ячмень богат растворимой клетчаткой и бета-глюканом, полезными для снижения LDL.",
+      "nameEn": "Pearl barley",
+      "cholesterolReasonEn": "Barley is rich in soluble fiber and beta-glucan, which support LDL reduction.",
+      "caloriesPer100g": 123,
+      "state": "cooked"
+    },
+    {
+      "name": "Чечевица",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Чечевица богата клетчаткой и содержит очень мало насыщенных жиров.",
+      "nameEn": "Lentils",
+      "cholesterolReasonEn": "Lentils are rich in fiber and very low in saturated fat.",
+      "caloriesPer100g": 116,
+      "state": "cooked"
+    },
+    {
+      "name": "Фасоль",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Фасоль богата растворимой клетчаткой и практически не содержит насыщенных жиров.",
+      "nameEn": "Beans",
+      "cholesterolReasonEn": "Beans are rich in soluble fiber and contain very little saturated fat.",
+      "caloriesPer100g": 127,
+      "state": "cooked"
+    },
+    {
+      "name": "Нут",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Нут содержит много клетчатки и преимущественно ненасыщенные жиры.",
+      "nameEn": "Chickpeas",
+      "cholesterolReasonEn": "Chickpeas provide substantial fiber and predominantly unsaturated fat.",
+      "caloriesPer100g": 164,
+      "state": "cooked"
+    },
+    {
+      "name": "Горох",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Горох содержит клетчатку и мало насыщенных жиров.",
+      "nameEn": "Peas",
+      "cholesterolReasonEn": "Peas provide fiber and are low in saturated fat.",
+      "caloriesPer100g": 84,
+      "state": "cooked"
+    },
+    {
+      "name": "Брокколи",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Брокколи добавляет клетчатку при очень низком содержании насыщенных жиров.",
+      "nameEn": "Broccoli",
+      "cholesterolReasonEn": "Broccoli adds fiber while being very low in saturated fat.",
+      "caloriesPer100g": 35,
+      "state": "cooked"
+    },
+    {
+      "name": "Брюссельская капуста",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Брюссельская капуста богата клетчаткой и почти не содержит насыщенных жиров.",
+      "nameEn": "Brussels sprouts",
+      "cholesterolReasonEn": "Brussels sprouts are fiber-rich and contain very little saturated fat.",
+      "caloriesPer100g": 36,
+      "state": "cooked"
+    },
+    {
+      "name": "Морковь",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Морковь содержит клетчатку, включая растворимые фракции, и почти не содержит насыщенных жиров.",
+      "nameEn": "Carrots",
+      "cholesterolReasonEn": "Carrots provide fiber, including soluble fractions, and contain almost no saturated fat.",
+      "caloriesPer100g": 35,
+      "state": "cooked"
+    },
+    {
+      "name": "Баклажаны",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Баклажаны дают клетчатку при низкой калорийности и минимуме насыщенных жиров.",
+      "nameEn": "Eggplant",
+      "cholesterolReasonEn": "Eggplant provides fiber with few calories and minimal saturated fat.",
+      "caloriesPer100g": 35,
+      "state": "cooked"
+    },
+    {
+      "name": "Яблоки",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Яблоки содержат пектин — растворимую клетчатку, полезную для контроля LDL.",
+      "nameEn": "Apples",
+      "cholesterolReasonEn": "Apples contain pectin, a soluble fiber that can support LDL control.",
+      "caloriesPer100g": 52,
+      "state": "raw"
+    },
+    {
+      "name": "Цитрусовые",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Цитрусовые содержат пектин и другую клетчатку, полезную для LDL.",
+      "nameEn": "Citrus fruits",
+      "cholesterolReasonEn": "Citrus fruits provide pectin and other fiber that can support LDL reduction.",
+      "caloriesPer100g": 47,
+      "state": "raw"
+    },
+    {
+      "name": "Семена льна",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Семена льна богаты клетчаткой и ненасыщенными жирами.",
+      "nameEn": "Flaxseeds",
+      "cholesterolReasonEn": "Flaxseeds are rich in fiber and unsaturated fats.",
+      "caloriesPer100g": 534,
+      "state": "dry"
+    },
+    {
+      "name": "Семена чиа",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Семена чиа богаты клетчаткой и ненасыщенными жирами.",
+      "nameEn": "Chia seeds",
+      "cholesterolReasonEn": "Chia seeds are rich in fiber and unsaturated fats.",
+      "caloriesPer100g": 486,
+      "state": "dry"
+    },
+    {
+      "name": "Псиллиум",
+      "cholesterolImpact": "beneficial",
+      "cholesterolReason": "Псиллиум — концентрированный источник растворимой клетчатки, которая помогает снижать LDL.",
+      "nameEn": "Psyllium husk",
+      "cholesterolReasonEn": "Psyllium is a concentrated source of soluble fiber that helps lower LDL.",
+      "caloriesPer100g": 200,
+      "state": "dry"
     }
   ]
 }

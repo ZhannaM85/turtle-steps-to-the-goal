@@ -67,7 +67,8 @@ function toClassification(food: IndexedFood): CholesterolClassification {
 const UNKNOWN: CholesterolClassification = { cholesterolImpact: 'unknown' }
 
 /**
- * Exact seed name wins. Otherwise the conservative key above. A key that
+ * Exact seed `name` wins (the Russian label). `nameEn` and other metadata
+ * are not match keys. Otherwise the conservative key above. A key that
  * collapses two different seed names is ignored (no guess). Anything else
  * is `unknown` with no reason.
  */
