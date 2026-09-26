@@ -92,6 +92,5 @@ _The meal-name list fits its longest option and opens over the sheet instead of 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1006](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1006) | 🔍 Pending validation | Meal search dedupe: match by per-100 г macros | «Бутер» still listed two «Бутерброд с форелью» rows (129 ккал в прошлый раз vs 266 ккал на порцию) because #995 compared absolute kcal/БЖУ. The key is now the normalized name plus kcal and Б/Ж/У per 100 г, derived from `lastAmountG` or ingredient grams ÷ servings. A 1-unit / 5% slack keeps rounding from splitting twins; a different density (266 vs 300 per 100 г) stays two rows. A recipe still wins over a dish. Long-press delete is unchanged. Awaiting on-device confirmation |
 | [#1007](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1007) | 🔍 Pending validation | Zepp screenshot: visceral fat parsed as 6 instead of 14 | «Висцеральный жир 14» was saved as 6 — the «6 элементов не достигли цели» count. A bare 6 above that header is dropped, a leading 6 on the visceral line loses to the row value (including the next lines), and eng-tessdata `3neMeHToB` / `Bucuepa…` still map to 14. Same screen still reads жир 28,7 · вода 50,8 · кости 3,07 · мышцы 57,31. Awaiting on-device confirmation |
 
