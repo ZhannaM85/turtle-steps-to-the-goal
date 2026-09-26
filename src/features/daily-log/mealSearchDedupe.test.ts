@@ -15,6 +15,7 @@ function dish(
   fat: number,
   carbs: number,
   id = name,
+  grams?: number,
 ): PickableItem {
   const mealItem: MealItem & { lastAmountKcal: number } = {
     id,
@@ -25,6 +26,7 @@ function dish(
     lastProteinG: protein,
     lastFatG: fat,
     lastCarbsG: carbs,
+    lastAmountG: grams,
   }
   return { source: 'mealItem', mealItem }
 }
@@ -36,6 +38,8 @@ function recipe(
   fat: number,
   carbs: number,
   id = `recipe-${name}`,
+  grams?: number,
+  servings = 1,
 ): PickableItem {
   const saved: Recipe = {
     id,
@@ -48,9 +52,10 @@ function recipe(
         proteinG: protein,
         fatG: fat,
         carbsG: carbs,
+        amountG: grams,
       },
     ],
-    servings: 1,
+    servings,
     createdAt: '2026-09-25T00:00:00.000Z',
     updatedAt: '2026-09-25T00:00:00.000Z',
   }
@@ -131,6 +136,46 @@ describe('meal search dedupe (#995)', () => {
       'Бутерброд с сыром',
       'Бутерброд с форелью',
       'Яблоко',
+    ])
+    expect(hits.every((hit) => hit.hidden.length === 0)).toBe(true)
+  })
+
+  it('collapses the same dish when per-100g macros match across portion sizes (#1006)', () => {
+    const hits = dedupeMealSearchMatches(
+      [
+        dish('Бутерброд с форелью', 129, 9, 7, 9, 'logged', 100),
+        recipe('Бутерброд с форелью', 266, 18, 13, 19, 'recipe', 200),
+      ],
+      textFor,
+    )
+    expect(hits).toHaveLength(1)
+    expect(hits[0]?.item.source).toBe('recipe')
+    expect(hits[0]?.hidden.map((item) => item.source)).toEqual(['mealItem'])
+  })
+
+  it('divides a multi-serving recipe down to per-100g before comparing (#1006)', () => {
+    const hits = dedupeMealSearchMatches(
+      [
+        dish('Бутерброд с форелью', 129, 9, 7, 9, 'logged', 100),
+        recipe('Бутерброд с форелью', 532, 36, 26, 38, 'recipe', 400, 2),
+      ],
+      textFor,
+    )
+    expect(hits).toHaveLength(1)
+    expect(hits[0]?.item.source).toBe('recipe')
+  })
+
+  it('keeps the same name when per-100g density differs (#1006)', () => {
+    const hits = dedupeMealSearchMatches(
+      [
+        dish('Бутерброд с форелью', 129, 9, 7, 9, 'light', 100),
+        dish('Бутерброд с форелью', 266, 18, 13, 19, 'dense', 100),
+      ],
+      textFor,
+    )
+    expect(names(hits.map((hit) => hit.item))).toEqual([
+      'Бутерброд с форелью',
+      'Бутерброд с форелью',
     ])
     expect(hits.every((hit) => hit.hidden.length === 0)).toBe(true)
   })
