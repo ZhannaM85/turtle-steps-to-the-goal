@@ -13,6 +13,7 @@ import {
   CollapsibleTrigger,
 } from '@/shared/ui/collapsible'
 import { Input } from '@/shared/ui/input'
+import { DayPinFrame, DaySectionPinButton } from './DaySectionPin'
 
 /**
  * Lightweight "stage a meal for a future day" drafts (#614) — mounted
@@ -95,11 +96,13 @@ export function PlannedMealsSection({
   }
 
   return (
+    <DayPinFrame id="plannedMeals">
     <section className="section-shell p-3">
       <Collapsible
         open={!collapsed}
         onOpenChange={(open) => setCollapsed('plannedMeals', !open)}
       >
+        <div className="flex items-start gap-1">
         <CollapsibleTrigger asChild>
           <button
             type="button"
@@ -108,7 +111,7 @@ export function PlannedMealsSection({
                 ? t.plannedMeals.expandSectionLabel
                 : t.plannedMeals.collapseSectionLabel
             }
-            className="group flex w-full items-center justify-between gap-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+            className="group flex min-w-0 flex-1 items-center justify-between gap-2 text-sm font-medium text-muted-foreground hover:text-foreground"
           >
             <span className="flex min-w-0 flex-col items-start gap-0.5 text-left">
               <span>{t.plannedMeals.sectionLabel}</span>
@@ -121,6 +124,8 @@ export function PlannedMealsSection({
             <CollapseChevronIcon />
           </button>
         </CollapsibleTrigger>
+        <DaySectionPinButton id="plannedMeals" />
+        </div>
         <CollapsibleContent>
           <div className="flex flex-col gap-2 pt-3">
             <p className="text-sm text-muted-foreground">
@@ -231,5 +236,6 @@ export function PlannedMealsSection({
         </CollapsibleContent>
       </Collapsible>
     </section>
+    </DayPinFrame>
   )
 }

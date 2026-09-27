@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from '@/i18n'
 import type { NutritionFactId } from '@/domain/nutritionFacts'
+import { DayPinFrame, DaySectionPinButton } from './DaySectionPin'
 import { useTodaySectionChrome } from './useTodaySectionChrome'
 
 export function TodayInsightBanners({
@@ -72,19 +73,22 @@ export function TodayInsightBanners({
         </div>
       )}
       {showNutritionFacts && (
-        <div className="flex flex-col gap-1.5">
-          {sectionTitle(
-            'todayNutritionFacts',
-            t.today.nutritionFactsSectionTitle,
-          )}
-          {sectionVisible.todayNutritionFacts && (
-            <div className="flex flex-col gap-1 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
-              {nutritionFacts.map((factId) => (
-                <span key={factId}>{t.nutritionFacts[factId]}</span>
-              ))}
-            </div>
-          )}
-        </div>
+        <DayPinFrame id="nutritionFacts">
+          <div className="flex flex-col gap-1.5">
+            {sectionTitle(
+              'todayNutritionFacts',
+              t.today.nutritionFactsSectionTitle,
+              <DaySectionPinButton id="nutritionFacts" />,
+            )}
+            {sectionVisible.todayNutritionFacts && (
+              <div className="flex flex-col gap-1 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
+                {nutritionFacts.map((factId) => (
+                  <span key={factId}>{t.nutritionFacts[factId]}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        </DayPinFrame>
       )}
     </>
   )

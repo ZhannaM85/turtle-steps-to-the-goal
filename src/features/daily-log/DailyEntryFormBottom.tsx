@@ -5,6 +5,7 @@ import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Input } from '@/shared/ui/input'
 import { SectionAccordion } from '@/shared/ui/section-accordion'
+import { DayPinFrame, DaySectionPinButton } from './DaySectionPin'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { useTodaySectionsCollapseStore } from '@/stores'
 import {
@@ -53,6 +54,7 @@ export function DailyEntryFormBottom() {
   const comparison = state.entryComparisonBaselines
 
   return (
+    <DayPinFrame id="evening">
     <SectionAccordion
       open={!collapsed}
       onOpenChange={(open) => setCollapsed('evening', !open)}
@@ -60,6 +62,7 @@ export function DailyEntryFormBottom() {
       icon={<Moon aria-hidden="true" className="size-4" />}
       expandLabel={t.dailyEntry.expandEveningEntriesLabel}
       collapseLabel={t.dailyEntry.collapseEveningEntriesLabel}
+      actions={<DaySectionPinButton id="evening" />}
     >
             {state.trackedFields.steps &&
               (state.isConfirmingDeleteSteps ? (
@@ -279,5 +282,6 @@ export function DailyEntryFormBottom() {
               </div>
             )}
     </SectionAccordion>
+    </DayPinFrame>
   )
 }

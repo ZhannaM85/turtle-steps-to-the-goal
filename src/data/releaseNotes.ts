@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 997,
+    issue: 1022,
+    date: '2026-09-27T12:08:15+03:00',
+    en: 'On Day, a one-line calorie strip stays under the date while you scroll meals, and you can pin the sections you use most to the top.',
+    ru: 'На экране «День» под датой остаётся тонкая строка калорий, пока вы листаете приёмы пищи, а часто нужные разделы можно закрепить сверху.',
+  },
+  {
     version: 996,
     issue: 1021,
     date: '2026-09-27T11:42:04+03:00',

@@ -1,5 +1,6 @@
 import { Sun } from 'lucide-react'
 import { SectionAccordion } from '@/shared/ui/section-accordion'
+import { DayPinFrame, DaySectionPinButton } from './DaySectionPin'
 import { useTodaySectionsCollapseStore } from '@/stores'
 import { DailyEntryFormMorningCompositionField } from './DailyEntryFormMorningCompositionField'
 import { DailyEntryFormMorningMeasurementsField } from './DailyEntryFormMorningMeasurementsField'
@@ -31,6 +32,7 @@ export function DailyEntryFormMorning() {
   const setCollapsed = useTodaySectionsCollapseStore((s) => s.setCollapsed)
 
   return (
+    <DayPinFrame id="morning">
     <SectionAccordion
       open={!collapsed}
       onOpenChange={(open) => setCollapsed('morning', !open)}
@@ -38,6 +40,7 @@ export function DailyEntryFormMorning() {
       icon={<Sun aria-hidden="true" className="size-4" />}
       expandLabel={t.dailyEntry.expandMorningEntriesLabel}
       collapseLabel={t.dailyEntry.collapseMorningEntriesLabel}
+      actions={<DaySectionPinButton id="morning" />}
     >
       <DailyEntryFormMorningWeightField />
       <DailyEntryFormMorningSleepField />
@@ -45,5 +48,6 @@ export function DailyEntryFormMorning() {
       <DailyEntryFormMorningCompositionField />
       <DailyEntryFormMorningNoteField />
     </SectionAccordion>
+    </DayPinFrame>
   )
 }

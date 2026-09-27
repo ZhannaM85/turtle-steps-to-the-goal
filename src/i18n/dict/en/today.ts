@@ -107,6 +107,9 @@ export const today: TodayDict = {
   collapseStatsLabel: 'Hide stats',
   collapseAllSectionsLabel: 'Collapse all',
   expandAllSectionsLabel: 'Expand all',
+  pinSectionLabel: 'Pin to top',
+  unpinSectionLabel: 'Unpin',
+  kcalStripLabel: 'Show calories and macros',
   targetMinusConsumedText: (target, consumed) => `${target} − ${consumed}`,
   proteinOverTargetLabel: (target, consumed) =>
     `${target} − ${consumed} — great job!`,

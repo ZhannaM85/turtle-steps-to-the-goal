@@ -1,6 +1,7 @@
 import { Moon } from 'lucide-react'
 import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
 import { SectionAccordion } from '@/shared/ui/section-accordion'
+import { DayPinFrame, DaySectionPinButton } from './DaySectionPin'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { useTodaySectionsCollapseStore } from '@/stores'
 import { ConfirmDeleteEntryBar } from './ConfirmDeleteEntryBar'
@@ -23,6 +24,7 @@ export function DailyEntryFormNightFood() {
   if (!state.trackedFields.nightEating) return null
 
   return (
+    <DayPinFrame id="nightFood">
     <SectionAccordion
       open={!collapsed}
       onOpenChange={(open) => setCollapsed('nightFood', !open)}
@@ -31,6 +33,7 @@ export function DailyEntryFormNightFood() {
       subtitle={t.dailyEntry.nightFoodCardHint(state.sex)}
       expandLabel={t.dailyEntry.expandNightFoodCardLabel}
       collapseLabel={t.dailyEntry.collapseNightFoodCardLabel}
+      actions={<DaySectionPinButton id="nightFood" />}
     >
         <ToggleGroup
           type="single"
@@ -241,5 +244,6 @@ export function DailyEntryFormNightFood() {
           </>
         )}
     </SectionAccordion>
+    </DayPinFrame>
   )
 }

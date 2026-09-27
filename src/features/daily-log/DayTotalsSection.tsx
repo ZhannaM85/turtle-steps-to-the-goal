@@ -1,6 +1,7 @@
 import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
 import { NumberInput } from '@/shared/ui/number-input'
 import { SectionAccordion } from '@/shared/ui/section-accordion'
+import { DayPinFrame, DaySectionPinButton } from './DaySectionPin'
 import { useTodaySectionsCollapseStore } from '@/stores'
 import { ConfirmDeleteEntryBar } from './ConfirmDeleteEntryBar'
 import {
@@ -24,6 +25,7 @@ export function DayTotalsSection() {
   if (!state.trackedFields.dayTotals) return null
 
   return (
+    <DayPinFrame id="dayTotals">
     <SectionAccordion
       open={!collapsed}
       onOpenChange={(open) => setCollapsed('dayTotals', !open)}
@@ -31,6 +33,7 @@ export function DayTotalsSection() {
       expandLabel={t.dailyEntry.expandDayTotalsLabel}
       collapseLabel={t.dailyEntry.collapseDayTotalsLabel}
       contentClassName="flex flex-col gap-3 pt-3"
+      actions={<DaySectionPinButton id="dayTotals" />}
     >
             {state.isConfirmingDeleteDayTotals ? (
               <ConfirmDeleteEntryBar
@@ -139,5 +142,6 @@ export function DayTotalsSection() {
               </div>
             )}
     </SectionAccordion>
+    </DayPinFrame>
   )
 }

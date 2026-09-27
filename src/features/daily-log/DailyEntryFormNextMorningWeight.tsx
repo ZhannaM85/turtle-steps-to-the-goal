@@ -9,6 +9,7 @@ import {
 } from '@/i18n'
 import { useNextDayEntry } from '@/shared/hooks'
 import { SectionAccordion } from '@/shared/ui/section-accordion'
+import { DayPinFrame, DaySectionPinButton } from './DaySectionPin'
 import { useTodaySectionsCollapseStore, useUnitStore } from '@/stores'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
@@ -42,6 +43,7 @@ export function DailyEntryFormNextMorningWeight() {
   const unit = unitLabel(displayUnit, t)
 
   return (
+    <DayPinFrame id="nextMorningWeight">
     <SectionAccordion
       open={!collapsed}
       onOpenChange={(open) => setCollapsed('nextMorningWeight', !open)}
@@ -51,6 +53,7 @@ export function DailyEntryFormNextMorningWeight() {
       expandLabel={t.dailyEntry.expandNextMorningWeightCardLabel}
       collapseLabel={t.dailyEntry.collapseNextMorningWeightCardLabel}
       contentClassName="flex flex-col gap-1 pt-4"
+      actions={<DaySectionPinButton id="nextMorningWeight" />}
     >
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl font-semibold">
@@ -64,5 +67,6 @@ export function DailyEntryFormNextMorningWeight() {
               </span>
             )}
     </SectionAccordion>
+    </DayPinFrame>
   )
 }

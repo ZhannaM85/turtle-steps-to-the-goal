@@ -6,6 +6,7 @@ import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
 import { Chip } from '@/shared/ui/chip'
 import { SectionAccordion } from '@/shared/ui/section-accordion'
+import { DayPinFrame, DaySectionPinButton } from './DaySectionPin'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Label } from '@/shared/ui/label'
 import { NumberInput } from '@/shared/ui/number-input'
@@ -85,6 +86,7 @@ export function WaterLogSection() {
 
   return (
     <>
+    <DayPinFrame id="water">
     <SectionAccordion
       id="water-entry-section"
       open={!collapsed}
@@ -93,6 +95,7 @@ export function WaterLogSection() {
       expandLabel={t.dailyEntry.expandWaterLabel}
       collapseLabel={t.dailyEntry.collapseWaterLabel}
       contentClassName="flex flex-col gap-1.5 pt-3"
+      actions={<DaySectionPinButton id="water" />}
     >
             <div className="flex flex-wrap items-center gap-3">
               <Button
@@ -165,6 +168,7 @@ export function WaterLogSection() {
                 </div>
               )}
     </SectionAccordion>
+    </DayPinFrame>
       <Dialog
         open={editingWaterId !== null}
         onOpenChange={(open) => {

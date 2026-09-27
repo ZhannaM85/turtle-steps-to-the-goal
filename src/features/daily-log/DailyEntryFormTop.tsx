@@ -1,5 +1,6 @@
 import { formatNumber } from '@/i18n'
 import { SectionAccordion } from '@/shared/ui/section-accordion'
+import { DayPinFrame, DaySectionPinButton } from './DaySectionPin'
 import { StatCard } from '@/shared/ui/stat-card'
 import { usePlannedMealsTrackingStore, useTodaySectionsCollapseStore } from '@/stores'
 import { DayTotalsSection } from './DayTotalsSection'
@@ -71,6 +72,7 @@ export function DailyEntryFormTop() {
        * reported live as looking visually inconsistent with those
        * cards otherwise. */}
       {(state.dayMacrosSummary || state.dayRemainingMacrosSummary) && (
+        <DayPinFrame id="macros">
         <SectionAccordion
           open={!macrosCollapsed}
           onOpenChange={(open) => setCollapsed('macros', !open)}
@@ -79,6 +81,7 @@ export function DailyEntryFormTop() {
           collapseLabel={t.dailyEntry.collapseMacrosLabel}
           shell={false}
           contentClassName="flex flex-col gap-6 pt-3"
+          actions={<DaySectionPinButton id="macros" />}
         >
           {state.dayMacrosSummary && (
             <StatCard
@@ -103,6 +106,7 @@ export function DailyEntryFormTop() {
             />
           )}
         </SectionAccordion>
+        </DayPinFrame>
       )}
 
       {/* #549/#575 — optional day-level kcal/macros without meal items.
@@ -118,6 +122,7 @@ export function DailyEntryFormTop() {
        * paired with removing the meal cards' own broken drag-to-reorder
        * handles, tracked separately as a future on-demand-mode
        * replacement in #471). */}
+      <DayPinFrame id="meals">
       <SectionAccordion
         open={!mealsCollapsed}
         onOpenChange={(open) => setCollapsed('meals', !open)}
@@ -125,6 +130,7 @@ export function DailyEntryFormTop() {
         expandLabel={t.dailyEntry.expandMealsLabel}
         collapseLabel={t.dailyEntry.collapseMealsLabel}
         contentClassName="min-w-0 max-w-full pt-3"
+        actions={<DaySectionPinButton id="meals" />}
       >
         <MealList
           calorieEntries={state.calorieEntries}
@@ -139,6 +145,7 @@ export function DailyEntryFormTop() {
           dayTotals={state.dayTotals}
         />
       </SectionAccordion>
+      </DayPinFrame>
 
       {plannedMealsTrackingEnabled && (
         <PlannedMealsSection

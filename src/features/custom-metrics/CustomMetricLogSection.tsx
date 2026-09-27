@@ -8,6 +8,7 @@ import {
   useCustomMetricStore,
   useTodaySectionsCollapseStore,
 } from '@/stores'
+import { DayPinFrame, DaySectionPinButton } from '@/features/daily-log/DaySectionPin'
 import { Button } from '@/shared/ui/button'
 import { CollapseChevronIcon } from '@/shared/ui/collapse-chevron'
 import {
@@ -327,11 +328,13 @@ export function CustomMetricLogSection({ date }: { date: string }) {
   ).length
 
   return (
+    <DayPinFrame id="customMetrics">
     <section className="section-shell p-3">
       <Collapsible
         open={!collapsed}
         onOpenChange={(open) => setCollapsed('customMetrics', !open)}
       >
+        <div className="flex items-start gap-1">
         <CollapsibleTrigger asChild>
           <button
             type="button"
@@ -340,7 +343,7 @@ export function CustomMetricLogSection({ date }: { date: string }) {
                 ? t.customMetrics.expandLogValuesLabel
                 : t.customMetrics.collapseLogValuesLabel
             }
-            className="group flex w-full items-center justify-between gap-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+            className="group flex min-w-0 flex-1 items-center justify-between gap-2 text-sm font-medium text-muted-foreground hover:text-foreground"
           >
             <span className="flex min-w-0 flex-col items-start gap-0.5 text-left">
               <span>{t.customMetrics.logValuesSectionLabel}</span>
@@ -356,6 +359,8 @@ export function CustomMetricLogSection({ date }: { date: string }) {
             <CollapseChevronIcon />
           </button>
         </CollapsibleTrigger>
+        <DaySectionPinButton id="customMetrics" />
+        </div>
         <CollapsibleContent>
           <div className="flex flex-col gap-2 pt-3">
             {metrics.map((metric) => {
@@ -377,5 +382,6 @@ export function CustomMetricLogSection({ date }: { date: string }) {
         </CollapsibleContent>
       </Collapsible>
     </section>
+    </DayPinFrame>
   )
 }

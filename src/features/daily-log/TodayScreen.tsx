@@ -31,6 +31,8 @@ import { DailyEntryFormNextMorningWeight } from './DailyEntryFormNextMorningWeig
 import { CompleteDayProjectionDialog } from './CompleteDayProjectionDialog'
 import { DailyEntryFormNightFood } from './DailyEntryFormNightFood'
 import { DailyEntryFormStateProvider } from './DailyEntryFormStateContext'
+import { DayKcalStrip } from './DayKcalStrip'
+import { DayKcalStripSlot, DayPinDock, DayPinProvider } from './DaySectionPin'
 import { DailyEntryFormTop } from './DailyEntryFormTop'
 import { DaySectionsCollapseControl } from './DaySectionsCollapseControl'
 import { GoalCelebrationModal } from './GoalCelebrationModal'
@@ -175,14 +177,16 @@ export function TodayScreen() {
     entry === null
 
   return (
+    <DayPinProvider>
     <div className="flex flex-col gap-6">
       <GoalCelebrationModal />
       <div
         className={pageStickyUnderAppHeader(
-          'flex flex-col gap-1.5 pt-1 pb-2',
+          'flex flex-col pt-1 pb-2',
         )}
         data-slot="day-intro"
       >
+        <div data-slot="day-intro-chrome" className="flex flex-col gap-1.5">
         <PageHeader
           title={t.today.title}
           titleAccessory={
@@ -222,6 +226,9 @@ export function TodayScreen() {
           debug465NextRef={debug465NextRef}
           debug465TodayRef={debug465TodayRef}
         />
+        </div>
+        <DayKcalStripSlot />
+        <DayPinDock />
       </div>
       <SendDaySnippetDialog
         open={sendDayOpen}
@@ -258,6 +265,7 @@ export function TodayScreen() {
             existingEntry={entry}
             onSave={saveEntry}
           >
+            <DayKcalStrip />
             <div className="flex flex-col gap-1.5">
               <DaySectionsCollapseControl />
               <DailyEntryFormMorning />
@@ -281,5 +289,6 @@ export function TodayScreen() {
         </div>
       )}
     </div>
+    </DayPinProvider>
   )
 }

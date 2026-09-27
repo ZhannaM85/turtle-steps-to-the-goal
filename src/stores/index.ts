@@ -81,6 +81,13 @@ export { useCustomCorrelationStore } from './customCorrelationStore'
 export { useWeeklyNoteStore } from './weeklyNoteStore'
 export { useSettingsPinStore, settingsPinOrder } from './settingsPinStore'
 export {
+  DAY_SECTION_PIN_IDS,
+  DAY_SECTION_PIN_STORAGE_KEY,
+  isDaySectionPinId,
+  useDaySectionPinStore,
+  type DaySectionPinId,
+} from './daySectionPinStore'
+export {
   SETTINGS_CARD_GROUPS,
   SETTINGS_GROUP_HEADING_ORDER,
   SETTINGS_GROUP_IDS,

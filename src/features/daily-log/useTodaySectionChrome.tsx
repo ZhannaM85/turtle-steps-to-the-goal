@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { SectionTitleWithToggle } from '@/shared/ui/section-title-with-toggle'
 import { VisibilityToggleButton } from '@/shared/ui/visibility-toggle-button'
 import {
@@ -13,7 +14,11 @@ export function useTodaySectionChrome() {
     (state) => state.toggleVisible,
   )
 
-  function sectionTitle(key: SectionKey, title: string) {
+  function sectionTitle(
+    key: SectionKey,
+    title: string,
+    extraAction?: ReactNode,
+  ) {
     return (
       <SectionTitleWithToggle
         title={title}
@@ -21,6 +26,7 @@ export function useTodaySectionChrome() {
         onToggle={() => toggleSection(key)}
         hideLabel={t.common.hideSectionLabel(title)}
         showLabel={t.common.showSectionLabel(title)}
+        extraAction={extraAction}
       />
     )
   }

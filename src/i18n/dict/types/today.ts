@@ -152,6 +152,11 @@ export interface TodayDict {
    * all once every active section is shut. */
   collapseAllSectionsLabel: string
   expandAllSectionsLabel: string
+  /** #1022 — same words as Settings pin / unpin. */
+  pinSectionLabel: string
+  unpinSectionLabel: string
+  /** #1022 — accessible name for the sticky one-line kcal strip. */
+  kcalStripLabel: string
   /** #266/#328 — shown as each remaining-nutrient (and, since #328,
    * calories) card's `description`: total minus consumed, so the amount
    * actually consumed is visible without the reader doing that

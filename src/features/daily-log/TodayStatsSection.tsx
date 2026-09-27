@@ -35,6 +35,7 @@ import {
   useTrackedFieldsStore,
   type TodayCardKey,
 } from '@/stores'
+import { DayPinFrame, DaySectionPinButton } from './DaySectionPin'
 import { TodaySortableCard } from './TodaySortableCard'
 import type { TodayDayStats } from './useTodayDayStats'
 import { useTodaySectionChrome } from './useTodaySectionChrome'
@@ -339,34 +340,47 @@ export function TodayStatsSection({
         sectionTitle('todaySteps', t.dailyEntry.stepsLabel)
       )),
     sleep:
-      stats.sleepValue !== undefined &&
-      (sectionVisible.todaySleep ? (
-        <StatCard
-          label={t.dailyEntry.sleepLabel}
-          value={formatSleepDuration(
-            stats.sleepValue,
-            t.dailyEntry.hoursUnit,
-            t.dailyEntry.minutesUnit,
+      stats.sleepValue !== undefined && (
+        <DayPinFrame id="sleep">
+          {sectionVisible.todaySleep ? (
+            <StatCard
+              label={t.dailyEntry.sleepLabel}
+              value={formatSleepDuration(
+                stats.sleepValue,
+                t.dailyEntry.hoursUnit,
+                t.dailyEntry.minutesUnit,
+              )}
+              description={
+                stats.deepSleepValue === undefined
+                  ? undefined
+                  : t.today.deepSleepDescription(
+                      formatSleepDuration(
+                        stats.deepSleepValue,
+                        t.dailyEntry.hoursUnit,
+                        t.dailyEntry.minutesUnit,
+                      ),
+                    )
+              }
+              action={
+                <span className="flex items-center gap-1">
+                  <DaySectionPinButton id="sleep" />
+                  {statCardAction('todaySleep', t.dailyEntry.sleepLabel)}
+                </span>
+              }
+            />
+          ) : (
+            sectionTitle(
+              'todaySleep',
+              t.dailyEntry.sleepLabel,
+              <DaySectionPinButton id="sleep" />,
+            )
           )}
-          description={
-            stats.deepSleepValue === undefined
-              ? undefined
-              : t.today.deepSleepDescription(
-                  formatSleepDuration(
-                    stats.deepSleepValue,
-                    t.dailyEntry.hoursUnit,
-                    t.dailyEntry.minutesUnit,
-                  ),
-                )
-          }
-          action={statCardAction('todaySleep', t.dailyEntry.sleepLabel)}
-        />
-      ) : (
-        sectionTitle('todaySleep', t.dailyEntry.sleepLabel)
-      )),
+        </DayPinFrame>
+      ),
   }
 
   return (
+    <DayPinFrame id="stats">
     <SectionAccordion
       open={!statsCollapsed}
       onOpenChange={(open) => setStatsCollapsed('stats', !open)}
@@ -376,8 +390,10 @@ export function TodayStatsSection({
       shell={false}
       contentClassName="flex flex-col gap-6 pt-3"
       actions={
-        cardOrder.some((key) => cardsByKey[key]) ? (
-          <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end gap-2">
+          <DaySectionPinButton id="stats" />
+          {cardOrder.some((key) => cardsByKey[key]) && (
+            <>
             {isReorderingCards && (
               <Button
                 type="button"
@@ -410,8 +426,9 @@ export function TodayStatsSection({
                 <GripVertical aria-hidden="true" className="size-4" />
               )}
             </Button>
-          </div>
-        ) : undefined
+            </>
+          )}
+        </div>
       }
     >
       {stats.bmiValue !== null &&
@@ -475,5 +492,6 @@ export function TodayStatsSection({
         </SortableContext>
       </DndContext>
     </SectionAccordion>
+    </DayPinFrame>
   )
 }

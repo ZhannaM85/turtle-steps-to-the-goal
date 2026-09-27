@@ -1,0 +1,159 @@
+import { useLayoutEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { useLocale, useTranslation } from '@/i18n'
+import { getAppScrollport } from '@/shared/lib/appScroll'
+import { useDaySectionPinStore } from '@/stores/daySectionPinStore'
+import {
+  daySectionScrollTop,
+  formatDayKcalStrip,
+  kcalStripRootMarginTopPx,
+  kcalStripVisible,
+  rectIntersectsBand,
+} from './dayKcalStripModel'
+import { useDayPinContext } from './dayPinContext'
+import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
+
+/**
+ * #1022 — one-line consumed · remaining strip in the sticky date header.
+ * An IntersectionObserver on `[data-day-section="macros"]` treats the
+ * cards as on screen while any pixel sits below the sticky chrome
+ * (rootMargin top = intro height minus this strip, so the strip cannot
+ * flicker itself). Pinning КБЖУ portals those cards into the same
+ * header. The observer is the only signal: while those cards
+ * intersect the scrollport (including inside the pin dock), the strip
+ * stays hidden. It appears again if a pinned summary scrolls away.
+ */
+export function DayKcalStrip() {
+  const slot = useDayPinContext()?.stripSlot ?? null
+  const state = useDailyEntryFormStateContext()
+  const t = useTranslation()
+  const locale = useLocale()
+  const macrosPinned = useDaySectionPinStore((s) => s.pinned.includes('macros'))
+  const [summaryInView, setSummaryInView] = useState(true)
+  const hasSummary = Boolean(
+    state.dayMacrosSummary || state.dayRemainingMacrosSummary,
+  )
+
+  useLayoutEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return
+    let observer: IntersectionObserver | null = null
+    let resize: ResizeObserver | null = null
+    let cancelled = false
+
+    const liveSummary = () => {
+      const el = document.querySelector('[data-day-section="macros"]')
+      return el instanceof HTMLElement && el.isConnected ? el : null
+    }
+
+    const dockInView = (el: HTMLElement) => {
+      const root = getAppScrollport()
+      const bounds = root?.getBoundingClientRect() ?? {
+        top: 0,
+        bottom: window.innerHeight,
+      }
+      return rectIntersectsBand(el.getBoundingClientRect(), {
+        top: bounds.top,
+        bottom: bounds.bottom,
+      })
+    }
+
+    const connect = () => {
+      if (cancelled) return
+      observer?.disconnect()
+      const target = liveSummary()
+      if (!target) return
+      const root = getAppScrollport()
+      const intro = document.querySelector('[data-slot="day-intro"]')
+      const introHeight = intro?.getBoundingClientRect().height ?? 0
+      const strip = document.querySelector('[data-slot="day-kcal-strip"]')
+      const stripHeight = strip?.getBoundingClientRect().height ?? 0
+      const top = kcalStripRootMarginTopPx(introHeight, stripHeight)
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry) return
+          const current = liveSummary()
+          if (!current || entry.target !== current) return
+          if (current.closest('[data-slot="day-pin-dock"]')) {
+            setSummaryInView(entry.isIntersecting || dockInView(current))
+            return
+          }
+          setSummaryInView(entry.isIntersecting)
+        },
+        { root, rootMargin: `-${top}px 0px 0px 0px`, threshold: 0 },
+      )
+      observer.observe(target)
+      if (!resize && intro instanceof HTMLElement && typeof ResizeObserver !== 'undefined') {
+        resize = new ResizeObserver(() => connect())
+        resize.observe(intro)
+      }
+    }
+
+    connect()
+    const frame = requestAnimationFrame(() => {
+      const el = liveSummary()
+      if (el?.closest('[data-slot="day-pin-dock"]')) {
+        setSummaryInView(dockInView(el))
+      }
+      connect()
+    })
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(frame)
+      observer?.disconnect()
+      resize?.disconnect()
+    }
+  }, [macrosPinned, hasSummary])
+
+  if (!slot) return null
+  const visible = kcalStripVisible({ hasSummary, summaryInView })
+  if (!visible) return null
+
+  const text = formatDayKcalStrip({
+    consumedKcal: state.dayTotalCalories,
+    remainingKcal: state.remainingKcal,
+    proteinG: state.consumedProteinG,
+    fatG: state.consumedFatG,
+    carbG: state.consumedCarbG,
+    locale,
+    t,
+  })
+  const label = text.macros ? `${text.kcal} · ${text.macros}` : text.kcal
+
+  return createPortal(
+    <button
+      type="button"
+      data-slot="day-kcal-strip"
+      aria-label={`${t.today.kcalStripLabel}: ${label}`}
+      className="flex h-8 w-full min-w-0 items-center gap-2 overflow-hidden rounded-lg bg-muted px-3 text-left text-sm text-foreground tabular-nums"
+      onClick={() => scrollMacrosIntoView()}
+    >
+      <span className="shrink-0">{text.kcal}</span>
+      {text.macros ? (
+        <span className="truncate text-muted-foreground">{text.macros}</span>
+      ) : null}
+    </button>,
+    slot,
+  )
+}
+
+function scrollMacrosIntoView() {
+  const section = document.querySelector('[data-day-section="macros"]')
+  if (!(section instanceof HTMLElement)) return
+  const scroller = getAppScrollport()
+  const intro = document.querySelector('[data-slot="day-intro"]')
+  const strip = document.querySelector('[data-slot="day-kcal-strip"]')
+  const introHeight = intro?.getBoundingClientRect().height ?? 0
+  const stripHeight = strip?.getBoundingClientRect().height ?? 0
+  if (!scroller) {
+    section.scrollIntoView({ block: 'start', behavior: 'smooth' })
+    return
+  }
+  const top = daySectionScrollTop({
+    scrollTop: scroller.scrollTop,
+    sectionTop: section.getBoundingClientRect().top,
+    scrollerTop: scroller.getBoundingClientRect().top,
+    introHeight,
+    stripHeight,
+  })
+  scroller.scrollTo({ top, behavior: 'smooth' })
+}
