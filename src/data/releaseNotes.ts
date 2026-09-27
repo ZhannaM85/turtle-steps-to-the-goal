@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 998,
+    issue: 1023,
+    date: '2026-09-27T12:16:00+03:00',
+    en: 'On Goal, Suggest a target stays off until you enter a weekly loss greater than 0.',
+    ru: 'На экране «Цель» кнопка «Предложить цель» остаётся неактивной, пока не указана цель на неделю больше 0.',
+  },
+  {
     version: 997,
     issue: 1022,
     date: '2026-09-27T12:08:15+03:00',

@@ -469,6 +469,10 @@ describe('GoalForm', () => {
         />,
       )
 
+      await user.type(
+        screen.getByLabelText("This week's target (kg to lose)"),
+        '0.1',
+      )
       await user.click(
         screen.getByRole('button', { name: 'Suggest a target' }),
       )
@@ -627,7 +631,7 @@ describe('GoalForm', () => {
       ).toBeDisabled()
     })
 
-    it('fills in all four target fields once every input is available', async () => {
+    it('stays off until weekly pace is greater than 0, then fills from that deficit (#1023)', async () => {
       const user = userEvent.setup()
       useProfileStore.setState({
         heightCm: 165,
@@ -645,19 +649,34 @@ describe('GoalForm', () => {
       )
 
       const button = screen.getByRole('button', { name: 'Suggest a target' })
+      const pace = screen.getByLabelText("This week's target (kg to lose)")
+      expect(button).toBeDisabled()
+      expect(
+        screen.getByText(/Enter this week's target first, greater than 0/),
+      ).toBeInTheDocument()
+      expect(screen.getByLabelText('Daily calories target')).toHaveValue('')
+
+      await user.type(pace, '0')
+      expect(button).toBeDisabled()
+      expect(screen.getByLabelText('Daily calories target')).toHaveValue('')
+
+      await user.clear(pace)
+      await user.type(pace, '0.1')
       expect(button).toBeEnabled()
       await user.click(button)
 
-      // BMR (Mifflin-St Jeor, female, 70kg/165cm/30y) = 1420.25,
-      // TDEE (sedentary x1.2) = 1704.3, no weekly pace typed in => 0 deficit.
-      expect(screen.getByLabelText('Daily calories target')).toHaveValue(
-        '1704',
-      )
-      expect(screen.getByLabelText('Daily protein target')).toHaveValue(
-        '112',
-      )
+      // Same profile TDEE as the old maintenance case (~1704) minus the
+      // ~110 kcal/day deficit from 0.1 kg/week — below maintenance, and
+      // well above the ~1 kg/week result covered by the next test.
+      const calorieField = screen.getByLabelText(
+        'Daily calories target',
+      ) as HTMLInputElement
+      expect(Number(calorieField.value)).toBeGreaterThan(1400)
+      expect(Number(calorieField.value)).toBeLessThan(1704)
+      expect(screen.getByLabelText('Daily protein target')).toHaveValue('112')
       expect(screen.getByLabelText('Daily fat target')).toHaveValue('56')
-      expect(screen.getByLabelText('Daily carb target')).toHaveValue('188')
+      expect(pace).toHaveValue('0.1')
+      expect(screen.getByLabelText('Daily fiber target')).toHaveValue('25')
     })
 
     it('factors in the typed weekly-pace deficit when present', async () => {
@@ -709,11 +728,18 @@ describe('GoalForm', () => {
       onDelete={vi.fn()} latestWeightKg={70} />,
       )
 
+      await user.type(
+        screen.getByLabelText("This week's target (kg to lose)"),
+        '0.1',
+      )
       await user.click(
         screen.getByRole('button', { name: 'Suggest a target' }),
       )
 
       expect(onSubmit).not.toHaveBeenCalled()
+      expect(screen.getByLabelText('Daily calories target')).not.toHaveValue(
+        '',
+      )
     })
   })
 

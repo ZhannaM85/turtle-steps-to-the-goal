@@ -59,10 +59,12 @@ export interface GoalDict {
     useWaterRecommendationButton: string
     waterRecommendationGoalHint: (lowLiters: string, highLiters: string) => string
     /** #259 — deterministic TDEE/macro-ratio suggestion, prefills but
-     * never auto-saves the four target fields above. */
+     * never auto-saves the four target fields above. #1023 — also needs a
+     * weekly kg pace greater than 0; empty does not mean maintenance. */
     suggestTargetButton: string
     suggestTargetCaveat: string
     suggestTargetMissingProfileHint: string
+    suggestTargetNeedsPaceHint: string
     /** #569/#573 — contextual recalculate beside last-edited pace or calories. */
     recalculateFromPaceButton: string
     recalculateFromCaloriesButton: string

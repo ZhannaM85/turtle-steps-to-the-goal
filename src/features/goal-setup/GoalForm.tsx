@@ -192,6 +192,10 @@ export function GoalForm({
   const paceKg = effectiveWeeklyPaceKg(values, unit)
   const dailyDeficit =
     paceKg !== null ? estimatedDailyCalorieDeficitKcal(paceKg) : null
+  // #1023 — Suggest and recalculate-from-pace assume a loss deficit.
+  // Empty or 0 is not a maintenance goal; the button stays off until
+  // the weekly kg field is a number greater than 0.
+  const hasLossPace = paceKg !== null && paceKg > 0
   // #529 — display-unit step (~100 g). lb uses the converted 0.1 kg, rounded
   // to 2 decimals so ± doesn't produce ugly floats.
   const weeklyPaceStepDisplay =
@@ -276,18 +280,18 @@ export function GoalForm({
   }
 
   // #259 — "Suggest a target": prefills (never auto-saves) the four target
-  // fields below from a deterministic TDEE/macro-ratio calculation. Only
-  // enabled once every input it needs actually exists; the weekly-pace
-  // deficit is optional (falls back to a plain maintenance estimate, 0
-  // deficit, if no weekly target has been typed in yet).
+  // fields below from a deterministic TDEE/macro-ratio calculation.
+  // #1023 — requires a weekly loss pace greater than 0. Empty or 0 does
+  // not fall back to a maintenance (0-deficit) estimate.
   function fillSuggestedTargetsFromPace() {
+    if (!hasLossPace || dailyDeficit === null || dailyDeficit <= 0) return
     const suggested = suggestDailyTargets(
       latestWeightKg!,
       heightCm!,
       age!,
       sex!,
       activityLevel!,
-      dailyDeficit ?? 0,
+      dailyDeficit,
     )
     setValue('dailyCalorieTarget', suggested.calorieTargetKcal, {
       shouldValidate: true,
@@ -312,7 +316,7 @@ export function GoalForm({
   }
 
   function applySuggestedTargets() {
-    if (!canSuggestTarget) return
+    if (!canSuggestTarget || !hasLossPace) return
     runProgrammaticRecalc(() => fillSuggestedTargetsFromPace())
   }
 
@@ -1038,27 +1042,29 @@ export function GoalForm({
       {/* #259 — deterministic TDEE/macro-ratio suggestion, prefills but
        * never auto-saves the four fields below. Disabled until every
        * input it needs exists (a logged weight plus the Settings Profile
-       * card's height/age/sex/activity level); the hint explains what's
-       * missing rather than just hiding the button, matching the app's
-       * "explain, don't just disable" copy elsewhere. */}
+       * card's height/age/sex/activity level) and the weekly kg pace is
+       * greater than 0 (#1023). The hint explains what's missing rather
+       * than just hiding the button. */}
       <div className="flex flex-col gap-1.5">
         <Button
           type="button"
           variant="outline"
           size="sm"
           className="self-start"
-          disabled={!canSuggestTarget}
+          disabled={!canSuggestTarget || !hasLossPace}
           onClick={() => {
-            if (!canSuggestTarget) return
+            if (!canSuggestTarget || !hasLossPace) return
             runProgrammaticPrefill(() => fillSuggestedTargetsFromPace())
           }}
         >
           {t.goal.suggestTargetButton}
         </Button>
         <p className="text-sm text-muted-foreground">
-          {canSuggestTarget
-            ? t.goal.suggestTargetCaveat
-            : t.goal.suggestTargetMissingProfileHint}
+          {!canSuggestTarget
+            ? t.goal.suggestTargetMissingProfileHint
+            : !hasLossPace
+              ? t.goal.suggestTargetNeedsPaceHint
+              : t.goal.suggestTargetCaveat}
         </p>
       </div>
 

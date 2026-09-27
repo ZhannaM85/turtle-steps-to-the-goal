@@ -55,6 +55,8 @@ export const goal: GoalDict = {
       'Fills in the four fields below from your weight, height, age, sex, and activity level — not medical or nutritional advice. Review and edit before saving.',
     suggestTargetMissingProfileHint:
       'Log a weight, and set your height, age, sex, and activity level in Settings, to use this.',
+    suggestTargetNeedsPaceHint:
+      "Enter this week's target first, greater than 0. Suggest then fills daily calories and macros from that pace.",
     recalculateFromPaceButton: 'Recalculate from weekly pace',
     recalculateFromCaloriesButton: 'Recalculate from calories',
     recalculateFromFieldCaveat:
