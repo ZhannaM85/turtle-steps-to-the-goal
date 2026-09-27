@@ -9,6 +9,11 @@ import {
 import { Button } from '@/shared/ui/button'
 import { CollapseChevronButton } from '@/shared/ui/collapse-chevron'
 import { cn } from '@/shared/lib/utils'
+import { useSettingsSearchQuery } from './settingsSearchContext'
+import {
+  settingsCardVisible,
+  settingsSearchQueryActive,
+} from './settingsSearch'
 
 /** #820 pin + #826 header collapse.
  * About uses pinnable={false} and collapsible={false} (#966).
@@ -37,8 +42,12 @@ export function SettingsPinnableCard({
   const setCollapsed = useSettingsCardsCollapseStore(
     (state) => state.setCollapsed,
   )
+  const query = useSettingsSearchQuery()
+  const searching = settingsSearchQueryActive(query)
   const isPinned = pinned.includes(pinId)
-  const hideBody = collapsible && collapsed
+  const expanded = !collapsible || searching || !collapsed
+  const hideBody = !expanded
+  if (!settingsCardVisible(pinId, query)) return null
   const headerPadClass =
     pinnable && collapsible
       ? '[&_[data-slot=card-header]]:!pe-28'
@@ -84,9 +93,9 @@ export function SettingsPinnableCard({
         <div className="absolute top-2 right-2 z-10 flex items-center">
           {collapsible && (
             <CollapseChevronButton
-              expanded={!collapsed}
+              expanded={expanded}
               aria-label={
-                collapsed
+                collapsed && !searching
                   ? t.settings.expandCardLabel
                   : t.settings.collapseCardLabel
               }

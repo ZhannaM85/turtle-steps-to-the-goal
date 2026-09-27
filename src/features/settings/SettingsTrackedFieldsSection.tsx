@@ -22,7 +22,9 @@ import { Button } from '@/shared/ui/button'
 import { CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { CustomEatingReasonsEditor } from './CustomEatingReasonsEditor'
 import { CatalogFoodImportSection } from './CatalogFoodImportSection'
+import { useSettingsSearchQuery } from './settingsSearchContext'
 import { SettingsPinnableCard } from './SettingsPinnableCard'
+import { settingsRowVisible } from './settingsSearch'
 import { TrackedFieldToggleRow } from './TrackedFieldToggleRow'
 
 type UnifiedTrackedKey =
@@ -39,6 +41,9 @@ type UnifiedTrackedKey =
 
 export function SettingsTrackedFieldsSection() {
   const t = useTranslation()
+  const query = useSettingsSearchQuery()
+  const showRow = (id: string) =>
+    settingsRowVisible('trackedFields', id, query)
   const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
   const setCycleTrackingEnabled = useCycleTrackingStore(
     (state) => state.setEnabled,
@@ -257,9 +262,11 @@ export function SettingsTrackedFieldsSection() {
   }
 
   function renderTrackedRows(keys: UnifiedTrackedKey[]) {
+    const visible = keys.filter((key) => showRow(key))
+    if (visible.length === 0) return null
     return (
       <div className="flex flex-col divide-y divide-border">
-        {keys.map((key) => {
+        {visible.map((key) => {
           const { label, description } = fieldCopy(key)
           return (
             <TrackedFieldToggleRow
@@ -343,87 +350,100 @@ export function SettingsTrackedFieldsSection() {
           <span className="text-sm text-muted-foreground">
             {t.settings.trackedFieldsDescription}
           </span>
-          <div
-            role="group"
-            aria-label={t.settings.trackedFieldsMorningGroupLabel}
-            className="flex flex-col gap-1"
-          >
-            <h3 className="text-sm font-medium">
-              {t.settings.trackedFieldsMorningGroupLabel}
-            </h3>
-            {renderTrackedRows(morningTrackedKeys)}
-          </div>
-          <div
-            role="group"
-            aria-label={t.settings.trackedFieldsEveningGroupLabel}
-            className="flex flex-col gap-1"
-          >
-            <h3 className="text-sm font-medium">
-              {t.settings.trackedFieldsEveningGroupLabel}
-            </h3>
-            {renderTrackedRows(eveningTrackedKeys)}
-          </div>
-          <div
-            role="group"
-            aria-label={t.settings.trackedFieldsOtherGroupLabel}
-            className="flex flex-col gap-1"
-          >
-            <h3 className="text-sm font-medium">
-              {t.settings.trackedFieldsOtherGroupLabel}
-            </h3>
-            <div className="flex flex-col divide-y divide-border">
-              {otherTrackedKeys.map((key) => {
-                const { label, description } = fieldCopy(key)
-                return (
-                  <TrackedFieldToggleRow
-                    key={key}
-                    id={`tracked-field-${key}`}
-                    label={label}
-                    description={description}
-                    checked={isFieldTracked(key)}
-                    onCheckedChange={(value) => setFieldTracked(key, value)}
-                  />
-                )
-              })}
-              <CustomEatingReasonsEditor />
+          {renderTrackedRows(morningTrackedKeys) && (
+            <div
+              role="group"
+              aria-label={t.settings.trackedFieldsMorningGroupLabel}
+              className="flex flex-col gap-1"
+            >
+              <h3 className="text-sm font-medium">
+                {t.settings.trackedFieldsMorningGroupLabel}
+              </h3>
+              {renderTrackedRows(morningTrackedKeys)}
             </div>
-          </div>
-          <div
-            role="group"
-            aria-label={t.settings.trackedFieldsElectrolytesGroupLabel}
-            className="flex flex-col gap-1"
-          >
-            <h3 className="text-sm font-medium">
-              {t.settings.trackedFieldsElectrolytesGroupLabel}
-            </h3>
-            <div className="flex flex-col divide-y divide-border">
-              {electrolyteKeys.map((key) => (
-                <TrackedFieldToggleRow
-                  key={key}
-                  id={`tracked-field-${key}`}
-                  label={
-                    key === 'sodium'
-                      ? t.dailyEntry.sodiumLabel
-                      : key === 'potassium'
-                        ? t.dailyEntry.potassiumLabel
-                        : t.dailyEntry.magnesiumLabel
-                  }
-                  description={
-                    key === 'sodium'
-                      ? t.settings.trackedFieldHintSodium
-                      : key === 'potassium'
-                        ? t.settings.trackedFieldHintPotassium
-                        : t.settings.trackedFieldHintMagnesium
-                  }
-                  checked={micronutrients[key]}
-                  onCheckedChange={(value) =>
-                    setMicronutrientTracked(key, value)
-                  }
-                />
-              ))}
+          )}
+          {renderTrackedRows(eveningTrackedKeys) && (
+            <div
+              role="group"
+              aria-label={t.settings.trackedFieldsEveningGroupLabel}
+              className="flex flex-col gap-1"
+            >
+              <h3 className="text-sm font-medium">
+                {t.settings.trackedFieldsEveningGroupLabel}
+              </h3>
+              {renderTrackedRows(eveningTrackedKeys)}
             </div>
-          </div>
-          {screenshotTrackedKeys.length > 0 && (
+          )}
+          {(renderTrackedRows(otherTrackedKeys) ||
+            showRow('customEatingReasons')) && (
+            <div
+              role="group"
+              aria-label={t.settings.trackedFieldsOtherGroupLabel}
+              className="flex flex-col gap-1"
+            >
+              <h3 className="text-sm font-medium">
+                {t.settings.trackedFieldsOtherGroupLabel}
+              </h3>
+              <div className="flex flex-col divide-y divide-border">
+                {otherTrackedKeys
+                  .filter((key) => showRow(key))
+                  .map((key) => {
+                    const { label, description } = fieldCopy(key)
+                    return (
+                      <TrackedFieldToggleRow
+                        key={key}
+                        id={`tracked-field-${key}`}
+                        label={label}
+                        description={description}
+                        checked={isFieldTracked(key)}
+                        onCheckedChange={(value) => setFieldTracked(key, value)}
+                      />
+                    )
+                  })}
+                {showRow('customEatingReasons') && <CustomEatingReasonsEditor />}
+              </div>
+            </div>
+          )}
+          {electrolyteKeys.some((key) => showRow(key)) && (
+            <div
+              role="group"
+              aria-label={t.settings.trackedFieldsElectrolytesGroupLabel}
+              className="flex flex-col gap-1"
+            >
+              <h3 className="text-sm font-medium">
+                {t.settings.trackedFieldsElectrolytesGroupLabel}
+              </h3>
+              <div className="flex flex-col divide-y divide-border">
+                {electrolyteKeys
+                  .filter((key) => showRow(key))
+                  .map((key) => (
+                    <TrackedFieldToggleRow
+                      key={key}
+                      id={`tracked-field-${key}`}
+                      label={
+                        key === 'sodium'
+                          ? t.dailyEntry.sodiumLabel
+                          : key === 'potassium'
+                            ? t.dailyEntry.potassiumLabel
+                            : t.dailyEntry.magnesiumLabel
+                      }
+                      description={
+                        key === 'sodium'
+                          ? t.settings.trackedFieldHintSodium
+                          : key === 'potassium'
+                            ? t.settings.trackedFieldHintPotassium
+                            : t.settings.trackedFieldHintMagnesium
+                      }
+                      checked={micronutrients[key]}
+                      onCheckedChange={(value) =>
+                        setMicronutrientTracked(key, value)
+                      }
+                    />
+                  ))}
+              </div>
+            </div>
+          )}
+          {renderTrackedRows(screenshotTrackedKeys) && (
             <div
               role="group"
               aria-label={t.settings.trackedFieldsScreenshotsGroupLabel}
@@ -435,7 +455,7 @@ export function SettingsTrackedFieldsSection() {
               {renderTrackedRows(screenshotTrackedKeys)}
             </div>
           )}
-          <CatalogFoodImportSection />
+          {showRow('catalogFoodImport') && <CatalogFoodImportSection />}
         </CardContent>
       </SettingsPinnableCard>
     </>

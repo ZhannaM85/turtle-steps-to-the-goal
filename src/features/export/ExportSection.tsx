@@ -14,6 +14,8 @@ import {
   CardTitle,
 } from '@/shared/ui/card'
 import { daysSince } from '@/shared/lib/lastBackupReminder'
+import { useSettingsSearchQuery } from '@/features/settings/settingsSearchContext'
+import { settingsRowVisible } from '@/features/settings/settingsSearch'
 import {
   decryptBackupJson,
   encryptBackupJson,
@@ -65,6 +67,9 @@ type Status =
 
 export function ExportSection() {
   const t = useTranslation()
+  const settingsQuery = useSettingsSearchQuery()
+  const showExportRow = (rowId: string) =>
+    settingsRowVisible('export', rowId, settingsQuery)
   const recordBackupExport = useLastBackupStore((state) => state.recordExport)
   const lastExportedAt = useLastBackupStore((state) => state.lastExportedAt)
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
@@ -254,6 +259,7 @@ export function ExportSection() {
         )}
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
+        {showExportRow('jsonExport') && (
         <div className="flex flex-col gap-2">
           <p className="text-sm text-muted-foreground">
             {t.export.exportBlurb}
@@ -287,9 +293,13 @@ export function ExportSection() {
             </SectionStatus>
           )}
         </div>
+        )}
 
-        <AnalysisExportSection>{encryptedBackupBlock}</AnalysisExportSection>
+        {showExportRow('analysis') && (
+          <AnalysisExportSection>{encryptedBackupBlock}</AnalysisExportSection>
+        )}
 
+        {showExportRow('jsonImport') && (
         <div className="flex flex-col gap-2 section-shell p-3">
           <p className="text-sm text-muted-foreground">
             {t.export.importBlurb}
@@ -340,6 +350,7 @@ export function ExportSection() {
             </SectionStatus>
           )}
         </div>
+        )}
 
         <ThirdPartyImportSection />
       </CardContent>

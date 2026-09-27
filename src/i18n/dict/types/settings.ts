@@ -1,6 +1,11 @@
 export interface SettingsDict {
     title: string
     description: string
+    /** #1018 — filter Settings sections and rows from the top of the page. */
+    searchLabel: string
+    searchPlaceholder: string
+    clearSearchLabel: string
+    searchEmpty: string
     unitsLabel: string
     languageLabel: string
     english: string

@@ -1,7 +1,8 @@
+import { Capacitor } from '@capacitor/core'
 import { X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from '@/i18n'
-import { useLastBackupStore } from '@/stores'
+import { SETTINGS_CARD_KEYS, useLastBackupStore } from '@/stores'
 import { releaseNotes } from '@/data/releaseNotes'
 import {
   backupReminderStatus,
@@ -11,14 +12,40 @@ import { useSeedBackupFirstSeenAt } from '@/shared/hooks/useSeedBackupFirstSeenA
 import { Button } from '@/shared/ui/button'
 import { NoticeBar } from '@/shared/ui/notice-bar'
 import { PageHeader } from '@/shared/ui/page-header'
+import { pageStickyUnderAppHeader } from '@/shared/ui/pageSticky'
 import { SettingsBasicsCards } from './SettingsBasicsCards'
+import {
+  SettingsSearchField,
+  SettingsSearchProvider,
+} from './SettingsSearchField'
+import { useSettingsSearchQuery } from './settingsSearchContext'
 import { SettingsCardsCollapseControl } from './SettingsCardsCollapseControl'
 import { SettingsLowerCards } from './SettingsLowerCards'
 import { SettingsSectionHeading } from './SettingsSectionHeading'
 import { SettingsTrackedFieldsSection } from './SettingsTrackedFieldsSection'
+import {
+  settingsCardVisible,
+  settingsSearchQueryActive,
+} from './settingsSearch'
 
 export function SettingsScreen() {
+  return (
+    <SettingsSearchProvider>
+      <SettingsScreenContent />
+    </SettingsSearchProvider>
+  )
+}
+
+function SettingsScreenContent() {
   const t = useTranslation()
+  const query = useSettingsSearchQuery()
+  const searching = settingsSearchQueryActive(query)
+  const anyMatch = SETTINGS_CARD_KEYS.some((key) => {
+    if (key === 'healthConnect' && Capacitor.getPlatform() !== 'android') {
+      return false
+    }
+    return settingsCardVisible(key, query)
+  })
   const currentVersion = releaseNotes[0]?.version
 
   useSeedBackupFirstSeenAt()
@@ -43,11 +70,13 @@ export function SettingsScreen() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div style={{ order: -4000 }}>
+      <div
+        className={pageStickyUnderAppHeader('flex flex-col gap-3 pb-3')}
+        style={{ order: -4000 }}
+      >
         <PageHeader
           title={t.settings.title}
           description={t.settings.description}
-          sticky
           action={
             <div className="flex flex-col items-end">
               {currentVersion !== undefined && (
@@ -62,14 +91,24 @@ export function SettingsScreen() {
             </div>
           }
         />
+        <SettingsSearchField />
       </div>
+      {searching && !anyMatch && (
+        <p
+          role="status"
+          className="text-sm text-muted-foreground"
+          style={{ order: -3500 }}
+        >
+          {t.settings.searchEmpty}
+        </p>
+      )}
       <SettingsSectionHeading group="logging" />
       <SettingsSectionHeading group="appearance" />
       <SettingsSectionHeading group="library" />
       <SettingsSectionHeading group="backup" />
       <SettingsSectionHeading group="danger" />
 
-      {backupReminder.show && (
+      {backupReminder.show && !searching && (
         <NoticeBar
           variant="nudge"
           role="status"

@@ -6,6 +6,8 @@ import {
 } from '@/stores'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { dashboardChartTitle } from './dashboardChartTitle'
+import { useSettingsSearchQuery } from './settingsSearchContext'
+import { settingsRowVisible } from './settingsSearch'
 
 /**
  * #709 — Settings catalog of every built-in Dashboard section, wired to the
@@ -13,6 +15,7 @@ import { dashboardChartTitle } from './dashboardChartTitle'
  */
 export function DashboardChartsVisibilitySection() {
   const t = useTranslation()
+  const query = useSettingsSearchQuery()
   const visible = useDashboardChartVisibilityStore((state) => state.visible)
   const toggleVisible = useDashboardChartVisibilityStore(
     (state) => state.toggleVisible,
@@ -24,7 +27,9 @@ export function DashboardChartsVisibilitySection() {
         {t.settings.dashboardChartsDescription}
       </span>
       <ul className="flex flex-col gap-3">
-        {DEFAULT_DASHBOARD_SECTION_ORDER.map((key: DashboardChartKey) => {
+        {DEFAULT_DASHBOARD_SECTION_ORDER.filter((key) =>
+          settingsRowVisible('dashboardCharts', key, query),
+        ).map((key: DashboardChartKey) => {
           const title = dashboardChartTitle(key, t)
           return (
             <li

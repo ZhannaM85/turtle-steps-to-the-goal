@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 993,
+    issue: 1018,
+    date: '2026-09-27T10:47:46+03:00',
+    en: 'Settings has a search field at the top so you can find a section or switch without scrolling the whole page.',
+    ru: 'В настройках сверху появился поиск: можно найти раздел или переключатель, не пролистывая всю страницу.',
+  },
+  {
     version: 992,
     issue: 1017,
     date: '2026-09-27T00:33:00+03:00',

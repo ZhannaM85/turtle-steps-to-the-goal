@@ -24,10 +24,13 @@ import { HealthConnectSyncSection } from './HealthConnectSyncSection'
 import { MealItemsSection } from './MealItemsSection'
 import { MealLabelPresetsSection } from './MealLabelPresetsSection'
 import { ProfileSection } from './ProfileSection'
+import { useSettingsSearchQuery } from './settingsSearchContext'
 import { SettingsPinnableCard } from './SettingsPinnableCard'
+import { settingsRowVisible } from './settingsSearch'
 
 export function SettingsLowerCards() {
   const t = useTranslation()
+  const query = useSettingsSearchQuery()
   const dailyReminderEnabled = useDailyReminderStore((state) => state.enabled)
   const setDailyReminderEnabled = useDailyReminderStore(
     (state) => state.setEnabled,
@@ -253,7 +256,9 @@ export function SettingsLowerCards() {
                 t.dashboard.caloriesLegend,
               ],
             ] as [TrendChartKey, string, string][]
-          ).map(([chart, chartLabel, rawLabel]) => (
+          )
+            .filter(([chart]) => settingsRowVisible('trendCharts', chart, query))
+            .map(([chart, chartLabel, rawLabel]) => (
             <div key={chart} className="flex flex-col gap-1.5">
               <span className="text-sm text-muted-foreground">
                 {chartLabel}

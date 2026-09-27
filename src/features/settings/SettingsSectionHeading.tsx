@@ -9,6 +9,8 @@ import {
   type SettingsCardKey,
   type SettingsGroupId,
 } from '@/stores'
+import { useSettingsSearchQuery } from './settingsSearchContext'
+import { settingsGroupVisible } from './settingsSearch'
 
 function visibleGroupKeys(group: SettingsGroupId): SettingsCardKey[] {
   return SETTINGS_CARD_GROUPS[group].filter(
@@ -20,6 +22,7 @@ function visibleGroupKeys(group: SettingsGroupId): SettingsCardKey[] {
 /** #877 — named Settings group heading + per-group collapse (44px target). */
 export function SettingsSectionHeading({ group }: { group: SettingsGroupId }) {
   const t = useTranslation()
+  const query = useSettingsSearchQuery()
   const title = t.settings[settingsGroupTitleKey(group)]
   const cards = useSettingsCardsCollapseStore((state) => state.cards)
   const setKeysCollapsed = useSettingsCardsCollapseStore(
@@ -27,6 +30,7 @@ export function SettingsSectionHeading({ group }: { group: SettingsGroupId }) {
   )
   const keys = visibleGroupKeys(group)
   const anyExpanded = anySettingsCardExpanded(cards, keys)
+  if (!settingsGroupVisible(group, query, keys)) return null
 
   return (
     <div

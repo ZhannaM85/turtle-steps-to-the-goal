@@ -5,6 +5,10 @@ import type { SettingsDict } from '../types/settings'
 export const settings: SettingsDict = {
     title: 'Настройки',
     description: 'Единицы измерения (кг/фунты), язык и другие настройки',
+    searchLabel: 'Поиск настроек',
+    searchPlaceholder: 'Поиск настроек…',
+    clearSearchLabel: 'Очистить поиск',
+    searchEmpty: 'Нет настроек по этому запросу.',
     unitsLabel: 'Единицы измерения',
     languageLabel: 'Язык',
     english: 'Английский',

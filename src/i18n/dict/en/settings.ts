@@ -3,6 +3,10 @@ import type { SettingsDict } from '../types/settings'
 export const settings: SettingsDict = {
     title: 'Settings',
     description: 'Units (kg/lb), language, and other preferences',
+    searchLabel: 'Search settings',
+    searchPlaceholder: 'Search settings…',
+    clearSearchLabel: 'Clear search',
+    searchEmpty: 'No settings match that search.',
     unitsLabel: 'Units',
     languageLabel: 'Language',
     english: 'English',

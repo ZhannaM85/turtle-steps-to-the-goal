@@ -70,3 +70,13 @@ _The meal-name list fits its longest option and opens over the sheet instead of 
 | [#1015](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1015) | 🔍 Pending validation | Settings: paste JSON to import catalog foods | Settings → What to track, under the LDL toggle: paste one food object or a `foods` list (optional `nutritionBasis: "per 100 g"`). Requires a Russian name plus calories and macros per 100 g. LDL impact defaults to unknown; the Russian reason is the one meal search keeps. The same Russian name updates that catalog row and does not add a second one. Diary history is not rewritten. Import still works while the LDL toggle is off; the Day note stays hidden until the toggle is on. Awaiting on-device confirmation |
 | [#1017](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1017) | 🔍 Pending validation | Logged foods in the meal-search catalog | 57 of the 58 logged foods are on the one catalog (exact Russian name, per-100 g macros, LDL). 48 added, 9 updated in place, including «Салат Коул слоу» (still one row). Пеламида атлантическая has 0 g carbs. Кекс ореховый is not added: protein and fat were missing and no catalog row had that exact name. Brands are not stored; the food row has no brand field. Awaiting on-device confirmation |
 
+---
+
+## Tier 173 — Live feedback (2026-09-27)
+
+_Settings search filters sections and rows so a long Settings page does not have to be scrolled to find LDL, sleep, or import._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1018](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1018) | 🔍 Pending validation | Settings search field to find sections and rows | Sticky search at the top of Settings. Empty query shows the full page in the same order. Typing filters by section titles and visible row labels in both languages, so «LDL», «сон», and «импорт» each reveal the matching cards and, where a card has several rows, only the matching rows. Clear (×) restores everything. Awaiting on-device confirmation |
+

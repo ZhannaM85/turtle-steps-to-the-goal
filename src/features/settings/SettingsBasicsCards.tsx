@@ -17,8 +17,10 @@ import {
 import { Button } from '@/shared/ui/button'
 import { CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import { useSettingsSearchQuery } from './settingsSearchContext'
 import { SettingsMealSlotTimesSection } from './SettingsMealSlotTimesSection'
 import { SettingsPinnableCard } from './SettingsPinnableCard'
+import { settingsRowVisible } from './settingsSearch'
 
 const MOOD_SWATCH: Record<Mood, string> = {
   pond: '#3e7688',
@@ -40,6 +42,7 @@ function moodOptions(t: Dictionary): { value: Mood; label: string }[] {
 
 export function SettingsBasicsCards() {
   const t = useTranslation()
+  const query = useSettingsSearchQuery()
   const unit = useUnitStore((state) => state.unit)
   const setUnit = useUnitStore((state) => state.setUnit)
   const locale = useLocaleStore((state) => state.locale)
@@ -159,6 +162,7 @@ export function SettingsBasicsCards() {
           <CardTitle>{t.settings.appearanceLabel}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
+          {settingsRowVisible('appearance', 'mood', query) && (
           <div className="flex flex-col gap-1.5">
             <span className="text-sm text-muted-foreground">
               {t.settings.moodLabel}
@@ -185,7 +189,9 @@ export function SettingsBasicsCards() {
               ))}
             </ToggleGroup>
           </div>
+          )}
 
+          {settingsRowVisible('appearance', 'colorScheme', query) && (
           <div className="flex flex-col gap-1.5">
             <span className="text-sm text-muted-foreground">
               {t.settings.colorSchemeLabel}
@@ -209,6 +215,7 @@ export function SettingsBasicsCards() {
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
+          )}
         </CardContent>
       </SettingsPinnableCard>
     </>
