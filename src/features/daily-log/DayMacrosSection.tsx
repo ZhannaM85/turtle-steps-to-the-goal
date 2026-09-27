@@ -9,8 +9,8 @@ import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
 /**
  * #467 / #1029 — Day КБЖУ cards. Collapsed, the header keeps the same
- * compact consumed · remaining line as the sticky strip. That strip, and
- * a pin into the date header, apply only while this section is collapsed.
+ * compact consumed · remaining line as the sticky strip. A pin keeps
+ * this section first in the Day list; it sticks only while collapsed.
  */
 export function DayMacrosSection() {
   const state = useDailyEntryFormStateContext()

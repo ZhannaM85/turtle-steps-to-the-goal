@@ -27,7 +27,7 @@ export function isDaySectionPinId(id: string): id is DaySectionPinId {
 }
 
 interface DaySectionPinState {
-  /** Pin order: index 0 is the top of the sticky dock. */
+  /** Pin order: index 0 is first among pinned sections (#1031). */
   pinned: DaySectionPinId[]
   toggle: (id: DaySectionPinId) => void
 }

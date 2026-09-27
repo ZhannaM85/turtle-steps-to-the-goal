@@ -1,4 +1,11 @@
-import { useCallback, useMemo, useState, type ReactNode, type RefCallback } from 'react'
+import {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+  type RefCallback,
+} from 'react'
 import { createPortal } from 'react-dom'
 import { Pin } from 'lucide-react'
 import { useTranslation } from '@/i18n'
@@ -9,21 +16,25 @@ import {
   useDaySectionPinStore,
   type DaySectionPinId,
 } from '@/stores/daySectionPinStore'
+import { useTodaySectionsCollapseStore } from '@/stores/todaySectionsCollapseStore'
 import { DayPinContext, useDayPinContext } from './dayPinContext'
+import {
+  dayPinSortsToTop,
+  dayPinSticks,
+  daySectionSticks,
+  stickyStackTopPx,
+  todayCollapseKey,
+} from './dayPinPlacement'
 
 /**
- * #1022 — Day section pins. The dock lives in the sticky date header.
- * A pinned section portals into its slot (same React tree, so inputs
- * keep their state) and the in-flow anchor hides so it does not leave
- * a gap. Unpinned sections stay in document order. History does not
- * mount the provider, so these controls render nothing there.
+ * #1022 / #1031 — Day section pins. A pin always leaves document order
+ * for the in-flow list at the top of the Day sections (pin order). Only
+ * a collapsed pin is `position: sticky` under the date chrome; an
+ * expanded pin scrolls with the page. The anchor hides so the old spot
+ * does not leave a gap. History does not mount the provider, so these
+ * controls render nothing there.
  */
-export function DayPinProvider({ children }: { children: ReactNode }) {
-  const [stripSlot, setStripSlot] = useState<HTMLElement | null>(null)
-  const stripSlotRef = useMemo(() => {
-    const callback: RefCallback<HTMLElement> = (el) => setStripSlot(el)
-    return () => callback
-  }, [])
+function usePinSlotMap() {
   const [slots, setSlots] = useState<
     Partial<Record<DaySectionPinId, HTMLElement | null>>
   >({})
@@ -47,9 +58,27 @@ export function DayPinProvider({ children }: { children: ReactNode }) {
     }
     return (id: DaySectionPinId) => map.get(id) as RefCallback<HTMLElement>
   }, [setSlot])
+  return { slots, slotCallback }
+}
+
+export function DayPinProvider({ children }: { children: ReactNode }) {
+  const [stripSlot, setStripSlot] = useState<HTMLElement | null>(null)
+  const stripSlotRef = useMemo(() => {
+    const callback: RefCallback<HTMLElement> = (el) => setStripSlot(el)
+    return () => callback
+  }, [])
+  const dock = usePinSlotMap()
+  const flow = usePinSlotMap()
   const value = useMemo(
-    () => ({ stripSlot, stripSlotRef, slots, slotCallback }),
-    [stripSlot, stripSlotRef, slots, slotCallback],
+    () => ({
+      stripSlot,
+      stripSlotRef,
+      slots: dock.slots,
+      slotCallback: dock.slotCallback,
+      flowSlots: flow.slots,
+      flowSlotCallback: flow.slotCallback,
+    }),
+    [stripSlot, stripSlotRef, dock.slots, dock.slotCallback, flow.slots, flow.slotCallback],
   )
   return <DayPinContext.Provider value={value}>{children}</DayPinContext.Provider>
 }
@@ -66,54 +95,137 @@ export function DayKcalStripSlot() {
   )
 }
 
-export function DayPinDock() {
+function PinnedSlots({
+  slot,
+  attr,
+  className,
+  slotClassName = 'empty:hidden',
+  callback,
+}: {
+  slot: string
+  attr: string
+  className: string
+  slotClassName?: string
+  callback: (id: DaySectionPinId) => RefCallback<HTMLElement>
+}) {
   const api = useDayPinContext()
   const pinned = useDaySectionPinStore((state) => state.pinned)
   if (!api || pinned.length === 0) return null
   return (
-    <div
-      data-slot="day-pin-dock"
-      className="mt-2 flex flex-col gap-3 [&:not(:has([data-day-section]))]:hidden"
-    >
+    <div data-slot={slot} className={className}>
       {pinned.map((id) => (
         <div
           key={id}
-          data-day-pin-slot={id}
-          ref={api.slotCallback(id)}
-          className="empty:hidden"
+          {...{ [attr]: id }}
+          ref={callback(id)}
+          className={slotClassName}
         />
       ))}
     </div>
   )
 }
 
+/** Header slot from #1022. Day no longer portals sections here (#1031):
+ * an empty dock would still be `display: none`, and keeping bodies out
+ * of the sticky chrome avoids the #1025 height thrash. */
+export function DayPinDock() {
+  const api = useDayPinContext()
+  if (!api) return null
+  return (
+    <PinnedSlots
+      slot="day-pin-dock"
+      attr="data-day-pin-slot"
+      className="mt-2 flex flex-col gap-3 [&:not(:has([data-day-section]))]:hidden"
+      callback={api.slotCallback}
+    />
+  )
+}
+
+/** Every pin, in pin order, at the top of the Day section list.
+ * `contents` so a collapsed pin's sticky box is the day column, not a
+ * wrapper that is only as tall as the row (that wrapper would not stick).
+ * The list itself is not sticky (#1025). */
+export function DayPinnedFlow() {
+  const api = useDayPinContext()
+  if (!api) return null
+  return (
+    <PinnedSlots
+      slot="day-pinned-flow"
+      attr="data-day-pin-flow"
+      className="contents"
+      slotClassName="contents"
+      callback={api.flowSlotCallback}
+    />
+  )
+}
+
 export function DayPinFrame({
   id,
   children,
-  stick = true,
+  stick,
 }: {
   id: DaySectionPinId
   children: ReactNode
   /**
-   * #1029 — a stored pin only moves the section into the sticky dock
-   * while `stick` is true. КБЖУ passes its collapsed flag so an expanded
-   * section stays in document flow.
+   * Override the collapsed flag. Accordion sections stick only while
+   * collapsed; an explicit `false` keeps an expanded pin in the flow list.
    */
   stick?: boolean
 }) {
   const api = useDayPinContext()
-  const pinned = useDaySectionPinStore((state) => state.pinned.includes(id))
+  const pinnedIds = useDaySectionPinStore((state) => state.pinned)
+  const pinned = pinnedIds.includes(id)
+  const collapseId = todayCollapseKey(id)
+  const collapsed = useTodaySectionsCollapseStore((state) =>
+    collapseId ? state.sections[collapseId] : null,
+  )
+  const collapsedStick = daySectionSticks(collapsed, stick)
+  const sticky = dayPinSticks(pinned, collapsedStick)
+  const target = dayPinSortsToTop(pinned) ? (api?.flowSlots[id] ?? null) : null
+  useLayoutEffect(() => {
+    const el = document.querySelector(`[data-day-section="${id}"]`)
+    if (!(el instanceof HTMLElement) || target === null || !sticky) {
+      if (el instanceof HTMLElement) el.style.removeProperty('top')
+      return
+    }
+    const apply = () => {
+      const intro = document.querySelector('[data-slot="day-intro"]')
+      const introHeight =
+        intro instanceof HTMLElement ? intro.getBoundingClientRect().height : 0
+      const previous: number[] = []
+      for (const other of pinnedIds) {
+        if (other === id) break
+        const prev = document.querySelector(`[data-day-section="${other}"]`)
+        if (!(prev instanceof HTMLElement)) continue
+        if (prev.getAttribute('data-day-pin-sticky') !== 'true') continue
+        previous.push(prev.getBoundingClientRect().height)
+      }
+      el.style.top = `${stickyStackTopPx(introHeight, previous)}px`
+    }
+    apply()
+    if (typeof ResizeObserver === 'undefined') return
+    const intro = document.querySelector('[data-slot="day-intro"]')
+    if (!(intro instanceof HTMLElement)) return
+    const observer = new ResizeObserver(apply)
+    observer.observe(intro)
+    return () => observer.disconnect()
+  }, [id, pinnedIds, sticky, target])
   if (!api) return children
-  const slot = api.slots[id] ?? null
-  const moved = pinned && stick && slot !== null
   const body = (
-    <div data-day-section={id} className="min-w-0 bg-background">
+    <div
+      data-day-section={id}
+      data-day-pin-sticky={target !== null && sticky ? 'true' : 'false'}
+      className={cn(
+        'min-w-0 bg-background',
+        target !== null && sticky && 'sticky z-[9]',
+      )}
+    >
       {children}
     </div>
   )
   return (
-    <div className={cn(moved && 'hidden')} data-day-pin-anchor={id}>
-      {moved ? createPortal(body, slot) : body}
+    <div className={cn(target !== null && 'hidden')} data-day-pin-anchor={id}>
+      {target !== null ? createPortal(body, target) : body}
     </div>
   )
 }

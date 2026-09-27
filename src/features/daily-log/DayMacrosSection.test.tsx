@@ -6,7 +6,13 @@ import type { DailyEntryFormState } from './useDailyEntryFormState'
 import { DailyEntryFormStateContext } from './dailyEntryFormStateContextValue'
 import { DayKcalStrip } from './DayKcalStrip'
 import { DayMacrosSection } from './DayMacrosSection'
-import { DayKcalStripSlot, DayPinDock, DayPinProvider } from './DaySectionPin'
+import {
+  DayKcalStripSlot,
+  DayPinDock,
+  DayPinnedFlow,
+  DayPinFrame,
+  DayPinProvider,
+} from './DaySectionPin'
 import { useDaySectionPinStore } from '@/stores/daySectionPinStore'
 import {
   DEFAULT_TODAY_SECTIONS,
@@ -37,16 +43,30 @@ function Harness({ locale = 'en' as 'en' | 'ru' }) {
         <DayKcalStripSlot />
         <DayPinDock />
       </div>
-      <DailyEntryFormStateContext.Provider value={formValue(locale)}>
-        <DayKcalStrip />
-        <DayMacrosSection />
-      </DailyEntryFormStateContext.Provider>
+      <div data-slot="day-sections">
+        <DayPinnedFlow />
+        <DayPinFrame id="nutritionFacts" stick={false}>
+          <p>Notes</p>
+        </DayPinFrame>
+        <DailyEntryFormStateContext.Provider value={formValue(locale)}>
+          <DayKcalStrip />
+          <DayMacrosSection />
+        </DailyEntryFormStateContext.Provider>
+      </div>
     </DayPinProvider>
   )
 }
 
 function summary() {
   return document.querySelector('[data-slot="day-macros-compact-summary"]')
+}
+
+function precedes(earlier: Element | null, later: Element | null) {
+  if (!earlier || !later) return false
+  return (
+    (earlier.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING) !==
+    0
+  )
 }
 
 describe('Day КБЖУ collapse (#1029)', () => {
@@ -113,9 +133,13 @@ describe('Day КБЖУ collapse (#1029)', () => {
     render(<Harness />)
 
     const section = document.querySelector('[data-day-section="macros"]')
+    const notes = document.querySelector('[data-day-section="nutritionFacts"]')
+    expect(section?.closest('[data-slot="day-pinned-flow"]')).toBeTruthy()
     expect(section?.closest('[data-slot="day-pin-dock"]')).toBeNull()
     expect(section?.closest('[data-slot="day-intro"]')).toBeNull()
+    expect(section?.getAttribute('data-day-pin-sticky')).toBe('false')
     expect(section?.className ?? '').not.toMatch(/\bsticky\b/)
+    expect(precedes(section, notes)).toBe(true)
     expect(summary()).toBeNull()
     expect(screen.getByText('Consumed')).toBeVisible()
     expect(document.querySelector('[data-slot="day-kcal-strip"]')).toBeNull()
@@ -126,7 +150,10 @@ describe('Day КБЖУ collapse (#1029)', () => {
     render(<Harness />)
 
     const section = document.querySelector('[data-day-section="macros"]')
-    expect(section?.closest('[data-slot="day-pin-dock"]')).toBeTruthy()
+    expect(section?.closest('[data-slot="day-pinned-flow"]')).toBeTruthy()
+    expect(section?.closest('[data-slot="day-intro"]')).toBeNull()
+    expect(section?.getAttribute('data-day-pin-sticky')).toBe('true')
+    expect(section?.className ?? '').toMatch(/\bsticky\b/)
     expect(summary()).toHaveTextContent('1,680 · -275 kcal')
     expect(document.querySelectorAll('[data-slot="day-macros-compact-summary"]')).toHaveLength(1)
     expect(document.querySelector('[data-slot="day-kcal-strip"]')).toBeNull()

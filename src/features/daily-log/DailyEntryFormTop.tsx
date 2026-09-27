@@ -59,8 +59,8 @@ export function DailyEntryFormTop() {
       )}
 
       {/* #152/#467 — StatCards in the same accordion as the other Day
-       * sections. #1029 — collapsed header keeps the compact line;
-       * sticky/pin only while collapsed. */}
+       * sections. #1029 — collapsed header keeps the compact line.
+       * #1031 — a pin sorts it first; sticky only while collapsed. */}
       <DayMacrosSection />
 
       {/* #549/#575 — optional day-level kcal/macros without meal items.

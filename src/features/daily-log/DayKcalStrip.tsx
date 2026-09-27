@@ -26,8 +26,8 @@ import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
  * `[data-day-section="macros"]` treats the collapsed row as on screen
  * while any pixel sits below the sticky chrome (rootMargin top = the
  * full intro height, strip included, so mounting the strip cannot slide
- * the row back into view — #1025). A collapsed pin in that header hides
- * the strip so the compact line is not shown twice.
+ * the row back into view — #1025). A collapsed pin sticks under that
+ * chrome, so the strip stays off while the row is still on screen.
  */
 export function DayKcalStrip() {
   const slot = useDayPinContext()?.stripSlot ?? null

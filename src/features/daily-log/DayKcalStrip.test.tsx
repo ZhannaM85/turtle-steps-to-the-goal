@@ -8,6 +8,7 @@ import { DayKcalStrip } from './DayKcalStrip'
 import {
   DayKcalStripSlot,
   DayPinDock,
+  DayPinnedFlow,
   DayPinFrame,
   DayPinProvider,
   DaySectionPinButton,
@@ -60,6 +61,7 @@ function Harness() {
         <DayKcalStripSlot />
         <DayPinDock />
       </div>
+      <DayPinnedFlow />
       <DailyEntryFormStateContext.Provider value={formValue()}>
         <DayKcalStrip />
         <DayPinFrame id="macros">
@@ -129,8 +131,10 @@ describe('Day kcal strip and pins (#1022)', () => {
 
     await user.click(screen.getByRole('button', { name: 'Pin to top' }))
 
-    const dock = document.querySelector('[data-slot="day-pin-dock"]')
-    expect(dock?.querySelector('[data-day-section="macros"]')).toBeTruthy()
+    const section = document.querySelector('[data-day-section="macros"]')
+    expect(section?.closest('[data-slot="day-pinned-flow"]')).toBeTruthy()
+    expect(section?.closest('[data-slot="day-intro"]')).toBeNull()
+    expect(section?.getAttribute('data-day-pin-sticky')).toBe('true')
     expect(screen.getByText('Full KBJU cards')).toBeInTheDocument()
 
     act(() => latestObserver().fire(true))

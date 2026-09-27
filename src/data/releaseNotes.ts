@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1004,
+    issue: 1031,
+    date: '2026-09-27T14:55:30+03:00',
+    en: 'On Day, a pinned section stays at the top of the list even when it is open, and it stays on screen while you scroll only when it is collapsed.',
+    ru: 'На экране «День» закреплённый раздел остаётся первым в списке, даже когда он открыт, и остаётся на экране при прокрутке только в свёрнутом виде.',
+  },
+  {
     version: 1003,
     issue: 1030,
     date: '2026-09-27T14:41:06+03:00',

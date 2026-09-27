@@ -32,7 +32,7 @@ import { CompleteDayProjectionDialog } from './CompleteDayProjectionDialog'
 import { DailyEntryFormNightFood } from './DailyEntryFormNightFood'
 import { DailyEntryFormStateProvider } from './DailyEntryFormStateContext'
 import { DayKcalStrip } from './DayKcalStrip'
-import { DayKcalStripSlot, DayPinDock, DayPinProvider } from './DaySectionPin'
+import { DayKcalStripSlot, DayPinnedFlow, DayPinProvider } from './DaySectionPin'
 import { DailyEntryFormTop } from './DailyEntryFormTop'
 import { DaySectionsCollapseControl } from './DaySectionsCollapseControl'
 import { GoalCelebrationModal } from './GoalCelebrationModal'
@@ -228,7 +228,6 @@ export function TodayScreen() {
         />
         </div>
         <DayKcalStripSlot />
-        <DayPinDock />
       </div>
       <SendDaySnippetDialog
         open={sendDayOpen}
@@ -265,6 +264,7 @@ export function TodayScreen() {
             existingEntry={entry}
             onSave={saveEntry}
           >
+            <DayPinnedFlow />
             <DayKcalStrip />
             <div className="flex flex-col gap-1.5">
               <DaySectionsCollapseControl />
