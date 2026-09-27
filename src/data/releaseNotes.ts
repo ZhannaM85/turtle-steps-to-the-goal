@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1009,
+    issue: 1034,
+    date: '2026-09-27T19:22:00+03:00',
+    en: 'The collapsed calories and macros line on Day shows what you ate over the daily goal, such as 640/770 kcal, and protein, fat, and carbs the same way.',
+    ru: 'Свёрнутая строка калорий и БЖУ на экране «День» показывает съеденное и дневную цель, например 640/770 ккал, и так же белки, жиры и углеводы.',
+  },
+  {
     version: 1008,
     issue: 1033,
     date: '2026-09-27T19:04:42+03:00',

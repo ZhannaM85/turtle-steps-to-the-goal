@@ -45,9 +45,13 @@ function formValue(): DailyEntryFormState {
   return {
     dayTotalCalories: 1680,
     remainingKcal: -275,
+    dailyCalorieTargetKcal: 1955,
     consumedProteinG: 128,
+    dailyProteinTargetG: 150,
     consumedFatG: 71,
+    dailyFatTargetG: 70,
     consumedCarbG: 138,
+    dailyCarbTargetG: 200,
     dayMacrosSummary: 'consumed',
     dayRemainingMacrosSummary: 'remaining',
   } as DailyEntryFormState
@@ -114,8 +118,10 @@ describe('Day kcal strip and pins (#1022)', () => {
     act(() => latestObserver().fire(false))
     const strip = screen.getByRole('button', { name: /1,680/ })
     expect(strip).toHaveAttribute('data-slot', 'day-kcal-strip')
-    expect(strip).toHaveTextContent('1,680 kcal')
-    expect(strip).toHaveTextContent('P 128g · F 71g · C 138g')
+    expect(strip).toHaveTextContent(
+      '1,680/1,955 kcal · P 128/150 g · F 71/70 g · C 138/200 g',
+    )
+    expect(strip).not.toHaveTextContent('-275')
     expect(strip.closest('[data-slot="day-intro"]')).toBeTruthy()
 
     act(() => latestObserver().fire(true))

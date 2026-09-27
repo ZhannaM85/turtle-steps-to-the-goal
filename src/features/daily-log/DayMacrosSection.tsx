@@ -9,8 +9,8 @@ import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
 /**
  * #467 / #1029 — Day КБЖУ cards. Collapsed, the header keeps the same
- * compact consumed-kcal line as the sticky strip (#1033). A pin keeps
- * this section first in the Day list; it sticks only while collapsed.
+ * eaten/goal line as the sticky strip (#1034). A pin keeps this section
+ * first in the Day list; it sticks only while collapsed.
  */
 export function DayMacrosSection() {
   const state = useDailyEntryFormStateContext()
@@ -24,9 +24,13 @@ export function DayMacrosSection() {
 
   const text = formatDayKcalStrip({
     consumedKcal: state.dayTotalCalories,
+    kcalTarget: state.dailyCalorieTargetKcal,
     proteinG: state.consumedProteinG,
+    proteinTargetG: state.dailyProteinTargetG,
     fatG: state.consumedFatG,
+    fatTargetG: state.dailyFatTargetG,
     carbG: state.consumedCarbG,
+    carbTargetG: state.dailyCarbTargetG,
     locale,
     t,
   })

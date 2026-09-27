@@ -26,9 +26,13 @@ function formValue(locale: 'en' | 'ru' = 'en'): DailyEntryFormState {
     locale,
     dayTotalCalories: 1680,
     remainingKcal: -275,
+    dailyCalorieTargetKcal: 1955,
     consumedProteinG: 128,
+    dailyProteinTargetG: 150,
     consumedFatG: 71,
+    dailyFatTargetG: 70,
     consumedCarbG: 138,
+    dailyCarbTargetG: 200,
     dayMacrosSummary: 'consumed',
     dayRemainingMacrosSummary: 'remaining',
     dayMacrosDescription: 'macros',
@@ -94,8 +98,10 @@ describe('Day КБЖУ collapse (#1029)', () => {
     render(<Harness />)
 
     const line = summary()
-    expect(line).toHaveTextContent('1,680 kcal')
-    expect(line).toHaveTextContent('P 128g · F 71g · C 138g')
+    expect(line).toHaveTextContent(
+      '1,680/1,955 kcal · P 128/150 g · F 71/70 g · C 138/200 g',
+    )
+    expect(line).not.toHaveTextContent('-275')
     expect(line).toHaveClass('bg-muted', 'tabular-nums', 'px-3', 'py-2')
     expect(line).not.toHaveClass('h-8')
     expect(line?.parentElement).toHaveClass('mt-6', 'mb-3')
@@ -125,13 +131,13 @@ describe('Day КБЖУ collapse (#1029)', () => {
     const t = getDictionary('ru')
     render(<Harness locale="ru" />)
     const flat = summary()?.textContent?.replace(/\s/g, ' ')
-    const kcal = `${formatNumber(1680, 'ru', 0)} ${t.dailyEntry.kcalUnit}`.replace(
-      /\s/g,
-      ' ',
-    )
-    expect(flat).toContain(kcal)
+    const kcal =
+      `${formatNumber(1680, 'ru', 0)}/${formatNumber(1955, 'ru', 0)} ${t.dailyEntry.kcalUnit}`.replace(
+        /\s/g,
+        ' ',
+      )
+    expect(flat).toContain(`${kcal} · Б 128/150 г · Ж 71/70 г · У 138/200 г`)
     expect(flat).not.toContain(formatNumber(-275, 'ru', 0))
-    expect(flat).toContain('Б 128г · Ж 71г · У 138г')
   })
 
   it('does not stick an expanded section when it is pinned', () => {
@@ -163,7 +169,7 @@ describe('Day КБЖУ collapse (#1029)', () => {
     expect(section?.closest('[data-slot="day-intro"]')).toBeNull()
     expect(section?.getAttribute('data-day-pin-sticky')).toBe('true')
     expect(section?.className ?? '').toMatch(/\bsticky\b/)
-    expect(summary()).toHaveTextContent('1,680 kcal')
+    expect(summary()).toHaveTextContent('1,680/1,955 kcal')
     expect(document.querySelectorAll('[data-slot="day-macros-compact-summary"]')).toHaveLength(1)
     expect(document.querySelector('[data-slot="day-kcal-strip"]')).toBeNull()
   })

@@ -2,9 +2,11 @@ import { cn } from '@/shared/lib/utils'
 
 /** #1022 / #1029 — shared tone for the sticky strip and the collapsed row.
  * #1032 — `px-3 py-2` matches the Day note chips, instead of a fixed
- * `h-8` that left the figures tight against the beige edges. */
+ * `h-8` that left the figures tight against the beige edges.
+ * #1034 — the middot between kcal and macros is the separator, so the
+ * two spans sit flush and both copies read as one line. */
 export const DAY_MACROS_COMPACT_SUMMARY_CLASSNAME =
-  'flex w-full min-w-0 items-center gap-2 overflow-hidden rounded-lg bg-muted px-3 py-2 text-left text-sm text-foreground tabular-nums'
+  'flex w-full min-w-0 items-center overflow-hidden rounded-lg bg-muted px-3 py-2 text-left text-sm text-foreground tabular-nums'
 
 export function DayMacrosCompactFigures({
   kcal,
@@ -17,7 +19,7 @@ export function DayMacrosCompactFigures({
     <>
       <span className="shrink-0">{kcal}</span>
       {macros ? (
-        <span className="truncate text-muted-foreground">{macros}</span>
+        <span className="min-w-0 truncate text-muted-foreground">{` · ${macros}`}</span>
       ) : null}
     </>
   )

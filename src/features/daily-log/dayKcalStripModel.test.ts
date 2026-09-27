@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getDictionary } from '@/i18n'
+import { formatNumber, getDictionary } from '@/i18n'
 import {
   daySectionScrollTop,
   formatDayKcalStrip,
@@ -85,7 +85,48 @@ describe('kcal strip (#1022)', () => {
     ).toBe(400 + 500 - 40 - 120)
   })
 
-  it('formats consumed kcal with the unit right after the number (#1033)', () => {
+  it('formats eaten over the daily goal with a slash (#1034)', () => {
+    const t = getDictionary('ru')
+    const text = formatDayKcalStrip({
+      consumedKcal: 640,
+      kcalTarget: 770,
+      proteinG: 31,
+      proteinTargetG: 65,
+      fatG: 30,
+      fatTargetG: 40,
+      carbG: 63,
+      carbTargetG: 80,
+      locale: 'ru',
+      t,
+    })
+    expect(text.kcal).toBe(`640/770 ${t.dailyEntry.kcalUnit}`)
+    expect(text.macros).toBe('Б 31/65 г · Ж 30/40 г · У 63/80 г')
+    expect(`${text.kcal} ${text.macros}`).not.toContain('130')
+    expect(text.macros).not.toContain('34')
+  })
+
+  it('keeps the daily goal as the denominator when eaten calories are over it', () => {
+    const t = getDictionary('ru')
+    const text = formatDayKcalStrip({
+      consumedKcal: 1680,
+      kcalTarget: 1955,
+      proteinG: 128,
+      proteinTargetG: 150,
+      fatG: 71,
+      fatTargetG: 70,
+      carbG: 138,
+      carbTargetG: 200,
+      locale: 'ru',
+      t,
+    })
+    expect(text.kcal).toBe(
+      `${formatNumber(1680, 'ru', 0)}/${formatNumber(1955, 'ru', 0)} ${t.dailyEntry.kcalUnit}`,
+    )
+    expect(text.kcal).not.toContain(formatNumber(-275, 'ru', 0))
+    expect(text.macros).toBe('Б 128/150 г · Ж 71/70 г · У 138/200 г')
+  })
+
+  it('omits the slash when that daily goal is not set', () => {
     const t = getDictionary('ru')
     const text = formatDayKcalStrip({
       consumedKcal: 640,
@@ -96,7 +137,7 @@ describe('kcal strip (#1022)', () => {
       t,
     })
     expect(text.kcal).toBe(`640 ${t.dailyEntry.kcalUnit}`)
-    expect(text.macros).toBe('Б 31г · Ж 30г · У 63г')
+    expect(text.macros).toBe('Б 31 г · Ж 30 г · У 63 г')
   })
 
   it('omits macros when they were not logged', () => {

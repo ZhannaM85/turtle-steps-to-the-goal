@@ -1,5 +1,4 @@
 import { formatNumber, type Dictionary, type Locale } from '@/i18n'
-import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
 
 /**
  * #1022 / #1029 — whether the one-line kcal strip should paint.
@@ -58,27 +57,68 @@ export function daySectionScrollTop(input: {
   )
 }
 
-/** `1 680 ккал`, plus compact Б/Ж/У when any macro is logged.
- * #1033 — consumed calories only; the unit sits right after that number.
- * Remaining stays on the expanded cards, not on this collapsed line. */
+/** `640/770 ккал`, plus compact `Б 31/65 г` when any macro is logged.
+ * #1034 — numerator is eaten, denominator is the daily goal (the same
+ * targets the expanded cards use). Remaining stays on those cards.
+ * A missing goal omits the slash for that figure only. */
 export function formatDayKcalStrip(input: {
   consumedKcal: number
+  kcalTarget?: number
   proteinG: number | undefined
+  proteinTargetG?: number
   fatG: number | undefined
+  fatTargetG?: number
   carbG: number | undefined
+  carbTargetG?: number
   locale: Locale
   t: Dictionary
 }): { kcal: string; macros: string | null } {
-  const consumed = formatNumber(input.consumedKcal, input.locale, 0)
-  const unit = input.t.dailyEntry.kcalUnit
+  const unit = input.t.dailyEntry.gramsUnit
   return {
-    kcal: `${consumed} ${unit}`,
-    macros: macrosSummaryTextCompact(
-      input.proteinG,
-      input.fatG,
-      input.carbG,
+    kcal: formatConsumedOverTarget(
+      input.consumedKcal,
+      input.kcalTarget,
       input.locale,
-      input.t,
+      input.t.dailyEntry.kcalUnit,
     ),
+    macros:
+      input.proteinG === undefined &&
+      input.fatG === undefined &&
+      input.carbG === undefined
+        ? null
+        : input.t.dailyEntry.macrosSummaryCompact(
+            formatConsumedOverTarget(
+              input.proteinG,
+              input.proteinTargetG,
+              input.locale,
+              unit,
+            ),
+            formatConsumedOverTarget(
+              input.fatG,
+              input.fatTargetG,
+              input.locale,
+              unit,
+            ),
+            formatConsumedOverTarget(
+              input.carbG,
+              input.carbTargetG,
+              input.locale,
+              unit,
+            ),
+          ),
   }
+}
+
+/** `31/65 г` when a daily goal is set, otherwise `31 г` or `—`. */
+function formatConsumedOverTarget(
+  consumed: number | undefined,
+  target: number | undefined,
+  locale: Locale,
+  unit: string,
+): string {
+  if (consumed === undefined && target === undefined) return '—'
+  const eaten = consumed === undefined ? '—' : formatNumber(consumed, locale, 0)
+  const pair =
+    target === undefined ? eaten : `${eaten}/${formatNumber(target, locale, 0)}`
+  return `${pair} ${unit}`
 }
