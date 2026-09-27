@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { CholesterolImpact } from '@/domain/cholesterol'
 import type { MealItem } from '@/domain/mealItem'
 import { useLocale, useTranslation } from '@/i18n'
 import { formatKcal, formatMacroGrams } from '@/shared/lib/macroDisplay'
@@ -29,6 +30,8 @@ export interface ImportedSharedFood {
   }
   servings?: MealItem['servings']
   existingId?: string
+  cholesterolImpact?: CholesterolImpact
+  cholesterolReason?: string
 }
 
 export interface ImportSharedFoodsDialogProps {
@@ -102,6 +105,8 @@ function ImportSharedFoodsFields({
             nutrition: sharedFoodAbsoluteNutrition(payload),
             servings: sharedFoodServings(payload),
             existingId: match?.id,
+            cholesterolImpact: payload.cholesterolImpact,
+            cholesterolReason: payload.cholesterolReason,
           }
         }),
       )

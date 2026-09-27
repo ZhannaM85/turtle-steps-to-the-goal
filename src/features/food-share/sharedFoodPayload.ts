@@ -10,12 +10,28 @@
  *   brand field; brand rides in the payload for review display only).
  */
 import { z } from 'zod'
+import { cholesterolForFoodRecord } from '@/domain/cholesterol'
 import type { CalorieItem } from '@/domain/dailyEntry'
 import type { MealItem, MealItemServing } from '@/domain/mealItem'
 import { normalizeMealLibraryName } from '@/domain/mealItem'
 import { ratesFromAbsolute, scaleFromPer100g } from '@/shared/lib/macroScaling'
 
 export const SHARE_FOOD_QUERY_PARAM = 'shareFood'
+
+/**
+ * #1037 — food-record version that carries LDL. `1` stays valid so an
+ * older link still imports macros. The batch envelope is a separate `v: 2`.
+ */
+export const SHARED_FOOD_RECORD_VERSION = 3 as const
+
+const cholesterolImpactSchema = z.enum([
+  'beneficial',
+  'neutral',
+  'moderate',
+  'limit',
+  'high',
+  'unknown',
+])
 
 const sharedFoodServingSchema = z.object({
   en: z.string().min(1),
@@ -24,7 +40,7 @@ const sharedFoodServingSchema = z.object({
 })
 
 export const sharedFoodPayloadSchema = z.object({
-  v: z.literal(1),
+  v: z.union([z.literal(1), z.literal(SHARED_FOOD_RECORD_VERSION)]),
   name: z.string().min(1),
   brand: z.string().min(1).optional(),
   barcode: z.string().min(1).optional(),
@@ -38,6 +54,9 @@ export const sharedFoodPayloadSchema = z.object({
   fat100: z.number().nonnegative().optional(),
   carbs100: z.number().nonnegative().optional(),
   servings: z.array(sharedFoodServingSchema).optional(),
+  /** #1037 — same LDL fields as a logged dish / library food. Omitted on v1. */
+  cholesterolImpact: cholesterolImpactSchema.optional(),
+  cholesterolReason: z.string().min(1).optional(),
 })
 
 export type SharedFoodPayload = z.infer<typeof sharedFoodPayloadSchema>
@@ -88,10 +107,14 @@ export function decodeSharedFoodPayload(
 
 /** Build share payload from a personal library item. */
 export function mealItemToSharedFoodPayload(item: MealItem): SharedFoodPayload {
+  const ldl = cholesterolForFoodRecord(item)
+  const reason = ldl.cholesterolReason?.trim()
   const payload: SharedFoodPayload = {
-    v: 1,
+    v: SHARED_FOOD_RECORD_VERSION,
     name: item.name,
+    cholesterolImpact: ldl.cholesterolImpact,
   }
+  if (reason) payload.cholesterolReason = reason
   if (item.barcode) payload.barcode = item.barcode
   if (item.lastAmountG !== undefined && item.lastAmountG > 0) {
     payload.amountG = item.lastAmountG
@@ -139,13 +162,15 @@ export function calorieItemToShareMealItem(
     | 'fatG'
     | 'carbsG'
     | 'amountG'
+    | 'cholesterolImpact'
+    | 'cholesterolReason'
   >,
   library?: MealItem,
 ): MealItem | null {
   const name = item.name?.trim()
   if (!name) return null
   const createdAt = library?.createdAt ?? '1970-01-01T00:00:00.000Z'
-  return {
+  const shared: MealItem = {
     id: library?.id ?? item.id,
     name,
     createdAt,
@@ -158,6 +183,14 @@ export function calorieItemToShareMealItem(
     barcode: library?.barcode,
     servings: library?.servings,
   }
+  // The meal row's own stamp wins. A library LDL label is not what that
+  // row shows when the dish itself has none.
+  if (item.cholesterolImpact) {
+    shared.cholesterolImpact = item.cholesterolImpact
+    const reason = item.cholesterolReason?.trim()
+    if (reason) shared.cholesterolReason = reason
+  }
+  return shared
 }
 
 /**
@@ -260,7 +293,7 @@ export function extractEncodedShareFood(text: string): string | null {
   return trimmed
 }
 
-/** Parse a shared-food deep link or raw QR text into one food (`v: 1`). */
+/** Parse a shared-food deep link or raw QR text into one food (`v: 1` or `v: 3`). */
 export function parseSharedFoodFromText(
   text: string,
 ): SharedFoodPayload | null {

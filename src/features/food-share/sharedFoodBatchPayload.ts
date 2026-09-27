@@ -1,7 +1,7 @@
 /**
  * #982 — several foods in the same `?shareFood=` slot as a single food.
- * Envelope is `v: 2` with `items` of the existing `v: 1` records, so a
- * one-food link stays byte-compatible with older builds.
+ * Envelope is `v: 2` with `items` of food records (`v: 1` macros-only, or
+ * `v: 3` with LDL). A one-food link stays a single food record.
  */
 import { z } from 'zod'
 import type { CalorieItem } from '@/domain/dailyEntry'
@@ -36,7 +36,7 @@ export function encodeSharedFoodBatchPayload(
   )
 }
 
-/** `v: 1` stays one food; `v: 2` is the whole batch. Anything else is null. */
+/** `v: 1` and `v: 3` are one food; `v: 2` is the whole batch. Anything else is null. */
 export function decodeSharedFoodLink(encoded: string): DecodedShareFood | null {
   const parsed = decodeShareFoodJson(encoded)
   if (parsed == null) return null
@@ -59,7 +59,15 @@ export function parseSharedFoodLinkFromText(
 export function calorieItemsToShareMealItems(
   items: readonly Pick<
     CalorieItem,
-    'id' | 'name' | 'amountKcal' | 'proteinG' | 'fatG' | 'carbsG' | 'amountG'
+    | 'id'
+    | 'name'
+    | 'amountKcal'
+    | 'proteinG'
+    | 'fatG'
+    | 'carbsG'
+    | 'amountG'
+    | 'cholesterolImpact'
+    | 'cholesterolReason'
   >[],
   library: readonly MealItem[],
 ): MealItem[] {

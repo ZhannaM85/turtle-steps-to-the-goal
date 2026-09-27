@@ -83,8 +83,7 @@ function cholesterolDraftFrom(record: {
 
 export type ManualDraft = ReturnType<typeof blankManualDraft>
 
-/** #802 — turn a confirmed shared-food import into a meal line. Skip when
- * kcal is blank so we don't add a 0-kcal junk row. */
+/** #802 — meal line from a confirmed share. Blank kcal is skipped. */
 export function calorieItemFromImportedFood(
   result: SharedFoodImportResult,
 ): CalorieItem | null {
@@ -102,6 +101,14 @@ export function calorieItemFromImportedFood(
     fatG: result.nutrition.fatG,
     carbsG: result.nutrition.carbsG,
     amountG: result.nutrition.amountG,
+    ...(result.cholesterolImpact
+      ? {
+          cholesterolImpact: result.cholesterolImpact,
+          ...(result.cholesterolReason
+            ? { cholesterolReason: result.cholesterolReason }
+            : {}),
+        }
+      : {}),
   }
 }
 
@@ -417,13 +424,7 @@ export function applyServingGramsToDraft(
   }
 }
 
-/**
- * #981 — edit (and a QR-imported line, which is edited the same way) opens
- * on 100 g. Logged rows store absolute totals; `ratesFromAbsolute` turns
- * those back into a per-100g rate plus a × 100 g count. Missing grams are
- * treated as one 100 g portion, same as Settings' food editor. Switching
- * to Порция still goes through `applyManualDraftModeChange`.
- */
+/** #981 — edit and a QR-imported line open on 100 g via `ratesFromAbsolute`. */
 export function draftFromCalorieItem(item: CalorieItem): ManualDraft {
   const rates = ratesFromAbsolute(
     item.amountKcal,

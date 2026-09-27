@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import type { CholesterolImpact } from '@/domain/cholesterol'
 import type { SharedFoodPayload } from './sharedFoodPayload'
 
 /** Result after the receiver confirms Import shared food. */
@@ -13,6 +14,9 @@ export type SharedFoodImportResult = {
     carbsG?: number
     amountG?: number
   }
+  /** #1037 — absent on a v1 link, so import does not invent an LDL label. */
+  cholesterolImpact?: CholesterolImpact
+  cholesterolReason?: string
 }
 
 interface FoodShareUiState {

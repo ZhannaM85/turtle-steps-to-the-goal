@@ -17,6 +17,17 @@ import { persistDiaryLdlStamps } from './persistDiaryLdlStamps'
 
 const mealItemRepository = new IndexedDbMealItemRepository()
 
+/** Shared LDL wins over a name lookup so the sender's badge is what lands. */
+function stampSharedFoodLdl(
+  record: MealItem,
+  previousName: string | undefined,
+  ldl: CholesterolClassification | undefined,
+): MealItem {
+  const classified = withCholesterolClassification(record, previousName)
+  if (!ldl) return classified
+  return applyUserCholesterol(classified, ldl)
+}
+
 /** Library save that wrote a new LDL value also refreshes matching diary rows. */
 async function saveMealItem(
   previous: MealItem | undefined,
@@ -140,6 +151,8 @@ interface MealItemStoreState {
     }
     servings?: MealItemServing[]
     existingId?: string
+    cholesterolImpact?: CholesterolClassification['cholesterolImpact']
+    cholesterolReason?: string
   }) => Promise<void>
 }
 
@@ -363,10 +376,21 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
     set({ items: await mealItemRepository.getAll(), status: 'ready' })
     return toRemove.length
   },
-  applySharedFood: async ({ name, barcode, nutrition, servings, existingId }) => {
+  applySharedFood: async ({
+    name,
+    barcode,
+    nutrition,
+    servings,
+    existingId,
+    cholesterolImpact,
+    cholesterolReason,
+  }) => {
     const trimmed = normalizeTextSpaces(name).trim()
     if (!trimmed) return
     const now = new Date().toISOString()
+    const ldl = cholesterolImpact
+      ? { cholesterolImpact, cholesterolReason }
+      : undefined
     const current = existingId
       ? get().items.find((item) => item.id === existingId)
       : undefined
@@ -379,7 +403,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
         await mealItemRepository.delete(current.id)
         await saveMealItem(
           nameOwner,
-          withCholesterolClassification(
+          stampSharedFoodLdl(
             {
               ...nameOwner,
               updatedAt: now,
@@ -392,12 +416,13 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
               servings: servings ?? nameOwner.servings,
             },
             nameOwner.name,
+            ldl,
           ),
         )
       } else {
         await saveMealItem(
           current,
-          withCholesterolClassification(
+          stampSharedFoodLdl(
             {
               ...current,
               name: trimmed,
@@ -411,6 +436,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
               servings: servings ?? current.servings,
             },
             current.name,
+            ldl,
           ),
         )
       }
@@ -436,7 +462,7 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       }
       await saveMealItem(
         existingByName,
-        withCholesterolClassification(item, existingByName?.name),
+        stampSharedFoodLdl(item, existingByName?.name, ldl),
       )
     }
     set({ items: await mealItemRepository.getAll(), status: 'ready' })

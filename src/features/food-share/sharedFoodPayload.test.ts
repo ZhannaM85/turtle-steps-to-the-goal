@@ -162,6 +162,71 @@ describe('sharedFoodPayload (#661)', () => {
     })
   })
 
+  it('encodes the dish LDL stamp on v3 and still reads a v1 macros link (#1037)', () => {
+    const payload = mealItemToSharedFoodPayload(
+      item({
+        id: '1',
+        name: 'Лосось/форель на гриле',
+        lastAmountKcal: 395,
+        lastAmountG: 190,
+        cholesterolImpact: 'beneficial',
+        cholesterolReason: 'Полезно для ЛПНП.',
+      }),
+    )
+    expect(payload.v).toBe(3)
+    expect(payload.cholesterolImpact).toBe('beneficial')
+    expect(payload.cholesterolReason).toBe('Полезно для ЛПНП.')
+    expect(decodeSharedFoodPayload(encodeSharedFoodPayload(payload))).toEqual(
+      payload,
+    )
+
+    const legacy = decodeSharedFoodPayload(
+      encodeSharedFoodPayload({
+        v: 1,
+        name: 'Лосось/форель на гриле',
+        amountKcal: 395,
+        proteinG: 42,
+        fatG: 25,
+        carbsG: 0,
+        amountG: 190,
+      }),
+    )
+    expect(legacy).toMatchObject({
+      v: 1,
+      name: 'Лосось/форель на гриле',
+      amountKcal: 395,
+      proteinG: 42,
+      amountG: 190,
+    })
+    expect(legacy?.cholesterolImpact).toBeUndefined()
+    expect(legacy?.cholesterolReason).toBeUndefined()
+  })
+
+  it('keeps the meal-row LDL stamp instead of a library label (#1037)', () => {
+    const library = item({
+      id: 'lib',
+      name: 'Яблочный штрудель',
+      cholesterolImpact: 'beneficial',
+      cholesterolReason: 'Из каталога.',
+    })
+    const shared = calorieItemToShareMealItem(
+      {
+        id: 'c1',
+        name: 'Яблочный штрудель',
+        amountKcal: 330,
+        amountG: 100,
+        cholesterolImpact: 'limit',
+        cholesterolReason: 'Сладкое.',
+      },
+      library,
+    )
+    expect(mealItemToSharedFoodPayload(shared!)).toMatchObject({
+      v: 3,
+      cholesterolImpact: 'limit',
+      cholesterolReason: 'Сладкое.',
+    })
+  })
+
   it('parses share URLs and raw payloads', () => {
     const payload: SharedFoodPayload = { v: 1, name: 'Bread' }
     const encoded = encodeSharedFoodPayload(payload)

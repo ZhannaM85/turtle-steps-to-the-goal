@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1012,
+    issue: 1037,
+    date: '2026-09-27T22:30:19+03:00',
+    en: 'A shared-food QR code or link keeps the LDL label and reason on every food, including when several foods are shared together.',
+    ru: 'QR-код или ссылка на общее блюдо сохраняет метку ЛПНП и причину у каждого продукта, в том числе когда делятся сразу несколькими блюдами.',
+  },
+  {
     version: 1011,
     issue: 1036,
     date: '2026-09-27T22:15:00+03:00',

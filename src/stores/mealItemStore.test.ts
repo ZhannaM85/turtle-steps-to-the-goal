@@ -14,6 +14,43 @@ afterEach(async () => {
 })
 
 describe('useMealItemStore', () => {
+  it('restores each shared food LDL stamp and still imports a v1 row (#1037)', async () => {
+    await useMealItemStore.getState().applySharedFood({
+      name: 'Овсянка',
+      nutrition: { amountKcal: 80, amountG: 100 },
+      cholesterolImpact: 'limit',
+      cholesterolReason: 'Сладкое.',
+    })
+    await useMealItemStore.getState().applySharedFood({
+      name: 'Яблочный штрудель',
+      nutrition: { amountKcal: 330, amountG: 100 },
+      cholesterolImpact: 'beneficial',
+      cholesterolReason: 'Полезно для ЛПНП.',
+    })
+    await useMealItemStore.getState().applySharedFood({
+      name: 'Белый соус с зеленью',
+      nutrition: { amountKcal: 36, proteinG: 1, fatG: 3, carbsG: 2, amountG: 20 },
+    })
+
+    const byName = Object.fromEntries(
+      useMealItemStore.getState().items.map((item) => [item.name, item]),
+    )
+    expect(byName['Овсянка']).toMatchObject({
+      cholesterolImpact: 'limit',
+      cholesterolReason: 'Сладкое.',
+      lastAmountKcal: 80,
+    })
+    expect(byName['Яблочный штрудель']).toMatchObject({
+      cholesterolImpact: 'beneficial',
+      cholesterolReason: 'Полезно для ЛПНП.',
+    })
+    expect(byName['Белый соус с зеленью']).toMatchObject({
+      lastAmountKcal: 36,
+      cholesterolImpact: 'unknown',
+    })
+    expect(byName['Белый соус с зеленью']?.cholesterolReason).toBeUndefined()
+  })
+
   it('starts empty', () => {
     expect(useMealItemStore.getState().items).toEqual([])
   })

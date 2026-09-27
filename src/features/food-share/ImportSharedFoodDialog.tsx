@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { CholesterolImpact } from '@/domain/cholesterol'
 import type { MealItem } from '@/domain/mealItem'
 import { useTranslation } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
@@ -36,6 +37,8 @@ export interface ImportSharedFoodDialogProps {
     }
     servings?: MealItem['servings']
     existingId?: string
+    cholesterolImpact?: CholesterolImpact
+    cholesterolReason?: string
   }) => void | Promise<void>
 }
 
@@ -130,6 +133,8 @@ function ImportSharedFoodFields({
         },
         servings: sharedFoodServings(payload),
         existingId: updateExisting ? match?.id : undefined,
+        cholesterolImpact: payload.cholesterolImpact,
+        cholesterolReason: payload.cholesterolReason,
       })
       onOpenChange(false)
     } finally {

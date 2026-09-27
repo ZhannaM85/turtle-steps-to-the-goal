@@ -4,6 +4,7 @@ import {
   calorieItemsToShareMealItems,
   decodeSharedFoodLink,
   encodeSharedFoodBatchPayload,
+  mealItemsToSharedFoodPayloads,
   parseSharedFoodLinkFromText,
 } from './sharedFoodBatchPayload'
 import {
@@ -66,6 +67,39 @@ describe('sharedFoodBatchPayload (#982)', () => {
       ),
     ).toEqual({ kind: 'many', items: [bread, butter] })
     expect(parseSharedFoodLinkFromText('not-valid')).toBeNull()
+  })
+
+  it('keeps a different LDL stamp on every food in one pack (#1037)', () => {
+    const shared = mealItemsToSharedFoodPayloads(
+      calorieItemsToShareMealItems(
+        [
+          {
+            id: 'a',
+            name: 'Лосось/форель на гриле',
+            amountKcal: 395,
+            amountG: 190,
+            cholesterolImpact: 'beneficial',
+            cholesterolReason: 'Полезно для ЛПНП.',
+          },
+          {
+            id: 'b',
+            name: 'Яблочный штрудель',
+            amountKcal: 330,
+            amountG: 100,
+            cholesterolImpact: 'limit',
+            cholesterolReason: 'Сладкое.',
+          },
+        ],
+        [],
+      ),
+    )
+    const decoded = decodeSharedFoodLink(encodeSharedFoodBatchPayload(shared))
+    expect(decoded).toEqual({ kind: 'many', items: shared })
+    if (decoded?.kind !== 'many') throw new Error('expected a batch')
+    expect(decoded.items.map((item) => item.cholesterolImpact)).toEqual([
+      'beneficial',
+      'limit',
+    ])
   })
 
   it('refuses a batch of one so a single dish stays v:1', () => {

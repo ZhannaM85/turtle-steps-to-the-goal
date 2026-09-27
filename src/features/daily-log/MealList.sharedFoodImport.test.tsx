@@ -10,6 +10,7 @@ import { decodeSharedFoodLink } from '@/features/food-share/sharedFoodBatchPaylo
 import { useFoodShareUiStore } from '@/features/food-share'
 import { SharedFoodImportHost } from '@/features/food-share/SharedFoodImportHost'
 import { db } from '@/infrastructure/persistence/indexeddb'
+import { useLdlImpactStore } from '@/stores/ldlImpactStore'
 import { useMealItemStore } from '@/stores/mealItemStore'
 import { MealList } from './MealList'
 
@@ -142,5 +143,62 @@ describe('multi-food share into an open meal (#1028)', () => {
       expect(mealSoFar).toHaveTextContent(oats.name)
       expect(mealSoFar).toHaveTextContent(milk.name)
     })
+  })
+
+  it('shows each shared food LDL label after a batch import (#1037)', async () => {
+    const user = userEvent.setup()
+    useLdlImpactStore.setState({ enabled: true })
+    const salmon = {
+      v: 3 as const,
+      name: 'Лосось/форель на гриле',
+      amountKcal: 395,
+      amountG: 190,
+      cholesterolImpact: 'beneficial' as const,
+      cholesterolReason: 'Полезно для ЛПНП.',
+    }
+    const strudel = {
+      v: 3 as const,
+      name: 'Яблочный штрудель',
+      amountKcal: 330,
+      amountG: 100,
+      cholesterolImpact: 'limit' as const,
+      cholesterolReason: 'Сладкое.',
+    }
+    const shareUrl = buildShareFoodBatchUrl([salmon, strudel], {
+      origin: 'https://example.test',
+      baseUrl: '/',
+    })
+
+    render(
+      <MemoryRouter>
+        <SharedFoodImportHost />
+        <ControlledMealList />
+      </MemoryRouter>,
+    )
+
+    await user.click(screen.getByRole('button', { name: '+ Add a meal' }))
+    await user.click(screen.getByRole('button', { name: 'Shared food' }))
+    await user.type(screen.getByPlaceholderText('Paste link here'), shareUrl)
+    await user.click(screen.getByRole('button', { name: 'Continue' }))
+    await user.click(screen.getByRole('button', { name: 'Add all foods' }))
+
+    await waitFor(() => {
+      const impacts = screen
+        .getAllByTestId('cholesterol-impact')
+        .map((el) => el.getAttribute('data-cholesterol-impact'))
+      expect(impacts).toEqual(expect.arrayContaining(['beneficial', 'limit']))
+    })
+    const byName = Object.fromEntries(
+      useMealItemStore.getState().items.map((item) => [item.name, item]),
+    )
+    expect(byName[salmon.name]).toMatchObject({
+      cholesterolImpact: 'beneficial',
+      cholesterolReason: 'Полезно для ЛПНП.',
+    })
+    expect(byName[strudel.name]).toMatchObject({
+      cholesterolImpact: 'limit',
+      cholesterolReason: 'Сладкое.',
+    })
+    useLdlImpactStore.setState({ enabled: false })
   })
 })

@@ -169,6 +169,8 @@ export function SharedFoodImportHost() {
             nutrition: result.nutrition,
             servings: result.servings,
             existingId: result.existingId,
+            cholesterolImpact: result.cholesterolImpact,
+            cholesterolReason: result.cholesterolReason,
           })
           // #802 — Add meal may have registered a listener so this dish
           // also lands in the open meal, not only the food library.
@@ -189,6 +191,8 @@ export function SharedFoodImportHost() {
               nutrition: result.nutrition,
               servings: result.servings,
               existingId: result.existingId,
+              cholesterolImpact: result.cholesterolImpact,
+              cholesterolReason: result.cholesterolReason,
             })
           }
           // #1028 — one append for the whole batch. Per-dish callbacks
