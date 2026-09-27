@@ -306,7 +306,7 @@ export function MealItemEditorSheet({
       <DialogContent
         size="fullscreen"
         closeLabel={t.dailyEntry.closeItemEditorLabel}
-        className="flex flex-col"
+        className="flex flex-col overflow-hidden pb-0"
         onOpenAutoFocus={
           autoFocusName
             ? undefined
@@ -319,12 +319,12 @@ export function MealItemEditorSheet({
               }
         }
       >
-        <DialogTitle className="font-medium">{title}</DialogTitle>
+        <DialogTitle className="shrink-0 font-medium">{title}</DialogTitle>
         {infoMessage && (
-          <p className="text-sm text-muted-foreground">{infoMessage}</p>
+          <p className="shrink-0 text-sm text-muted-foreground">{infoMessage}</p>
         )}
         {barcode && (
-          <div className="flex flex-col gap-0.5">
+          <div className="flex shrink-0 flex-col gap-0.5">
             <div className="flex items-center gap-1">
               <p className="text-sm text-muted-foreground">
                 {t.dailyEntry.itemBarcodeLabel(formatBarcodeDisplay(barcode))}
@@ -358,7 +358,13 @@ export function MealItemEditorSheet({
             )}
           </div>
         )}
-        <div className="flex flex-1 flex-col gap-4 overflow-y-auto pt-4">
+        {/* #1024 — same pin as the meal sheet's Готово (#996): the dialog
+            itself must not scroll, or Save rides up with the fields. */}
+        <div className="relative h-0 min-h-0 grow basis-0 overflow-hidden">
+          <div
+            data-testid="meal-item-editor-scroll"
+            className="absolute inset-0 flex flex-col gap-4 overflow-y-auto overscroll-y-contain pt-4 pb-4"
+          >
           <MealItemFormSection heading={t.dailyEntry.itemNameLabel}>
             <div className="flex items-center gap-2">
               <MealNoteAutocomplete
@@ -451,21 +457,10 @@ export function MealItemEditorSheet({
             cholesterolReason={cholesterolReason}
             onCholesterolChange={onCholesterolChange}
           />
+          </div>
         </div>
 
-        {/* Footer with the primary action, below the scrollable fields
-         * above (#91). Was `position: sticky` until #280 — confirmed live
-         * (Playwright measurements) that it overlapped the last ~20px of
-         * the scroll region's own content instead of sitting flush below
-         * it, clipping the Reaction row right above it. Same root cause
-         * #275 already found and fixed the same way for FoodPickerDialog:
-         * `position: sticky` doesn't behave inside this DialogContent's
-         * `fixed` + `overflow-y-auto` wrapper — removing it here too,
-         * relying on the scroll region's own bounded height instead. */}
-        {/* #481 — DialogContent bottom padding is now
-         * `safe-area + 1.25rem`; cancel the full amount so this footer
-         * reaches the true viewport edge, then re-apply safe-area here. */}
-        <div className="-mx-5 -mb-[calc(env(safe-area-inset-bottom)+1.25rem)] flex flex-col gap-2 border-t border-border bg-card px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+        <div className="flex shrink-0 flex-col gap-2 border-t border-border bg-card pt-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
           <Button
             type="button"
             size="xl"

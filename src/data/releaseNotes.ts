@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1000,
+    issue: 1024,
+    date: '2026-09-27T13:16:00+03:00',
+    en: 'When you add or edit a food, Save stays at the bottom of the screen while the fields scroll.',
+    ru: 'При добавлении или редактировании продукта кнопка «Сохранить» остаётся внизу экрана, пока поля прокручиваются.',
+  },
+  {
     version: 999,
     issue: 1025,
     date: '2026-09-27T13:04:39+03:00',

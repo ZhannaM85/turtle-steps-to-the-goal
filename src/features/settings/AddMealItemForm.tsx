@@ -217,10 +217,17 @@ export function AddMealItemForm({
       <DialogContent
         size="fullscreen"
         closeLabel={t.settings.closeAddMealItemDialogLabel}
-        className="flex flex-col"
+        className="flex flex-col overflow-hidden pb-0"
       >
-        <DialogTitle>{t.settings.addMealItemDialogTitle}</DialogTitle>
-        <div className="flex flex-1 flex-col gap-5 overflow-y-auto pt-4">
+        <DialogTitle className="shrink-0">
+          {t.settings.addMealItemDialogTitle}
+        </DialogTitle>
+        {/* #1024 — same pin as the meal sheet's Готово: fields scroll, Save stays. */}
+        <div className="relative h-0 min-h-0 grow basis-0 overflow-hidden">
+          <div
+            data-testid="add-meal-item-scroll"
+            className="absolute inset-0 flex flex-col gap-5 overflow-y-auto overscroll-y-contain pt-4 pb-4"
+          >
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between gap-2">
               <span className="text-sm text-muted-foreground">
@@ -396,8 +403,9 @@ export function AddMealItemForm({
               {t.dailyEntry.computedTotalPrefix} {nutritionPreview}
             </p>
           )}
+          </div>
         </div>
-        <div className="flex justify-end gap-3 pt-4">
+        <div className="flex shrink-0 justify-end gap-3 border-t border-border bg-card pt-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
           <Button type="button" variant="ghost" onClick={onCancel}>
             {t.settings.cancelAddMealItemLabel}
           </Button>
