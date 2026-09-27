@@ -20,7 +20,9 @@ import {
  * (the window actually ended with its target still met, the moment a new
  * goal can be started) are two different moments for the same window;
  * see `useWeeklyGoalCelebration.ts`. #783: the complete-week dialog
- * fires after a weight save, not on every app open.
+ * fires after a weight save, not on every app open. #1019: either CTA
+ * opens the new-goal form (`/goal?startNew=1`); Close skips it. The
+ * badge still waits until the week ends if they keep the current goal.
  */
 export function GoalCelebrationModal() {
   const t = useTranslation()
@@ -50,7 +52,7 @@ export function GoalCelebrationModal() {
                 {t.today.celebrationCompleteDescription}
               </DialogDescription>
               <Button asChild onClick={dismiss}>
-                <Link to="/goal">{t.today.celebrationCompleteCta}</Link>
+                <Link to="/goal?startNew=1">{t.today.celebrationCompleteCta}</Link>
               </Button>
             </>
           ) : (
@@ -62,7 +64,7 @@ export function GoalCelebrationModal() {
                   : null}
               </DialogDescription>
               <Button asChild onClick={dismiss}>
-                <Link to="/goal">{t.today.celebrationCta}</Link>
+                <Link to="/goal?startNew=1">{t.today.celebrationCta}</Link>
               </Button>
             </>
           )}

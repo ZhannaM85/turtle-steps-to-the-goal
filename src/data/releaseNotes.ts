@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 994,
+    issue: 1019,
+    date: '2026-09-27T11:00:03+03:00',
+    en: 'Once you reach this week’s goal, you can start a new one right away. The celebration offers that, and you can close it if you want to keep going until the badge.',
+    ru: 'Как только цель на эту неделю достигнута, новую можно начать сразу. Поздравление предлагает это, а закрыть его можно, если хотите дождаться значка.',
+  },
+  {
     version: 993,
     issue: 1018,
     date: '2026-09-27T10:47:46+03:00',

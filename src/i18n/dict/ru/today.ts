@@ -123,7 +123,7 @@ export const today: TodayDict = {
   celebrationTitle: 'Вы достигли цели на эту неделю!',
   celebrationDescription: (weekEndDate) =>
     `Держитесь до конца ${weekEndDate}, чтобы получить значок.`,
-  celebrationCta: 'Посмотреть цель',
+  celebrationCta: 'Начать новую цель',
   celebrationCloseLabel: 'Закрыть',
   celebrationCompleteTitle: 'Вы выполнили недельную цель!',
   celebrationCompleteDescription:

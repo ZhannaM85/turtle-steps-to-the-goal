@@ -2,7 +2,7 @@
  * #689 — Goal lifecycle HARD LOCK pack
  *
  * ONE place to run/extend when touching goal baseline, windows, Start-new,
- * or goal-stack delete. CI fails if any of these six invariants is inverted.
+ * or goal-stack delete. CI fails if any of these invariants is inverted.
  *
  * Related: `goalWindowProgress.ts` (#676 HARD LOCK comment), GoalForm,
  * `goalFormMapping.ts`, `goalStore.ts`. Companion UI smoke: e2e/goal-flows (#690).
@@ -202,6 +202,31 @@ describe('#689 goal lifecycle HARD LOCK pack', () => {
       expect(
         screen.getByRole('button', { name: 'Start a new goal' }),
       ).toBeDisabled()
+    })
+  })
+
+  describe('7. #1019 reached target unlocks Start-new before week end', () => {
+    it('enables Start a new goal once the target is reached, without concluding the window', () => {
+      const today = format(new Date(), 'yyyy-MM-dd')
+      renderGoalForm(
+        <GoalForm
+          existingGoal={makeGoal({
+            id: 'g1',
+            weekStart: today,
+            targetWeeklyLossKg: 0.1,
+          })}
+          onSubmit={vi.fn()}
+          onDelete={vi.fn()}
+          activeGoalReached
+        />,
+      )
+
+      expect(
+        screen.getByRole('button', { name: 'Start a new goal' }),
+      ).toBeEnabled()
+      expect(
+        screen.queryByText(/Available once this week's target ends/),
+      ).not.toBeInTheDocument()
     })
   })
 

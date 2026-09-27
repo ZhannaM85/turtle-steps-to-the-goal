@@ -121,7 +121,7 @@ export const today: TodayDict = {
   celebrationTitle: "You reached this week's target!",
   celebrationDescription: (weekEndDate) =>
     `Keep it up through ${weekEndDate} to earn your badge.`,
-  celebrationCta: 'Review goal',
+  celebrationCta: 'Start a new goal',
   celebrationCloseLabel: 'Close',
   celebrationCompleteTitle: 'You completed your weekly goal!',
   celebrationCompleteDescription:

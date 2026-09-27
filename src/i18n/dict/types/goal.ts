@@ -80,10 +80,10 @@ export interface GoalDict {
     startNewGoalButton: string
     startNewGoalHint: string
     /** #639 — shown instead of startNewGoalHint, and the button disabled,
-     * until the current goal's window has actually ended: restarting mid-
-     * week used to let a fresh, short window quietly replace the current
-     * one before it ran its course, producing the overlapping-windows bug
-     * this whole issue was filed for. */
+     * until the current goal's window has actually ended — unless the
+     * target is already reached (#1019), in which case the button unlocks
+     * immediately and this label is not shown. Restarting mid-week before
+     * the target is met still stays blocked (#686). */
     startNewGoalAvailableFromLabel: (weekEndDate: string) => string
     savedConfirmation: string
     currentGoalTitle: string

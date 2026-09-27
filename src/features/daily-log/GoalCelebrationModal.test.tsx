@@ -175,17 +175,26 @@ describe('GoalCelebrationModal', () => {
     ).toBe(WEEK_START)
   })
 
-  it('the mid-week CTA reviews the goal rather than claiming it can be restarted (#639)', async () => {
+  it('the mid-week CTA opens a new goal, and Close skips that (#1019)', async () => {
     await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
     await seedTargetMetWeeks()
+    const user = userEvent.setup()
     render(
       <MemoryRouter>
         <GoalCelebrationModal />
       </MemoryRouter>,
     )
 
-    const cta = await screen.findByRole('link', { name: 'Review goal' })
-    expect(cta).toHaveAttribute('href', '/goal')
+    const cta = await screen.findByRole('link', { name: 'Start a new goal' })
+    expect(cta).toHaveAttribute('href', '/goal?startNew=1')
+    expect(
+      screen.getByText(/Keep it up through .* to earn your badge/),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Close' }))
+    expect(
+      screen.queryByText("You reached this week's target!"),
+    ).not.toBeInTheDocument()
   })
 
   it('does not show the completion copy on mount just because the window already ended (#783)', async () => {
@@ -256,7 +265,7 @@ describe('GoalCelebrationModal', () => {
     expect(
       screen.getByText('You completed your weekly goal!'),
     ).toBeInTheDocument()
-    expect(cta).toHaveAttribute('href', '/goal')
+    expect(cta).toHaveAttribute('href', '/goal?startNew=1')
   })
 
   it('does not show completion copy when the window ended without meeting the target (#639)', async () => {
@@ -322,7 +331,7 @@ describe('GoalCelebrationModal', () => {
     expect(
       screen.getByText('You completed your weekly goal!'),
     ).toBeInTheDocument()
-    expect(cta).toHaveAttribute('href', '/goal')
+    expect(cta).toHaveAttribute('href', '/goal?startNew=1')
   })
 
   it('does not show completion copy on weekEnd until that day’s weight is logged (#776)', async () => {

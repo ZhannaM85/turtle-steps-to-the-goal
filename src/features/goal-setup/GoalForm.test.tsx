@@ -1026,6 +1026,45 @@ describe('GoalForm', () => {
       ).toBeInTheDocument()
     })
 
+    it('is enabled as soon as the weekly target is reached, before the window ends (#1019)', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      const today = new Date().toISOString().slice(0, 10)
+      renderGoalForm(
+        <GoalForm
+          existingGoal={{
+            id: 'g1',
+            targetWeeklyLossKg: 0.1,
+            weekStart: today,
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          }}
+          onSubmit={onSubmit}
+          onDelete={vi.fn()}
+          activeGoalReached
+        />,
+        '/goal?startNew=1',
+      )
+
+      expect(
+        screen.getByRole('button', { name: 'Set this week’s target' }),
+      ).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'Cancel' }))
+      expect(onSubmit).not.toHaveBeenCalled()
+
+      const startNewButton = screen.getByRole('button', { name: 'Start a new goal' })
+      expect(startNewButton).toBeEnabled()
+      expect(
+        screen.queryByText(/Available once this week's target ends/),
+      ).not.toBeInTheDocument()
+      expect(screen.getByText(/Begins a fresh window/)).toBeInTheDocument()
+
+      await user.click(startNewButton)
+      expect(
+        screen.getByRole('button', { name: 'Set this week’s target' }),
+      ).toBeInTheDocument()
+    })
+
     it('is enabled once the goal window has actually ended (#639)', () => {
       renderGoalForm(
         <GoalForm

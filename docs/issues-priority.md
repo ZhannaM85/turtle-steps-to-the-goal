@@ -74,9 +74,10 @@ _The meal-name list fits its longest option and opens over the sheet instead of 
 
 ## Tier 173 — Live feedback (2026-09-27)
 
-_Settings search filters sections and rows so a long Settings page does not have to be scrolled to find LDL, sleep, or import._
+_Settings search filters sections and rows so a long Settings page does not have to be scrolled to find LDL, sleep, or import. Reaching a weekly goal unlocks starting the next one right away; the badge still waits for the end of the week._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1018](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1018) | 🔍 Pending validation | Settings search field to find sections and rows | Sticky search at the top of Settings. Empty query shows the full page in the same order. Typing filters by section titles and visible row labels in both languages, so «LDL», «сон», and «импорт» each reveal the matching cards and, where a card has several rows, only the matching rows. Clear (×) restores everything. Awaiting on-device confirmation |
+| [#1019](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1019) | 🔍 Pending validation | Start a new goal as soon as this week’s target is reached | «Начать новую цель» enables when the reached banner appears, not at week end. The celebration’s action opens that same form (`/goal?startNew=1`); Close or Cancel leaves the current goal. The “keep it up through … to earn your badge” copy is unchanged if they don’t start a new one. Awaiting on-device confirmation |
 

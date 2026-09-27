@@ -196,7 +196,9 @@ export interface TodayDict {
    * not final yet" modal — reframed from a flat achievement claim so it
    * doesn't imply the badge is already earned. A separate `celebrationComplete*`
    * trio below covers the real end-of-window completion moment.
-   * #665: same inclusive last-day phrasing as `targetMetBanner`. */
+   * #665: same inclusive last-day phrasing as `targetMetBanner`.
+   * #1019: the CTA opens the new-goal form (`/goal?startNew=1`). Closing
+   * the dialog skips that. The badge still waits for week end. */
   celebrationTitle: string
   celebrationDescription: (weekEndDate: string) => string
   celebrationCta: string
@@ -204,8 +206,7 @@ export interface TodayDict {
   /** #639 — the *end-of-window* completion modal, shown once a goal's
    * window has actually ended with its final state still meeting the
    * target (distinct from `celebration*` above, the mid-week moment).
-   * This is the point a new goal can actually be started, so its CTA
-   * text (unlike the mid-week one, which only reviews) reflects that. */
+   * #1019: this CTA also opens the new-goal form; Close still skips it. */
   celebrationCompleteTitle: string
   celebrationCompleteDescription: string
   celebrationCompleteCta: string

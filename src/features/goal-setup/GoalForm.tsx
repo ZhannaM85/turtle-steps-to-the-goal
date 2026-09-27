@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { format, parseISO } from 'date-fns'
 import { Check, Minus, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useForm, useWatch, type Resolver } from 'react-hook-form'
-import { useBlocker } from 'react-router-dom'
+import { useBlocker, useSearchParams } from 'react-router-dom'
 import type { Goal } from '@/domain/goal'
 import {
   estimatedDailyCalorieDeficitKcal,
@@ -105,9 +105,14 @@ export interface GoalFormProps {
   /** #667 — whether `existingGoal`'s own window has concluded
    * (`goalWindowConcluded`). #686 restores #639/#667 gating of
    * "Start a new goal" until the window has ended (or concluded early on
-   * weekEnd). #683/#685 soft overlap warning still applies once starting
-   * new is allowed — it does not replace this disable. */
+   * weekEnd). #1019 unlocks the same button earlier, once `targetMet` is
+   * already true — that does not conclude the window or award the badge.
+   * #683/#685 soft overlap warning still applies once starting new is
+   * allowed — it does not replace this disable. */
   activeGoalConcluded?: boolean
+  /** #1019 — sticky mid-window reach (`targetMet`). Same moment as the
+   * reached banner and the in-progress celebration. */
+  activeGoalReached?: boolean
   /** #685 — other saved goals (active + past) used for the soft overlap
    * warning. When omitted, falls back to `existingGoal` alone so unit
    * tests that only pass the previous goal still cover the #683 path. */
@@ -127,11 +132,19 @@ export function GoalForm({
   onDelete,
   latestWeightKg = null,
   activeGoalConcluded,
+  activeGoalReached = false,
   overlapGoals,
 }: GoalFormProps) {
   const t = useTranslation()
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
+  // #1019 — celebration CTA lands on /goal?startNew=1 and opens this same
+  // form. The param stays until Cancel or save so a reload of the active
+  // goal (GoalScreen sets status back to loading) can remount and still
+  // show the sheet. Close on the celebration never sets the param.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const startNewFromPrompt =
+    searchParams.get('startNew') === '1' && existingGoal != null
   // #639/#686 — restart only once the current window has run its course.
   // #683 briefly removed this gate (overlap warning only); that let a
   // fresh window start mid-week. Legacy goals with no weekStart are
@@ -170,7 +183,9 @@ export function GoalForm({
     // Prefer `goalToFormValues` ({} when null) over empty-string defaults so
     // untouched optional fields stay `undefined`. Empty strings are only used
     // in `reset(emptyGoalFormValues())` to clear uncontrolled inputs (#241).
-    defaultValues: goalToFormValues(existingGoal, unit),
+    defaultValues: startNewFromPrompt
+      ? emptyGoalFormValues(existingGoal)
+      : goalToFormValues(existingGoal, unit),
   })
 
   const values = useWatch({ control })
@@ -435,7 +450,9 @@ export function GoalForm({
   // display-then-edit shape DailyEntryForm.tsx's Weight/Note fields use.
   // Starts editable only for brand-new setup (no goal yet) — matches
   // those fields' own "nothing saved yet" starting condition.
-  const [isEditing, setIsEditing] = useState(existingGoal === null)
+  const [isEditing, setIsEditing] = useState(
+    existingGoal === null || startNewFromPrompt,
+  )
 
   // #386 — reported live: the previous single "Update" button silently
   // decided, from internal reached/live-window state, whether a save
@@ -444,7 +461,7 @@ export function GoalForm({
   // available, explicit actions (see the collapsed summary view below);
   // this just remembers which one opened the form, so submit knows which
   // `formValuesToGoal` behavior to use without re-deriving it.
-  const [startingNew, setStartingNew] = useState(false)
+  const [startingNew, setStartingNew] = useState(startNewFromPrompt)
 
   // #671/#659 — "ends on" cannot precede the window start this save will
   // use. Prefer the live form start date; when editing in place without a
@@ -485,6 +502,13 @@ export function GoalForm({
   const showDiscardConfirm =
     confirmDiscard || blocker.state === 'blocked'
 
+  function clearStartNewQuery() {
+    if (searchParams.get('startNew') !== '1') return
+    const next = new URLSearchParams(searchParams)
+    next.delete('startNew')
+    setSearchParams(next, { replace: true })
+  }
+
   function discardEdits() {
     if (existingGoal && !startingNew) {
       reset(formValuesForGoal(existingGoal, unit))
@@ -493,6 +517,7 @@ export function GoalForm({
       reset(formValuesForGoal(existingGoal, unit))
       setStartingNew(false)
       setIsEditing(false)
+      clearStartNewQuery()
     } else {
       reset(emptyGoalFormValues())
       // #674 — without this, canceling out of a blank create form left
@@ -612,6 +637,7 @@ export function GoalForm({
     reset(emptyGoalFormValues())
     setIsEditing(false)
     setStartingNew(false)
+    clearStartNewQuery()
   }
 
   // #674/#677 — prefer the live store goal (previous after stack pop).
@@ -845,7 +871,11 @@ export function GoalForm({
               <Button
                 type="button"
                 variant="outline"
-                disabled={!showingDeletedSnapshot && !activeWindowEnded}
+                disabled={
+                  !showingDeletedSnapshot &&
+                  !activeWindowEnded &&
+                  !activeGoalReached
+                }
                 onClick={() => {
                   setJustDeletedGoal(null)
                   setStartingNew(true)
@@ -858,6 +888,7 @@ export function GoalForm({
               <p className="text-xs text-muted-foreground">
                 {showingDeletedSnapshot ||
                 activeWindowEnded ||
+                activeGoalReached ||
                 !existingGoal?.weekStart
                   ? t.goal.startNewGoalHint
                   : t.goal.startNewGoalAvailableFromLabel(

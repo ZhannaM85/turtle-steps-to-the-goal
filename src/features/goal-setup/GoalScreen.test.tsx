@@ -11,10 +11,10 @@ import { useGoalStore, useSectionVisibilityStore } from '@/stores'
 import { GoalScreen } from './GoalScreen'
 
 /** GoalForm's useBlocker (#534) requires a data router. */
-function renderGoalScreen() {
+function renderGoalScreen(initialPath = '/goal') {
   const router = createMemoryRouter(
     [{ path: '/goal', element: <GoalScreen /> }],
-    { initialEntries: ['/goal'] },
+    { initialEntries: [initialPath] },
   )
   return render(<RouterProvider router={router} />)
 }
@@ -644,6 +644,50 @@ describe('GoalScreen', () => {
       await user.click(showButton)
       expect(await screen.findByText('kg to lose')).toBeInTheDocument()
       expect(screen.getByText('1')).toBeInTheDocument()
+    })
+
+    it('unlocks Start a new goal while the reached banner still holds the badge until week end (#1019)', async () => {
+      const user = userEvent.setup()
+      await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
+      await seedTargetMetWeeks()
+
+      renderGoalScreen()
+      await screen.findByText(/keep it up through .* to earn your badge/)
+      const startNewButton = screen.getByRole('button', {
+        name: 'Start a new goal',
+      })
+      expect(startNewButton).toBeEnabled()
+      expect(
+        screen.queryByText(/Available once this week's target ends/),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.getByText(/keep it up through .* to earn your badge/),
+      ).toBeInTheDocument()
+
+      await user.click(startNewButton)
+      expect(
+        screen.getByRole('button', { name: 'Set this week’s target' }),
+      ).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'Cancel' }))
+      expect(screen.getByRole('button', { name: 'Start a new goal' })).toBeEnabled()
+    })
+
+    it('opens the new-goal form from the celebration handoff, and Cancel skips it (#1019)', async () => {
+      const user = userEvent.setup()
+      await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
+      await seedTargetMetWeeks()
+
+      renderGoalScreen('/goal?startNew=1')
+      expect(
+        await screen.findByText(/keep it up through .* to earn your badge/),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Set this week’s target' }),
+      ).toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'Cancel' }))
+      expect(screen.getByRole('button', { name: 'Start a new goal' })).toBeEnabled()
+      expect(await db.goals.count()).toBe(1)
     })
 
     it('hides the target-reached nudge banner but keeps its title and toggle visible', async () => {
