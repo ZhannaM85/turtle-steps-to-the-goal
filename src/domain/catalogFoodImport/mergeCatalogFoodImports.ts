@@ -166,8 +166,16 @@ export function planCatalogFoodUpserts(
   const touched = new Set<string>()
   let added = 0
   let updated = 0
+  // #1035 — later rows in one paste are newer, so «Недавние» can put the
+  // last imported food first. A single draft keeps the caller's timestamp.
+  const baseMs = Date.parse(updatedAt)
 
-  for (const draft of drafts) {
+  for (let index = 0; index < drafts.length; index += 1) {
+    const draft = drafts[index]
+    if (!draft) continue
+    const rowUpdatedAt = Number.isNaN(baseMs)
+      ? updatedAt
+      : new Date(baseMs + index).toISOString()
     const nameRu = canonicalCatalogName(draft.nameRu, catalog)
     const barcode = normalizeCatalogBarcode(draft.barcode)
     const prepared: CatalogFoodDraft = { ...draft, nameRu }
@@ -176,16 +184,16 @@ export function planCatalogFoodUpserts(
 
     const byBarcode = barcode ? barcodeIndex(rows, barcode) : -1
     const byName = rows.findIndex((row) => row.nameRu === nameRu)
-    const index = byBarcode !== -1 ? byBarcode : byName
-    if (index === -1) {
-      const created = storedRow(prepared, updatedAt)
+    const indexInRows = byBarcode !== -1 ? byBarcode : byName
+    if (indexInRows === -1) {
+      const created = storedRow(prepared, rowUpdatedAt)
       rows.push(created)
       touched.add(created.nameRu)
       added += 1
       continue
     }
 
-    const current = rows[index]
+    const current = rows[indexInRows]
     if (!current) continue
     let key = current.nameRu
     const nextNameIsFree =
@@ -193,11 +201,11 @@ export function planCatalogFoodUpserts(
       nameRu !== current.nameRu &&
       catalogIndex(catalog, current.nameRu) === -1 &&
       catalogIndex(catalog, nameRu) === -1 &&
-      !rows.some((row, rowIndex) => rowIndex !== index && row.nameRu === nameRu)
+      !rows.some((row, rowIndex) => rowIndex !== indexInRows && row.nameRu === nameRu)
     if (nextNameIsFree) {
       deleteNames.push(current.nameRu)
       touched.delete(current.nameRu)
-      rows.splice(index, 1)
+      rows.splice(indexInRows, 1)
       key = nameRu
     }
     const next = storedRow(
@@ -208,9 +216,9 @@ export function planCatalogFoodUpserts(
         barcode: barcode ?? current.barcode,
         brand: prepared.brand ?? current.brand,
       },
-      updatedAt,
+      rowUpdatedAt,
     )
-    if (key === current.nameRu) rows[index] = next
+    if (key === current.nameRu) rows[indexInRows] = next
     else rows.push(next)
     touched.add(next.nameRu)
     updated += 1

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1010,
+    issue: 1035,
+    date: '2026-09-27T21:58:00+03:00',
+    en: 'Foods pasted into the catalog from Settings show up at the top of Recent when you add a meal, before you log them.',
+    ru: 'Продукты, вставленные в каталог из Настроек, появляются вверху «Недавних» при добавлении приёма пищи, ещё до записи в дневник.',
+  },
+  {
     version: 1009,
     issue: 1034,
     date: '2026-09-27T19:22:00+03:00',

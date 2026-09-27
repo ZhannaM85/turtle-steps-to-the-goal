@@ -5,6 +5,7 @@ import type { CatalogFoodImport } from './CatalogFoodImport'
 import {
   canonicalCatalogName,
   mergeCatalogFoodImports,
+  planCatalogFoodUpserts,
 } from './mergeCatalogFoodImports'
 
 function row(
@@ -150,6 +151,56 @@ describe('mergeCatalogFoodImports (#1015)', () => {
       barcode: '111',
       kcal100: 90,
     })
+  })
+
+  it('stamps later foods in one paste as newer (#1035)', () => {
+    const plan = planCatalogFoodUpserts(
+      [],
+      [
+        {
+          nameRu: 'Лосось/форель на гриле',
+          kcal100: 180,
+          protein100: 20,
+          fat100: 10,
+          carbs100: 0,
+          cholesterolImpact: 'beneficial',
+        },
+        {
+          nameRu: 'Лимон',
+          kcal100: 29,
+          protein100: 1.1,
+          fat100: 0.3,
+          carbs100: 9,
+          cholesterolImpact: 'beneficial',
+        },
+      ],
+      sample,
+      '2026-09-27T18:00:00.000Z',
+    )
+    expect(plan.added).toBe(2)
+    expect(
+      plan.upserts.find((row) => row.nameRu === 'Лосось/форель на гриле')
+        ?.updatedAt,
+    ).toBe('2026-09-27T18:00:00.000Z')
+    expect(plan.upserts.find((row) => row.nameRu === 'Лимон')?.updatedAt).toBe(
+      '2026-09-27T18:00:00.001Z',
+    )
+    const one = planCatalogFoodUpserts(
+      [],
+      [
+        {
+          nameRu: 'Лимон',
+          kcal100: 29,
+          protein100: 1.1,
+          fat100: 0.3,
+          carbs100: 9,
+          cholesterolImpact: 'beneficial',
+        },
+      ],
+      sample,
+      '2026-09-27T18:00:00.000Z',
+    )
+    expect(one.upserts[0]?.updatedAt).toBe('2026-09-27T18:00:00.000Z')
   })
 
   it('clears a reason the paste does not include', () => {

@@ -124,7 +124,7 @@ export const useCatalogFoodImportStore = create<CatalogFoodImportStoreState>(
       let library = await mealItemRepository.getAll()
       let libraryChanged = false
       for (const row of plan.upserts) {
-        const next = mealItemUpdatedByCatalogBarcode(library, row, updatedAt)
+        const next = mealItemUpdatedByCatalogBarcode(library, row, row.updatedAt)
         if (!next) continue
         await mealItemRepository.upsert(next)
         library = library.map((item) => (item.id === next.id ? next : item))

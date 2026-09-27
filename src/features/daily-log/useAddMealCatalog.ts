@@ -30,6 +30,7 @@ import {
   isHomemadePickableItem,
 } from './homemadeFoodFilter'
 import { dedupeMealSearchMatches } from './mealSearchDedupe'
+import { rankRecentMealPickables } from './recentMealPickables'
 
 const RECENT_COUNT = 3
 
@@ -132,11 +133,17 @@ export function useAddMealCatalog({
   const homemadeItems = sortFavoritesFirst(
     allMealItems.filter(isHomemadePickableItem),
   )
+  // #1035 — paste-import joins diary recency. Homemade stays logged dishes.
+  const recentPool = rankRecentMealPickables({
+    mealItems: allMealItems,
+    foods: visibleFoods,
+    imports: catalogImports,
+  })
   const recentItems = homemadeOnly
     ? homemadeItems
     : showAllRecent
-      ? allMealItems
-      : allMealItems.slice(0, RECENT_COUNT)
+      ? recentPool
+      : recentPool.slice(0, RECENT_COUNT)
   const searchableItems = filterToHomemadeDishes(allItems, homemadeOnly)
   function matchesQuery(item: PickableItem): boolean {
     if (textFor(item).toLowerCase().includes(query)) return true
@@ -218,6 +225,7 @@ export function useAddMealCatalog({
     mealItems,
     allMealItems,
     recentItems,
+    recentPoolCount: recentPool.length,
     matches,
     deleteMode: deleteModeFor,
     deletePickableItem,
