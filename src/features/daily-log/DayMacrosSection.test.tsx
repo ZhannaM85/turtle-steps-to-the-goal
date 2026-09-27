@@ -94,7 +94,7 @@ describe('Day КБЖУ collapse (#1029)', () => {
     render(<Harness />)
 
     const line = summary()
-    expect(line).toHaveTextContent('1,680 · -275 kcal')
+    expect(line).toHaveTextContent('1,680 kcal')
     expect(line).toHaveTextContent('P 128g · F 71g · C 138g')
     expect(line).toHaveClass('bg-muted', 'tabular-nums', 'px-3', 'py-2')
     expect(line).not.toHaveClass('h-8')
@@ -125,11 +125,12 @@ describe('Day КБЖУ collapse (#1029)', () => {
     const t = getDictionary('ru')
     render(<Harness locale="ru" />)
     const flat = summary()?.textContent?.replace(/\s/g, ' ')
-    const kcal = `${formatNumber(1680, 'ru', 0)} · ${formatNumber(-275, 'ru', 0)} ${t.dailyEntry.kcalUnit}`.replace(
+    const kcal = `${formatNumber(1680, 'ru', 0)} ${t.dailyEntry.kcalUnit}`.replace(
       /\s/g,
       ' ',
     )
     expect(flat).toContain(kcal)
+    expect(flat).not.toContain(formatNumber(-275, 'ru', 0))
     expect(flat).toContain('Б 128г · Ж 71г · У 138г')
   })
 
@@ -162,7 +163,7 @@ describe('Day КБЖУ collapse (#1029)', () => {
     expect(section?.closest('[data-slot="day-intro"]')).toBeNull()
     expect(section?.getAttribute('data-day-pin-sticky')).toBe('true')
     expect(section?.className ?? '').toMatch(/\bsticky\b/)
-    expect(summary()).toHaveTextContent('1,680 · -275 kcal')
+    expect(summary()).toHaveTextContent('1,680 kcal')
     expect(document.querySelectorAll('[data-slot="day-macros-compact-summary"]')).toHaveLength(1)
     expect(document.querySelector('[data-slot="day-kcal-strip"]')).toBeNull()
   })

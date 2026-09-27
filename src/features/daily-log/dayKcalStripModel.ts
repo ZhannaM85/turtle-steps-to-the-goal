@@ -58,10 +58,11 @@ export function daySectionScrollTop(input: {
   )
 }
 
-/** `1 680 · −275 ккал`, plus compact Б/Ж/У when any macro is logged. */
+/** `1 680 ккал`, plus compact Б/Ж/У when any macro is logged.
+ * #1033 — consumed calories only; the unit sits right after that number.
+ * Remaining stays on the expanded cards, not on this collapsed line. */
 export function formatDayKcalStrip(input: {
   consumedKcal: number
-  remainingKcal: number | undefined
   proteinG: number | undefined
   fatG: number | undefined
   carbG: number | undefined
@@ -70,12 +71,8 @@ export function formatDayKcalStrip(input: {
 }): { kcal: string; macros: string | null } {
   const consumed = formatNumber(input.consumedKcal, input.locale, 0)
   const unit = input.t.dailyEntry.kcalUnit
-  const kcal =
-    input.remainingKcal === undefined
-      ? `${consumed} ${unit}`
-      : `${consumed} · ${formatNumber(input.remainingKcal, input.locale, 0)} ${unit}`
   return {
-    kcal,
+    kcal: `${consumed} ${unit}`,
     macros: macrosSummaryTextCompact(
       input.proteinG,
       input.fatG,

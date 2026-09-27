@@ -20,7 +20,7 @@ import { useDayPinContext } from './dayPinContext'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
 /**
- * #1022 — one-line consumed · remaining strip in the sticky date header.
+ * #1022 / #1033 — one-line consumed-kcal strip in the sticky date header.
  * #1029 — only while КБЖУ is collapsed. Expanded cards scroll away with
  * the page and do not mount this strip. An IntersectionObserver on
  * `[data-day-section="macros"]` treats the collapsed row as on screen
@@ -130,7 +130,6 @@ export function DayKcalStrip() {
 
   const text = formatDayKcalStrip({
     consumedKcal: state.dayTotalCalories,
-    remainingKcal: state.remainingKcal,
     proteinG: state.consumedProteinG,
     fatG: state.consumedFatG,
     carbG: state.consumedCarbG,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatNumber, getDictionary } from '@/i18n'
+import { getDictionary } from '@/i18n'
 import {
   daySectionScrollTop,
   formatDayKcalStrip,
@@ -85,28 +85,24 @@ describe('kcal strip (#1022)', () => {
     ).toBe(400 + 500 - 40 - 120)
   })
 
-  it('formats consumed and remaining with locale numbers and compact macros', () => {
+  it('formats consumed kcal with the unit right after the number (#1033)', () => {
     const t = getDictionary('ru')
     const text = formatDayKcalStrip({
-      consumedKcal: 1680,
-      remainingKcal: -275,
-      proteinG: 128,
-      fatG: 71,
-      carbG: 138,
+      consumedKcal: 640,
+      proteinG: 31,
+      fatG: 30,
+      carbG: 63,
       locale: 'ru',
       t,
     })
-    expect(text.kcal).toBe(
-      `${formatNumber(1680, 'ru', 0)} · ${formatNumber(-275, 'ru', 0)} ${t.dailyEntry.kcalUnit}`,
-    )
-    expect(text.macros).toBe('Б 128г · Ж 71г · У 138г')
+    expect(text.kcal).toBe(`640 ${t.dailyEntry.kcalUnit}`)
+    expect(text.macros).toBe('Б 31г · Ж 30г · У 63г')
   })
 
-  it('omits remaining and macros when they were not logged', () => {
+  it('omits macros when they were not logged', () => {
     const t = getDictionary('en')
     const text = formatDayKcalStrip({
       consumedKcal: 500,
-      remainingKcal: undefined,
       proteinG: undefined,
       fatG: undefined,
       carbG: undefined,

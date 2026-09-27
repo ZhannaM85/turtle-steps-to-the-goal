@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1008,
+    issue: 1033,
+    date: '2026-09-27T19:04:42+03:00',
+    en: 'The collapsed calories and macros line on Day shows only the calories you ate, with kcal right after that number.',
+    ru: 'Свёрнутая строка калорий и БЖУ на экране «День» показывает только съеденные калории, и «ккал» стоит сразу после числа.',
+  },
+  {
     version: 1007,
     issue: 1032,
     date: '2026-09-27T18:57:52+03:00',

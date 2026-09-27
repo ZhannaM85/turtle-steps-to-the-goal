@@ -114,7 +114,7 @@ describe('Day kcal strip and pins (#1022)', () => {
     act(() => latestObserver().fire(false))
     const strip = screen.getByRole('button', { name: /1,680/ })
     expect(strip).toHaveAttribute('data-slot', 'day-kcal-strip')
-    expect(strip).toHaveTextContent('1,680 · -275 kcal')
+    expect(strip).toHaveTextContent('1,680 kcal')
     expect(strip).toHaveTextContent('P 128g · F 71g · C 138g')
     expect(strip.closest('[data-slot="day-intro"]')).toBeTruthy()
 

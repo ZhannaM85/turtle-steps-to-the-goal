@@ -9,7 +9,7 @@ import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
 /**
  * #467 / #1029 — Day КБЖУ cards. Collapsed, the header keeps the same
- * compact consumed · remaining line as the sticky strip. A pin keeps
+ * compact consumed-kcal line as the sticky strip (#1033). A pin keeps
  * this section first in the Day list; it sticks only while collapsed.
  */
 export function DayMacrosSection() {
@@ -24,7 +24,6 @@ export function DayMacrosSection() {
 
   const text = formatDayKcalStrip({
     consumedKcal: state.dayTotalCalories,
-    remainingKcal: state.remainingKcal,
     proteinG: state.consumedProteinG,
     fatG: state.consumedFatG,
     carbG: state.consumedCarbG,
