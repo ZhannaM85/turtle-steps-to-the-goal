@@ -83,6 +83,10 @@ export interface FoodItem {
     | 'unknown'
   /** Russian reason shown on the Day page. Same record as the macros. */
   cholesterolReason?: string
+  /** #1027 — package code from a catalog paste. Match this before the name. */
+  barcode?: string
+  /** #1027 — brand kept with that catalog row. */
+  brand?: string
 }
 
 const curatedFoods: FoodItem[] = [

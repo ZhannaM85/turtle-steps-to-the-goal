@@ -1,9 +1,12 @@
+import type { FoodItem } from '@/data/foods'
+import { normalizeCatalogBarcode } from '@/domain/catalogFoodImport'
 import type { MealItem, MealItemRepository } from '@/domain/mealItem'
 import { parseOffProduct } from './openFoodFactsParse'
 import type { OffNutritionPer100g } from './openFoodFactsParse'
 
 export type BarcodeLookupResult =
   | { source: 'local'; item: MealItem }
+  | { source: 'catalog'; food: FoodItem }
   | ({
       source: 'openFoodFacts'
       name: string
@@ -33,9 +36,16 @@ export async function lookupBarcode(
   barcode: string,
   mealItemRepository: MealItemRepository,
   isOnline: boolean,
+  catalog?: readonly FoodItem[],
 ): Promise<BarcodeLookupResult> {
   const localMatch = await mealItemRepository.findByBarcode(barcode)
   if (localMatch) return { source: 'local', item: localMatch }
+
+  const code = normalizeCatalogBarcode(barcode)
+  const catalogMatch = code
+    ? catalog?.find((food) => normalizeCatalogBarcode(food.barcode) === code)
+    : undefined
+  if (catalogMatch) return { source: 'catalog', food: catalogMatch }
 
   if (!isOnline) return { source: 'none' }
 

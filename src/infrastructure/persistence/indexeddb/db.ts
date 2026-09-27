@@ -367,6 +367,8 @@ export class AppDatabase extends Dexie {
       )
     // #1015: user-pasted catalog foods, keyed by exact Russian name.
     // New store only — diary rows are not migrated.
+    // #1027: optional `barcode` and `brand` on the same rows. No new index;
+    // barcode match walks this small per-device list.
     this.version(17).stores({
       goals: 'id, createdAt',
       dailyEntries: 'id, &date',

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1006,
+    issue: 1027,
+    date: '2026-09-27T15:19:39+03:00',
+    en: 'Pasting or saving a packaged food with a barcode updates that same product, including its brand, instead of adding a second copy.',
+    ru: 'Если вставить или сохранить упакованный продукт со штрихкодом, обновляется тот же продукт, включая бренд, а не добавляется вторая копия.',
+  },
+  {
     version: 1005,
     issue: 1026,
     date: '2026-09-27T15:06:00+03:00',

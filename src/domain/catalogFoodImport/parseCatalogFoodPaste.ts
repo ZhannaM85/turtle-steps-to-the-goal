@@ -1,6 +1,7 @@
 import { isCholesterolImpact, type CholesterolImpact } from '@/domain/cholesterol'
 import {
   collapseCatalogName,
+  normalizeCatalogBarcode,
   type CatalogFoodDraft,
 } from './CatalogFoodImport'
 
@@ -71,6 +72,14 @@ function readAliases(value: unknown): string[] | undefined {
   return aliases.length > 0 ? aliases : undefined
 }
 
+function readBarcode(value: unknown): string | undefined {
+  if (typeof value === 'number' && Number.isSafeInteger(value) && value >= 0) {
+    return normalizeCatalogBarcode(String(value))
+  }
+  if (typeof value !== 'string') return undefined
+  return normalizeCatalogBarcode(value)
+}
+
 function readName(record: Record<string, unknown>): string | undefined {
   return (
     readString(record.nameRu) ?? readString(record.ru) ?? readString(record.name)
@@ -120,10 +129,14 @@ function parseOne(
     readString(value.cholesterolReasonRu) ?? readString(value.cholesterolReason)
   const cholesterolReasonEn = readString(value.cholesterolReasonEn)
   const aliases = readAliases(value.aliases)
+  const barcode = readBarcode(value.barcode)
+  const brand = readString(value.brand)
   if (nameEn) food.nameEn = nameEn
   if (cholesterolReason) food.cholesterolReason = cholesterolReason
   if (cholesterolReasonEn) food.cholesterolReasonEn = cholesterolReasonEn
   if (aliases) food.aliases = aliases
+  if (barcode) food.barcode = barcode
+  if (brand) food.brand = brand
   return { food }
 }
 
@@ -144,7 +157,7 @@ function foodList(parsed: unknown):
 /**
  * #1015 — paste only. One food object, a top-level array, or
  * `{ foods, nutritionBasis? }`. Later copies of the same Russian name
- * replace earlier ones in this paste.
+ * replace earlier ones in this paste. A repeated barcode does too (#1027).
  */
 export function parseCatalogFoodPaste(text: string): CatalogFoodPasteResult {
   let parsed: unknown
@@ -173,5 +186,17 @@ export function parseCatalogFoodPaste(text: string): CatalogFoodPasteResult {
     }
     foods[previous] = result.food
   })
-  return { ok: true, foods, failures }
+  return { ok: true, foods: collapseByBarcode(foods), failures }
+}
+
+/** Last paste with a given barcode wins, even when the Russian name differs. */
+function collapseByBarcode(foods: CatalogFoodDraft[]): CatalogFoodDraft[] {
+  const lastAt = new Map<string, number>()
+  foods.forEach((food, index) => {
+    if (food.barcode) lastAt.set(food.barcode, index)
+  })
+  return foods.filter((food, index) => {
+    if (!food.barcode) return true
+    return lastAt.get(food.barcode) === index
+  })
 }

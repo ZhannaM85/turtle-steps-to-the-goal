@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import type { FoodItem } from '@/data/foods'
 import type { MealItem, MealItemRepository } from '@/domain/mealItem'
 import { lookupBarcode } from './lookupBarcode'
 
@@ -40,6 +41,32 @@ describe('lookupBarcode', () => {
     )
 
     expect(result).toEqual({ source: 'local', item })
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('matches a catalog food by barcode before Open Food Facts (#1027)', async () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    const food: FoodItem = {
+      id: 'user-catalog-bc-4600605026533',
+      en: 'Lactose-free milk 1.5%',
+      ru: 'Молоко без лактозы 1,5%',
+      kcal100: 45,
+      protein100: 2.9,
+      fat100: 1.5,
+      carbs100: 4.9,
+      barcode: '4600605026533',
+      brand: 'Простоквашино',
+    }
+
+    const result = await lookupBarcode(
+      '4600 6050 26533',
+      fakeRepository(undefined),
+      false,
+      [food],
+    )
+
+    expect(result).toEqual({ source: 'catalog', food })
     expect(fetchMock).not.toHaveBeenCalled()
   })
 

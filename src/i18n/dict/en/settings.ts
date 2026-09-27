@@ -223,7 +223,7 @@ export const settings: SettingsDict = {
       'A compact note on each Day food. Qualitative guidance, not a medical score.',
     catalogFoodImportLabel: 'Import catalog foods',
     catalogFoodImportDescription:
-      'Paste one food or a list. Calories and macros are per 100 g. The same Russian name updates that catalog food. LDL notes on matching diary foods update. Calories and macros on past meals stay as logged.',
+      'Paste one food or a list. Calories and macros are per 100 g. A barcode updates that same product; otherwise the Russian name does. Brand is kept. LDL notes on matching diary foods update. Calories and macros on past meals stay as logged.',
     catalogFoodImportPlaceholder:
       '{ "nameRu": "…", "caloriesPer100g": 0, "proteinPer100g": 0, "fatPer100g": 0, "carbsPer100g": 0 }',
     catalogFoodImportButton: 'Import foods',

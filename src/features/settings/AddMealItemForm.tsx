@@ -7,7 +7,8 @@ import {
   type CholesterolImpact,
 } from '@/domain/cholesterol'
 import { useLocale, useTranslation } from '@/i18n'
-import { useLdlImpactStore } from '@/stores'
+import { useCatalogFoodImportStore, useLdlImpactStore } from '@/stores'
+import { loadMergedCatalogFoods } from '@/stores/catalogFoodImportStore'
 import { useOnlineStatus } from '@/shared/hooks'
 import { formatBarcodeDisplay } from '@/shared/lib/formatBarcode'
 import {
@@ -88,6 +89,7 @@ export function AddMealItemForm({
       scanned,
       mealItemRepositoryForBarcodeLookup,
       isOnline,
+      await loadMergedCatalogFoods(),
     )
     setBarcodeNotFoundMessage(false)
     setMacroMode('per100g')
@@ -129,6 +131,17 @@ export function AddMealItemForm({
       setCarbs100(result.carbs100 === undefined ? '' : String(result.carbs100))
       setAmountG('1')
       setBarcode(scanned)
+    } else if (result.source === 'catalog') {
+      const ldl = cholesterolForFoodRecord(result.food)
+      setCholesterolImpact(ldl.cholesterolImpact)
+      setCholesterolReason(ldl.cholesterolReason ?? '')
+      setName(result.food[locale])
+      setKcal100(String(result.food.kcal100))
+      setProtein100(String(result.food.protein100))
+      setFat100(String(result.food.fat100))
+      setCarbs100(String(result.food.carbs100))
+      setAmountG('1')
+      setBarcode(result.food.barcode ?? scanned)
     } else {
       setCholesterolImpact('unknown')
       setCholesterolReason('')
@@ -201,15 +214,35 @@ export function AddMealItemForm({
   function save() {
     if (!canSave || kcal100Num === undefined) return
     const scaled = scale(kcal100Num)
+    const ldlOn = useLdlImpactStore.getState().enabled
     onAdd(
       name.trim(),
       { ...scaled, amountG: scaled.amountG ?? 100 },
       favorite,
       barcode,
-      useLdlImpactStore.getState().enabled
-        ? cholesterolChoice(cholesterolImpact, cholesterolReason)
-        : undefined,
+      ldlOn ? cholesterolChoice(cholesterolImpact, cholesterolReason) : undefined,
     )
+    if (barcode) {
+      void useCatalogFoodImportStore.getState().rememberSavedFood({
+        name: name.trim(),
+        barcode,
+        per100g:
+          macroMode === 'per100g'
+            ? {
+                kcal100: kcal100Num,
+                protein100: parseOptionalMacro(protein100) ?? 0,
+                fat100: parseOptionalMacro(fat100) ?? 0,
+                carbs100: parseOptionalMacro(carbs100) ?? 0,
+                ...(ldlOn
+                  ? {
+                      cholesterolImpact,
+                      cholesterolReason: cholesterolReason.trim() || undefined,
+                    }
+                  : {}),
+              }
+            : undefined,
+      })
+    }
   }
 
   return (

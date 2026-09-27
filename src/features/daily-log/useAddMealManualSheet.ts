@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import type { FoodServing } from '@/data/foods'
+import { loadMergedCatalogFoods } from '@/stores/catalogFoodImportStore'
 import {
   cholesterolChoice,
   type CholesterolClassification,
@@ -32,7 +33,7 @@ import {
   type PortionScaleBase,
 } from './addMealDialogHelpers'
 import { IndexedDbMealItemRepository } from '@/infrastructure/persistence/indexeddb'
-import { useLdlImpactStore, useMealItemStore } from '@/stores'
+import { useCatalogFoodImportStore, useLdlImpactStore, useMealItemStore } from '@/stores'
 import { catalogHomemadeForName } from './homemadeFoodFilter'
 
 const mealItemRepositoryForBarcodeLookup = new IndexedDbMealItemRepository()
@@ -93,7 +94,8 @@ export function useAddMealManualSheet({
   ) {
     setEditingItemId(null)
     setBarcodeNotFoundMessage(false)
-    setPendingBarcode(options?.barcodeOverride ?? null)
+    const catalogBarcode = item.source === 'food' ? item.food.barcode : undefined
+    setPendingBarcode(options?.barcodeOverride ?? catalogBarcode ?? null)
     setServingMode('grams')
     setServingCount('1')
     setActiveServings(servingsForPickableItem(item))
@@ -130,6 +132,7 @@ export function useAddMealManualSheet({
       barcode,
       mealItemRepositoryForBarcodeLookup,
       isOnline,
+      await loadMergedCatalogFoods(),
     )
     setBarcodeNotFoundMessage(false)
     if (result.source === 'local') {
@@ -141,6 +144,15 @@ export function useAddMealManualSheet({
         barcodeOverride: barcode,
         deferOpen: true,
       })
+    } else if (result.source === 'catalog') {
+      openPickedItemSheet(
+        { source: 'food', food: result.food },
+        {
+          brandOverride: result.food.brand,
+          barcodeOverride: barcode,
+          deferOpen: true,
+        },
+      )
     } else if (result.source === 'openFoodFacts') {
       const syntheticFood = foodItemFromOff({
         name: result.name,
@@ -281,6 +293,24 @@ export function useAddMealManualSheet({
     setManualDraft(blankManualDraft())
     setEditingItemId(null)
     setIsManualOpen(false)
+    if (barcodeToSave) {
+      void useCatalogFoodImportStore.getState().rememberSavedFood({
+        name: trimmedName,
+        barcode: barcodeToSave,
+        brand: normalizeTextSpaces(manualDraft.brand).trim() || undefined,
+        per100g:
+          manualDraft.macroMode === 'per100g'
+            ? {
+                kcal100: amountNum,
+                protein100: parseOptionalMacro(manualDraft.protein) ?? 0,
+                fat100: parseOptionalMacro(manualDraft.fat) ?? 0,
+                carbs100: parseOptionalMacro(manualDraft.carbs) ?? 0,
+                cholesterolImpact: ldlChoice?.cholesterolImpact,
+                cholesterolReason: ldlChoice?.cholesterolReason,
+              }
+            : undefined,
+      })
+    }
     if (shouldTouch) {
       void touchMealItem(
         trimmedName,

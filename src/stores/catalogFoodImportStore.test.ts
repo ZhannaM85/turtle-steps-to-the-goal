@@ -5,6 +5,7 @@ import { mergeCatalogFoodImports } from '@/domain/catalogFoodImport'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useCatalogFoodImportStore } from './catalogFoodImportStore'
 import { useDailyEntryStore } from './dailyEntryStore'
+import { useMealItemStore } from './mealItemStore'
 
 beforeEach(async () => {
   await db.catalogFoodImports.clear()
@@ -72,6 +73,81 @@ describe('useCatalogFoodImportStore (#1015)', () => {
       cholesterolReason: 'Новая причина.',
     })
     expect(merged).toHaveLength(foods.length)
+  })
+
+  it('updates one catalog row and the library food that already has that barcode (#1027)', async () => {
+    await db.mealItems.clear()
+    const now = '2026-09-27T00:00:00.000Z'
+    await db.mealItems.put({
+      id: 'milk-1',
+      name: 'Старое молоко',
+      barcode: '4600605026533',
+      createdAt: now,
+      updatedAt: now,
+    })
+    useMealItemStore.setState({ items: await db.mealItems.toArray(), status: 'ready' })
+
+    const first = await useCatalogFoodImportStore.getState().importFoods([
+      {
+        nameRu: 'Молоко без лактозы 1,5%',
+        nameEn: 'Lactose-free milk 1.5%',
+        barcode: '4600605026533',
+        brand: 'Простоквашино',
+        kcal100: 45,
+        protein100: 2.9,
+        fat100: 1.5,
+        carbs100: 4.9,
+        cholesterolImpact: 'neutral',
+      },
+    ])
+    const again = await useCatalogFoodImportStore.getState().importFoods([
+      {
+        nameRu: 'Молоко 1,5% без лактозы',
+        barcode: '4600 6050 26533',
+        brand: 'Простоквашино',
+        kcal100: 47,
+        protein100: 2.9,
+        fat100: 1.5,
+        carbs100: 4.9,
+        cholesterolImpact: 'neutral',
+      },
+    ])
+
+    expect(first).toEqual({ added: 1, updated: 0 })
+    expect(again).toEqual({ added: 0, updated: 1 })
+    const stored = await db.catalogFoodImports.toArray()
+    expect(stored).toHaveLength(1)
+    expect(stored[0]).toMatchObject({
+      nameRu: 'Молоко 1,5% без лактозы',
+      barcode: '4600605026533',
+      brand: 'Простоквашино',
+      kcal100: 47,
+    })
+    expect(await db.mealItems.count()).toBe(1)
+    expect(useMealItemStore.getState().items[0]).toMatchObject({
+      id: 'milk-1',
+      name: 'Молоко 1,5% без лактозы',
+      barcode: '4600605026533',
+      brand: 'Простоквашино',
+    })
+
+    await useCatalogFoodImportStore.getState().rememberSavedFood({
+      name: 'Lactose-free milk 1.5%',
+      barcode: '4600605026533',
+      brand: 'Простоквашино',
+      per100g: {
+        kcal100: 46,
+        protein100: 2.9,
+        fat100: 1.5,
+        carbs100: 4.9,
+      },
+    })
+    expect(await db.catalogFoodImports.count()).toBe(1)
+    expect((await db.catalogFoodImports.toArray())[0]).toMatchObject({
+      nameRu: 'Молоко 1,5% без лактозы',
+      kcal100: 46,
+    })
+    await db.mealItems.clear()
   })
 
   it('restamps a matching diary meal when LDL changes (#1020)', async () => {

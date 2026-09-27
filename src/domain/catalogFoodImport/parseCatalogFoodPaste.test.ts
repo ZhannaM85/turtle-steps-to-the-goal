@@ -85,6 +85,48 @@ describe('parseCatalogFoodPaste (#1015)', () => {
     expect(result.ok && result.foods[0]?.aliases).toEqual(['салат', 'coleslaw'])
   })
 
+  it('keeps barcode and brand, and drops a blank code', () => {
+    const result = parseCatalogFoodPaste(
+      JSON.stringify({
+        ...coleslaw,
+        barcode: '4600 6050 26533',
+        brand: ' Простоквашино ',
+      }),
+    )
+    const blank = parseCatalogFoodPaste(
+      JSON.stringify({ ...coleslaw, barcode: '   ', brand: '' }),
+    )
+    expect(result.ok && result.foods[0]).toMatchObject({
+      barcode: '4600605026533',
+      brand: 'Простоквашино',
+      nameRu: 'Салат Коул слоу',
+    })
+    expect(blank.ok && blank.foods[0]?.barcode).toBeUndefined()
+    expect(blank.ok && blank.foods[0]?.brand).toBeUndefined()
+  })
+
+  it('keeps the last food when two pastes share a barcode', () => {
+    const result = parseCatalogFoodPaste(
+      JSON.stringify([
+        { ...coleslaw, barcode: '4600605026533', caloriesPer100g: 90 },
+        {
+          ...coleslaw,
+          nameRu: 'Другое молоко',
+          barcode: '4600605026533',
+          brand: 'Простоквашино',
+          caloriesPer100g: 45,
+        },
+      ]),
+    )
+    expect(result.ok && result.foods).toHaveLength(1)
+    expect(result.ok && result.foods[0]).toMatchObject({
+      nameRu: 'Другое молоко',
+      barcode: '4600605026533',
+      brand: 'Простоквашино',
+      kcal100: 45,
+    })
+  })
+
   it('keeps the last copy of the same Russian name', () => {
     const result = parseCatalogFoodPaste(
       JSON.stringify([

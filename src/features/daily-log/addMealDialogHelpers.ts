@@ -199,7 +199,7 @@ export function draftFromPickableItem(
     return {
       draft: {
         name: food[locale],
-        brand: brandOverride ?? '',
+        brand: brandOverride ?? food.brand ?? '',
         amount: String(food.kcal100),
         protein: String(food.protein100),
         fat: String(food.fat100),

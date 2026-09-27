@@ -94,6 +94,64 @@ describe('mergeCatalogFoodImports (#1015)', () => {
     ])
   })
 
+  it('updates by barcode before the Russian name (#1027)', () => {
+    const first = mergeCatalogFoodImports(sample, [
+      row({
+        nameRu: 'Молоко без лактозы 1,5%',
+        nameEn: 'Lactose-free milk 1.5%',
+        barcode: '4600605026533',
+        brand: 'Простоквашино',
+        kcal100: 45,
+      }),
+    ])
+    const renamed = mergeCatalogFoodImports(first, [
+      row({
+        nameRu: 'Молоко 1,5% без лактозы',
+        barcode: '4600 6050 26533',
+        brand: 'Простоквашино',
+        kcal100: 47,
+      }),
+    ])
+    const packaged = renamed.filter((food) => food.barcode === '4600605026533')
+    expect(packaged).toHaveLength(1)
+    expect(packaged[0]).toMatchObject({
+      id: 'user-catalog-bc-4600605026533',
+      ru: 'Молоко 1,5% без лактозы',
+      en: 'Lactose-free milk 1.5%',
+      brand: 'Простоквашино',
+      kcal100: 47,
+    })
+    expect(renamed).toHaveLength(sample.length + 1)
+    expect(renamed.filter((food) => food.ru === 'Овсянка')).toHaveLength(1)
+  })
+
+  it('keeps a name-only import on its own row when barcode is omitted', () => {
+    const next = mergeCatalogFoodImports(sample, [
+      row({ nameRu: 'Салат Коул слоу' }),
+      row({ nameRu: 'Творог', kcal100: 98 }),
+    ])
+    expect(next.filter((food) => food.ru === 'Салат Коул слоу')).toHaveLength(1)
+    expect(next.filter((food) => food.ru === 'Творог')).toHaveLength(1)
+    expect(next.find((food) => food.ru === 'Творог')?.barcode).toBeUndefined()
+  })
+
+  it('does not retitle a curated food when a later paste reuses its barcode', () => {
+    const tagged = mergeCatalogFoodImports(sample, [
+      row({ nameRu: 'Овсянка', barcode: '111', kcal100: 80 }),
+    ])
+    const next = mergeCatalogFoodImports(tagged, [
+      row({ nameRu: 'Другая овсянка', barcode: '111', kcal100: 90 }),
+    ])
+    expect(next).toHaveLength(sample.length)
+    expect(next[0]).toMatchObject({
+      id: 'oats',
+      ru: 'Овсянка',
+      en: 'Oatmeal',
+      barcode: '111',
+      kcal100: 90,
+    })
+  })
+
   it('clears a reason the paste does not include', () => {
     const next = mergeCatalogFoodImports(sample, [
       row({
