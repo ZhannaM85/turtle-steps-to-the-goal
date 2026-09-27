@@ -1,5 +1,6 @@
 import { useRef, useState, type ReactNode } from 'react'
 import { Pencil, Share2, Trash2 } from 'lucide-react'
+import { cholesterolForFoodRecord } from '@/domain/cholesterol'
 import type { CalorieItem, Emotion } from '@/domain/dailyEntry'
 import type { NutritionFactId } from '@/domain/nutritionFacts'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
@@ -8,7 +9,9 @@ import {
   formatMacroGrams,
   macrosSummaryTextCompact,
 } from '@/shared/lib/macroDisplay'
+import { useLdlImpactStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
+import { CholesterolImpactIndicator } from './CholesterolImpactIndicator'
 import { ConfirmDeleteEntryBar } from './ConfirmDeleteEntryBar'
 import { EmotionPicker } from './EmotionPicker'
 
@@ -58,6 +61,7 @@ export function AddMealDialogComposition({
 }) {
   const t = useTranslation()
   const locale = useLocale()
+  const ldlImpactEnabled = useLdlImpactStore((state) => state.enabled)
   const [selectedIds, setSelectedIds] = useState<string[] | null>(null)
   const pressTimer = useRef<number | null>(null)
   const suppressClick = useRef(false)
@@ -139,6 +143,20 @@ export function AddMealDialogComposition({
                     t,
                   )
                   const shareName = item.name?.trim()
+                  const cholesterol = ldlImpactEnabled
+                    ? cholesterolForFoodRecord(item)
+                    : null
+                  function activateItem() {
+                    if (suppressClick.current) {
+                      suppressClick.current = false
+                      return
+                    }
+                    if (selecting) {
+                      toggleSelected(item.id)
+                      return
+                    }
+                    onStartEditItem(item)
+                  }
                   return (
                     <li
                       key={item.id}
@@ -173,37 +191,45 @@ export function AddMealDialogComposition({
                           onChange={() => toggleSelected(item.id)}
                         />
                       ) : null}
-                      <button
-                        type="button"
-                        className="flex min-w-0 flex-1 flex-col gap-0.5 text-left hover:underline"
-                        onClick={() => {
-                          if (suppressClick.current) {
-                            suppressClick.current = false
-                            return
-                          }
-                          if (selecting) {
-                            toggleSelected(item.id)
-                            return
-                          }
-                          onStartEditItem(item)
-                        }}
-                      >
-                        <p className="text-base font-medium">
-                          {item.name || t.dailyEntry.itemNamePlaceholder}
-                        </p>
-                        <p className="flex items-baseline gap-1.5">
-                          <span className="text-xl font-semibold tabular-nums">
-                            {formatNumber(item.amountKcal, locale, 0)}{' '}
-                            {t.dailyEntry.kcalUnit}
-                          </span>
-                          {item.amountG !== undefined && (
-                            <span>
-                              · {formatMacroGrams(item.amountG, locale, t)}
+                      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                        <button
+                          type="button"
+                          className="flex flex-col gap-0.5 text-left hover:underline"
+                          onClick={activateItem}
+                        >
+                          <p className="text-base font-medium">
+                            {item.name || t.dailyEntry.itemNamePlaceholder}
+                          </p>
+                          <p className="flex items-baseline gap-1.5">
+                            <span className="text-xl font-semibold tabular-nums">
+                              {formatNumber(item.amountKcal, locale, 0)}{' '}
+                              {t.dailyEntry.kcalUnit}
                             </span>
-                          )}
-                        </p>
-                        {itemMacros && <p>{itemMacros}</p>}
-                      </button>
+                            {item.amountG !== undefined && (
+                              <span>
+                                · {formatMacroGrams(item.amountG, locale, t)}
+                              </span>
+                            )}
+                          </p>
+                        </button>
+                        {cholesterol && (
+                          <span data-meal-row-actions>
+                            <CholesterolImpactIndicator
+                              impact={cholesterol.cholesterolImpact}
+                              reason={cholesterol.cholesterolReason}
+                            />
+                          </span>
+                        )}
+                        {itemMacros && (
+                          <button
+                            type="button"
+                            className="text-left hover:underline"
+                            onClick={activateItem}
+                          >
+                            <p>{itemMacros}</p>
+                          </button>
+                        )}
+                      </div>
                       <span
                         data-meal-row-actions
                         className="flex shrink-0 items-center gap-2"

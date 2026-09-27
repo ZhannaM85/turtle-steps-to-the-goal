@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1003,
+    issue: 1030,
+    date: '2026-09-27T14:41:06+03:00',
+    en: 'When LDL indicators are on, add-meal search and the foods already in the meal show the same LDL label as Day.',
+    ru: 'Когда показатели ЛПНП включены, поиск в приёме пищи и продукты в составе показывают ту же метку ЛПНП, что и на экране «День».',
+  },
+  {
     version: 1002,
     issue: 1029,
     date: '2026-09-27T14:09:46+03:00',

@@ -1,15 +1,18 @@
 import { useRef, useState } from 'react'
 import { Star } from 'lucide-react'
+import { cholesterolForFoodRecord } from '@/domain/cholesterol'
 import { recipePerServing } from '@/domain/recipe'
 import { formatNumber, useLocale, useTranslation } from '@/i18n'
 import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
 import { cn } from '@/shared/lib/utils'
+import { useLdlImpactStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { itemKey, type PickableItem } from './addMealDialogHelpers'
 import type {
   MealSearchDeleteMode,
   MealSearchDeleteResult,
 } from './catalogItemDelete'
+import { CholesterolImpactIndicator } from './CholesterolImpactIndicator'
 import { MealSearchItemDeleteDialog } from './MealSearchItemDeleteDialog'
 
 const LONG_PRESS_MS = 450
@@ -38,6 +41,7 @@ export function AddMealPickableItemList({
   const [pending, setPending] = useState<PickableItem | null>(null)
   const [pendingMode, setPendingMode] = useState<MealSearchDeleteMode>('none')
   const [blocked, setBlocked] = useState(false)
+  const ldlImpactEnabled = useLdlImpactStore((state) => state.enabled)
 
   function requestDelete(item: PickableItem) {
     const mode = deleteMode?.(item) ?? 'none'
@@ -69,6 +73,7 @@ export function AddMealPickableItemList({
               (deleteMode?.(item) ?? 'none') !== 'none'
             }
             onRequestDelete={() => requestDelete(item)}
+            ldlImpactEnabled={ldlImpactEnabled}
             t={t}
             locale={locale}
           />
@@ -102,6 +107,7 @@ function PickableRow({
   onPick,
   canDelete,
   onRequestDelete,
+  ldlImpactEnabled,
   t,
   locale,
 }: {
@@ -112,6 +118,7 @@ function PickableRow({
   onPick: (item: PickableItem) => void
   canDelete: boolean
   onRequestDelete: () => void
+  ldlImpactEnabled: boolean
   t: ReturnType<typeof useTranslation>
   locale: ReturnType<typeof useLocale>
 }) {
@@ -136,9 +143,14 @@ function PickableRow({
   function ignoredTarget(target: EventTarget | null): boolean {
     return (
       target instanceof Element &&
-      target.closest('[data-meal-search-actions]') !== null
+      (target.closest('[data-meal-search-actions]') !== null ||
+        target.closest('[data-testid="cholesterol-impact"]') !== null)
     )
   }
+
+  const cholesterol = ldlImpactEnabled
+    ? cholesterolForPickable(item, locale)
+    : null
 
   return (
     <li
@@ -176,53 +188,61 @@ function PickableRow({
         onRequestDelete()
       }}
     >
-      <button
-        type="button"
-        className="flex w-full min-w-0 items-start gap-2 text-left text-sm text-muted-foreground hover:bg-muted"
-        onClick={() => {
-          if (suppressClick.current) {
-            suppressClick.current = false
-            return
-          }
-          onPick(item)
-        }}
-      >
-        <span className="flex min-w-0 flex-col gap-0.5">
-          {item.source === 'food' ? (
-            <>
-              <span className="text-base font-medium">{item.food[locale]}</span>
-              <span>
-                {formatNumber(item.food.kcal100, locale, 0)} {t.dailyEntry.kcalUnit}{' '}
-                {t.dailyEntry.per100gLabel} ·{' '}
-                {macrosSummaryTextCompact(
-                  item.food.protein100,
-                  item.food.fat100,
-                  item.food.carbs100,
-                  locale,
-                  t,
-                )}
-              </span>
-            </>
-          ) : item.source === 'recipe' ? (
-            <RecipePickableSummary item={item} locale={locale} t={t} />
-          ) : (
-            <>
-              <span className="text-base font-medium">{item.mealItem.name}</span>
-              <span>
-                {formatNumber(item.mealItem.lastAmountKcal, locale, 0)}{' '}
-                {t.dailyEntry.kcalUnit} {t.dailyEntry.lastLoggedLabel} ·{' '}
-                {macrosSummaryTextCompact(
-                  item.mealItem.lastProteinG,
-                  item.mealItem.lastFatG,
-                  item.mealItem.lastCarbsG,
-                  locale,
-                  t,
-                )}
-              </span>
-            </>
-          )}
-        </span>
-      </button>
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <button
+          type="button"
+          className="flex w-full min-w-0 items-start gap-2 text-left text-sm text-muted-foreground hover:bg-muted"
+          onClick={() => {
+            if (suppressClick.current) {
+              suppressClick.current = false
+              return
+            }
+            onPick(item)
+          }}
+        >
+          <span className="flex min-w-0 flex-col gap-0.5">
+            {item.source === 'food' ? (
+              <>
+                <span className="text-base font-medium">{item.food[locale]}</span>
+                <span>
+                  {formatNumber(item.food.kcal100, locale, 0)}{' '}
+                  {t.dailyEntry.kcalUnit} {t.dailyEntry.per100gLabel} ·{' '}
+                  {macrosSummaryTextCompact(
+                    item.food.protein100,
+                    item.food.fat100,
+                    item.food.carbs100,
+                    locale,
+                    t,
+                  )}
+                </span>
+              </>
+            ) : item.source === 'recipe' ? (
+              <RecipePickableSummary item={item} locale={locale} t={t} />
+            ) : (
+              <>
+                <span className="text-base font-medium">{item.mealItem.name}</span>
+                <span>
+                  {formatNumber(item.mealItem.lastAmountKcal, locale, 0)}{' '}
+                  {t.dailyEntry.kcalUnit} {t.dailyEntry.lastLoggedLabel} ·{' '}
+                  {macrosSummaryTextCompact(
+                    item.mealItem.lastProteinG,
+                    item.mealItem.lastFatG,
+                    item.mealItem.lastCarbsG,
+                    locale,
+                    t,
+                  )}
+                </span>
+              </>
+            )}
+          </span>
+        </button>
+        {cholesterol && (
+          <CholesterolImpactIndicator
+            impact={cholesterol.cholesterolImpact}
+            reason={cholesterol.cholesterolReason}
+          />
+        )}
+      </div>
       {item.source !== 'recipe' && (
         <Button
           type="button"
@@ -246,6 +266,21 @@ function PickableRow({
       )}
     </li>
   )
+}
+
+function cholesterolForPickable(
+  item: PickableItem,
+  locale: ReturnType<typeof useLocale>,
+) {
+  if (item.source === 'food') {
+    return cholesterolForFoodRecord({
+      name: item.food[locale],
+      cholesterolImpact: item.food.cholesterolImpact,
+      cholesterolReason: item.food.cholesterolReason,
+    })
+  }
+  if (item.source === 'mealItem') return cholesterolForFoodRecord(item.mealItem)
+  return cholesterolForFoodRecord({ name: item.recipe.name })
 }
 
 function RecipePickableSummary({
