@@ -2,7 +2,12 @@ import { useLayoutEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useLocale, useTranslation } from '@/i18n'
 import { getAppScrollport } from '@/shared/lib/appScroll'
+import { useTodaySectionsCollapseStore } from '@/stores'
 import { useDaySectionPinStore } from '@/stores/daySectionPinStore'
+import {
+  DAY_MACROS_COMPACT_SUMMARY_CLASSNAME,
+  DayMacrosCompactFigures,
+} from './DayMacrosCompactSummary'
 import {
   daySectionScrollTop,
   formatDayKcalStrip,
@@ -16,14 +21,13 @@ import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
 /**
  * #1022 — one-line consumed · remaining strip in the sticky date header.
- * An IntersectionObserver on `[data-day-section="macros"]` treats the
- * cards as on screen while any pixel sits below the sticky chrome
- * (rootMargin top = the full intro height, strip included, so mounting
- * the strip cannot slide the cards back into view — #1025). Pinning
- * КБЖУ portals those cards into the same header. The observer is the
- * only signal: while those cards
- * intersect the scrollport (including inside the pin dock), the strip
- * stays hidden. It appears again if a pinned summary scrolls away.
+ * #1029 — only while КБЖУ is collapsed. Expanded cards scroll away with
+ * the page and do not mount this strip. An IntersectionObserver on
+ * `[data-day-section="macros"]` treats the collapsed row as on screen
+ * while any pixel sits below the sticky chrome (rootMargin top = the
+ * full intro height, strip included, so mounting the strip cannot slide
+ * the row back into view — #1025). A collapsed pin in that header hides
+ * the strip so the compact line is not shown twice.
  */
 export function DayKcalStrip() {
   const slot = useDayPinContext()?.stripSlot ?? null
@@ -31,6 +35,7 @@ export function DayKcalStrip() {
   const t = useTranslation()
   const locale = useLocale()
   const macrosPinned = useDaySectionPinStore((s) => s.pinned.includes('macros'))
+  const macrosCollapsed = useTodaySectionsCollapseStore((s) => s.sections.macros)
   const [summaryInView, setSummaryInView] = useState(true)
   const hasSummary = Boolean(
     state.dayMacrosSummary || state.dayRemainingMacrosSummary,
@@ -113,10 +118,14 @@ export function DayKcalStrip() {
       observer?.disconnect()
       resize?.disconnect()
     }
-  }, [macrosPinned, hasSummary])
+  }, [macrosPinned, hasSummary, macrosCollapsed])
 
   if (!slot) return null
-  const visible = kcalStripVisible({ hasSummary, summaryInView })
+  const visible = kcalStripVisible({
+    hasSummary,
+    summaryInView,
+    collapsed: macrosCollapsed,
+  })
   if (!visible) return null
 
   const text = formatDayKcalStrip({
@@ -135,13 +144,10 @@ export function DayKcalStrip() {
       type="button"
       data-slot="day-kcal-strip"
       aria-label={`${t.today.kcalStripLabel}: ${label}`}
-      className="flex h-8 w-full min-w-0 items-center gap-2 overflow-hidden rounded-lg bg-muted px-3 text-left text-sm text-foreground tabular-nums"
+      className={DAY_MACROS_COMPACT_SUMMARY_CLASSNAME}
       onClick={() => scrollMacrosIntoView()}
     >
-      <span className="shrink-0">{text.kcal}</span>
-      {text.macros ? (
-        <span className="truncate text-muted-foreground">{text.macros}</span>
-      ) : null}
+      <DayMacrosCompactFigures kcal={text.kcal} macros={text.macros} />
     </button>,
     slot,
   )

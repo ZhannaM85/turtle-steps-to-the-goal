@@ -1,8 +1,7 @@
-import { formatNumber } from '@/i18n'
 import { SectionAccordion } from '@/shared/ui/section-accordion'
 import { DayPinFrame, DaySectionPinButton } from './DaySectionPin'
-import { StatCard } from '@/shared/ui/stat-card'
 import { usePlannedMealsTrackingStore, useTodaySectionsCollapseStore } from '@/stores'
+import { DayMacrosSection } from './DayMacrosSection'
 import { DayTotalsSection } from './DayTotalsSection'
 import { MealList } from './MealList'
 import { PlannedMealsSection } from './PlannedMealsSection'
@@ -27,11 +26,8 @@ import { WaterLogSection } from './WaterLogSection'
  */
 export function DailyEntryFormTop() {
   const state = useDailyEntryFormStateContext()
-  const { t, locale } = state
+  const { t } = state
   // #467/#468/#476/#511 — accordions; collapse shared with Day Collapse all.
-  const macrosCollapsed = useTodaySectionsCollapseStore(
-    (s) => s.sections.macros,
-  )
   const mealsCollapsed = useTodaySectionsCollapseStore(
     (s) => s.sections.meals,
   )
@@ -62,52 +58,10 @@ export function DailyEntryFormTop() {
         </p>
       )}
 
-      {/* Own field (#152) — was a text-xs caption line tucked under the
-       * Calories card; promoted to the same labeled-field treatment as
-       * Calories/Weight/Sleep use. #467: rebuilt on `StatCard` (the same
-       * big-number + description shape the Stats section's own cards
-       * use, kcal as the value, protein/fat/carbs as the description)
-       * instead of a plain `Card`, wrapped in the same bordered
-       * `Collapsible` accordion TodayScreen's Stats section uses —
-       * reported live as looking visually inconsistent with those
-       * cards otherwise. */}
-      {(state.dayMacrosSummary || state.dayRemainingMacrosSummary) && (
-        <DayPinFrame id="macros">
-        <SectionAccordion
-          open={!macrosCollapsed}
-          onOpenChange={(open) => setCollapsed('macros', !open)}
-          title={t.dailyEntry.macrosLabel}
-          expandLabel={t.dailyEntry.expandMacrosLabel}
-          collapseLabel={t.dailyEntry.collapseMacrosLabel}
-          shell={false}
-          contentClassName="flex flex-col gap-6 pt-3"
-          actions={<DaySectionPinButton id="macros" />}
-        >
-          {state.dayMacrosSummary && (
-            <StatCard
-              label={t.dailyEntry.consumedMacrosLabel}
-              value={formatNumber(state.dayTotalCalories, locale, 0)}
-              unit={t.dailyEntry.kcalUnit}
-              description={state.dayMacrosDescription ?? undefined}
-            />
-          )}
-          {state.dayRemainingMacrosSummary && (
-            <StatCard
-              label={t.dailyEntry.remainingMacrosLabel}
-              value={
-                state.remainingKcal !== undefined
-                  ? formatNumber(state.remainingKcal, locale, 0)
-                  : '—'
-              }
-              unit={t.dailyEntry.kcalUnit}
-              description={
-                state.dayRemainingMacrosDescription ?? undefined
-              }
-            />
-          )}
-        </SectionAccordion>
-        </DayPinFrame>
-      )}
+      {/* #152/#467 — StatCards in the same accordion as the other Day
+       * sections. #1029 — collapsed header keeps the compact line;
+       * sticky/pin only while collapsed. */}
+      <DayMacrosSection />
 
       {/* #549/#575 — optional day-level kcal/macros without meal items.
        * #860 chrome lives in DayTotalsSection. */}

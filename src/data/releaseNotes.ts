@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1002,
+    issue: 1029,
+    date: '2026-09-27T14:09:46+03:00',
+    en: 'On Day, collapsing calories and macros keeps a short summary, and that summary stays at the top only while the section is collapsed.',
+    ru: 'На экране «День» в свёрнутом блоке КБЖУ остаётся короткая сводка, и она закрепляется сверху только пока блок свёрнут.',
+  },
+  {
     version: 1001,
     issue: 1028,
     date: '2026-09-27T13:27:57+03:00',

@@ -90,15 +90,22 @@ export function DayPinDock() {
 export function DayPinFrame({
   id,
   children,
+  stick = true,
 }: {
   id: DaySectionPinId
   children: ReactNode
+  /**
+   * #1029 — a stored pin only moves the section into the sticky dock
+   * while `stick` is true. КБЖУ passes its collapsed flag so an expanded
+   * section stays in document flow.
+   */
+  stick?: boolean
 }) {
   const api = useDayPinContext()
   const pinned = useDaySectionPinStore((state) => state.pinned.includes(id))
   if (!api) return children
   const slot = api.slots[id] ?? null
-  const moved = pinned && slot !== null
+  const moved = pinned && stick && slot !== null
   const body = (
     <div data-day-section={id} className="min-w-0 bg-background">
       {children}

@@ -13,6 +13,10 @@ import {
   DaySectionPinButton,
 } from './DaySectionPin'
 import { useDaySectionPinStore } from '@/stores/daySectionPinStore'
+import {
+  DEFAULT_TODAY_SECTIONS,
+  useTodaySectionsCollapseStore,
+} from '@/stores/todaySectionsCollapseStore'
 
 class FakeIntersectionObserver {
   static instances: FakeIntersectionObserver[] = []
@@ -80,12 +84,28 @@ describe('Day kcal strip and pins (#1022)', () => {
     localStorage.clear()
     useLocaleStore.setState({ locale: 'en' })
     useDaySectionPinStore.setState({ pinned: [] })
+    useTodaySectionsCollapseStore.setState({
+      sections: { ...DEFAULT_TODAY_SECTIONS, macros: true },
+    })
     FakeIntersectionObserver.instances = []
     vi.stubGlobal('IntersectionObserver', FakeIntersectionObserver)
     document.getElementById('main-content')?.remove()
   })
 
-  it('shows the strip when the summary is off-screen and hides it when the cards are in view', () => {
+  it('does not stick the strip while calories and macros are expanded (#1029)', () => {
+    useTodaySectionsCollapseStore.setState({
+      sections: { ...DEFAULT_TODAY_SECTIONS, macros: false },
+    })
+    render(<Harness />)
+    act(() => latestObserver().fire(false))
+    expect(screen.queryByRole('button', { name: /1,680/ })).toBeNull()
+    expect(document.querySelector('[data-slot="day-kcal-strip"]')).toBeNull()
+    const section = document.querySelector('[data-day-section="macros"]')
+    expect(section?.closest('[data-slot="day-intro"]')).toBeNull()
+    expect(section?.className ?? '').not.toMatch(/\bsticky\b/)
+  })
+
+  it('shows the strip when the collapsed summary is off-screen and hides it when the row is in view', () => {
     render(<Harness />)
     expect(screen.queryByRole('button', { name: /1,680/ })).toBeNull()
 

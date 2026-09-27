@@ -21,6 +21,7 @@ export function SectionAccordion({
   expandLabel,
   collapseLabel,
   actions,
+  summary,
   children,
   className,
   id,
@@ -35,6 +36,8 @@ export function SectionAccordion({
   expandLabel: string
   collapseLabel: string
   actions?: ReactNode
+  /** Extra row inside the header trigger, e.g. a collapsed summary. */
+  summary?: ReactNode
   children: ReactNode
   className?: string
   id?: string
@@ -62,6 +65,9 @@ export function SectionAccordion({
                 <span className="text-xs font-normal text-muted-foreground">
                   {subtitle}
                 </span>
+              ) : null}
+              {summary ? (
+                <span className="mt-1.5 block w-full min-w-0">{summary}</span>
               ) : null}
             </button>
           </CollapsibleTrigger>

@@ -10,15 +10,34 @@ import {
 } from './dayKcalStripModel'
 
 describe('kcal strip (#1022)', () => {
-  it('shows the strip only after the full summary leaves the screen', () => {
+  it('shows the strip only after a collapsed summary leaves the screen (#1029)', () => {
     expect(
-      kcalStripVisible({ hasSummary: true, summaryInView: false }),
+      kcalStripVisible({
+        hasSummary: true,
+        summaryInView: false,
+        collapsed: true,
+      }),
     ).toBe(true)
-    expect(kcalStripVisible({ hasSummary: true, summaryInView: true })).toBe(
-      false,
-    )
     expect(
-      kcalStripVisible({ hasSummary: false, summaryInView: false }),
+      kcalStripVisible({
+        hasSummary: true,
+        summaryInView: true,
+        collapsed: true,
+      }),
+    ).toBe(false)
+    expect(
+      kcalStripVisible({
+        hasSummary: true,
+        summaryInView: false,
+        collapsed: false,
+      }),
+    ).toBe(false)
+    expect(
+      kcalStripVisible({
+        hasSummary: false,
+        summaryInView: false,
+        collapsed: true,
+      }),
     ).toBe(false)
   })
 

@@ -2,17 +2,18 @@ import { formatNumber, type Dictionary, type Locale } from '@/i18n'
 import { macrosSummaryTextCompact } from '@/shared/lib/macroDisplay'
 
 /**
- * #1022 — whether the one-line kcal strip should paint.
- * The full КБЖУ cards win whenever they intersect the scrollport
- * (including when a pin holds them in the sticky dock). A pinned
- * summary that has scrolled off still gets the strip — no second copy
- * while the cards themselves are on screen.
+ * #1022 / #1029 — whether the one-line kcal strip should paint.
+ * It is the collapsed summary's sticky stand-in: only after that
+ * collapsed row leaves the screen. Expanded КБЖУ scrolls with the
+ * page, so the strip stays off even when the cards are gone. A pin
+ * that still has the collapsed row on screen also wins — no second copy.
  */
 export function kcalStripVisible(input: {
   hasSummary: boolean
   summaryInView: boolean
+  collapsed: boolean
 }): boolean {
-  return input.hasSummary && !input.summaryInView
+  return input.hasSummary && input.collapsed && !input.summaryInView
 }
 
 /** A pinned summary lives inside the sticky header, so the shrunk
