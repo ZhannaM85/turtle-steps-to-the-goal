@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1007,
+    issue: 1032,
+    date: '2026-09-27T18:57:52+03:00',
+    en: 'The collapsed calories and macros line on Day has more space around it, so it sits clear of the heading and the next section.',
+    ru: 'Свёрнутая строка калорий и БЖУ на экране «День» стоит свободнее: есть отступ от заголовка и от следующего раздела.',
+  },
+  {
     version: 1006,
     issue: 1027,
     date: '2026-09-27T15:19:39+03:00',

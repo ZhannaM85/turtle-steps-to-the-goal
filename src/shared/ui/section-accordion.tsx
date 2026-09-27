@@ -47,14 +47,25 @@ export function SectionAccordion({
   return (
     <div id={id} className={cn(shell && 'section-shell p-3', className)}>
       <Collapsible open={open} onOpenChange={onOpenChange}>
-        <div className="flex items-start gap-2">
+        <div
+          className={cn(
+            'flex items-start gap-2',
+            summary && actions && 'relative',
+          )}
+        >
           <CollapsibleTrigger asChild>
             <button
               type="button"
               aria-label={open ? collapseLabel : expandLabel}
               className="group flex min-w-0 flex-1 flex-col gap-0.5 text-left"
             >
-              <span className="flex items-center justify-between gap-1.5">
+              <span
+                className={cn(
+                  'flex items-center justify-between gap-1.5',
+                  // Room for the absolute pin so the chevron stays clear.
+                  summary && actions && 'pr-14',
+                )}
+              >
                 <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
                   {icon}
                   {title}
@@ -67,11 +78,18 @@ export function SectionAccordion({
                 </span>
               ) : null}
               {summary ? (
-                <span className="mt-1.5 block w-full min-w-0">{summary}</span>
+                // #1032 — clear the title-row pin (icon-touch is 44px,
+                // the label line is ~20px) and leave air before the
+                // next Day section. The pin sits on the title row only.
+                <span className="mt-6 mb-3 block w-full min-w-0">{summary}</span>
               ) : null}
             </button>
           </CollapsibleTrigger>
-          {actions}
+          {summary && actions ? (
+            <div className="absolute top-0 right-0">{actions}</div>
+          ) : (
+            actions
+          )}
         </div>
         <CollapsibleContent>
           <div className={contentClassName}>{children}</div>

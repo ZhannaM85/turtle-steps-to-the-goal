@@ -96,7 +96,12 @@ describe('Day КБЖУ collapse (#1029)', () => {
     const line = summary()
     expect(line).toHaveTextContent('1,680 · -275 kcal')
     expect(line).toHaveTextContent('P 128g · F 71g · C 138g')
-    expect(line).toHaveClass('bg-muted', 'tabular-nums')
+    expect(line).toHaveClass('bg-muted', 'tabular-nums', 'px-3', 'py-2')
+    expect(line).not.toHaveClass('h-8')
+    expect(line?.parentElement).toHaveClass('mt-6', 'mb-3')
+    expect(
+      document.querySelector('[data-day-pin-button="macros"]')?.parentElement,
+    ).toHaveClass('absolute', 'top-0', 'right-0')
     expect(line?.closest('[data-day-section="macros"]')).toBeTruthy()
     expect(screen.queryByText('Consumed')).toBeNull()
     expect(screen.queryByText('Remaining')).toBeNull()
@@ -104,6 +109,9 @@ describe('Day КБЖУ collapse (#1029)', () => {
     await user.click(screen.getByRole('button', { name: /Show calories & macros/ }))
 
     expect(summary()).toBeNull()
+    expect(
+      document.querySelector('[data-day-pin-button="macros"]')?.parentElement,
+    ).not.toHaveClass('absolute')
     expect(screen.getByText('Consumed')).toBeVisible()
     expect(screen.getByText('Remaining')).toBeVisible()
     expect(screen.getByText('1,680')).toBeVisible()
