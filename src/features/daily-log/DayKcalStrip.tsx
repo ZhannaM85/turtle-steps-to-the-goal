@@ -9,6 +9,7 @@ import {
   kcalStripRootMarginTopPx,
   kcalStripVisible,
   rectIntersectsBand,
+  summaryIsBelowStickyChrome,
 } from './dayKcalStripModel'
 import { useDayPinContext } from './dayPinContext'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
@@ -17,9 +18,10 @@ import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
  * #1022 — one-line consumed · remaining strip in the sticky date header.
  * An IntersectionObserver on `[data-day-section="macros"]` treats the
  * cards as on screen while any pixel sits below the sticky chrome
- * (rootMargin top = intro height minus this strip, so the strip cannot
- * flicker itself). Pinning КБЖУ portals those cards into the same
- * header. The observer is the only signal: while those cards
+ * (rootMargin top = the full intro height, strip included, so mounting
+ * the strip cannot slide the cards back into view — #1025). Pinning
+ * КБЖУ portals those cards into the same header. The observer is the
+ * only signal: while those cards
  * intersect the scrollport (including inside the pin dock), the strip
  * stays hidden. It appears again if a pinned summary scrolls away.
  */
@@ -65,9 +67,7 @@ export function DayKcalStrip() {
       const root = getAppScrollport()
       const intro = document.querySelector('[data-slot="day-intro"]')
       const introHeight = intro?.getBoundingClientRect().height ?? 0
-      const strip = document.querySelector('[data-slot="day-kcal-strip"]')
-      const stripHeight = strip?.getBoundingClientRect().height ?? 0
-      const top = kcalStripRootMarginTopPx(introHeight, stripHeight)
+      const top = kcalStripRootMarginTopPx(introHeight)
       observer = new IntersectionObserver(
         ([entry]) => {
           if (!entry) return
@@ -75,6 +75,17 @@ export function DayKcalStrip() {
           if (!current || entry.target !== current) return
           if (current.closest('[data-slot="day-pin-dock"]')) {
             setSummaryInView(entry.isIntersecting || dockInView(current))
+            return
+          }
+          const liveIntro = document.querySelector('[data-slot="day-intro"]')
+          const rect = entry.boundingClientRect
+          if (liveIntro && rect) {
+            setSummaryInView(
+              summaryIsBelowStickyChrome({
+                summaryBottom: rect.bottom,
+                chromeBottom: liveIntro.getBoundingClientRect().bottom,
+              }),
+            )
             return
           }
           setSummaryInView(entry.isIntersecting)
@@ -141,9 +152,7 @@ function scrollMacrosIntoView() {
   if (!(section instanceof HTMLElement)) return
   const scroller = getAppScrollport()
   const intro = document.querySelector('[data-slot="day-intro"]')
-  const strip = document.querySelector('[data-slot="day-kcal-strip"]')
   const introHeight = intro?.getBoundingClientRect().height ?? 0
-  const stripHeight = strip?.getBoundingClientRect().height ?? 0
   if (!scroller) {
     section.scrollIntoView({ block: 'start', behavior: 'smooth' })
     return
@@ -153,7 +162,6 @@ function scrollMacrosIntoView() {
     sectionTop: section.getBoundingClientRect().top,
     scrollerTop: scroller.getBoundingClientRect().top,
     introHeight,
-    stripHeight,
   })
   scroller.scrollTo({ top, behavior: 'smooth' })
 }

@@ -25,14 +25,23 @@ export function rectIntersectsBand(
   return rect.bottom > band.top && rect.top < band.bottom
 }
 
+/** True when the summary still has pixels below the sticky day chrome.
+ * Compare live rects: a stale IntersectionObserver margin can report
+ * the summary as visible in the same frame the strip mounts (#1025). */
+export function summaryIsBelowStickyChrome(input: {
+  summaryBottom: number
+  chromeBottom: number
+}): boolean {
+  return input.summaryBottom > input.chromeBottom
+}
+
 /** Top rootMargin so "in view" means below the sticky day chrome.
- * Subtract the strip's own height so showing it does not push the
- * summary back into the observed region and flicker. */
-export function kcalStripRootMarginTopPx(
-  introHeight: number,
-  stripHeight: number,
-): number {
-  return Math.max(0, Math.ceil(introHeight - stripHeight))
+ * The strip is inside that chrome, so `introHeight` already includes it
+ * once the strip is mounted. Do not subtract the strip: the summary
+ * moves down by the same growth, and a fixed edge lets it cross back
+ * into view, which hides the strip and repeats (#1025). */
+export function kcalStripRootMarginTopPx(introHeight: number): number {
+  return Math.max(0, Math.ceil(introHeight))
 }
 
 export function daySectionScrollTop(input: {
@@ -40,9 +49,8 @@ export function daySectionScrollTop(input: {
   sectionTop: number
   scrollerTop: number
   introHeight: number
-  stripHeight: number
 }): number {
-  const offset = kcalStripRootMarginTopPx(input.introHeight, input.stripHeight)
+  const offset = kcalStripRootMarginTopPx(input.introHeight)
   return Math.max(
     0,
     input.scrollTop + input.sectionTop - input.scrollerTop - offset,

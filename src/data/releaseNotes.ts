@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 999,
+    issue: 1025,
+    date: '2026-09-27T13:04:39+03:00',
+    en: 'On Day, the page no longer shakes while you scroll and the compact calorie line is showing.',
+    ru: 'На экране «День» страница больше не дёргается при прокрутке, когда видна строка калорий.',
+  },
+  {
     version: 998,
     issue: 1023,
     date: '2026-09-27T12:16:00+03:00',

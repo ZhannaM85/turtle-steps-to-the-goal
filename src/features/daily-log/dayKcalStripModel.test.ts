@@ -6,6 +6,7 @@ import {
   kcalStripRootMarginTopPx,
   kcalStripVisible,
   rectIntersectsBand,
+  summaryIsBelowStickyChrome,
 } from './dayKcalStripModel'
 
 describe('kcal strip (#1022)', () => {
@@ -30,9 +31,28 @@ describe('kcal strip (#1022)', () => {
     ).toBe(false)
   })
 
-  it('keeps the observed top edge stable when the strip itself is showing', () => {
-    expect(kcalStripRootMarginTopPx(120, 32)).toBe(88)
-    expect(kcalStripRootMarginTopPx(20, 32)).toBe(0)
+  it('observes below the full sticky intro, including the strip', () => {
+    expect(kcalStripRootMarginTopPx(120)).toBe(120)
+    expect(kcalStripRootMarginTopPx(0)).toBe(0)
+  })
+
+  it('keeps a summary that just left the screen hidden after the strip mounts (#1025)', () => {
+    const chrome = 120
+    const growth = 38
+    const gap = 1
+    const edgeBefore = kcalStripRootMarginTopPx(chrome)
+    const summaryBottomBefore = edgeBefore - gap
+    expect(summaryBottomBefore > edgeBefore).toBe(false)
+
+    const edgeAfter = kcalStripRootMarginTopPx(chrome + growth)
+    const summaryBottomAfter = summaryBottomBefore + growth
+    expect(edgeAfter - edgeBefore).toBe(growth)
+    expect(
+      summaryIsBelowStickyChrome({
+        summaryBottom: summaryBottomAfter,
+        chromeBottom: edgeAfter,
+      }),
+    ).toBe(false)
   })
 
   it('scrolls the summary to just under the sticky chrome', () => {
@@ -42,9 +62,8 @@ describe('kcal strip (#1022)', () => {
         sectionTop: 500,
         scrollerTop: 40,
         introHeight: 120,
-        stripHeight: 32,
       }),
-    ).toBe(400 + 500 - 40 - 88)
+    ).toBe(400 + 500 - 40 - 120)
   })
 
   it('formats consumed and remaining with locale numbers and compact macros', () => {
