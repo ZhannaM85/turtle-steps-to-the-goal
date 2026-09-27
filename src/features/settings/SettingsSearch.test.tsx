@@ -117,6 +117,20 @@ describe('Settings search field (#1018)', () => {
     expect(screen.queryByRole('switch', { name: 'Sleep' })).not.toBeInTheDocument()
   })
 
+  it('stacks the sticky header above section pin and collapse icons (#1021)', () => {
+    renderSettings()
+
+    const search = screen.getByRole('searchbox', { name: 'Search settings' })
+    const sticky = search.parentElement?.parentElement
+    expect(sticky).toHaveClass('sticky', 'top-0', 'z-20', 'bg-background')
+    expect(sticky).not.toHaveClass('z-10')
+
+    const pin = screen.getAllByRole('button', { name: 'Pin to top' })[0]
+    expect(pin?.parentElement).toHaveClass('z-10')
+    const collapse = screen.getAllByRole('button', { name: 'Collapse' })[0]
+    expect(collapse?.parentElement).toBe(pin?.parentElement)
+  })
+
   it('says when nothing matches', async () => {
     const user = userEvent.setup()
     renderSettings()

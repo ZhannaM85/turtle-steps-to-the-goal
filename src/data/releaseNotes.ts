@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 996,
+    issue: 1021,
+    date: '2026-09-27T11:42:04+03:00',
+    en: 'On Settings, a section’s pin and collapse arrow stay behind the title and search bar while you scroll.',
+    ru: 'В настройках значок закрепления и стрелка сворачивания секции остаются за заголовком и строкой поиска при прокрутке.',
+  },
+  {
     version: 995,
     issue: 1020,
     date: '2026-09-27T11:33:10+03:00',

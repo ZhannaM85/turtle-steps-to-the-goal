@@ -70,8 +70,11 @@ function SettingsScreenContent() {
 
   return (
     <div className="flex flex-col gap-6">
+      {/* #1021 — card pin/chevron are z-10 and are not trapped by the
+          panel, so at the same z-index they paint over this band (the
+          gap around search). Sit above them; background stays opaque. */}
       <div
-        className={pageStickyUnderAppHeader('flex flex-col gap-3 pb-3')}
+        className={pageStickyUnderAppHeader('z-20 flex flex-col gap-3 pb-3')}
         style={{ order: -4000 }}
       >
         <PageHeader
