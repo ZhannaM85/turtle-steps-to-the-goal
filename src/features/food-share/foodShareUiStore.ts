@@ -28,10 +28,12 @@ interface FoodShareUiState {
   openBatchImport: (items: SharedFoodPayload[]) => void
   setBatchImportOpen: (open: boolean) => void
   /** #802 — Add meal registers this so a confirmed import also lands in
-   * the open meal, not only the food library. */
-  onImported: ((result: SharedFoodImportResult) => void) | null
+   * the open meal, not only the food library. #1028 — a batch is one call
+   * with every dish. One food is a one-element list. Calling once per dish
+   * replaced the meal snapshot and kept only the last. */
+  onImported: ((results: readonly SharedFoodImportResult[]) => void) | null
   setOnImported: (
-    onImported: ((result: SharedFoodImportResult) => void) | null,
+    onImported: ((results: readonly SharedFoodImportResult[]) => void) | null,
   ) => void
 }
 

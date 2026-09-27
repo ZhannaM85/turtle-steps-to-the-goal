@@ -340,9 +340,12 @@ export function AddMealDialog({
                     onOpenBarcode={() => setIsBarcodeOpen(true)}
                     onOpenRecipe={() => setIsRecipeOpen(true)}
                     onImportSharedFood={() => {
-                      useFoodShareUiStore.getState().setOnImported((result) => {
-                        const item = calorieItemFromImportedFood(result)
-                        if (item) onAppendItems([item])
+                      useFoodShareUiStore.getState().setOnImported((results) => {
+                        const items = results.flatMap((result) => {
+                          const item = calorieItemFromImportedFood(result)
+                          return item ? [item] : []
+                        })
+                        if (items.length > 0) onAppendItems(items)
                       })
                       useFoodShareUiStore.getState().setEntryOpen(true)
                     }}

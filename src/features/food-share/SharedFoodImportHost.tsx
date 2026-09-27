@@ -172,7 +172,7 @@ export function SharedFoodImportHost() {
           })
           // #802 — Add meal may have registered a listener so this dish
           // also lands in the open meal, not only the food library.
-          useFoodShareUiStore.getState().onImported?.(result)
+          useFoodShareUiStore.getState().onImported?.([result])
         }}
       />
 
@@ -190,8 +190,11 @@ export function SharedFoodImportHost() {
               servings: result.servings,
               existingId: result.existingId,
             })
-            useFoodShareUiStore.getState().onImported?.(result)
           }
+          // #1028 — one append for the whole batch. Per-dish callbacks
+          // each wrote from the meal snapshot captured when import opened,
+          // so only the last dish stayed.
+          useFoodShareUiStore.getState().onImported?.(results)
         }}
       />
     </>

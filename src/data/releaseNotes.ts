@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1001,
+    issue: 1028,
+    date: '2026-09-27T13:27:57+03:00',
+    en: 'Sharing several foods now adds each of them, not only the last one.',
+    ru: 'Если поделиться несколькими продуктами, добавляется каждый из них, а не только последний.',
+  },
+  {
     version: 1000,
     issue: 1024,
     date: '2026-09-27T13:16:00+03:00',
