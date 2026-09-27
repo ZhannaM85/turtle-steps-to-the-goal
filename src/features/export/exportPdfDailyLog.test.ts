@@ -226,6 +226,63 @@ describe('dailyLogPdfDayLines (#891)', () => {
       text: `${t.exportXlsx.moodColumn}: Happy`,
     })
   })
+
+  it('prints the LDL label and reason on a meal item, and hides them when the gate is off (#1026)', () => {
+    const entry = makeEntry({
+      calorieEntries: [
+        {
+          id: 'meal-1',
+          label: 'Breakfast',
+          createdAt: '2026-08-01T08:00:00.000Z',
+          items: [
+            {
+              id: 'item-1',
+              name: 'Oats',
+              amountKcal: 180,
+              cholesterolImpact: 'beneficial',
+              cholesterolReason: 'Oat fiber',
+            },
+          ],
+        },
+      ],
+    })
+    const shown = dailyLogPdfDayLines(entry, t, 'en', 'kg').map(
+      (line) => line.text,
+    )
+    const hidden = dailyLogPdfDayLines(entry, t, 'en', 'kg', {
+      tracking: {
+        sleep: true,
+        steps: true,
+        bodyMeasurements: true,
+        note: true,
+        morningNote: true,
+        mood: true,
+        bodyComposition: true,
+        nightEating: true,
+        fiber: true,
+        cycle: true,
+        digestion: true,
+        alcohol: true,
+        water: true,
+        sodium: true,
+        potassium: true,
+        magnesium: true,
+        eatingReason: true,
+        ldlImpact: false,
+      },
+    }).map((line) => line.text)
+
+    expect(
+      shown.some(
+        (line) =>
+          line.includes('Oats') &&
+          line.includes('Helps') &&
+          line.includes('Oat fiber'),
+      ),
+    ).toBe(true)
+    expect(hidden.some((line) => line.includes('Helps') || line.includes('Oat fiber'))).toBe(false)
+    expect(hidden.some((line) => line.includes('Oats'))).toBe(true)
+  })
 })
 
 describe('appendDailyLogPdfPages', () => {

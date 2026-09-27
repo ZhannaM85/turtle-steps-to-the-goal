@@ -304,6 +304,8 @@ export const exportXlsx: ExportXlsxDict = {
     sodiumColumn: 'Sodium (mg)',
     potassiumColumn: 'Potassium (mg)',
     magnesiumColumn: 'Magnesium (mg)',
+    ldlImpactColumn: 'LDL impact',
+    ldlReasonColumn: 'LDL reason',
     mealReactionColumn: 'Meal reaction',
     eatingReasonColumn: 'Why eating',
     itemNoteColumn: 'Item note',

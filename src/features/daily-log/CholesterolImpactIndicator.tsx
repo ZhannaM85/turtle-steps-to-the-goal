@@ -1,6 +1,7 @@
 import { useId, useState } from 'react'
 import type { CholesterolImpact } from '@/domain/cholesterol'
 import { useTranslation } from '@/i18n'
+import { cholesterolImpactLabel } from '@/shared/lib/cholesterolImpactLabel'
 import { Button } from '@/shared/ui/button'
 
 const EMOJI: Record<CholesterolImpact, string> = {
@@ -23,7 +24,7 @@ export function CholesterolImpactIndicator({
   const t = useTranslation()
   const [open, setOpen] = useState(false)
   const reasonId = useId()
-  const level = levelLabel(impact, t)
+  const level = cholesterolImpactLabel(impact, t)
   const tip = reason
     ? `${t.dailyEntry.cholesterolLdlImpactLabel} / ${EMOJI[impact]} ${level} / ${reason}`
     : `${t.dailyEntry.cholesterolLdlImpactLabel} / ${EMOJI[impact]} ${level}`
@@ -59,22 +60,3 @@ export function CholesterolImpactIndicator({
   )
 }
 
-function levelLabel(
-  impact: CholesterolImpact,
-  t: ReturnType<typeof useTranslation>,
-): string {
-  switch (impact) {
-    case 'beneficial':
-      return t.dailyEntry.cholesterolImpactBeneficial
-    case 'neutral':
-      return t.dailyEntry.cholesterolImpactNeutral
-    case 'moderate':
-      return t.dailyEntry.cholesterolImpactModerate
-    case 'limit':
-      return t.dailyEntry.cholesterolImpactLimit
-    case 'high':
-      return t.dailyEntry.cholesterolImpactHigh
-    case 'unknown':
-      return t.dailyEntry.cholesterolImpactUnknown
-  }
-}

@@ -184,15 +184,15 @@ describe('buildExportWorkbook', () => {
 
     expect(rows).toHaveLength(2)
     // [date, meal, item, brand, calories, protein, fat, carbs, fiber, sodium,
-    //  potassium, magnesium, grams, time, reaction, mealReaction, eatingReason,
-    //  itemNote, note]
+    //  potassium, magnesium, ldl impact, ldl reason, grams, time, reaction,
+    //  mealReaction, eatingReason, itemNote, note]
     expect(rows[0][2]).toBe('Breakfast')
     expect(rows[0][3]).toBe('Toast')
     expect(rows[0][4]).toBeUndefined()
     expect(rows[0][5]).toBe(150)
-    expect(rows[0][13]).toBe(60)
-    expect(rows[0][14]).toBe('08:00')
-    expect(rows[0][15]).toBe('Thumbs up')
+    expect(rows[0][15]).toBe(60)
+    expect(rows[0][16]).toBe('08:00')
+    expect(rows[0][17]).toBe('Thumbs up')
     expect(rows[1][2]).toBe('Lunch')
     expect(rows[1][3]).toBe('Chicken breast')
     expect(rows[1][4]).toBe('Perdue')
@@ -240,9 +240,9 @@ describe('buildExportWorkbook', () => {
     expect(mealRow[10]).toBe(200)
     expect(mealRow[11]).toBe(80)
     expect(mealRow[12]).toBe(15)
-    expect(mealRow[16]).toBe('Happy')
-    expect(mealRow[18]).toBe('Crispy')
-    expect(mealRow[19]).toBe('Meal note')
+    expect(mealRow[18]).toBe('Happy')
+    expect(mealRow[20]).toBe('Crispy')
+    expect(mealRow[21]).toBe('Meal note')
   })
 
   it('omits gated Daily Log columns when tracking is off (#744)', async () => {
@@ -270,6 +270,7 @@ describe('buildExportWorkbook', () => {
           potassium: false,
           magnesium: false,
           eatingReason: true,
+          ldlImpact: true,
         },
       },
     )
@@ -417,6 +418,7 @@ describe('buildExportWorkbook', () => {
         potassium: true,
         magnesium: true,
         eatingReason: true,
+        ldlImpact: true,
       },
     })
 

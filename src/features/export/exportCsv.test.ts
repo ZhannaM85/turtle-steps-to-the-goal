@@ -24,7 +24,7 @@ const DAILY_HEADER_ONE_DAY =
 
 const MEALS_HEADER =
   'Date,Meal,Item,Brand,Calories (kcal),Protein (g),Fat (g),Carbs (g),' +
-  'Fiber (g),Sodium (mg),Potassium (mg),Magnesium (mg),Grams,Time,' +
+  'Fiber (g),Sodium (mg),Potassium (mg),Magnesium (mg),LDL impact,LDL reason,Grams,Time,' +
   'Reaction,Meal reaction,Why eating,Item note,Note'
 
 const WATER_HEADER = 'Date,Amount (ml),Time'
@@ -63,6 +63,7 @@ const ALL_TRACKED: AnalysisExportTrackingGate = {
   potassium: true,
   magnesium: true,
   eatingReason: true,
+  ldlImpact: true,
 }
 
 describe('buildDailyLogCsv', () => {
@@ -287,7 +288,7 @@ describe('buildDailyLogCsv', () => {
 
     expect(header).toBe(MEALS_HEADER)
     expect(row).toBe(
-      '2026-03-01,Breakfast,Toast,,150,,,,2,200,,,60,08:00,Thumbs up,Happy,,Crispy,Meal note',
+      '2026-03-01,Breakfast,Toast,,150,,,,2,200,,,Unknown,,60,08:00,Thumbs up,Happy,,Crispy,Meal note',
     )
   })
 
@@ -523,6 +524,57 @@ describe('buildDailyLogCsv', () => {
     expect(header).not.toContain('Fiber (g)')
     expect(header).not.toContain('Sodium (mg)')
     expect(row).toContain('Breakfast,Toast,,150')
+  })
+
+  it('includes LDL impact and reason on meal rows, and omits them when the gate is off (#1026)', () => {
+    const entry = makeEntry({
+      calorieEntries: [
+        {
+          id: 'meal-1',
+          label: 'Breakfast',
+          items: [
+            {
+              id: 'item-1',
+              name: 'Овсянка',
+              amountKcal: 150,
+              cholesterolImpact: 'beneficial',
+              cholesterolReason: 'Клетчатка овса',
+            },
+          ],
+          createdAt: '2026-03-01T00:00:00.000Z',
+        },
+      ],
+    })
+    const csv = buildDailyLogCsv([entry], t)
+    const [, meals] = csv.split('\r\n\r\n')
+    const [header, row] = meals.split('\r\n')
+    const cells = row.split(',')
+
+    expect(cells[header.split(',').indexOf('LDL impact')]).toBe('Helps')
+    expect(cells[header.split(',').indexOf('LDL reason')]).toBe(
+      'Клетчатка овса',
+    )
+
+    const ru = getDictionary('ru')
+    const ruCsv = buildDailyLogCsv([entry], ru)
+    const [, ruMeals] = ruCsv.split('\r\n\r\n')
+    const [ruHeader, ruRow] = ruMeals.split('\r\n')
+    expect(ruRow.split(',')[ruHeader.split(',').indexOf('ЛПНП')]).toBe(
+      'Помогает',
+    )
+    expect(
+      ruRow.split(',')[ruHeader.split(',').indexOf('Причина ЛПНП')],
+    ).toBe('Клетчатка овса')
+
+    const gated = buildDailyLogCsv([entry], t, undefined, {
+      tracking: { ...ALL_TRACKED, ldlImpact: false },
+    })
+    const [, gatedMeals] = gated.split('\r\n\r\n')
+    const [gatedHeader, gatedRow] = gatedMeals.split('\r\n')
+    expect(gatedHeader).not.toContain('LDL impact')
+    expect(gatedHeader).not.toContain('LDL reason')
+    expect(gatedRow).not.toContain('Helps')
+    expect(gatedRow).not.toContain('Клетчатка овса')
   })
 
   it('exports why-eating on the Meals sheet and omits the column when tracking is off (#764)', () => {

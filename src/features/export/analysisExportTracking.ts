@@ -3,12 +3,13 @@ import { useAlcoholTrackingStore } from '@/stores/alcoholTrackingStore'
 import { useCycleTrackingStore } from '@/stores/cycleTrackingStore'
 import { useDigestionTrackingStore } from '@/stores/digestionTrackingStore'
 import { useEatingReasonTrackingStore } from '@/stores/eatingReasonTrackingStore'
+import { useLdlImpactStore } from '@/stores/ldlImpactStore'
 import { useMicronutrientTrackingStore } from '@/stores/micronutrientTrackingStore'
 import { useTrackedFieldsStore } from '@/stores/trackedFieldsStore'
 import { useWaterTrackingStore } from '@/stores/waterTrackingStore'
 
 /**
- * #744 / #898 — current Settings → What to track gates for analysis exports
+ * #744 / #898 / #1026 — current Settings → What to track gates for analysis exports
  * (CSV / Excel / Markdown / Day-share CSV). JSON backup does not use this.
  */
 export function currentAnalysisExportTracking(): AnalysisExportTrackingGate {
@@ -32,5 +33,6 @@ export function currentAnalysisExportTracking(): AnalysisExportTrackingGate {
     potassium: micronutrients.potassium,
     magnesium: micronutrients.magnesium,
     eatingReason: useEatingReasonTrackingStore.getState().enabled,
+    ldlImpact: useLdlImpactStore.getState().enabled,
   }
 }

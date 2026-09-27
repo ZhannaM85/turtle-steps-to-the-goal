@@ -7,6 +7,7 @@ import {
   useCycleTrackingStore,
   useDigestionTrackingStore,
   useEatingReasonTrackingStore,
+  useLdlImpactStore,
   useMealSlotDefaultTimesStore,
   useMicronutrientTrackingStore,
   useProfileStore,
@@ -67,6 +68,7 @@ export function PdfExportSection() {
   )
   const waterTrackingEnabled = useWaterTrackingStore((state) => state.enabled)
   const sex = useProfileStore((state) => state.sex)
+  const ldlImpactEnabled = useLdlImpactStore((state) => state.enabled)
   const eatingReasonTrackingEnabled = useEatingReasonTrackingStore(
     (state) => state.enabled,
   )
@@ -182,6 +184,7 @@ export function PdfExportSection() {
           potassium: micronutrients.potassium,
           magnesium: micronutrients.magnesium,
           eatingReason: eatingReasonTrackingEnabled,
+          ldlImpact: ldlImpactEnabled,
         },
         mealSlotTimes: mealSlotDefaultTimes,
         eatingReasonLabelOverrides,

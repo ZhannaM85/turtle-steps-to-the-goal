@@ -16,7 +16,7 @@ const DAILY_SEPARATOR = `| ${Array.from({ length: 36 }, () => '---').join(' | ')
 
 const MEALS_HEADER =
   '| Date | Meal | Item | Brand | Calories (kcal) | Protein (g) | Fat (g) | Carbs (g) | ' +
-  'Fiber (g) | Sodium (mg) | Potassium (mg) | Magnesium (mg) | Grams | Time | ' +
+  'Fiber (g) | Sodium (mg) | Potassium (mg) | Magnesium (mg) | LDL impact | LDL reason | Grams | Time | ' +
   'Reaction | Meal reaction | Why eating | Item note | Note |'
 
 const WATER_HEADER = '| Date | Amount (ml) | Time |'
@@ -40,7 +40,7 @@ function dailyTable(markdown: string): string {
 describe('buildDailyLogMarkdown', () => {
   it('writes Daily Log and Meals header tables when there are no entries', () => {
     const markdown = buildDailyLogMarkdown([], t)
-    const mealsSeparator = `| ${Array.from({ length: 19 }, () => '---').join(' | ')} |`
+    const mealsSeparator = `| ${Array.from({ length: 21 }, () => '---').join(' | ')} |`
     const waterSeparator = `| ${Array.from({ length: 3 }, () => '---').join(' | ')} |`
 
     expect(markdown).toBe(

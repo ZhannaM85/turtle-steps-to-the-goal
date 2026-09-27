@@ -367,6 +367,9 @@ export interface ExportXlsxDict {
     sodiumColumn: string
     potassiumColumn: string
     magnesiumColumn: string
+    /** #1026 — qualitative LDL impact and the optional reason on each meal item. */
+    ldlImpactColumn: string
+    ldlReasonColumn: string
     /** #743 — whole-meal `CalorieEntry.reaction` (#454), distinct from per-item Reaction. */
     mealReactionColumn: string
     /** #764 — why this meal happened. */

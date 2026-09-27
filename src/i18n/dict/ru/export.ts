@@ -318,6 +318,8 @@ export const exportXlsx: ExportXlsxDict = {
     sodiumColumn: 'Натрий (мг)',
     potassiumColumn: 'Калий (мг)',
     magnesiumColumn: 'Магний (мг)',
+    ldlImpactColumn: 'ЛПНП',
+    ldlReasonColumn: 'Причина ЛПНП',
     mealReactionColumn: 'Реакция на приём',
     eatingReasonColumn: 'Почему ем',
     itemNoteColumn: 'Заметка к блюду',

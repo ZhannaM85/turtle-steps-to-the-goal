@@ -5,6 +5,7 @@ import {
   type CholesterolImpact,
 } from '@/domain/cholesterol'
 import { useTranslation } from '@/i18n'
+import { cholesterolImpactLabel } from '@/shared/lib/cholesterolImpactLabel'
 import { useLdlImpactStore } from '@/stores'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
@@ -51,7 +52,7 @@ export function CholesterolImpactFields({
       >
         {CHOLESTEROL_IMPACTS.map((value) => (
           <option key={value} value={value}>
-            {impactLabel(value, t)}
+            {cholesterolImpactLabel(value, t)}
           </option>
         ))}
       </Select>
@@ -74,22 +75,3 @@ export function CholesterolImpactFields({
   )
 }
 
-function impactLabel(
-  impact: CholesterolImpact,
-  t: ReturnType<typeof useTranslation>,
-): string {
-  switch (impact) {
-    case 'beneficial':
-      return t.dailyEntry.cholesterolImpactBeneficial
-    case 'neutral':
-      return t.dailyEntry.cholesterolImpactNeutral
-    case 'moderate':
-      return t.dailyEntry.cholesterolImpactModerate
-    case 'limit':
-      return t.dailyEntry.cholesterolImpactLimit
-    case 'high':
-      return t.dailyEntry.cholesterolImpactHigh
-    case 'unknown':
-      return t.dailyEntry.cholesterolImpactUnknown
-  }
-}

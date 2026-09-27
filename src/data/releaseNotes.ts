@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1005,
+    issue: 1026,
+    date: '2026-09-27T15:06:00+03:00',
+    en: 'When LDL indicators are on, meal exports include the LDL impact and reason for each food.',
+    ru: 'Когда показатели ЛПНП включены, экспорт приёмов пищи включает влияние на ЛПНП и причину.',
+  },
+  {
     version: 1004,
     issue: 1031,
     date: '2026-09-27T14:55:30+03:00',

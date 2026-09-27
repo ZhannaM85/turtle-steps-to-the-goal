@@ -31,6 +31,7 @@ import {
   type DailyLogExportExtras,
 } from './dailyLogExport'
 import { pdfContentBottomMm } from './exportPdfFooter'
+import { mealItemLdlExport } from './mealLogExport'
 
 export interface DailyLogPdfInput {
   entries: DailyEntry[]
@@ -284,9 +285,14 @@ export function dailyLogPdfDayLines(
         kind: 'meal',
       })
       for (const item of meal.items) {
+        const ldl = trackingOn(extras, 'ldlImpact')
+          ? mealItemLdlExport(item, t)
+          : undefined
         const itemLine = joinParts([
           [item.name, item.brand].filter(Boolean).join(', ') || undefined,
           formatKcal(item.amountKcal, locale, t),
+          ldl?.impact,
+          ldl?.reason,
           item.noteText,
         ])
         if (itemLine) lines.push({ role: 'item', text: itemLine })
