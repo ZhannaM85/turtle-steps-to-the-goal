@@ -5,12 +5,15 @@ import { useTodaySectionsCollapseStore } from '@/stores'
 import { DayPinFrame, DaySectionPinButton } from './DaySectionPin'
 import { DayMacrosCompactSummary } from './DayMacrosCompactSummary'
 import { formatDayKcalStrip } from './dayKcalStripModel'
+import { useMacrosAutoCollapse } from './macrosAutoCollapse'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
 /**
  * #467 / #1029 — Day КБЖУ cards. Collapsed, the header keeps the same
  * eaten/goal line as the sticky strip (#1034). A pin keeps this section
- * first in the Day list; it sticks only while collapsed.
+ * first in the Day list; it sticks only while collapsed. #1036 — a
+ * downward scroll collapses the expanded cards once the header passes
+ * the sticky date chrome, and only the chevron opens them again.
  */
 export function DayMacrosSection() {
   const state = useDailyEntryFormStateContext()
@@ -19,8 +22,12 @@ export function DayMacrosSection() {
     (s) => s.sections.macros,
   )
   const setCollapsed = useTodaySectionsCollapseStore((s) => s.setCollapsed)
+  const hasSummary = Boolean(
+    state.dayMacrosSummary || state.dayRemainingMacrosSummary,
+  )
+  useMacrosAutoCollapse(macrosCollapsed, hasSummary)
 
-  if (!state.dayMacrosSummary && !state.dayRemainingMacrosSummary) return null
+  if (!hasSummary) return null
 
   const text = formatDayKcalStrip({
     consumedKcal: state.dayTotalCalories,

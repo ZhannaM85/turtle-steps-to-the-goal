@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { act, cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { formatNumber, getDictionary } from '@/i18n'
@@ -6,6 +6,7 @@ import type { DailyEntryFormState } from './useDailyEntryFormState'
 import { DailyEntryFormStateContext } from './dailyEntryFormStateContextValue'
 import { DayKcalStrip } from './DayKcalStrip'
 import { DayMacrosSection } from './DayMacrosSection'
+import { MACROS_AUTO_COLLAPSE_HYSTERESIS_PX } from './macrosAutoCollapse'
 import {
   DayKcalStripSlot,
   DayPinDock,
@@ -172,5 +173,88 @@ describe('Day КБЖУ collapse (#1029)', () => {
     expect(summary()).toHaveTextContent('1,680/1,955 kcal')
     expect(document.querySelectorAll('[data-slot="day-macros-compact-summary"]')).toHaveLength(1)
     expect(document.querySelector('[data-slot="day-kcal-strip"]')).toBeNull()
+  })
+
+  it('collapses expanded КБЖУ after a downward scroll past the sticky chrome (#1036)', () => {
+    useTodaySectionsCollapseStore.setState({
+      sections: { ...DEFAULT_TODAY_SECTIONS, macros: false },
+    })
+    useDaySectionPinStore.setState({ pinned: ['macros'] })
+    const tops = { section: 160 }
+    const chromeBottom = 80
+    const spy = vi
+      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockImplementation(function (this: HTMLElement) {
+        const box = (top: number, bottom: number): DOMRect =>
+          ({
+            x: 0,
+            y: top,
+            top,
+            left: 0,
+            right: 100,
+            bottom,
+            width: 100,
+            height: bottom - top,
+            toJSON() {
+              return {}
+            },
+          }) as DOMRect
+        if (this.getAttribute('data-slot') === 'day-intro') return box(0, chromeBottom)
+        if (this.getAttribute('data-day-section') === 'macros') {
+          return box(tops.section, tops.section + 420)
+        }
+        return box(0, 0)
+      })
+    const main = document.createElement('div')
+    main.id = 'main-content'
+    document.body.appendChild(main)
+    let scrollTop = 0
+    Object.defineProperty(main, 'scrollTop', {
+      configurable: true,
+      get: () => scrollTop,
+      set: (value: number) => {
+        scrollTop = value
+      },
+    })
+
+    try {
+      render(<Harness />, { container: main })
+      expect(screen.getByText('Consumed')).toBeInTheDocument()
+
+      tops.section = chromeBottom - 8
+      scrollTop = 30
+      act(() => {
+        main.dispatchEvent(new Event('scroll'))
+      })
+      expect(useTodaySectionsCollapseStore.getState().sections.macros).toBe(false)
+      expect(screen.getByText('Consumed')).toBeInTheDocument()
+
+      tops.section = chromeBottom - MACROS_AUTO_COLLAPSE_HYSTERESIS_PX - 4
+      scrollTop = 90
+      act(() => {
+        main.dispatchEvent(new Event('scroll'))
+      })
+      expect(useTodaySectionsCollapseStore.getState().sections.macros).toBe(true)
+      expect(summary()).toBeTruthy()
+      expect(
+        document.querySelector('[data-day-section="macros"]')?.getAttribute(
+          'data-day-pin-sticky',
+        ),
+      ).toBe('true')
+      expect(screen.queryByText('Consumed')).toBeNull()
+
+      tops.section = 240
+      scrollTop = 0
+      act(() => {
+        main.dispatchEvent(new Event('scroll'))
+      })
+      expect(useTodaySectionsCollapseStore.getState().sections.macros).toBe(true)
+      expect(summary()).toBeTruthy()
+      expect(screen.queryByText('Consumed')).toBeNull()
+    } finally {
+      cleanup()
+      spy.mockRestore()
+      main.remove()
+    }
   })
 })

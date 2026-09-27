@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1011,
+    issue: 1036,
+    date: '2026-09-27T22:15:00+03:00',
+    en: 'On Day, scrolling down while calories and macros are expanded collapses them to the compact line, which stays collapsed until you open it again.',
+    ru: 'На экране «День» прокрутка вниз при развёрнутых калориях и БЖУ сворачивает их в компактную строку, и она остаётся свёрнутой, пока вы снова её не откроете.',
+  },
+  {
     version: 1010,
     issue: 1035,
     date: '2026-09-27T21:58:00+03:00',
