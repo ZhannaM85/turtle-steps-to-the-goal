@@ -60,6 +60,17 @@ function readImpact(value: unknown): CholesterolImpact {
   return 'unknown'
 }
 
+/** Paste-only match labels. A bad entry is skipped, not a failed food. */
+function readAliases(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined
+  const aliases: string[] = []
+  for (const item of value) {
+    const name = readString(item)
+    if (name) aliases.push(name)
+  }
+  return aliases.length > 0 ? aliases : undefined
+}
+
 function readName(record: Record<string, unknown>): string | undefined {
   return (
     readString(record.nameRu) ?? readString(record.ru) ?? readString(record.name)
@@ -108,9 +119,11 @@ function parseOne(
   const cholesterolReason =
     readString(value.cholesterolReasonRu) ?? readString(value.cholesterolReason)
   const cholesterolReasonEn = readString(value.cholesterolReasonEn)
+  const aliases = readAliases(value.aliases)
   if (nameEn) food.nameEn = nameEn
   if (cholesterolReason) food.cholesterolReason = cholesterolReason
   if (cholesterolReasonEn) food.cholesterolReasonEn = cholesterolReasonEn
+  if (aliases) food.aliases = aliases
   return { food }
 }
 

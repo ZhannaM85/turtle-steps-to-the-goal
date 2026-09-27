@@ -75,6 +75,16 @@ describe('parseCatalogFoodPaste (#1015)', () => {
     expect(invalid.ok && invalid.foods[0]?.cholesterolImpact).toBe('unknown')
   })
 
+  it('keeps paste aliases as whole-name labels', () => {
+    const result = parseCatalogFoodPaste(
+      JSON.stringify({
+        ...coleslaw,
+        aliases: ['  салат  ', '', 3, 'coleslaw'],
+      }),
+    )
+    expect(result.ok && result.foods[0]?.aliases).toEqual(['салат', 'coleslaw'])
+  })
+
   it('keeps the last copy of the same Russian name', () => {
     const result = parseCatalogFoodPaste(
       JSON.stringify([

@@ -67,9 +67,10 @@ describe('Settings search field (#1018)', () => {
     ).toBeInTheDocument()
     expect(screen.queryByRole('switch', { name: 'Sleep' })).not.toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Units' })).not.toBeInTheDocument()
+    // #1020 — the import helper mentions LDL notes, so that row matches too.
     expect(
-      screen.queryByRole('button', { name: 'Import foods' }),
-    ).not.toBeInTheDocument()
+      screen.getByRole('button', { name: 'Import foods' }),
+    ).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Clear search' }))
 

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 995,
+    issue: 1020,
+    date: '2026-09-27T11:33:10+03:00',
+    en: 'Changing a food’s LDL note in the catalog, or pasting that food in Settings, also updates the note on meals you already logged. Calories and macros stay as they were.',
+    ru: 'Если изменить пометку про ЛПНП у продукта в каталоге или вставить его в настройках, она обновится и у уже записанных приёмов. Калории и БЖУ остаются как были.',
+  },
+  {
     version: 994,
     issue: 1019,
     date: '2026-09-27T11:00:03+03:00',

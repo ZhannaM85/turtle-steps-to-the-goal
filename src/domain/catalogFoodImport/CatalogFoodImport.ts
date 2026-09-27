@@ -12,6 +12,11 @@ export interface CatalogFoodDraft {
   cholesterolImpact: CholesterolImpact
   cholesterolReason?: string
   cholesterolReasonEn?: string
+  /**
+   * Extra whole-name labels from a paste (`aliases`). Not stored.
+   * Used so a diary row logged under another spelling still picks up LDL.
+   */
+  aliases?: string[]
 }
 
 export interface CatalogFoodImport extends CatalogFoodDraft {

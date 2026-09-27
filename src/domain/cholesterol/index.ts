@@ -22,3 +22,8 @@ export {
   stampCalorieEntriesCholesterol,
   withCholesterolClassification,
 } from './backfillCholesterol'
+export {
+  catalogLdlChanged,
+  restampDiaryLdl,
+} from './restampDiaryLdl'
+export type { DiaryLdlRestampResult, DiaryLdlStamp } from './restampDiaryLdl'

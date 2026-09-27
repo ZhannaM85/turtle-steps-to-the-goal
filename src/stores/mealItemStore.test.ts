@@ -10,6 +10,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await db.mealItems.clear()
+  await db.dailyEntries.clear()
 })
 
 describe('useMealItemStore', () => {
@@ -369,5 +370,60 @@ describe('useMealItemStore', () => {
     expect(saved.cholesterolImpact).toBe('limit')
     expect(saved.cholesterolReason).toBe('Много сыра.')
     expect(saved.lastAmountKcal).toBe(100)
+  })
+
+  it('restamps a diary meal when the catalog LDL choice changes (#1020)', async () => {
+    await db.dailyEntries.put({
+      id: 'day-apple',
+      date: '2026-09-20',
+      createdAt: '2026-09-20T00:00:00.000Z',
+      updatedAt: '2026-09-20T00:00:00.000Z',
+      calorieEntries: [
+        {
+          id: 'meal-1',
+          createdAt: '2026-09-20T08:00:00.000Z',
+          items: [
+            {
+              id: 'apple',
+              name: 'Яблоко',
+              amountKcal: 104,
+              amountG: 200,
+              cholesterolImpact: 'unknown',
+            },
+            {
+              id: 'orange',
+              name: 'Апельсин',
+              amountKcal: 47,
+              cholesterolImpact: 'unknown',
+            },
+          ],
+        },
+      ],
+    })
+
+    await useMealItemStore.getState().touch(
+      'Яблоко',
+      { amountKcal: 52 },
+      undefined,
+      undefined,
+      undefined,
+      { cholesterolImpact: 'beneficial', cholesterolReason: 'Пектин.' },
+    )
+
+    const saved = await db.dailyEntries.get('day-apple')
+    const items = saved?.calorieEntries?.[0]?.items ?? []
+    expect(items[0]).toMatchObject({
+      name: 'Яблоко',
+      amountKcal: 104,
+      amountG: 200,
+      cholesterolImpact: 'beneficial',
+      cholesterolReason: 'Пектин.',
+    })
+    expect(items[1]).toMatchObject({
+      name: 'Апельсин',
+      amountKcal: 47,
+      cholesterolImpact: 'unknown',
+    })
+    await db.dailyEntries.clear()
   })
 })

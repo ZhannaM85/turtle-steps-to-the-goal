@@ -8,12 +8,30 @@ import {
 import { IndexedDbMealItemRepository } from '@/infrastructure/persistence/indexeddb'
 import {
   applyUserCholesterol,
+  catalogLdlChanged,
   withCholesterolClassification,
   type CholesterolClassification,
 } from '@/domain/cholesterol'
 import { normalizeTextSpaces } from '@/shared/lib/normalizeTextSpaces'
+import { persistDiaryLdlStamps } from './persistDiaryLdlStamps'
 
 const mealItemRepository = new IndexedDbMealItemRepository()
+
+/** Library save that wrote a new LDL value also refreshes matching diary rows. */
+async function saveMealItem(
+  previous: MealItem | undefined,
+  next: MealItem,
+): Promise<void> {
+  await mealItemRepository.upsert(next)
+  if (!catalogLdlChanged(previous, next) || !next.cholesterolImpact) return
+  await persistDiaryLdlStamps([
+    {
+      names: [next.name],
+      cholesterolImpact: next.cholesterolImpact,
+      cholesterolReason: next.cholesterolReason,
+    },
+  ])
+}
 
 export interface MealLibraryBackfillResult {
   added: number
@@ -194,9 +212,10 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
     if (homemade === true) item.homemade = true
     else if (homemade === false) delete item.homemade
     const classified = withCholesterolClassification(item, existing?.name)
-    await mealItemRepository.upsert(
-      cholesterol ? applyUserCholesterol(classified, cholesterol) : classified,
-    )
+    const saved = cholesterol
+      ? applyUserCholesterol(classified, cholesterol)
+      : classified
+    await saveMealItem(existing, saved)
     set({ items: await mealItemRepository.getAll() })
   },
   rename: async (id, name) => {
@@ -358,7 +377,8 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
       const nameOwner = await mealItemRepository.findByName(trimmed)
       if (nameOwner && nameOwner.id !== current.id) {
         await mealItemRepository.delete(current.id)
-        await mealItemRepository.upsert(
+        await saveMealItem(
+          nameOwner,
           withCholesterolClassification(
             {
               ...nameOwner,
@@ -375,7 +395,8 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
           ),
         )
       } else {
-        await mealItemRepository.upsert(
+        await saveMealItem(
+          current,
           withCholesterolClassification(
             {
               ...current,
@@ -413,7 +434,8 @@ export const useMealItemStore = create<MealItemStoreState>((set, get) => ({
         source: existingByName?.source,
         servings: servings ?? existingByName?.servings,
       }
-      await mealItemRepository.upsert(
+      await saveMealItem(
+        existingByName,
         withCholesterolClassification(item, existingByName?.name),
       )
     }
