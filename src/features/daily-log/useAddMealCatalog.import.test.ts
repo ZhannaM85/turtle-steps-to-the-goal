@@ -130,6 +130,14 @@ describe('imported catalog foods in meal Recent (#1035)', () => {
     expect(result.current.recentItems[0]?.source).toBe('food')
     expect(result.current.recentItems[5]?.source).toBe('mealItem')
 
+    const pastedAt =
+      useCatalogFoodImportStore
+        .getState()
+        .imports.find((row) => row.nameRu === 'Лимон')?.updatedAt ?? ''
+    expect(pastedAt).not.toBe('')
+    // The paste is stamped with the clock. A fixed 2026-09-27 log is no
+    // longer later than that stamp, so the catalog row would stay on top.
+    const loggedAt = new Date(Date.parse(pastedAt) + 1000).toISOString()
     act(() => {
       useMealItemStore.setState({
         items: [
@@ -137,8 +145,8 @@ describe('imported catalog foods in meal Recent (#1035)', () => {
           {
             id: 'lemon-log',
             name: 'Лимон',
-            createdAt: '2026-09-27T20:00:00.000Z',
-            updatedAt: '2026-09-27T20:00:00.000Z',
+            createdAt: loggedAt,
+            updatedAt: loggedAt,
             lastAmountKcal: 12,
           },
         ],
