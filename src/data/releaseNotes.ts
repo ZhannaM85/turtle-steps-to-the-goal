@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1014,
+    issue: 1039,
+    date: '2026-09-28T11:29:08+03:00',
+    en: 'On Day, the calories and macros title has space above it inside the card.',
+    ru: 'На экране «День» у заголовка «КБЖУ» появился отступ сверху внутри карточки.',
+  },
+  {
     version: 1013,
     issue: 1038,
     date: '2026-09-28T11:20:08+03:00',

@@ -109,7 +109,11 @@ describe('Day КБЖУ collapse (#1029)', () => {
     expect(
       document.querySelector('[data-day-pin-button="macros"]')?.parentElement,
     ).toHaveClass('absolute', 'top-0', 'right-0')
-    expect(line?.closest('[data-day-section="macros"]')).toBeTruthy()
+    const section = line?.closest('[data-day-section="macros"]')
+    expect(section).toBeTruthy()
+    // #1039 — title row breathes from the card top; stripe spacing stays.
+    expect(section?.firstElementChild).toHaveClass('pt-3')
+    expect(section?.firstElementChild).not.toHaveClass('section-shell')
     expect(screen.queryByText('Consumed')).toBeNull()
     expect(screen.queryByText('Remaining')).toBeNull()
 
@@ -123,7 +127,7 @@ describe('Day КБЖУ collapse (#1029)', () => {
     expect(screen.getByText('Remaining')).toBeVisible()
     expect(screen.getByText('1,680')).toBeVisible()
     expect(document.querySelector('[data-slot="day-kcal-strip"]')).toBeNull()
-    const section = document.querySelector('[data-day-section="macros"]')
+    expect(section?.firstElementChild).toHaveClass('pt-3')
     expect(section?.closest('[data-slot="day-intro"]')).toBeNull()
     expect(section?.className ?? '').not.toMatch(/\bsticky\b/)
   })

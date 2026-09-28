@@ -15,6 +15,8 @@ import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
  * downward scroll collapses the expanded cards once the header passes
  * the sticky date chrome. #1038 — scrolling back up opens that automatic
  * collapse once the row leaves sticky; a chevron close stays closed.
+ * #1039 — `pt-3` on this card so the title row is not flush with the
+ * top edge. The collapsed stripe keeps its own spacing.
  */
 export function DayMacrosSection() {
   const state = useDailyEntryFormStateContext()
@@ -57,6 +59,7 @@ export function DayMacrosSection() {
         }
         collapseLabel={t.dailyEntry.collapseMacrosLabel}
         shell={false}
+        className="pt-3"
         contentClassName="flex flex-col gap-6 pt-3"
         actions={<DaySectionPinButton id="macros" />}
         summary={
