@@ -871,6 +871,7 @@ _A shared-food QR or link keeps each food's LDL impact and reason, including whe
 |---|--------|-------|-------|
 | [#1036](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1036) | ✅ Done | Day КБЖУ: auto-collapse on scroll so the compact line can stick | Confirmed on-device 2026-09-28 — scrolling down collapses expanded КБЖУ to the compact sticky line; #1038 covers scroll-up reopen. |
 | [#1034](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1034) | ✅ Done | Day КБЖУ collapsed stripe: consumed/target with a slash | Confirmed on-device 2026-09-28 — collapsed stripe shows eaten/goal (e.g. 640/770 ккал · Б/Ж/У) with a slash. |
+| [#1033](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1033) | ✅ Done | Day КБЖУ collapsed stripe: consumed kcal only, unit right after the number | Confirmed on-device 2026-09-28 — remaining dropped from the stripe; final format is #1034 eaten/goal with a slash. |
 
 ---
 
