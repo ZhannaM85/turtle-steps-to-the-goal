@@ -117,10 +117,10 @@ describe('Day КБЖУ collapse (#1029)', () => {
     expect(pinSlot).not.toHaveClass('absolute')
     const section = line?.closest('[data-day-section="macros"]')
     expect(section).toBeTruthy()
-    // #1039 — title row breathes from the card top. #1043 — half the
-    // gap after this section; the stripe's own bottom margin is half.
+    // #1046 — no #1039 card top padding while collapsed. #1043 — half
+    // the gap after this section; the stripe's own bottom margin is half.
     expect(section).toHaveClass('-mt-3', '-mb-3')
-    expect(section?.firstElementChild).toHaveClass('pt-3')
+    expect(section?.firstElementChild).not.toHaveClass('pt-3')
     expect(section?.firstElementChild).not.toHaveClass('section-shell')
     expect(section).not.toHaveClass('-mx-4')
     expect(screen.queryByText('Consumed')).toBeNull()
@@ -215,7 +215,7 @@ describe('Day КБЖУ collapse (#1029)', () => {
       'pb-1.5',
     )
     expect(section).not.toHaveClass('pb-3')
-    expect(section?.firstElementChild).toHaveClass('pt-3')
+    expect(section?.firstElementChild).not.toHaveClass('pt-3')
     expect(summary()).toHaveClass('px-3', 'py-2')
     expect(summary()).toHaveTextContent('1,680/1,955 kcal')
     expect(document.querySelectorAll('[data-slot="day-macros-compact-summary"]')).toHaveLength(1)

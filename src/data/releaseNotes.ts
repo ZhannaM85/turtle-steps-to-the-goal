@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1022,
+    issue: 1046,
+    date: '2026-09-28T20:00:00+03:00',
+    en: 'On Day, collapsed calories and macros sit closer to the date header — the extra top padding only appears when that block is open.',
+    ru: 'На экране «День» свёрнутый блок «КБЖУ» ближе к заголовку с датой: лишний верхний отступ остаётся только когда блок раскрыт.',
+  },
+  {
     version: 1021,
     issue: 1045,
     date: '2026-09-28T19:55:00+03:00',
