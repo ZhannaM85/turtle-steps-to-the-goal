@@ -868,6 +868,7 @@ _Meal screen: the name field is the meal-type dropdown. The extra «Тип пр�
 | [#1008](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1008) | ✅ Done | LDL-friendly label on each Day food | Confirmed on-device 2026-09-28 — each logged dish shows a compact LDL label; tap shows the reason. |
 | [#1015](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1015) | ✅ Done | Settings: paste JSON to import catalog foods | Confirmed on-device 2026-09-28 — Settings paste imports catalog foods with macros and LDL; same name updates in place. |
 | [#1016](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1016) | ✅ Done | AutoSleep scan: deep sleep empty when circled-z is over 4h | Confirmed on-device 2026-09-28 — when star and circled-z are both present, deep sleep can be over 4h (e.g. 5h 4m). |
+| [#1017](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1017) | ✅ Done | Logged foods in the meal-search catalog | Confirmed on-device 2026-09-28 — logged foods are on the catalog with per-100 g macros and LDL; meal search finds them. |
 
 ---
 
