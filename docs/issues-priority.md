@@ -107,7 +107,6 @@ _On Day, calories and macros that collapsed on their own while scrolling down op
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1049](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1049) | 🔍 Pending validation | Day КБЖУ: expand sticky stripe in place with higher z-index, do not scroll | Replaces #1048 scroll-on-expand. Pinned КБЖУ stays sticky when expanded (`stick`), with `shadow-md` over the sections below. Auto-collapse (#1036) uses downward scroll hysteresis while sticky-expanded. Awaiting on-device confirmation |
 | [#1048](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1048) | 🔍 Pending validation | Day КБЖУ: expanding the sticky collapsed stripe makes it disappear | Superseded for the expand UX by #1049 (sticky overlay instead of scrolling). Leave open |
 | [#1047](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1047) | 🔍 Pending validation | Day КБЖУ: drop mt-3 above the collapsed calorie stripe | Summary button no longer has `mt-3`; `mb-1.5` under the stripe stays (#1043). Card `pt-3` still only when expanded (#1046). Awaiting on-device confirmation |
 | [#1046](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1046) | 🔍 Pending validation | Day КБЖУ: drop card pt-3 when collapsed | #1039 `pt-3` stays only while expanded. Collapsed/pinned rows no longer pad the card top, so the gap under the date header shrinks. Expanded title spacing, stripe padding, pin order, and sticky cover are unchanged. Awaiting on-device confirmation |

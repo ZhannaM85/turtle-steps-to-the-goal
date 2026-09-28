@@ -870,3 +870,4 @@ _On Day, calories and macros that collapsed on their own while scrolling down op
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1050](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1050) | ✅ Done | Day КБЖУ: match expanded paddings to collapsed so toggle does not jump | Confirmed on-device 2026-09-28 — expanded matches collapsed spacing under the title and full-width stripe, so toggle does not jump. |
+| [#1049](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1049) | ✅ Done | Day КБЖУ: expand sticky stripe in place with higher z-index, do not scroll | Confirmed on-device 2026-09-28 — opening the stuck stripe keeps КБЖУ under the date and shows cards over content below, without scrolling. |
