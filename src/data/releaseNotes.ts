@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1020,
+    issue: 1044,
+    date: '2026-09-28T19:44:00+03:00',
+    en: 'On Day, the collapsed calories and macros line stretches across the whole section, including under the pin.',
+    ru: 'На экране «День» свёрнутая строка «КБЖУ» тянется на всю ширину раздела, в том числе под значком закрепления.',
+  },
+  {
     version: 1019,
     issue: 1043,
     date: '2026-09-28T19:40:00+03:00',

@@ -77,8 +77,16 @@ describe('SectionAccordion (#876)', () => {
     const pin = screen.getByRole('button', { name: 'Pin' })
     expect(pin.parentElement).toHaveClass('h-11', 'items-center')
     expect(pin.parentElement).not.toHaveClass('absolute')
-    expect(screen.getByTestId('summary').parentElement).toHaveClass('mt-3', 'mb-1.5')
-    expect(screen.getByTestId('summary').parentElement).not.toHaveClass('mb-3')
+    const summary = screen.getByTestId('summary')
+    const stripe = summary.parentElement
+    expect(stripe).toHaveClass('mt-3', 'mb-1.5', 'w-full')
+    expect(stripe).not.toHaveClass('mb-3')
+    // #1044 — stripe is the full-width row under the title, not in the
+    // column beside the pin.
+    expect(trigger).not.toContainElement(summary)
+    expect(pin.parentElement).not.toContainElement(summary)
+    expect(stripe?.parentElement).toHaveClass('flex-col')
+    expect(stripe?.parentElement).toContainElement(pin)
   })
 
   it('can drop the shell when the body is already number cards', () => {

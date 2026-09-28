@@ -14,6 +14,8 @@ import { cn } from '@/shared/lib/utils'
  * #1041 — the chevron and the pin share the title line's midline
  * (`min-h-11` / `h-11`). A collapsed summary sits under that row, so it
  * cannot pull the icons down.
+ * #1044 — the summary is a full-width row under the title, not inside
+ * the trigger column beside the pin.
  */
 export function SectionAccordion({
   open,
@@ -50,40 +52,48 @@ export function SectionAccordion({
   return (
     <div id={id} className={cn(shell && 'section-shell p-3', className)}>
       <Collapsible open={open} onOpenChange={onOpenChange}>
-        {/* #1041 — `items-start` keeps a tall summary from centering the
-            pin on the whole block. The title row and the action slot are
-            both 44px, so the glyphs share the title's midline. */}
-        <div className="flex items-start">
-          <CollapsibleTrigger asChild>
-            <button
-              type="button"
-              aria-label={open ? collapseLabel : expandLabel}
-              className="group flex min-w-0 flex-1 flex-col text-left"
-            >
-              <span className="flex min-h-11 items-center gap-1.5">
-                <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm font-medium text-foreground">
-                  {icon}
-                  {title}
+        {/* #1041 — title row only: chevron and pin share that midline.
+            #1044 — the summary is the next row, full width, so it runs
+            under the pin instead of stopping at the trigger column. */}
+        <div className="flex flex-col">
+          <div className="flex items-start">
+            <CollapsibleTrigger asChild>
+              <button
+                type="button"
+                aria-label={open ? collapseLabel : expandLabel}
+                className="group flex min-w-0 flex-1 flex-col text-left"
+              >
+                <span className="flex min-h-11 items-center gap-1.5">
+                  <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm font-medium text-foreground">
+                    {icon}
+                    {title}
+                  </span>
+                  <span className="inline-flex size-11 shrink-0 items-center justify-center">
+                    <CollapseChevronIcon />
+                  </span>
                 </span>
-                <span className="inline-flex size-11 shrink-0 items-center justify-center">
-                  <CollapseChevronIcon />
-                </span>
-              </span>
-              {subtitle ? (
-                <span className="text-xs font-normal text-muted-foreground">
-                  {subtitle}
-                </span>
-              ) : null}
-              {summary ? (
-                // #1032 — stripe under the title row. #1043 — the air
-                // under the stripe (before the next Day section) is half
-                // of that `mb-3`; the gap above the stripe stays `mt-3`.
-                <span className="mt-3 mb-1.5 block w-full min-w-0">{summary}</span>
-              ) : null}
-            </button>
-          </CollapsibleTrigger>
-          {actions ? (
-            <span className="flex h-11 shrink-0 items-center">{actions}</span>
+                {subtitle ? (
+                  <span className="text-xs font-normal text-muted-foreground">
+                    {subtitle}
+                  </span>
+                ) : null}
+              </button>
+            </CollapsibleTrigger>
+            {actions ? (
+              <span className="flex h-11 shrink-0 items-center">{actions}</span>
+            ) : null}
+          </div>
+          {summary ? (
+            // #1032 / #1043 — air above the stripe stays `mt-3`; the air
+            // under it, before the next Day section, stays `mb-1.5`.
+            <CollapsibleTrigger asChild>
+              <button
+                type="button"
+                className="mt-3 mb-1.5 block w-full min-w-0 text-left"
+              >
+                {summary}
+              </button>
+            </CollapsibleTrigger>
           ) : null}
         </div>
         <CollapsibleContent>
