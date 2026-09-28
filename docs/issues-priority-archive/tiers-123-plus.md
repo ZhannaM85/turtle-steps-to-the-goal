@@ -862,6 +862,7 @@ _Meal screen: the name field is the meal-type dropdown. The extra «Тип пр�
 | [#1006](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1006) | ✅ Done | Meal search dedupe: match by per-100 г macros | Confirmed on-device 2026-09-26 — same dish name with matching per-100 г macros collapses to one row even when portions differ. |
 | [#1014](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1014) | ✅ Done | Catalog food «Салат Коул слоу» | Confirmed on-device 2026-09-28 — meal search finds «Салат Коул слоу» with per-100 g macros and beneficial LDL. |
 | [#1013](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1013) | ✅ Done | Add/edit food: set LDL impact and an optional reason | Confirmed on-device 2026-09-28 — add/edit food can set LDL impact and an optional reason when the setting is on. |
+| [#1012](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1012) | ✅ Done | Settings toggle: hide LDL cholesterol indicators (default off) | Confirmed on-device 2026-09-28 — Day LDL labels stay hidden until Settings turns Show LDL impact on. |
 
 ---
 
