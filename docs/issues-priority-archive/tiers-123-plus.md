@@ -874,6 +874,7 @@ _A shared-food QR or link keeps each food's LDL impact and reason, including whe
 | [#1033](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1033) | ✅ Done | Day КБЖУ collapsed stripe: consumed kcal only, unit right after the number | Confirmed on-device 2026-09-28 — remaining dropped from the stripe; final format is #1034 eaten/goal with a slash. |
 | [#1032](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1032) | ✅ Done | Day КБЖУ collapsed stripe: padding around the compact summary | Confirmed on-device 2026-09-28 — collapsed stripe has chip-style padding and clear space under the title and before the next section. |
 | [#1031](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1031) | ✅ Done | Day pins: pinned section stays first (expanded or collapsed); sticky only while collapsed | Confirmed on-device 2026-09-28 — pinned sections sort first; only collapsed pins stick under the date. |
+| [#1030](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1030) | ✅ Done | Add food modal: show ЛПНП impact like Day (search + composition) | Confirmed on-device 2026-09-28 — meal search and composition show the same LDL chip as Day when the setting is on. |
 
 ---
 
