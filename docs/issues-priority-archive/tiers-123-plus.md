@@ -860,6 +860,7 @@ _Meal screen: the name field is the meal-type dropdown. The extra «Тип пр�
 | [#1004](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1004) | ✅ Done | Добавить блюдо: nutrition summary readable (no mid-line wrap) | Confirmed on-device 2026-09-26 — live summary keeps totals; kcal and Б/Ж/У tokens stay on one line; «(было …)» is its own line. |
 | [#1005](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1005) | ✅ Done | Meal name dropdown: fit content width + overlay | Confirmed on-device 2026-09-26 — open list fits longest option (e.g. «Ночная еда») and overlays the sheet without pushing layout down. |
 | [#1006](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1006) | ✅ Done | Meal search dedupe: match by per-100 г macros | Confirmed on-device 2026-09-26 — same dish name with matching per-100 г macros collapses to one row even when portions differ. |
+| [#1014](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1014) | ✅ Done | Catalog food «Салат Коул слоу» | Confirmed on-device 2026-09-28 — meal search finds «Салат Коул слоу» with per-100 g macros and beneficial LDL. |
 
 ---
 
