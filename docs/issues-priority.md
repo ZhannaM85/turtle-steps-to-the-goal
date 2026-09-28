@@ -107,5 +107,5 @@ _On Day, calories and macros that collapsed on their own while scrolling down op
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1038](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1038) | 🔍 Pending validation | Day КБЖУ: expand after auto-collapse when it leaves sticky | After #1036 collapses expanded КБЖУ on a downward scroll, scrolling up opens it again once the header is a hysteresis band past the stick line (the date chrome, or that pin’s own sticky top when it is stacked). The same band keeps the row from flipping open and closed on the boundary. A chevron close is not marked automatic, so it stays collapsed until the user opens it. Pin order and sticky-only-while-collapsed are unchanged. Awaiting on-device confirmation |
+
 
