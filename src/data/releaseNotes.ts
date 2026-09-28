@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1015,
+    issue: 1040,
+    date: '2026-09-28T11:43:49+03:00',
+    en: 'On Day, the collapsed calories and macros bar covers the sides while it stays at the top, so other cards do not show through beside it.',
+    ru: 'На экране «День» свёрнутая строка калорий и БЖУ, пока она закреплена сверху, закрывает края, и другие карточки больше не видны по бокам.',
+  },
+  {
     version: 1014,
     issue: 1039,
     date: '2026-09-28T11:29:08+03:00',

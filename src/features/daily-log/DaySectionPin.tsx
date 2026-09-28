@@ -125,6 +125,17 @@ function PinnedSlots({
   )
 }
 
+/**
+ * #1040 — `main` is `px-4`. A sticky pin that stays inside that inset
+ * is narrower than the scrollport, so cards scrolling underneath show
+ * in the side gutters. The date header already cancels that inset with
+ * `-mx-4 px-4`. Width is set outright because this node is portaled
+ * through `display: contents`, where a sticky flex item can shrink-wrap
+ * instead of stretching. Horizontal only — height stays put (#1025).
+ */
+const DAY_PIN_STICKY_BLEED_CLASSNAME =
+  'sticky z-[9] -mx-4 w-[calc(100%+2rem)] px-4'
+
 /** Header slot from #1022. Day no longer portals sections here (#1031):
  * an empty dock would still be `display: none`, and keeping bodies out
  * of the sticky chrome avoids the #1025 height thrash. */
@@ -217,7 +228,7 @@ export function DayPinFrame({
       data-day-pin-sticky={target !== null && sticky ? 'true' : 'false'}
       className={cn(
         'min-w-0 bg-background',
-        target !== null && sticky && 'sticky z-[9]',
+        target !== null && sticky && DAY_PIN_STICKY_BLEED_CLASSNAME,
       )}
     >
       {children}

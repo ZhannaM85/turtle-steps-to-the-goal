@@ -103,10 +103,11 @@ _A shared-food QR or link keeps each food's LDL impact and reason, including whe
 
 ## Tier 174 — Live feedback (2026-09-28)
 
-_On Day, calories and macros that collapsed on their own while scrolling down open again once that block is back in normal flow. A collapse from the chevron stays collapsed. The КБЖУ title has space above it inside the card._
+_On Day, calories and macros that collapsed on their own while scrolling down open again once that block is back in normal flow. A collapse from the chevron stays collapsed. The КБЖУ title has space above it inside the card. While that collapsed line stays pinned, it covers the side gaps so cards underneath do not show through._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1038](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1038) | 🔍 Pending validation | Day КБЖУ: expand after auto-collapse when it leaves sticky | After #1036 collapses expanded КБЖУ on a downward scroll, scrolling up opens it again once the header is a hysteresis band past the stick line (the date chrome, or that pin’s own sticky top when it is stacked). The same band keeps the row from flipping open and closed on the boundary. A chevron close is not marked automatic, so it stays collapsed until the user opens it. Pin order and sticky-only-while-collapsed are unchanged. Awaiting on-device confirmation |
 | [#1039](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1039) | 🔍 Pending validation | Day КБЖУ card: top padding above the title | The «КБЖУ» heading and pin sat flush against the top of the card. The section card now has `pt-3` above that row, the same top inset as other Day section cards. The collapsed stripe’s #1032 spacing, pin order, sticky-only-while-collapsed, and auto-collapse / auto-expand are unchanged. Awaiting on-device confirmation |
+| [#1040](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1040) | 🔍 Pending validation | Day: sticky КБЖУ card bleeds scrolling content on left/right — widen card | While the collapsed КБЖУ pin is sticky, its background uses the same side bleed as the date header (`-mx-4 px-4`, plus an explicit width so the `contents` slot cannot shrink-wrap it). Scrolling cards no longer show in the gaps beside it. The stripe’s #1032 padding, the card’s #1039 `pt-3`, pin order, sticky-only-while-collapsed, and auto-collapse / auto-expand are unchanged. Awaiting on-device confirmation |
 

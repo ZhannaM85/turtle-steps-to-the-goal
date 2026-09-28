@@ -114,6 +114,7 @@ describe('Day КБЖУ collapse (#1029)', () => {
     // #1039 — title row breathes from the card top; stripe spacing stays.
     expect(section?.firstElementChild).toHaveClass('pt-3')
     expect(section?.firstElementChild).not.toHaveClass('section-shell')
+    expect(section).not.toHaveClass('-mx-4')
     expect(screen.queryByText('Consumed')).toBeNull()
     expect(screen.queryByText('Remaining')).toBeNull()
 
@@ -130,6 +131,7 @@ describe('Day КБЖУ collapse (#1029)', () => {
     expect(section?.firstElementChild).toHaveClass('pt-3')
     expect(section?.closest('[data-slot="day-intro"]')).toBeNull()
     expect(section?.className ?? '').not.toMatch(/\bsticky\b/)
+    expect(section).not.toHaveClass('-mx-4')
   })
 
   it('formats the collapsed line for the Russian locale', () => {
@@ -159,6 +161,7 @@ describe('Day КБЖУ collapse (#1029)', () => {
     expect(section?.closest('[data-slot="day-intro"]')).toBeNull()
     expect(section?.getAttribute('data-day-pin-sticky')).toBe('false')
     expect(section?.className ?? '').not.toMatch(/\bsticky\b/)
+    expect(section).not.toHaveClass('-mx-4')
     expect(precedes(section, notes)).toBe(true)
     expect(summary()).toBeNull()
     expect(screen.getByText('Consumed')).toBeVisible()
@@ -174,6 +177,10 @@ describe('Day КБЖУ collapse (#1029)', () => {
     expect(section?.closest('[data-slot="day-intro"]')).toBeNull()
     expect(section?.getAttribute('data-day-pin-sticky')).toBe('true')
     expect(section?.className ?? '').toMatch(/\bsticky\b/)
+    // #1040 — cover the page side inset only while this row is sticky.
+    expect(section).toHaveClass('-mx-4', 'px-4', 'bg-background', 'w-[calc(100%+2rem)]')
+    expect(section?.firstElementChild).toHaveClass('pt-3')
+    expect(summary()).toHaveClass('px-3', 'py-2')
     expect(summary()).toHaveTextContent('1,680/1,955 kcal')
     expect(document.querySelectorAll('[data-slot="day-macros-compact-summary"]')).toHaveLength(1)
     expect(document.querySelector('[data-slot="day-kcal-strip"]')).toBeNull()
