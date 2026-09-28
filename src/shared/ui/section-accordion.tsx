@@ -84,12 +84,13 @@ export function SectionAccordion({
             ) : null}
           </div>
           {summary ? (
-            // #1032 / #1043 — air above the stripe stays `mt-3`; the air
-            // under it, before the next Day section, stays `mb-1.5`.
+            // #1043 — air under the stripe, before the next Day section,
+            // stays `mb-1.5`. #1047 — no `mt-3` above it; that stacked with
+            // the title row and left too much gap under the date header.
             <CollapsibleTrigger asChild>
               <button
                 type="button"
-                className="mt-3 mb-1.5 block w-full min-w-0 text-left"
+                className="mb-1.5 block w-full min-w-0 text-left"
               >
                 {summary}
               </button>

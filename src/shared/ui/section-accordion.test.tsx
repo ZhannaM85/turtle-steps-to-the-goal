@@ -79,7 +79,8 @@ describe('SectionAccordion (#876)', () => {
     expect(pin.parentElement).not.toHaveClass('absolute')
     const summary = screen.getByTestId('summary')
     const stripe = summary.parentElement
-    expect(stripe).toHaveClass('mt-3', 'mb-1.5', 'w-full')
+    expect(stripe).toHaveClass('mb-1.5', 'w-full')
+    expect(stripe).not.toHaveClass('mt-3')
     expect(stripe).not.toHaveClass('mb-3')
     // #1044 — stripe is the full-width row under the title, not in the
     // column beside the pin.

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1023,
+    issue: 1047,
+    date: '2026-09-28T20:08:00+03:00',
+    en: 'On Day, the collapsed calories line sits closer under the title — the extra space above that line is gone.',
+    ru: 'На экране «День» свёрнутая строка «КБЖУ» ближе к заголовку: лишний отступ над этой строкой убран.',
+  },
+  {
     version: 1022,
     issue: 1046,
     date: '2026-09-28T20:00:00+03:00',
