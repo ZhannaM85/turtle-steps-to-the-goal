@@ -29,10 +29,10 @@ import {
 /**
  * #1022 / #1031 — Day section pins. A pin always leaves document order
  * for the in-flow list at the top of the Day sections (pin order). Only
- * a collapsed pin is `position: sticky` under the date chrome; an
- * expanded pin scrolls with the page. The anchor hides so the old spot
- * does not leave a gap. History does not mount the provider, so these
- * controls render nothing there.
+ * a collapsed pin is `position: sticky` under the date chrome by default;
+ * an expanded pin scrolls with the page. #1049 — pinned КБЖУ is the
+ * exception: it stays sticky when expanded so opening the stripe overlays
+ * the cards on the content below instead of scrolling away.
  */
 function usePinSlotMap() {
   const [slots, setSlots] = useState<
@@ -135,10 +135,20 @@ function PinnedSlots({
  * the width misses stays opaque. `border-b` is the bottom of that opaque
  * box — the next section scrolls under the fill, not through a bare line.
  * Horizontal paint only; the bar does not grow the page (#1025).
+ * `z-[9]` stays under the date chrome (`z-10`) and above Day body content.
  */
 const DAY_PIN_STICKY_BLEED_CLASSNAME = [
   'relative sticky z-[9] -mx-4 w-[calc(100%+2rem)] min-w-[calc(100%+2rem)] max-w-none shrink-0',
   'border-b border-border bg-background px-4',
+  'before:pointer-events-none before:absolute before:-inset-y-px before:-left-[100vw] before:-right-[100vw]',
+  'before:-z-10 before:bg-background before:content-[""]',
+].join(' ')
+
+/** #1049 — expanded sticky КБЖУ: same stack as the collapsed pin, plus a
+ * shadow so the open cards read as an overlay on the sections below. */
+const DAY_PIN_STICKY_MACROS_EXPANDED_CLASSNAME = [
+  'relative sticky z-[9] -mx-4 w-[calc(100%+2rem)] min-w-[calc(100%+2rem)] max-w-none shrink-0',
+  'border-b border-border bg-background px-4 shadow-md',
   'before:pointer-events-none before:absolute before:-inset-y-px before:-left-[100vw] before:-right-[100vw]',
   'before:-z-10 before:bg-background before:content-[""]',
 ].join(' ')
@@ -229,6 +239,8 @@ export function DayPinFrame({
     return () => observer.disconnect()
   }, [id, pinnedIds, sticky, target])
   if (!api) return children
+  const macrosExpandedSticky =
+    id === 'macros' && sticky && collapsed === false
   const body = (
     <div
       data-day-section={id}
@@ -240,7 +252,11 @@ export function DayPinFrame({
         // `-mb-3` halves the flex gap under it. Sticky `pb-1.5` is half
         // of the shared `pb-3`, so the band under the stripe is about half.
         id === 'macros' && '-mt-3 -mb-3',
-        target !== null && sticky && DAY_PIN_STICKY_BLEED_CLASSNAME,
+        target !== null &&
+          sticky &&
+          (macrosExpandedSticky
+            ? DAY_PIN_STICKY_MACROS_EXPANDED_CLASSNAME
+            : DAY_PIN_STICKY_BLEED_CLASSNAME),
         target !== null && sticky && (id === 'macros' ? 'pb-1.5' : 'pb-3'),
       )}
     >

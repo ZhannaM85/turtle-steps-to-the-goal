@@ -13,6 +13,7 @@ function step(input: {
   sectionTop: number
   autoCollapsed?: boolean
   stickLine?: number
+  stickyExpanded?: boolean
 }) {
   return nextMacrosAutoCollapse({
     armed: input.armed ?? false,
@@ -22,6 +23,7 @@ function step(input: {
     chromeBottom,
     autoCollapsed: input.autoCollapsed,
     stickLine: input.stickLine,
+    stickyExpanded: input.stickyExpanded,
   })
 }
 
@@ -127,6 +129,58 @@ describe('auto-collapse expanded Day КБЖУ (#1036)', () => {
       sectionTop: chromeBottom + 4,
     })
     expect(back).toEqual({
+      armed: true,
+      collapse: false,
+      expand: false,
+      downwardPx: 0,
+    })
+  })
+})
+
+describe('auto-collapse sticky expanded Day КБЖУ (#1049)', () => {
+  it('collapses from downward scroll alone while the header stays under the chrome', () => {
+    expect(
+      step({
+        stickyExpanded: true,
+        scrollDelta: 0,
+        sectionTop: chromeBottom,
+      }),
+    ).toEqual({
+      armed: true,
+      collapse: false,
+      expand: false,
+      downwardPx: 0,
+    })
+    const short = step({
+      stickyExpanded: true,
+      scrollDelta: MACROS_AUTO_COLLAPSE_HYSTERESIS_PX - 1,
+      sectionTop: chromeBottom,
+    })
+    expect(short).toMatchObject({ collapse: false, armed: true })
+    expect(
+      step({
+        stickyExpanded: true,
+        downwardPx: short.downwardPx,
+        scrollDelta: 2,
+        sectionTop: chromeBottom,
+      }),
+    ).toEqual({
+      armed: false,
+      collapse: true,
+      expand: false,
+      downwardPx: 0,
+    })
+  })
+
+  it('does not collapse sticky expanded КБЖУ on scroll up', () => {
+    expect(
+      step({
+        stickyExpanded: true,
+        downwardPx: 40,
+        scrollDelta: -12,
+        sectionTop: chromeBottom,
+      }),
+    ).toEqual({
       armed: true,
       collapse: false,
       expand: false,

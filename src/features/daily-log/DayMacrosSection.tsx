@@ -1,4 +1,3 @@
-import { useLayoutEffect, useRef } from 'react'
 import { SectionAccordion } from '@/shared/ui/section-accordion'
 import { StatCard } from '@/shared/ui/stat-card'
 import { formatNumber } from '@/i18n'
@@ -7,16 +6,17 @@ import { DayPinFrame, DaySectionPinButton } from './DaySectionPin'
 import { DayMacrosCompactSummary } from './DayMacrosCompactSummary'
 import { formatDayKcalStrip } from './dayKcalStripModel'
 import { useMacrosAutoCollapse } from './macrosAutoCollapse'
-import { scrollDayMacrosIntoView } from './scrollDayMacrosIntoView'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
 /**
  * #467 / #1029 — Day КБЖУ cards. Collapsed, the header keeps the same
  * eaten/goal line as the sticky strip (#1034). A pin keeps this section
- * first in the Day list; it sticks only while collapsed. #1036 — a
- * downward scroll collapses the expanded cards once the header passes
- * the sticky date chrome. #1038 — scrolling back up opens that automatic
- * collapse once the row leaves sticky; a chevron close stays closed.
+ * first in the Day list. #1049 — a pinned row stays sticky when expanded
+ * too, with a higher z-index, so opening the stripe paints the cards over
+ * the content below instead of scrolling the page (#1048). #1036 — a
+ * downward scroll collapses the expanded cards (including while sticky).
+ * #1038 — scrolling back up opens that automatic collapse once the row
+ * has left the stick line; a chevron close stays closed.
  * #1039 — `pt-3` on this card when expanded so the title row is not
  * flush with the top edge. #1046 — drop that padding while collapsed
  * so the gap under the date header is not doubled up with the stripe.
@@ -24,8 +24,6 @@ import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
  * clipping at the card edge.
  * #1043 — outer gaps only. The eaten/remaining stack is the pre-#1042
  * `gap-6` and default card padding again (#1042 had halved that stack).
- * #1048 — expanding a sticky collapsed stripe scrolls the section under
- * the date chrome so the cards do not vanish above the viewport.
  */
 export function DayMacrosSection() {
   const state = useDailyEntryFormStateContext()
@@ -37,17 +35,7 @@ export function DayMacrosSection() {
   const hasSummary = Boolean(
     state.dayMacrosSummary || state.dayRemainingMacrosSummary,
   )
-  const wasCollapsed = useRef(macrosCollapsed)
   useMacrosAutoCollapse(macrosCollapsed, hasSummary)
-
-  useLayoutEffect(() => {
-    if (wasCollapsed.current && !macrosCollapsed) {
-      // Instant: land under the chrome before the next paint so the
-      // unstuck flow position is not left above the scrollport (#1048).
-      scrollDayMacrosIntoView('auto')
-    }
-    wasCollapsed.current = macrosCollapsed
-  }, [macrosCollapsed])
 
   if (!hasSummary) return null
 
@@ -66,7 +54,7 @@ export function DayMacrosSection() {
   const compactLabel = text.macros ? `${text.kcal} · ${text.macros}` : text.kcal
 
   return (
-    <DayPinFrame id="macros" stick={macrosCollapsed}>
+    <DayPinFrame id="macros" stick>
       <SectionAccordion
         open={!macrosCollapsed}
         onOpenChange={(open) => setCollapsed('macros', !open)}

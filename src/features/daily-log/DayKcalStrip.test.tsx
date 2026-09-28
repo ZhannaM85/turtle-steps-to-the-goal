@@ -108,6 +108,8 @@ describe('Day kcal strip and pins (#1022)', () => {
     expect(document.querySelector('[data-slot="day-kcal-strip"]')).toBeNull()
     const section = document.querySelector('[data-day-section="macros"]')
     expect(section?.closest('[data-slot="day-intro"]')).toBeNull()
+    // This harness does not pass macros `stick`; DayMacrosSection (#1049)
+    // keeps a pinned expanded row sticky in the real Day screen.
     expect(section?.className ?? '').not.toMatch(/\bsticky\b/)
   })
 

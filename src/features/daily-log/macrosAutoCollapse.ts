@@ -16,10 +16,12 @@ export const MACROS_EXPAND_SCROLL_GUARD_MS = 200
 
 /**
  * #1036 — collapse expanded Day КБЖУ once, when a downward scroll carries
- * its header past the sticky date chrome. #1038 — after that automatic
- * collapse, an upward scroll expands it again once the row has left the
- * stick line by the same hysteresis. A chevron close is not automatic, so
- * scroll never opens it.
+ * its header past the sticky date chrome. #1049 — when pinned КБЖУ stays
+ * sticky while expanded, the header never leaves the chrome, so collapse
+ * from a downward scroll of the same hysteresis instead. #1038 — after
+ * that automatic collapse, an upward scroll expands it again once the
+ * row has left the stick line by the same hysteresis. A chevron close is
+ * not automatic, so scroll never opens it.
  *
  * The header has to be seen in the useful area first (`armed`) or, if it
  * was opened already past the line, the user has to scroll down by the
@@ -36,6 +38,11 @@ export function nextMacrosAutoCollapse(input: {
   autoCollapsed?: boolean
   /** Viewport Y where a stuck pin sits. Defaults to the date chrome. */
   stickLine?: number
+  /**
+   * #1049 — pinned expanded КБЖУ is sticky under the chrome, so
+   * `sectionTop` stays put; collapse from downward scroll alone.
+   */
+  stickyExpanded?: boolean
 }): { armed: boolean; collapse: boolean; expand: boolean; downwardPx: number } {
   const hysteresis = MACROS_AUTO_COLLAPSE_HYSTERESIS_PX
   if (input.autoCollapsed) {
@@ -43,6 +50,22 @@ export function nextMacrosAutoCollapse(input: {
     const released =
       input.scrollDelta < 0 && input.sectionTop >= stickLine + hysteresis
     return { armed: released, collapse: false, expand: released, downwardPx: 0 }
+  }
+
+  if (input.stickyExpanded) {
+    if (input.scrollDelta <= 0) {
+      return {
+        armed: true,
+        collapse: false,
+        expand: false,
+        downwardPx: 0,
+      }
+    }
+    const downwardPx = Math.max(0, input.downwardPx + input.scrollDelta)
+    if (downwardPx >= hysteresis) {
+      return { armed: false, collapse: true, expand: false, downwardPx: 0 }
+    }
+    return { armed: true, collapse: false, expand: false, downwardPx }
   }
 
   if (input.sectionTop >= input.chromeBottom) {
@@ -113,6 +136,9 @@ export function useMacrosAutoCollapse(collapsed: boolean, enabled: boolean): voi
         sectionTop: section.getBoundingClientRect().top,
         chromeBottom,
         stickLine: macrosStickLine(section, chromeBottom),
+        stickyExpanded:
+          !collapsed &&
+          section.getAttribute('data-day-pin-sticky') === 'true',
       }
     }
 
@@ -127,6 +153,7 @@ export function useMacrosAutoCollapse(collapsed: boolean, enabled: boolean): voi
         chromeBottom: geometry.chromeBottom,
         autoCollapsed: autoCollapsed.current,
         stickLine: geometry.stickLine,
+        stickyExpanded: geometry.stickyExpanded,
       })
       armed.current = next.armed
       downwardPx.current = next.downwardPx

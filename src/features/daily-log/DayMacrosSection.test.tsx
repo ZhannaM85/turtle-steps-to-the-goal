@@ -172,7 +172,7 @@ describe('Day КБЖУ collapse (#1029)', () => {
     expect(flat).not.toContain(formatNumber(-275, 'ru', 0))
   })
 
-  it('does not stick an expanded section when it is pinned', () => {
+  it('keeps a pinned expanded КБЖУ sticky so cards overlay content (#1049)', () => {
     useTodaySectionsCollapseStore.setState({
       sections: { ...DEFAULT_TODAY_SECTIONS, macros: false },
     })
@@ -184,9 +184,9 @@ describe('Day КБЖУ collapse (#1029)', () => {
     expect(section?.closest('[data-slot="day-pinned-flow"]')).toBeTruthy()
     expect(section?.closest('[data-slot="day-pin-dock"]')).toBeNull()
     expect(section?.closest('[data-slot="day-intro"]')).toBeNull()
-    expect(section?.getAttribute('data-day-pin-sticky')).toBe('false')
-    expect(section?.className ?? '').not.toMatch(/\bsticky\b/)
-    expect(section).not.toHaveClass('-mx-4')
+    expect(section?.getAttribute('data-day-pin-sticky')).toBe('true')
+    expect(section?.className ?? '').toMatch(/\bsticky\b/)
+    expect(section).toHaveClass('-mx-4', 'shadow-md', 'z-[9]')
     expect(precedes(section, notes)).toBe(true)
     expect(summary()).toBeNull()
     expect(screen.getByText('Consumed')).toBeVisible()
@@ -388,7 +388,7 @@ describe('Day КБЖУ collapse (#1029)', () => {
     }
   })
 
-  it('scrolls sticky collapsed КБЖУ under the date when expanded (#1048)', async () => {
+  it('keeps sticky collapsed КБЖУ on screen when expanded without scrolling (#1049)', async () => {
     useDaySectionPinStore.setState({ pinned: ['macros'] })
     const user = userEvent.setup()
     const main = document.createElement('div')
@@ -407,35 +407,6 @@ describe('Day КБЖУ collapse (#1029)', () => {
     })
     main.scrollTo = scrollTo as typeof main.scrollTo
 
-    const chromeBottom = 80
-    const spy = vi
-      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
-      .mockImplementation(function (this: HTMLElement) {
-        const box = (top: number, bottom: number): DOMRect =>
-          ({
-            x: 0,
-            y: top,
-            top,
-            left: 0,
-            right: 100,
-            bottom,
-            width: 100,
-            height: bottom - top,
-            toJSON() {
-              return {}
-            },
-          }) as DOMRect
-        if (this.id === 'main-content') return box(0, 800)
-        if (this.getAttribute('data-slot') === 'day-intro') {
-          return box(0, chromeBottom)
-        }
-        if (this.getAttribute('data-day-section') === 'macros') {
-          // Unstuck flow position sits above the scrollport.
-          return box(-200, -120)
-        }
-        return box(0, 0)
-      })
-
     try {
       render(<Harness />, { container: main })
       expect(summary()).toBeTruthy()
@@ -453,13 +424,14 @@ describe('Day КБЖУ collapse (#1029)', () => {
         false,
       )
       expect(screen.getByText('Consumed')).toBeVisible()
-      expect(scrollTo).toHaveBeenCalled()
-      const arg = scrollTo.mock.calls.at(-1)?.[0] as ScrollToOptions
-      expect(arg.behavior).toBe('auto')
-      expect(arg.top).toBe(200)
+      const section = document.querySelector('[data-day-section="macros"]')
+      expect(section?.getAttribute('data-day-pin-sticky')).toBe('true')
+      expect(section?.className ?? '').toMatch(/\bsticky\b/)
+      expect(section).toHaveClass('shadow-md', 'z-[9]')
+      expect(scrollTo).not.toHaveBeenCalled()
+      expect(scrollTop).toBe(480)
     } finally {
       cleanup()
-      spy.mockRestore()
       main.remove()
     }
   })

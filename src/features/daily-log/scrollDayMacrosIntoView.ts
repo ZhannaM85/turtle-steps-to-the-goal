@@ -3,8 +3,7 @@ import { daySectionScrollTop } from './dayKcalStripModel'
 
 /**
  * Scroll Day КБЖУ under the sticky date chrome. Used by the header kcal
- * strip (#1022) and when expanding a sticky collapsed stripe (#1048) so
- * the cards do not vanish above the viewport.
+ * strip (#1022) so tapping the strip jumps back to the section.
  */
 export function scrollDayMacrosIntoView(
   behavior: ScrollBehavior = 'smooth',
