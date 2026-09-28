@@ -24,7 +24,7 @@ import {
 } from './parseAutoSleepText'
 import { recognizeOnDeviceScreenshot } from '../recognizeOnDeviceScreenshot'
 import { prepareAutoSleepScreenshotForOcr } from '../prepareScreenshotForOcr'
-import { SleepDurationVsYesterday } from './SleepDurationVsYesterday'
+import { SleepDurationVsYesterday } from './SleepDurationVsYesterdayLine'
 
 export interface AutoSleepScreenshotFillControlProps {
   asOfDate: string

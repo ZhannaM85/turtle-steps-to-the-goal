@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1021,
+    issue: 1045,
+    date: '2026-09-28T19:55:00+03:00',
+    en: 'The app opens again on Windows after a sleep screenshot helper filename blocked startup.',
+    ru: 'Приложение снова открывается на Windows: имя файла сравнения сна больше не мешает запуску.',
+  },
+  {
     version: 1020,
     issue: 1044,
     date: '2026-09-28T19:44:00+03:00',
