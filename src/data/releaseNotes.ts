@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1013,
+    issue: 1038,
+    date: '2026-09-28T11:20:08+03:00',
+    en: 'On Day, calories and macros that folded on their own while scrolling open again when you scroll back up, and a block you closed yourself stays closed.',
+    ru: 'На экране «День» калории и БЖУ, которые сами свернулись при прокрутке, снова раскрываются, когда вы возвращаетесь вверх, а закрытый вручную блок остаётся закрытым.',
+  },
+  {
     version: 1012,
     issue: 1037,
     date: '2026-09-27T22:30:19+03:00',

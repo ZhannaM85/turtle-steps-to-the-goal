@@ -11,6 +11,8 @@ function step(input: {
   downwardPx?: number
   scrollDelta: number
   sectionTop: number
+  autoCollapsed?: boolean
+  stickLine?: number
 }) {
   return nextMacrosAutoCollapse({
     armed: input.armed ?? false,
@@ -18,6 +20,8 @@ function step(input: {
     scrollDelta: input.scrollDelta,
     sectionTop: input.sectionTop,
     chromeBottom,
+    autoCollapsed: input.autoCollapsed,
+    stickLine: input.stickLine,
   })
 }
 
@@ -26,6 +30,7 @@ describe('auto-collapse expanded Day КБЖУ (#1036)', () => {
     expect(step({ scrollDelta: 0, sectionTop: chromeBottom + 40 })).toEqual({
       armed: true,
       collapse: false,
+      expand: false,
       downwardPx: 0,
     })
     expect(
@@ -45,6 +50,7 @@ describe('auto-collapse expanded Day КБЖУ (#1036)', () => {
     expect(step({ armed: true, scrollDelta: 6, sectionTop: past })).toEqual({
       armed: false,
       collapse: true,
+      expand: false,
       downwardPx: 0,
     })
   })
@@ -120,6 +126,65 @@ describe('auto-collapse expanded Day КБЖУ (#1036)', () => {
       scrollDelta: -40,
       sectionTop: chromeBottom + 4,
     })
-    expect(back).toEqual({ armed: true, collapse: false, downwardPx: 0 })
+    expect(back).toEqual({
+      armed: true,
+      collapse: false,
+      expand: false,
+      downwardPx: 0,
+    })
+  })
+})
+
+describe('auto-expand Day КБЖУ after an automatic collapse (#1038)', () => {
+  const release = chromeBottom + MACROS_AUTO_COLLAPSE_HYSTERESIS_PX
+
+  it('does not expand inside the hysteresis band under the stick line', () => {
+    expect(
+      step({
+        autoCollapsed: true,
+        scrollDelta: -12,
+        sectionTop: release - 1,
+      }),
+    ).toMatchObject({ expand: false, collapse: false })
+  })
+
+  it('expands once an upward scroll carries the header past the stick line', () => {
+    expect(
+      step({
+        autoCollapsed: true,
+        scrollDelta: -8,
+        sectionTop: release,
+      }),
+    ).toEqual({ armed: true, collapse: false, expand: true, downwardPx: 0 })
+  })
+
+  it('does not expand from a layout measurement or a further scroll down', () => {
+    expect(
+      step({ autoCollapsed: true, scrollDelta: 0, sectionTop: release + 40 }),
+    ).toMatchObject({ expand: false })
+    expect(
+      step({ autoCollapsed: true, scrollDelta: 16, sectionTop: release + 40 }),
+    ).toMatchObject({ expand: false })
+  })
+
+  it('waits for the section’s own stick line when a pin is stacked lower', () => {
+    const stickLine = chromeBottom + 60
+    const ownRelease = stickLine + MACROS_AUTO_COLLAPSE_HYSTERESIS_PX
+    expect(
+      step({
+        autoCollapsed: true,
+        scrollDelta: -10,
+        sectionTop: ownRelease - 1,
+        stickLine,
+      }).expand,
+    ).toBe(false)
+    expect(
+      step({
+        autoCollapsed: true,
+        scrollDelta: -10,
+        sectionTop: ownRelease,
+        stickLine,
+      }).expand,
+    ).toBe(true)
   })
 })

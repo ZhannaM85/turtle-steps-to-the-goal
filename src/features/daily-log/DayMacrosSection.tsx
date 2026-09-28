@@ -13,7 +13,8 @@ import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
  * eaten/goal line as the sticky strip (#1034). A pin keeps this section
  * first in the Day list; it sticks only while collapsed. #1036 — a
  * downward scroll collapses the expanded cards once the header passes
- * the sticky date chrome, and only the chevron opens them again.
+ * the sticky date chrome. #1038 — scrolling back up opens that automatic
+ * collapse once the row leaves sticky; a chevron close stays closed.
  */
 export function DayMacrosSection() {
   const state = useDailyEntryFormStateContext()
