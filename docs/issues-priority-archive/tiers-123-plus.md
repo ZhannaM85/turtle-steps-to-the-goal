@@ -885,6 +885,7 @@ _A shared-food QR or link keeps each food's LDL impact and reason, including whe
 | [#1031](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1031) | ✅ Done | Day pins: pinned section stays first (expanded or collapsed); sticky only while collapsed | Confirmed on-device 2026-09-28 — pinned sections sort first; only collapsed pins stick under the date. |
 | [#1030](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1030) | ✅ Done | Add food modal: show ЛПНП impact like Day (search + composition) | Confirmed on-device 2026-09-28 — meal search and composition show the same LDL chip as Day when the setting is on. |
 | [#1029](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1029) | ✅ Done | Day КБЖУ: compact summary when collapsed; sticky only while collapsed | Confirmed on-device 2026-09-28 — collapsed КБЖУ keeps the compact line; sticky only while collapsed. |
+| [#1018](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1018) | ✅ Done | Settings search field to find sections and rows | Confirmed on-device 2026-09-28 — Settings search filters sections and rows (e.g. LDL, сон, импорт). |
 
 ---
 
