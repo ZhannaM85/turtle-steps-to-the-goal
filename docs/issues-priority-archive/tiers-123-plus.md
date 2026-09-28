@@ -888,6 +888,7 @@ _A shared-food QR or link keeps each food's LDL impact and reason, including whe
 | [#1018](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1018) | ✅ Done | Settings search field to find sections and rows | Confirmed on-device 2026-09-28 — Settings search filters sections and rows (e.g. LDL, сон, импорт). |
 | [#1021](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1021) | ✅ Done | Settings sticky header hides section pin and collapse icons | Confirmed on-device 2026-09-28 — section pin and collapse stay behind the sticky Settings search band. |
 | [#1022](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1022) | ✅ Done | Day: compact sticky kcal strip + pin sections you use most | Confirmed on-device 2026-09-28 — compact kcal strip under the date after КБЖУ scrolls away; Day sections can be pinned. |
+| [#1024](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1024) | ✅ Done | Add/Edit food: «Сохранить» stays pinned at the bottom | Confirmed on-device 2026-09-28 — Save stays in a pinned footer while food fields scroll. |
 
 ---
 
