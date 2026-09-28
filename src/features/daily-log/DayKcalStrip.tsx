@@ -9,7 +9,6 @@ import {
   DayMacrosCompactFigures,
 } from './DayMacrosCompactSummary'
 import {
-  daySectionScrollTop,
   formatDayKcalStrip,
   kcalStripRootMarginTopPx,
   kcalStripVisible,
@@ -17,6 +16,7 @@ import {
   summaryIsBelowStickyChrome,
 } from './dayKcalStripModel'
 import { useDayPinContext } from './dayPinContext'
+import { scrollDayMacrosIntoView } from './scrollDayMacrosIntoView'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
 /**
@@ -148,29 +148,10 @@ export function DayKcalStrip() {
       data-slot="day-kcal-strip"
       aria-label={`${t.today.kcalStripLabel}: ${label}`}
       className={DAY_MACROS_COMPACT_SUMMARY_CLASSNAME}
-      onClick={() => scrollMacrosIntoView()}
+      onClick={() => scrollDayMacrosIntoView()}
     >
       <DayMacrosCompactFigures kcal={text.kcal} macros={text.macros} />
     </button>,
     slot,
   )
-}
-
-function scrollMacrosIntoView() {
-  const section = document.querySelector('[data-day-section="macros"]')
-  if (!(section instanceof HTMLElement)) return
-  const scroller = getAppScrollport()
-  const intro = document.querySelector('[data-slot="day-intro"]')
-  const introHeight = intro?.getBoundingClientRect().height ?? 0
-  if (!scroller) {
-    section.scrollIntoView({ block: 'start', behavior: 'smooth' })
-    return
-  }
-  const top = daySectionScrollTop({
-    scrollTop: scroller.scrollTop,
-    sectionTop: section.getBoundingClientRect().top,
-    scrollerTop: scroller.getBoundingClientRect().top,
-    introHeight,
-  })
-  scroller.scrollTo({ top, behavior: 'smooth' })
 }

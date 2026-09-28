@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1024,
+    issue: 1048,
+    date: '2026-09-28T20:15:00+03:00',
+    en: 'On Day, opening the stuck calories and macros line keeps that block on screen under the date instead of letting it jump away.',
+    ru: 'На экране «День» раскрытие закреплённой строки «КБЖУ» оставляет блок на экране под датой, а не уводит его вверх.',
+  },
+  {
     version: 1023,
     issue: 1047,
     date: '2026-09-28T20:08:00+03:00',

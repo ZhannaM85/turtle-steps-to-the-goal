@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from 'react'
 import { SectionAccordion } from '@/shared/ui/section-accordion'
 import { StatCard } from '@/shared/ui/stat-card'
 import { formatNumber } from '@/i18n'
@@ -6,6 +7,7 @@ import { DayPinFrame, DaySectionPinButton } from './DaySectionPin'
 import { DayMacrosCompactSummary } from './DayMacrosCompactSummary'
 import { formatDayKcalStrip } from './dayKcalStripModel'
 import { useMacrosAutoCollapse } from './macrosAutoCollapse'
+import { scrollDayMacrosIntoView } from './scrollDayMacrosIntoView'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
 /**
@@ -22,6 +24,8 @@ import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
  * clipping at the card edge.
  * #1043 — outer gaps only. The eaten/remaining stack is the pre-#1042
  * `gap-6` and default card padding again (#1042 had halved that stack).
+ * #1048 — expanding a sticky collapsed stripe scrolls the section under
+ * the date chrome so the cards do not vanish above the viewport.
  */
 export function DayMacrosSection() {
   const state = useDailyEntryFormStateContext()
@@ -33,7 +37,17 @@ export function DayMacrosSection() {
   const hasSummary = Boolean(
     state.dayMacrosSummary || state.dayRemainingMacrosSummary,
   )
+  const wasCollapsed = useRef(macrosCollapsed)
   useMacrosAutoCollapse(macrosCollapsed, hasSummary)
+
+  useLayoutEffect(() => {
+    if (wasCollapsed.current && !macrosCollapsed) {
+      // Instant: land under the chrome before the next paint so the
+      // unstuck flow position is not left above the scrollport (#1048).
+      scrollDayMacrosIntoView('auto')
+    }
+    wasCollapsed.current = macrosCollapsed
+  }, [macrosCollapsed])
 
   if (!hasSummary) return null
 

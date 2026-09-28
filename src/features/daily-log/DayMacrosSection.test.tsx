@@ -387,4 +387,80 @@ describe('Day КБЖУ collapse (#1029)', () => {
       main.remove()
     }
   })
+
+  it('scrolls sticky collapsed КБЖУ under the date when expanded (#1048)', async () => {
+    useDaySectionPinStore.setState({ pinned: ['macros'] })
+    const user = userEvent.setup()
+    const main = document.createElement('div')
+    main.id = 'main-content'
+    document.body.appendChild(main)
+    let scrollTop = 480
+    Object.defineProperty(main, 'scrollTop', {
+      configurable: true,
+      get: () => scrollTop,
+      set: (value: number) => {
+        scrollTop = value
+      },
+    })
+    const scrollTo = vi.fn((opts: ScrollToOptions) => {
+      if (typeof opts.top === 'number') scrollTop = opts.top
+    })
+    main.scrollTo = scrollTo as typeof main.scrollTo
+
+    const chromeBottom = 80
+    const spy = vi
+      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockImplementation(function (this: HTMLElement) {
+        const box = (top: number, bottom: number): DOMRect =>
+          ({
+            x: 0,
+            y: top,
+            top,
+            left: 0,
+            right: 100,
+            bottom,
+            width: 100,
+            height: bottom - top,
+            toJSON() {
+              return {}
+            },
+          }) as DOMRect
+        if (this.id === 'main-content') return box(0, 800)
+        if (this.getAttribute('data-slot') === 'day-intro') {
+          return box(0, chromeBottom)
+        }
+        if (this.getAttribute('data-day-section') === 'macros') {
+          // Unstuck flow position sits above the scrollport.
+          return box(-200, -120)
+        }
+        return box(0, 0)
+      })
+
+    try {
+      render(<Harness />, { container: main })
+      expect(summary()).toBeTruthy()
+      expect(
+        document.querySelector('[data-day-section="macros"]')?.getAttribute(
+          'data-day-pin-sticky',
+        ),
+      ).toBe('true')
+
+      await user.click(
+        screen.getByRole('button', { name: /Show calories & macros/ }),
+      )
+
+      expect(useTodaySectionsCollapseStore.getState().sections.macros).toBe(
+        false,
+      )
+      expect(screen.getByText('Consumed')).toBeVisible()
+      expect(scrollTo).toHaveBeenCalled()
+      const arg = scrollTo.mock.calls.at(-1)?.[0] as ScrollToOptions
+      expect(arg.behavior).toBe('auto')
+      expect(arg.top).toBe(200)
+    } finally {
+      cleanup()
+      spy.mockRestore()
+      main.remove()
+    }
+  })
 })
