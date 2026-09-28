@@ -10,10 +10,6 @@ export interface StatCardProps {
   unit?: string
   description?: string
   className?: string
-  /** Inner stack under the label. Defaults to `gap-1`. */
-  contentClassName?: string
-  /** Segmented bar under the description. Defaults to `mt-1`. */
-  progressClassName?: string
   /** #232 — an eye-icon show/hide toggle (or other small action) next to
    * the label, for a dismissible Today/Goal section. Slotted into this
    * card's own existing label row rather than a separate title above it,
@@ -39,8 +35,6 @@ export function StatCard({
   unit,
   description,
   className,
-  contentClassName,
-  progressClassName,
   action,
   progressPercent,
   progressColor = 'var(--primary)',
@@ -65,7 +59,7 @@ export function StatCard({
       onClick={onClick}
       className={cn('overflow-visible', onClick && 'cursor-pointer', className)}
     >
-      <CardContent className={cn('flex flex-col gap-1', contentClassName)}>
+      <CardContent className="flex flex-col gap-1">
         <span className="flex items-center justify-between gap-2">
           <span className="text-sm text-muted-foreground">{label}</span>
           {action}
@@ -91,7 +85,7 @@ export function StatCard({
             percent={progressPercent}
             color={progressColor}
             label={label}
-            className={cn('mt-1', progressClassName)}
+            className="mt-1"
           />
         )}
         {children}

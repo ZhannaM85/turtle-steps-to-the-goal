@@ -105,13 +105,16 @@ describe('Day КБЖУ collapse (#1029)', () => {
     expect(line).not.toHaveTextContent('-275')
     expect(line).toHaveClass('bg-muted', 'tabular-nums', 'px-3', 'py-2', 'whitespace-normal')
     expect(line).not.toHaveClass('h-8', 'overflow-hidden', 'truncate')
-    expect(line?.parentElement).toHaveClass('mt-3', 'mb-3')
+    expect(line?.parentElement).toHaveClass('mt-3', 'mb-1.5')
+    expect(line?.parentElement).not.toHaveClass('mb-3')
     const pinSlot = document.querySelector('[data-day-pin-button="macros"]')?.parentElement
     expect(pinSlot).toHaveClass('flex', 'h-11', 'items-center')
     expect(pinSlot).not.toHaveClass('absolute')
     const section = line?.closest('[data-day-section="macros"]')
     expect(section).toBeTruthy()
-    // #1039 — title row breathes from the card top; stripe spacing stays.
+    // #1039 — title row breathes from the card top. #1043 — half the
+    // gap after this section; the stripe's own bottom margin is half.
+    expect(section).toHaveClass('-mt-3', '-mb-3')
     expect(section?.firstElementChild).toHaveClass('pt-3')
     expect(section?.firstElementChild).not.toHaveClass('section-shell')
     expect(section).not.toHaveClass('-mx-4')
@@ -127,17 +130,19 @@ describe('Day КБЖУ collapse (#1029)', () => {
     expect(screen.getByText('Consumed')).toBeVisible()
     expect(screen.getByText('Remaining')).toBeVisible()
     expect(screen.getByText('1,680')).toBeVisible()
-    // #1042 — half the gap between the two cards. Title inset stays pt-3.
-    const body = section?.querySelector('.gap-3.pt-3')
-    expect(body).toHaveClass('gap-3', 'pt-3')
-    expect(body).not.toHaveClass('gap-6')
+    // #1043 — eaten/remaining stack is the pre-#1042 gap and card padding.
+    const body = section?.querySelector('.gap-6.pt-3')
+    expect(body).toHaveClass('gap-6', 'pt-3')
+    expect(body).not.toHaveClass('gap-3')
     const remainingCard = screen.getByText('Remaining').closest('[data-slot="card"]')
-    expect(remainingCard).toHaveClass('py-2!')
+    expect(remainingCard).not.toHaveClass('py-2!')
     expect(remainingCard?.querySelector('[data-slot="card-content"]')).toHaveClass(
+      'gap-1',
+    )
+    expect(remainingCard?.querySelector('[data-slot="card-content"]')).not.toHaveClass(
       'gap-0.5',
     )
     const consumedCard = screen.getByText('Consumed').closest('[data-slot="card"]')
-    expect(consumedCard).not.toHaveClass('py-2!')
     expect(consumedCard?.querySelector('[data-slot="card-content"]')).toHaveClass(
       'gap-1',
     )
@@ -200,7 +205,11 @@ describe('Day КБЖУ collapse (#1029)', () => {
       'shrink-0',
       'border-b',
       'before:bg-background',
+      '-mt-3',
+      '-mb-3',
+      'pb-1.5',
     )
+    expect(section).not.toHaveClass('pb-3')
     expect(section?.firstElementChild).toHaveClass('pt-3')
     expect(summary()).toHaveClass('px-3', 'py-2')
     expect(summary()).toHaveTextContent('1,680/1,955 kcal')

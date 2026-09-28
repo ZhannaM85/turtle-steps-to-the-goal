@@ -138,7 +138,7 @@ function PinnedSlots({
  */
 const DAY_PIN_STICKY_BLEED_CLASSNAME = [
   'relative sticky z-[9] -mx-4 w-[calc(100%+2rem)] min-w-[calc(100%+2rem)] max-w-none shrink-0',
-  'border-b border-border bg-background px-4 pb-3',
+  'border-b border-border bg-background px-4',
   'before:pointer-events-none before:absolute before:-inset-y-px before:-left-[100vw] before:-right-[100vw]',
   'before:-z-10 before:bg-background before:content-[""]',
 ].join(' ')
@@ -235,7 +235,13 @@ export function DayPinFrame({
       data-day-pin-sticky={target !== null && sticky ? 'true' : 'false'}
       className={cn(
         'min-w-0 bg-background',
+        // #1043 — `-mt-3` cancels the page `gap-3` under the date when
+        // КБЖУ is the next block, and half of a `gap-6` when it is not.
+        // `-mb-3` halves the flex gap under it. Sticky `pb-1.5` is half
+        // of the shared `pb-3`, so the band under the stripe is about half.
+        id === 'macros' && '-mt-3 -mb-3',
         target !== null && sticky && DAY_PIN_STICKY_BLEED_CLASSNAME,
+        target !== null && sticky && (id === 'macros' ? 'pb-1.5' : 'pb-3'),
       )}
     >
       {children}

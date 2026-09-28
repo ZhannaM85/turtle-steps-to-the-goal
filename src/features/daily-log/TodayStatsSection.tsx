@@ -84,9 +84,6 @@ export function TodayStatsSection({
       stats.remainingKcal !== null &&
       (sectionVisible.todayRemainingCalories ? (
         <StatCard
-          className="py-2!"
-          contentClassName="gap-0.5"
-          progressClassName="mt-0.5"
           label={t.today.remainingCaloriesLabel}
           value={formatNumber(Math.abs(stats.remainingKcal), locale, 0)}
           unit={

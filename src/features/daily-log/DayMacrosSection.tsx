@@ -18,9 +18,8 @@ import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
  * #1039 — `pt-3` on this card so the title row is not flush with the
  * top edge. The collapsed stripe keeps its padding and wraps (#1041)
  * instead of clipping at the card edge.
- * #1042 — the gap under the date is halved on the page. Here, the space
- * between the eaten card and the remaining card is halved, and the
- * goal − eaten line sits in a card with half the vertical padding.
+ * #1043 — outer gaps only. The eaten/remaining stack is the pre-#1042
+ * `gap-6` and default card padding again (#1042 had halved that stack).
  */
 export function DayMacrosSection() {
   const state = useDailyEntryFormStateContext()
@@ -64,7 +63,7 @@ export function DayMacrosSection() {
         collapseLabel={t.dailyEntry.collapseMacrosLabel}
         shell={false}
         className="pt-3"
-        contentClassName="flex flex-col gap-3 pt-3"
+        contentClassName="flex flex-col gap-6 pt-3"
         actions={<DaySectionPinButton id="macros" />}
         summary={
           macrosCollapsed ? (
@@ -82,8 +81,6 @@ export function DayMacrosSection() {
         )}
         {state.dayRemainingMacrosSummary && (
           <StatCard
-            className="py-2!"
-            contentClassName="gap-0.5"
             label={t.dailyEntry.remainingMacrosLabel}
             value={
               state.remainingKcal !== undefined

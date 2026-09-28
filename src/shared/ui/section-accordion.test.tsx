@@ -77,7 +77,8 @@ describe('SectionAccordion (#876)', () => {
     const pin = screen.getByRole('button', { name: 'Pin' })
     expect(pin.parentElement).toHaveClass('h-11', 'items-center')
     expect(pin.parentElement).not.toHaveClass('absolute')
-    expect(screen.getByTestId('summary').parentElement).toHaveClass('mt-3', 'mb-3')
+    expect(screen.getByTestId('summary').parentElement).toHaveClass('mt-3', 'mb-1.5')
+    expect(screen.getByTestId('summary').parentElement).not.toHaveClass('mb-3')
   })
 
   it('can drop the shell when the body is already number cards', () => {

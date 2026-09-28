@@ -75,9 +75,10 @@ export function SectionAccordion({
                 </span>
               ) : null}
               {summary ? (
-                // #1032 — stripe under the title row, with air before
-                // the next section. The pin no longer hangs over it.
-                <span className="mt-3 mb-3 block w-full min-w-0">{summary}</span>
+                // #1032 — stripe under the title row. #1043 — the air
+                // under the stripe (before the next Day section) is half
+                // of that `mb-3`; the gap above the stripe stays `mt-3`.
+                <span className="mt-3 mb-1.5 block w-full min-w-0">{summary}</span>
               ) : null}
             </button>
           </CollapsibleTrigger>

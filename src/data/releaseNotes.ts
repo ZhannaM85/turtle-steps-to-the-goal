@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1019,
+    issue: 1043,
+    date: '2026-09-28T19:40:00+03:00',
+    en: 'On Day, the empty space under the date and under the calories and macros block is about half as tall, and the spacing inside the eaten and remaining cards is back to how it was.',
+    ru: 'На экране «День» пустое место под датой и под блоком «КБЖУ» примерно вдвое ниже, а отступы внутри карточек «съедено» и «осталось» снова как раньше.',
+  },
+  {
     version: 1018,
     issue: 1042,
     date: '2026-09-28T18:10:00+03:00',

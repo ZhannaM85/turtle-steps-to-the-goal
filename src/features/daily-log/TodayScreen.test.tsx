@@ -1043,10 +1043,14 @@ describe('TodayScreen', () => {
 
       const label = await screen.findByText('Remaining calories')
       const card = label.closest('[data-slot="card"]') as HTMLElement
-      // #1042 — half the vertical padding around the goal − eaten line.
-      expect(card).toHaveClass('py-2!')
-      expect(card.querySelector('[data-slot="card-content"]')).toHaveClass('gap-0.5')
-      expect(card.querySelector('[role="progressbar"]')).toHaveClass('mt-0.5')
+      // #1043 — #1042's half-padding on this goal − eaten card is reverted.
+      expect(card).not.toHaveClass('py-2!')
+      expect(card.querySelector('[data-slot="card-content"]')).toHaveClass('gap-1')
+      expect(card.querySelector('[data-slot="card-content"]')).not.toHaveClass(
+        'gap-0.5',
+      )
+      expect(card.querySelector('[role="progressbar"]')).toHaveClass('mt-1')
+      expect(card.querySelector('[role="progressbar"]')).not.toHaveClass('mt-0.5')
       expect(screen.queryByText('BMI')).not.toBeInTheDocument()
       expect(
         within(card).queryByRole('button', {
