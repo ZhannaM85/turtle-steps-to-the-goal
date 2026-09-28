@@ -860,3 +860,13 @@ _Meal screen: the name field is the meal-type dropdown. The extra «Тип пр�
 | [#1004](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1004) | ✅ Done | Добавить блюдо: nutrition summary readable (no mid-line wrap) | Confirmed on-device 2026-09-26 — live summary keeps totals; kcal and Б/Ж/У tokens stay on one line; «(было …)» is its own line. |
 | [#1005](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1005) | ✅ Done | Meal name dropdown: fit content width + overlay | Confirmed on-device 2026-09-26 — open list fits longest option (e.g. «Ночная еда») and overlays the sheet without pushing layout down. |
 | [#1006](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1006) | ✅ Done | Meal search dedupe: match by per-100 г macros | Confirmed on-device 2026-09-26 — same dish name with matching per-100 г macros collapses to one row even when portions differ. |
+
+---
+
+## Tier 174 — Live feedback (2026-09-28)
+
+_On Day, calories and macros that collapsed on their own while scrolling down open again once that block is back in normal flow. A collapse from the chevron stays collapsed. The КБЖУ title has space above it inside the card. Section pins and chevrons sit on the title line. The collapsed calorie line wraps instead of being cut off, and that beige line runs the full width of the section. While that line stays pinned, an opaque bar reaches the scrollport edges and covers whatever scrolls under it. The empty bands under the date and under the КБЖУ block are about half as tall; the eaten and remaining cards keep their earlier spacing. Blank local screen on Windows when AutoSleep vs-yesterday files collided by case. Collapsed КБЖУ drops the card’s top padding so the title sits closer to the date header. The beige calorie line also loses its top margin under the title. Expanding a sticky collapsed КБЖУ stripe keeps the block under the date and paints the cards over the content below, without scrolling the page. Opening КБЖУ uses the same space under the title and the same full width as that collapsed line, so the block does not jump._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1050](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1050) | ✅ Done | Day КБЖУ: match expanded paddings to collapsed so toggle does not jump | Confirmed on-device 2026-09-28 — expanded matches collapsed spacing under the title and full-width stripe, so toggle does not jump. |
