@@ -126,15 +126,22 @@ function PinnedSlots({
 }
 
 /**
- * #1040 — `main` is `px-4`. A sticky pin that stays inside that inset
- * is narrower than the scrollport, so cards scrolling underneath show
- * in the side gutters. The date header already cancels that inset with
- * `-mx-4 px-4`. Width is set outright because this node is portaled
- * through `display: contents`, where a sticky flex item can shrink-wrap
- * instead of stretching. Horizontal only — height stays put (#1025).
+ * #1040 / #1041 — `main` is `px-4` and `overflow-x: hidden`. This node is
+ * portaled through `display: contents`, so it is a flex item. An explicit
+ * width without `shrink-0` flexes back to the content box: `-mx-4` then
+ * shifts the bar and the scrollport clips the right edge (side peek and
+ * the cut-off stripe). `shrink-0` keeps the widened box. The `::before`
+ * paints `bg-background` out to the scrollport clip edge so any gutter
+ * the width misses stays opaque. `border-b` is the bottom of that opaque
+ * box — the next section scrolls under the fill, not through a bare line.
+ * Horizontal paint only; the bar does not grow the page (#1025).
  */
-const DAY_PIN_STICKY_BLEED_CLASSNAME =
-  'sticky z-[9] -mx-4 w-[calc(100%+2rem)] px-4'
+const DAY_PIN_STICKY_BLEED_CLASSNAME = [
+  'relative sticky z-[9] -mx-4 w-[calc(100%+2rem)] min-w-[calc(100%+2rem)] max-w-none shrink-0',
+  'border-b border-border bg-background px-4 pb-3',
+  'before:pointer-events-none before:absolute before:-inset-y-px before:-left-[100vw] before:-right-[100vw]',
+  'before:-z-10 before:bg-background before:content-[""]',
+].join(' ')
 
 /** Header slot from #1022. Day no longer portals sections here (#1031):
  * an empty dock would still be `display: none`, and keeping bodies out

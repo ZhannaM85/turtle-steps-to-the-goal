@@ -103,12 +103,12 @@ describe('Day КБЖУ collapse (#1029)', () => {
       '1,680/1,955 kcal · P 128/150 g · F 71/70 g · C 138/200 g',
     )
     expect(line).not.toHaveTextContent('-275')
-    expect(line).toHaveClass('bg-muted', 'tabular-nums', 'px-3', 'py-2')
-    expect(line).not.toHaveClass('h-8')
-    expect(line?.parentElement).toHaveClass('mt-6', 'mb-3')
-    expect(
-      document.querySelector('[data-day-pin-button="macros"]')?.parentElement,
-    ).toHaveClass('absolute', 'top-0', 'right-0')
+    expect(line).toHaveClass('bg-muted', 'tabular-nums', 'px-3', 'py-2', 'whitespace-normal')
+    expect(line).not.toHaveClass('h-8', 'overflow-hidden', 'truncate')
+    expect(line?.parentElement).toHaveClass('mt-3', 'mb-3')
+    const pinSlot = document.querySelector('[data-day-pin-button="macros"]')?.parentElement
+    expect(pinSlot).toHaveClass('flex', 'h-11', 'items-center')
+    expect(pinSlot).not.toHaveClass('absolute')
     const section = line?.closest('[data-day-section="macros"]')
     expect(section).toBeTruthy()
     // #1039 — title row breathes from the card top; stripe spacing stays.
@@ -123,7 +123,7 @@ describe('Day КБЖУ collapse (#1029)', () => {
     expect(summary()).toBeNull()
     expect(
       document.querySelector('[data-day-pin-button="macros"]')?.parentElement,
-    ).not.toHaveClass('absolute')
+    ).toHaveClass('h-11', 'items-center')
     expect(screen.getByText('Consumed')).toBeVisible()
     expect(screen.getByText('Remaining')).toBeVisible()
     expect(screen.getByText('1,680')).toBeVisible()
@@ -177,8 +177,16 @@ describe('Day КБЖУ collapse (#1029)', () => {
     expect(section?.closest('[data-slot="day-intro"]')).toBeNull()
     expect(section?.getAttribute('data-day-pin-sticky')).toBe('true')
     expect(section?.className ?? '').toMatch(/\bsticky\b/)
-    // #1040 — cover the page side inset only while this row is sticky.
-    expect(section).toHaveClass('-mx-4', 'px-4', 'bg-background', 'w-[calc(100%+2rem)]')
+    // #1040 / #1041 — widened shell, not flexed back, with an opaque edge.
+    expect(section).toHaveClass(
+      '-mx-4',
+      'px-4',
+      'bg-background',
+      'w-[calc(100%+2rem)]',
+      'shrink-0',
+      'border-b',
+      'before:bg-background',
+    )
     expect(section?.firstElementChild).toHaveClass('pt-3')
     expect(summary()).toHaveClass('px-3', 'py-2')
     expect(summary()).toHaveTextContent('1,680/1,955 kcal')

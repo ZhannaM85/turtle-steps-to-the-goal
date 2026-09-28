@@ -26,6 +26,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1017,
+    issue: 1041,
+    date: '2026-09-28T15:50:48+03:00',
+    en: 'On Day, the pin and the expand arrow line up with each section title, the collapsed calorie line wraps instead of being cut off, and a pinned calorie bar fully covers what scrolls under it.',
+    ru: 'На экране «День» значок закрепления и стрелка стоят на одной линии с заголовком раздела, свёрнутая строка калорий переносится и не обрезается, а закреплённая строка полностью закрывает то, что прокручивается под ней.',
+  },
+  {
+    version: 1016,
+    issue: 1040,
+    date: '2026-09-28T15:50:48+03:00',
+    en: 'On Day, a pinned collapsed calorie bar now reaches the edges of the screen, so cards scrolling underneath no longer show through on either side.',
+    ru: 'На экране «День» закреплённая свёрнутая строка калорий доходит до краёв экрана, и карточки под ней больше не просвечивают по бокам.',
+  },
+  {
     version: 1015,
     issue: 1040,
     date: '2026-09-28T11:43:49+03:00',

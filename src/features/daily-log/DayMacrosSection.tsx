@@ -16,7 +16,8 @@ import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
  * the sticky date chrome. #1038 — scrolling back up opens that automatic
  * collapse once the row leaves sticky; a chevron close stays closed.
  * #1039 — `pt-3` on this card so the title row is not flush with the
- * top edge. The collapsed stripe keeps its own spacing.
+ * top edge. The collapsed stripe keeps its padding and wraps (#1041)
+ * instead of clipping at the card edge.
  */
 export function DayMacrosSection() {
   const state = useDailyEntryFormStateContext()

@@ -52,6 +52,34 @@ describe('SectionAccordion (#876)', () => {
     expect(chevron?.getAttribute('class')).not.toMatch(/\bbg-muted\b/)
   })
 
+  it('lines the chevron and pin up with the title, under a summary (#1041)', () => {
+    render(
+      <SectionAccordion
+        open={false}
+        onOpenChange={() => {}}
+        title="Calories"
+        expandLabel="Expand calories"
+        collapseLabel="Collapse calories"
+        actions={<button type="button">Pin</button>}
+        summary={<span data-testid="summary">502 kcal</span>}
+      >
+        <p>Cards</p>
+      </SectionAccordion>,
+    )
+
+    const trigger = screen.getByRole('button', { name: 'Expand calories' })
+    const titleRow = trigger.firstElementChild
+    expect(titleRow).toHaveClass('min-h-11', 'items-center')
+    expect(trigger.querySelector('[data-slot="collapse-chevron"]')?.parentElement).toHaveClass(
+      'size-11',
+      'items-center',
+    )
+    const pin = screen.getByRole('button', { name: 'Pin' })
+    expect(pin.parentElement).toHaveClass('h-11', 'items-center')
+    expect(pin.parentElement).not.toHaveClass('absolute')
+    expect(screen.getByTestId('summary').parentElement).toHaveClass('mt-3', 'mb-3')
+  })
+
   it('can drop the shell when the body is already number cards', () => {
     const { container } = render(<Harness shell={false} />)
 

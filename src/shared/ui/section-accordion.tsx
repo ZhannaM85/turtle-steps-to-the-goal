@@ -11,6 +11,9 @@ import { cn } from '@/shared/lib/utils'
  * #876 — one Day section header: title, optional icon/subtitle, one
  * chevron. `shell` is the `section-shell` chrome. Turn it off when the
  * body is already number cards so those are not double-boxed.
+ * #1041 — the chevron and the pin share the title line's midline
+ * (`min-h-11` / `h-11`). A collapsed summary sits under that row, so it
+ * cannot pull the icons down.
  */
 export function SectionAccordion({
   open,
@@ -47,30 +50,24 @@ export function SectionAccordion({
   return (
     <div id={id} className={cn(shell && 'section-shell p-3', className)}>
       <Collapsible open={open} onOpenChange={onOpenChange}>
-        <div
-          className={cn(
-            'flex items-start gap-2',
-            summary && actions && 'relative',
-          )}
-        >
+        {/* #1041 — `items-start` keeps a tall summary from centering the
+            pin on the whole block. The title row and the action slot are
+            both 44px, so the glyphs share the title's midline. */}
+        <div className="flex items-start">
           <CollapsibleTrigger asChild>
             <button
               type="button"
               aria-label={open ? collapseLabel : expandLabel}
-              className="group flex min-w-0 flex-1 flex-col gap-0.5 text-left"
+              className="group flex min-w-0 flex-1 flex-col text-left"
             >
-              <span
-                className={cn(
-                  'flex items-center justify-between gap-1.5',
-                  // Room for the absolute pin so the chevron stays clear.
-                  summary && actions && 'pr-14',
-                )}
-              >
-                <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+              <span className="flex min-h-11 items-center gap-1.5">
+                <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm font-medium text-foreground">
                   {icon}
                   {title}
                 </span>
-                <CollapseChevronIcon />
+                <span className="inline-flex size-11 shrink-0 items-center justify-center">
+                  <CollapseChevronIcon />
+                </span>
               </span>
               {subtitle ? (
                 <span className="text-xs font-normal text-muted-foreground">
@@ -78,18 +75,15 @@ export function SectionAccordion({
                 </span>
               ) : null}
               {summary ? (
-                // #1032 — clear the title-row pin (icon-touch is 44px,
-                // the label line is ~20px) and leave air before the
-                // next Day section. The pin sits on the title row only.
-                <span className="mt-6 mb-3 block w-full min-w-0">{summary}</span>
+                // #1032 — stripe under the title row, with air before
+                // the next section. The pin no longer hangs over it.
+                <span className="mt-3 mb-3 block w-full min-w-0">{summary}</span>
               ) : null}
             </button>
           </CollapsibleTrigger>
-          {summary && actions ? (
-            <div className="absolute top-0 right-0">{actions}</div>
-          ) : (
-            actions
-          )}
+          {actions ? (
+            <span className="flex h-11 shrink-0 items-center">{actions}</span>
+          ) : null}
         </div>
         <CollapsibleContent>
           <div className={contentClassName}>{children}</div>
