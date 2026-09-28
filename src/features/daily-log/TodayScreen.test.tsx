@@ -1043,6 +1043,10 @@ describe('TodayScreen', () => {
 
       const label = await screen.findByText('Remaining calories')
       const card = label.closest('[data-slot="card"]') as HTMLElement
+      // #1042 — half the vertical padding around the goal − eaten line.
+      expect(card).toHaveClass('py-2!')
+      expect(card.querySelector('[data-slot="card-content"]')).toHaveClass('gap-0.5')
+      expect(card.querySelector('[role="progressbar"]')).toHaveClass('mt-0.5')
       expect(screen.queryByText('BMI')).not.toBeInTheDocument()
       expect(
         within(card).queryByRole('button', {
@@ -1961,7 +1965,17 @@ describe('TodayScreen', () => {
       expect(dayTitle.parentElement).toContainElement(check)
       // #910 — whole day-intro (title + date nav) is sticky; check stays with
       // the title, not the date-arrow row.
-      expect(dayTitle.closest('[data-slot="day-intro"]')).toHaveClass('sticky')
+      expect(dayTitle.closest('[data-slot="day-intro"]')).toHaveClass(
+        'sticky',
+        'pb-1',
+      )
+      expect(dayTitle.closest('[data-slot="day-intro"]')).not.toHaveClass('pb-2')
+      expect(dayTitle.closest('[data-slot="day-intro"]')?.parentElement).toHaveClass(
+        'gap-3',
+      )
+      expect(
+        dayTitle.closest('[data-slot="day-intro"]')?.parentElement,
+      ).not.toHaveClass('gap-6')
       expect(dayTitle.closest('[data-slot="day-intro"]')).toContainElement(check)
       expect(next.closest('.flex.items-center.gap-2')).not.toContainElement(
         check,

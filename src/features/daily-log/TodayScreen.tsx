@@ -178,11 +178,13 @@ export function TodayScreen() {
 
   return (
     <DayPinProvider>
-    <div className="flex flex-col gap-6">
+    {/* #1042 — half the gap under the date (`gap-6` → `gap-3`). The
+        КБЖУ card keeps its own `pt-3`, so the title stays off the edge. */}
+    <div className="flex flex-col gap-3">
       <GoalCelebrationModal />
       <div
         className={pageStickyUnderAppHeader(
-          'flex flex-col pt-1 pb-2',
+          'flex flex-col pt-1 pb-1',
         )}
         data-slot="day-intro"
       >

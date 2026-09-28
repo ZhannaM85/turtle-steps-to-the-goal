@@ -127,6 +127,20 @@ describe('Day КБЖУ collapse (#1029)', () => {
     expect(screen.getByText('Consumed')).toBeVisible()
     expect(screen.getByText('Remaining')).toBeVisible()
     expect(screen.getByText('1,680')).toBeVisible()
+    // #1042 — half the gap between the two cards. Title inset stays pt-3.
+    const body = section?.querySelector('.gap-3.pt-3')
+    expect(body).toHaveClass('gap-3', 'pt-3')
+    expect(body).not.toHaveClass('gap-6')
+    const remainingCard = screen.getByText('Remaining').closest('[data-slot="card"]')
+    expect(remainingCard).toHaveClass('py-2!')
+    expect(remainingCard?.querySelector('[data-slot="card-content"]')).toHaveClass(
+      'gap-0.5',
+    )
+    const consumedCard = screen.getByText('Consumed').closest('[data-slot="card"]')
+    expect(consumedCard).not.toHaveClass('py-2!')
+    expect(consumedCard?.querySelector('[data-slot="card-content"]')).toHaveClass(
+      'gap-1',
+    )
     expect(document.querySelector('[data-slot="day-kcal-strip"]')).toBeNull()
     expect(section?.firstElementChild).toHaveClass('pt-3')
     expect(section?.closest('[data-slot="day-intro"]')).toBeNull()

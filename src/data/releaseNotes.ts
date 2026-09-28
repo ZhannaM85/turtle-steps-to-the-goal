@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1018,
+    issue: 1042,
+    date: '2026-09-28T18:10:00+03:00',
+    en: 'On Day, there is less empty space above the calories and macros title, and less space around the line that shows the calorie goal minus what you have eaten.',
+    ru: 'На экране «День» меньше пустого места над заголовком «КБЖУ» и вокруг строки, где цель по калориям показана минус уже съеденное.',
+  },
+  {
     version: 1017,
     issue: 1041,
     date: '2026-09-28T15:50:48+03:00',
