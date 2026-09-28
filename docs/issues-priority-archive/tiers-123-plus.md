@@ -866,6 +866,7 @@ _Meal screen: the name field is the meal-type dropdown. The extra «Тип пр�
 | [#1010](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1010) | ✅ Done | LDL staples in the searchable food catalog | Confirmed on-device 2026-09-28 — staples like овсянка and семена льна are in the catalog with macros and LDL labels. |
 | [#1009](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1009) | ✅ Done | LDL reasons in Russian | Confirmed on-device 2026-09-28 — Day LDL tips use the Russian reason from the seed. |
 | [#1008](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1008) | ✅ Done | LDL-friendly label on each Day food | Confirmed on-device 2026-09-28 — each logged dish shows a compact LDL label; tap shows the reason. |
+| [#1015](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1015) | ✅ Done | Settings: paste JSON to import catalog foods | Confirmed on-device 2026-09-28 — Settings paste imports catalog foods with macros and LDL; same name updates in place. |
 
 ---
 
