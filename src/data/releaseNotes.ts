@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1026,
+    issue: 1050,
+    date: '2026-09-28T21:50:00+03:00',
+    en: 'On Day, opening calories and macros keeps the same space under the title and the same full width as the collapsed line, so the block does not jump.',
+    ru: 'На экране «День» раскрытие блока «КБЖУ» оставляет тот же отступ под заголовком и ту же ширину, что и у свёрнутой строки, и блок больше не прыгает.',
+  },
+  {
     version: 1025,
     issue: 1049,
     date: '2026-09-28T20:25:00+03:00',

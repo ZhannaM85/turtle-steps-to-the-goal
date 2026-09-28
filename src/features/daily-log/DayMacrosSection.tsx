@@ -17,9 +17,11 @@ import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
  * downward scroll collapses the expanded cards (including while sticky).
  * #1038 — scrolling back up opens that automatic collapse once the row
  * has left the stick line; a chevron close stays closed.
- * #1039 — `pt-3` on this card when expanded so the title row is not
- * flush with the top edge. #1046 — drop that padding while collapsed
- * so the gap under the date header is not doubled up with the stripe.
+ * #1039 — `pt-3` on this card when expanded. #1046 dropped it while
+ * collapsed. #1050 drops it while expanded too, and drops the content
+ * `pt-3`, so the title and the first card sit where the collapsed
+ * stripe does. The open body is the same full-width row as that stripe
+ * (#1044): no side padding of its own.
  * The collapsed stripe keeps its padding and wraps (#1041) instead of
  * clipping at the card edge.
  * #1043 — outer gaps only. The eaten/remaining stack is the pre-#1042
@@ -66,8 +68,7 @@ export function DayMacrosSection() {
         }
         collapseLabel={t.dailyEntry.collapseMacrosLabel}
         shell={false}
-        className={macrosCollapsed ? undefined : 'pt-3'}
-        contentClassName="flex flex-col gap-6 pt-3"
+        contentClassName="flex w-full min-w-0 flex-col gap-6"
         actions={<DaySectionPinButton id="macros" />}
         summary={
           macrosCollapsed ? (

@@ -137,9 +137,12 @@ describe('Day КБЖУ collapse (#1029)', () => {
     expect(screen.getByText('Remaining')).toBeVisible()
     expect(screen.getByText('1,680')).toBeVisible()
     // #1043 — eaten/remaining stack is the pre-#1042 gap and card padding.
-    const body = section?.querySelector('.gap-6.pt-3')
-    expect(body).toHaveClass('gap-6', 'pt-3')
-    expect(body).not.toHaveClass('gap-3')
+    // #1050 — no extra pad under the title, and the same full-width row
+    // as the collapsed stripe (no side inset of its own).
+    const body = section?.querySelector('.gap-6')
+    expect(body).toHaveClass('flex', 'w-full', 'min-w-0', 'gap-6')
+    expect(body).not.toHaveClass('pt-3', 'gap-3')
+    expect(body?.className ?? '').not.toMatch(/\b(px-|mx-|pl-|pr-)/)
     const remainingCard = screen.getByText('Remaining').closest('[data-slot="card"]')
     expect(remainingCard).not.toHaveClass('py-2!')
     expect(remainingCard?.querySelector('[data-slot="card-content"]')).toHaveClass(
@@ -153,7 +156,9 @@ describe('Day КБЖУ collapse (#1029)', () => {
       'gap-1',
     )
     expect(document.querySelector('[data-slot="day-kcal-strip"]')).toBeNull()
-    expect(section?.firstElementChild).toHaveClass('pt-3')
+    // #1050 — title row stays put. #1046's collapsed rule and the open
+    // body share "no card pt-3".
+    expect(section?.firstElementChild).not.toHaveClass('pt-3')
     expect(section?.closest('[data-slot="day-intro"]')).toBeNull()
     expect(section?.className ?? '').not.toMatch(/\bsticky\b/)
     expect(section).not.toHaveClass('-mx-4')
@@ -186,7 +191,14 @@ describe('Day КБЖУ collapse (#1029)', () => {
     expect(section?.closest('[data-slot="day-intro"]')).toBeNull()
     expect(section?.getAttribute('data-day-pin-sticky')).toBe('true')
     expect(section?.className ?? '').toMatch(/\bsticky\b/)
-    expect(section).toHaveClass('-mx-4', 'shadow-md', 'z-[9]')
+    expect(section).toHaveClass('-mx-4', 'shadow-md', 'z-[9]', 'px-4')
+    // #1050 — sticky-open cards use the section's px-4 only, the same
+    // content width as the collapsed stripe. No second side inset.
+    const body = section?.querySelector('.gap-6')
+    expect(body).toHaveClass('w-full', 'min-w-0', 'gap-6')
+    expect(body).not.toHaveClass('pt-3')
+    expect(body?.className ?? '').not.toMatch(/\b(px-|mx-|pl-|pr-)/)
+    expect(section?.firstElementChild).not.toHaveClass('pt-3')
     expect(precedes(section, notes)).toBe(true)
     expect(summary()).toBeNull()
     expect(screen.getByText('Consumed')).toBeVisible()

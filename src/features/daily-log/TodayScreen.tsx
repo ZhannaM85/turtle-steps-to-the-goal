@@ -181,7 +181,8 @@ export function TodayScreen() {
     {/* #1042 — page rhythm `gap-6` → `gap-3`, date header `pb-2` → `pb-1`.
         #1043 pulls only the КБЖУ block up (`-mt-3` on that section) so the
         white band under the date is about half of what it was before #1042.
-        The #1039 `pt-3` stays, and this column's other gaps stay `gap-3`. */}
+        #1050 drops the expanded-only `pt-3` on КБЖУ so opening it does
+        not shift the title. This column's other gaps stay `gap-3`. */}
     <div className="flex flex-col gap-3">
       <GoalCelebrationModal />
       <div
