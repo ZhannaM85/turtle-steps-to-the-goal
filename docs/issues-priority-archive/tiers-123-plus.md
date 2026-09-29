@@ -855,6 +855,7 @@ _Meal screen: the name field is the meal-type dropdown. The extra «Тип пр�
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#1011](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1011) | ✅ Done | Remove the parallel cholesterol food list | Confirmed on-device 2026-09-29 — meal search uses the catalog only; cholesterol-foods.json is gone; stored diary LDL stamps stay. |
 | [#1002](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1002) | ✅ Done | Meal screen: «Название приёма пищи» is the dropdown; no extra «Тип» row | Confirmed on-device 2026-09-26 — meal name is the type dropdown on the same row as time and repeat; no separate «Тип» row; name is not free-typed. |
 | [#1003](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1003) | ✅ Done | Meal screen: info icon next to repeat-yesterday control | Confirmed on-device 2026-09-26 — info tip beside the repeat arrow explains yesterday’s meal of this type; tap-to-confirm unchanged. |
 | [#1004](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1004) | ✅ Done | Добавить блюдо: nutrition summary readable (no mid-line wrap) | Confirmed on-device 2026-09-26 — live summary keeps totals; kcal and Б/Ж/У tokens stay on one line; «(было …)» is its own line. |
