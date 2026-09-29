@@ -69,7 +69,6 @@ _A shared-food QR or link keeps each food's LDL impact and reason, including whe
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1019](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1019) | 🔍 Pending validation | Start a new goal as soon as this week’s target is reached | «Начать новую цель» enables when the reached banner appears, not at week end. The celebration’s action opens that same form (`/goal?startNew=1`); Close or Cancel leaves the current goal. The “keep it up through … to earn your badge” copy is unchanged if they don’t start a new one. Awaiting on-device confirmation |
 
 ---
 
