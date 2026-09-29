@@ -85,6 +85,25 @@ describe('rankRecentMealPickables (#1035)', () => {
     expect(ranked[0]?.source).toBe('mealItem')
   })
 
+  it('ranks a later meal add above an older import, and a later import above an older meal add (#1051)', () => {
+    const foods = [food('Салат Коул слоу', 'Coleslaw'), food('Тестовый импорт')]
+    const mealFirst = rankRecentMealPickables({
+      mealItems: [meal('Салат Коул слоу', '2026-09-29T18:00:00.000Z')],
+      foods,
+      imports: [imported('Тестовый импорт', '2026-09-29T12:00:00.000Z')],
+    })
+    expect(names(mealFirst)).toEqual(['Салат Коул слоу', 'Тестовый импорт'])
+    expect(mealFirst[0]?.source).toBe('mealItem')
+
+    const importFirst = rankRecentMealPickables({
+      mealItems: [meal('Салат Коул слоу', '2026-09-29T12:00:00.000Z')],
+      foods,
+      imports: [imported('Тестовый импорт', '2026-09-29T18:00:00.000Z')],
+    })
+    expect(names(importFirst)).toEqual(['Тестовый импорт', 'Салат Коул слоу'])
+    expect(importFirst[0]?.source).toBe('food')
+  })
+
   it('keeps two diary rows that share a name', () => {
     const ranked = rankRecentMealPickables({
       mealItems: [

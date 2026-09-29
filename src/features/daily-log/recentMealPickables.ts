@@ -41,10 +41,13 @@ type Ranked = {
 }
 
 /**
- * #1035 — «Недавние» mixes diary foods with Settings catalog paste-imports.
- * Import time is `CatalogFoodImport.updatedAt` (last row in one paste is
- * newest). A later log of the same name replaces that catalog row. Two
- * diary rows with the same name both stay.
+ * #1035 / #1051 — «Недавние» mixes meal adds with Settings catalog
+ * paste-imports on one clock. A meal add's time is the library row's
+ * `updatedAt` (stamped when that food is saved onto a meal, including a
+ * built-in catalog name). Import time is `CatalogFoodImport.updatedAt`
+ * (last row in one paste is newest). The later event ranks higher. A
+ * later log of the same name replaces that catalog row. Two diary rows
+ * with the same name both stay.
  */
 export function rankRecentMealPickables(input: {
   mealItems: readonly PickableItem[]

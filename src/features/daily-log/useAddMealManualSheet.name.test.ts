@@ -20,6 +20,69 @@ beforeEach(() => {
   useLdlImpactStore.setState({ enabled: false })
 })
 
+describe('catalog meal save refreshes Recent (#1051)', () => {
+  it('touches a built-in catalog name when it is saved onto a meal', () => {
+    const touchMealItem = vi.fn()
+    const { result } = renderHook(() =>
+      useAddMealManualSheet({
+        locale: 'ru',
+        isOnline: true,
+        onAppendItems: vi.fn(),
+        touchMealItem,
+        setSearch: vi.fn(),
+      }),
+    )
+
+    act(() => {
+      result.current.setManualDraft({
+        ...blankManualDraft(),
+        name: 'Салат Коул слоу',
+        amount: '100',
+      })
+    })
+    act(() => {
+      result.current.saveManualDraft()
+    })
+
+    expect(touchMealItem).toHaveBeenCalledWith(
+      'Салат Коул слоу',
+      expect.objectContaining({ amountKcal: expect.any(Number) }),
+      undefined,
+      undefined,
+      false,
+      undefined,
+    )
+  })
+
+  it('touches a repeated built-in catalog name', () => {
+    const touchMealItem = vi.fn()
+    const { result } = renderHook(() =>
+      useAddMealManualSheet({
+        locale: 'en',
+        isOnline: true,
+        onAppendItems: vi.fn(),
+        touchMealItem,
+        setSearch: vi.fn(),
+      }),
+    )
+
+    act(() => {
+      result.current.touchIfPersonal({
+        id: 'line-1',
+        name: 'Salmon',
+        amountKcal: 100,
+      })
+    })
+
+    expect(touchMealItem).toHaveBeenCalledWith(
+      'Salmon',
+      expect.objectContaining({ amountKcal: 100 }),
+      undefined,
+      undefined,
+    )
+  })
+})
+
 describe('openManualAdd dish name (#992)', () => {
   it('prefills the dish name from the search query', () => {
     const { result } = renderSheet()

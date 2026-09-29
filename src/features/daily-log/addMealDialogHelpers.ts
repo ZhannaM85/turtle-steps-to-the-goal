@@ -1,4 +1,4 @@
-import { type FoodItem, type FoodServing, foods } from '@/data/foods'
+import type { FoodItem, FoodServing } from '@/data/foods'
 import {
   cholesterolForFoodRecord,
   type CholesterolImpact,
@@ -18,10 +18,6 @@ import {
   scaleTotalsByWeightChange,
 } from '@/shared/lib/macroScaling'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
-
-export const curatedFoodNames = new Set(
-  foods.flatMap((food) => [food.en, food.ru]),
-)
 
 export type PickableItem =
   | { source: 'food'; food: FoodItem }

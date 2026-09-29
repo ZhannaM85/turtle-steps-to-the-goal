@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1027,
+    issue: 1051,
+    date: '2026-09-29T20:01:10+03:00',
+    en: 'Adding a food to a meal puts it in Recent by that time, including foods from the built-in list, and a pasted food stays in the list ranked by when it was imported.',
+    ru: 'Добавление блюда в приём пищи ставит его в «Недавние» по этому времени, в том числе из встроенного списка, а вставленный продукт остаётся в списке и сортируется по времени импорта.',
+  },
+  {
     version: 1026,
     issue: 1050,
     date: '2026-09-28T21:50:00+03:00',

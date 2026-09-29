@@ -1130,6 +1130,33 @@ describe('AddMealDialog (#454)', () => {
       expect(await screen.findByText('Homemade soup')).toBeInTheDocument()
     })
 
+    it('puts a saved built-in catalog food above an older Recent row (#1051)', async () => {
+      const user = userEvent.setup()
+      await useMealItemStore.getState().touch('Homemade soup', { amountKcal: 100 })
+      render(<ControlledAddMealDialog {...defaultProps} />)
+      expect(await screen.findByText('Homemade soup')).toBeInTheDocument()
+
+      await user.type(screen.getByLabelText('Search foods'), 'Salmon')
+      await user.click(await screen.findByText('Salmon'))
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+
+      await waitFor(() => {
+        const recentList = screen.getAllByRole('list').find((list) =>
+          within(list).queryByText('Homemade soup'),
+        )
+        expect(recentList).toBeTruthy()
+        const labels = within(recentList as HTMLElement)
+          .getAllByRole('button')
+          .map((button) => button.textContent ?? '')
+        const salmonIndex = labels.findIndex((label) => label.includes('Salmon'))
+        const soupIndex = labels.findIndex((label) =>
+          label.includes('Homemade soup'),
+        )
+        expect(salmonIndex).toBeGreaterThanOrEqual(0)
+        expect(soupIndex).toBeGreaterThan(salmonIndex)
+      })
+    })
+
     it('does not show a Recent section with no personal items yet', () => {
       render(<ControlledAddMealDialog {...defaultProps} />)
 

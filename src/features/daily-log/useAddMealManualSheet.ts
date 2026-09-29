@@ -22,7 +22,6 @@ import {
   applyPortionWeightToDraft,
   applyServingGramsToDraft,
   blankManualDraft,
-  curatedFoodNames,
   draftFromCalorieItem,
   draftFromPickableItem,
   libraryPickRatesPatch,
@@ -286,9 +285,10 @@ export function useAddMealManualSheet({
       onAppendItems([newItem])
       setSearch('')
     }
-    const shouldTouch =
-      !!trimmedName &&
-      (!!barcodeToSave || !curatedFoodNames.has(trimmedName))
+    // #1051 — a built-in catalog name used to skip this (#150), so logging
+    // it never refreshed «Недавние». Every named meal save stamps the
+    // library clock. Paste-imports keep their own time and rank against it.
+    const shouldTouch = !!trimmedName
     setPendingBarcode(null)
     setManualDraft(blankManualDraft())
     setEditingItemId(null)
@@ -396,9 +396,7 @@ export function useAddMealManualSheet({
   }
 
   function touchIfPersonal(item: CalorieItem) {
-    const fromBarcode = pendingBarcode != null
     if (!item.name) return
-    if (!fromBarcode && curatedFoodNames.has(item.name)) return
     void touchMealItem(
       item.name,
       {

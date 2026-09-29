@@ -194,12 +194,10 @@ export function FoodPickerDialog({
     // unchanged here since Settings' own management list still wants
     // alphabetical), so a just-logged personal item surfaces near the top
     // instead of being buried under whatever comes earlier in the
-    // alphabet. Curated foods have no per-user recency signal to sort by —
-    // `touchMealItem` deliberately never fires for a curated pick
-    // (`curatedFoodNames` in `MealList.tsx`) — so they're unaffected and
-    // keep their existing order; personal items already list ahead of
+    // alphabet. Saving a built-in catalog food onto a meal stamps that
+    // same clock (#1051). Logged rows already list ahead of untouched
     // curated foods structurally (see `allItems` below), so this alone is
-    // enough to surface a recent personal item without a separate
+    // enough to surface a recent item without a separate
     // "top N recent, then fall back to alphabetical" cutoff.
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
     .map((mealItem) => ({ source: 'mealItem', mealItem }))

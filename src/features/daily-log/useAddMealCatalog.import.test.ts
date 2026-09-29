@@ -159,6 +159,49 @@ describe('imported catalog foods in meal Recent (#1035)', () => {
   })
 })
 
+describe('meal-add time versus import time (#1051)', () => {
+  it('keeps a built-in catalog food in Recent and ranks it by its meal-add time', async () => {
+    await useCatalogFoodImportStore.getState().importFoods([
+      {
+        nameRu: 'Тестовый импорт',
+        kcal100: 10,
+        protein100: 1,
+        fat100: 1,
+        carbs100: 1,
+        cholesterolImpact: 'unknown',
+      },
+    ])
+    const pastedAt =
+      useCatalogFoodImportStore
+        .getState()
+        .imports.find((row) => row.nameRu === 'Тестовый импорт')?.updatedAt ?? ''
+    const loggedAt = new Date(Date.parse(pastedAt) + 1000).toISOString()
+    useMealItemStore.setState({
+      items: [
+        {
+          id: 'coleslaw-log',
+          name: 'Салат Коул слоу',
+          createdAt: loggedAt,
+          updatedAt: loggedAt,
+          lastAmountKcal: 100,
+          lastProteinG: 10,
+          lastFatG: 1,
+          lastCarbsG: 1,
+        },
+      ],
+      status: 'ready',
+    })
+
+    const { result } = search('ru', '')
+    expect(result.current.recentItems.map(recentName)).toEqual([
+      'Салат Коул слоу',
+      'Тестовый импорт',
+    ])
+    expect(result.current.recentItems[0]?.source).toBe('mealItem')
+    expect(result.current.recentItems[1]?.source).toBe('food')
+  })
+})
+
 describe('imported catalog foods in meal search (#1015)', () => {
   it('finds a pasted food by Russian or English name and keeps LDL while the toggle is off', async () => {
     await useCatalogFoodImportStore.getState().importFoods([draft])

@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { format, parseISO, subDays } from 'date-fns'
-import { foods } from '@/data/foods'
 import type {
   CalorieEntry,
   CalorieItem,
@@ -46,12 +45,6 @@ import {
   replaceSelectedItemsInEntry,
 } from './replaceMealSelectionWithRecipe'
 import { useMealKcalVsLastSameMeal } from './useMealKcalVsLastSameMeal'
-
-// Every curated food's name in either locale (#150) — names an item picked
-// via FoodPickerDialog can carry, distinct from a name the user actually
-// typed themselves. `foods.ts` is static, so this only needs computing once
-// rather than per-render or per-save.
-const curatedFoodNames = new Set(foods.flatMap((food) => [food.en, food.ru]))
 
 // #600 — how long the undo toast stays up after a meal delete, within the
 // 8-10s window the issue asked for.
@@ -779,7 +772,8 @@ export function MealList({
     setCalorieEntries([...calorieEntries, ...newEntries])
     for (const newEntry of newEntries) {
       for (const item of newEntry.items) {
-        if (item.name && !curatedFoodNames.has(item.name)) {
+        // #1051 — catalog names refresh Recent on a meal add too.
+        if (item.name) {
           touchMealItem(item.name, {
             amountKcal: item.amountKcal,
             proteinG: item.proteinG,
