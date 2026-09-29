@@ -878,6 +878,7 @@ _A shared-food QR or link keeps each food's LDL impact and reason, including whe
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#1028](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1028) | ✅ Done | Share selected: receiver only gets the last food | Confirmed on-device 2026-09-29 — multi-food share import appends the full batch to the open meal in one call. |
 | [#1035](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1035) | ✅ Done | Meal «Недавние»: Settings-imported foods on top | Confirmed on-device 2026-09-29 — Settings catalog paste puts those foods at the top of add-meal «Недавние» without a diary log. |
 | [#1037](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1037) | ✅ Done | Shared food QR/link: preserve ЛПНП on export and import | Confirmed on-device 2026-09-29 — share QR/link keeps cholesterolImpact + reason (v3 / multi-food v2); import restores LDL on library and meal. |
 | [#1036](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1036) | ✅ Done | Day КБЖУ: auto-collapse on scroll so the compact line can stick | Confirmed on-device 2026-09-28 — scrolling down collapses expanded КБЖУ to the compact sticky line; #1038 covers scroll-up reopen. |
