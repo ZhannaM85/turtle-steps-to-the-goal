@@ -70,7 +70,6 @@ _A shared-food QR or link keeps each food's LDL impact and reason, including whe
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1019](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1019) | 🔍 Pending validation | Start a new goal as soon as this week’s target is reached | «Начать новую цель» enables when the reached banner appears, not at week end. The celebration’s action opens that same form (`/goal?startNew=1`); Close or Cancel leaves the current goal. The “keep it up through … to earn your badge” copy is unchanged if they don’t start a new one. Awaiting on-device confirmation |
-| [#1020](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1020) | 🔍 Pending validation | Catalog import/update restamps diary LDL badges | When a catalog food's LDL impact or reason changes — Settings JSON import, or add/edit food — matching diary rows (Russian name, English name, and paste aliases; the same whole-name match as other LDL lookups), including older days, take that catalog value. Calories and macros stay as logged. The import helper no longer says the diary never changes. Awaiting on-device confirmation |
 
 ---
 

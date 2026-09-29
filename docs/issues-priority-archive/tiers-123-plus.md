@@ -878,6 +878,7 @@ _A shared-food QR or link keeps each food's LDL impact and reason, including whe
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#1020](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1020) | ✅ Done | Catalog import/update restamps diary LDL badges | Confirmed on-device 2026-09-29 — catalog LDL changes restamp matching diary rows, including older days. |
 | [#1023](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1023) | ✅ Done | Goal form: Suggest stays off until weekly kg pace is greater than 0 | Confirmed on-device 2026-09-29 — «Предложить цель» stays off until weekly kg pace > 0; no maintenance suggest on empty/0. |
 | [#1026](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1026) | ✅ Done | Exports: include ЛПНП (cholesterolImpact) on meal + day analysis exports | Confirmed on-device 2026-09-29 — meal/day exports include LDL label + reason when the Settings LDL toggle is on. |
 | [#1027](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1027) | ✅ Done | Catalog/import: accept barcode (+ brand) and dedupe by barcode | Confirmed on-device 2026-09-29 — paste/save with barcode updates the matching catalog row (and brand) instead of duplicating. |
