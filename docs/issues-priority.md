@@ -86,6 +86,5 @@ _Adding a food to a meal refreshes its place in Recent, including a built-in cat
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1051](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1051) | 🔍 Pending validation | Недавние: meal adds always on top; imports compete by import time | Meal save now touches every named food, including a built-in catalog name that previously skipped the library clock, so that food's `updatedAt` is the meal-add time. Recent still mixes those rows with Settings paste-imports on one clock: the later event ranks higher, and a paste still shows before any meal log. Awaiting on-device confirmation |
 
 

@@ -921,3 +921,13 @@ _On Day, calories and macros that collapsed on their own while scrolling down op
 | [#1040](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1040) | ✅ Done | Day: sticky КБЖУ card bleeds scrolling content on left/right — widen card | Confirmed on-device 2026-09-28 — sticky КБЖУ paints to the scrollport edges so side content no longer peeks through. |
 | [#1039](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1039) | ✅ Done | Day КБЖУ card: top padding above the title | Confirmed on-device 2026-09-28 — title no longer flush to the card top; later #1046/#1050 keep padding only when expanded. |
 | [#1038](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1038) | ✅ Done | Day КБЖУ: expand after auto-collapse when it leaves sticky | Confirmed on-device 2026-09-28 — after auto-collapse, scrolling up opens КБЖУ again once past the stick line; chevron close stays closed. |
+
+---
+
+## Tier 175 — Live feedback (2026-09-29)
+
+_Adding a food to a meal refreshes its place in Recent, including a built-in catalog food. Pasted foods still show without a meal log and rank by import time against that meal-add time._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1051](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1051) | ✅ Done | Недавние: meal adds always on top; imports compete by import time | Confirmed on-device 2026-09-30 — meal save refreshes Недавние for every named food, including a built-in catalog name; paste-imports still rank by import time on the same clock. |
