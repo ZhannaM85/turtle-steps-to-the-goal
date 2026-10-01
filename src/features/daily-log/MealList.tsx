@@ -981,7 +981,6 @@ export function MealList({
           onTimeEatenChange={updateEditingMealTime}
           note={editingMeal.note ?? ''}
           onNoteChange={updateEditingMealNote}
-          collapseNoteUntilPencil
           items={editingMeal.items}
           reaction={editingMeal.reaction}
           onReactionChange={setEditingMealReaction}

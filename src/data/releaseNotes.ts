@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1041,
+    issue: 1065,
+    date: "2026-10-01T22:39:29.973+03:00",
+    en: "Every meal note now opens only when you tap the pencil, including when adding a snack.",
+    ru: "Заметка любого приёма пищи теперь открывается только по карандашу, в том числе при добавлении перекуса.",
+  },
+  {
     version: 1040,
     issue: 1064,
     date: '2026-10-01T21:48:50+03:00',

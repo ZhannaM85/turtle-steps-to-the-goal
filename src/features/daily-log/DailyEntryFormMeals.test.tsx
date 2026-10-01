@@ -191,10 +191,12 @@ describe('DailyEntryForm', () => {
       await user.click(
         screen.getByRole('button', { name: '+ Add a meal' }),
       )
+      await user.click(screen.getByRole('button', { name: 'Note about breakfast' }))
       await user.type(
-        screen.getByLabelText('Meal note'),
+        screen.getByLabelText('Note about breakfast'),
         'Ate chocolates, they were good.',
       )
+      await user.click(screen.getByRole('button', { name: 'Save note' }))
       await openAddItemFlow(user)
       await user.click(screen.getByRole('button', { name: 'Thumbs up' }))
       await user.type(screen.getByLabelText('kcal/100g'), '200')

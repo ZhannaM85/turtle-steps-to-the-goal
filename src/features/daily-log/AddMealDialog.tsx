@@ -56,8 +56,6 @@ export interface AddMealDialogProps {
   onTimeEatenChange: (value: string) => void
   note: string
   onNoteChange: (value: string) => void
-  /** #1064 — edit meal: note stays collapsed until the pencil. */
-  collapseNoteUntilPencil?: boolean
   previousMeal?: { label?: string; items: CalorieItem[] }
   items: CalorieItem[]
   reaction: Emotion | undefined
@@ -96,7 +94,6 @@ export function AddMealDialog({
   onTimeEatenChange,
   note,
   onNoteChange,
-  collapseNoteUntilPencil = false,
   previousMeal,
   items,
   reaction,
@@ -239,7 +236,6 @@ export function AddMealDialog({
       mealLabel={mealLabel}
       note={note}
       onNoteChange={onNoteChange}
-      collapseUntilPencil={collapseNoteUntilPencil}
     />
   )
 

@@ -194,10 +194,8 @@ describe('AddMealDialog (#454)', () => {
     expect(onMealLabelChange).toHaveBeenCalledWith('Lunch')
     expect(mealName).toHaveTextContent('Lunch')
     expect(screen.getByRole('heading', { name: 'Lunch' })).toBeInTheDocument()
-    expect(screen.getByLabelText('Meal note')).toHaveAttribute(
-      'placeholder',
-      'Note about lunch',
-    )
+    expect(screen.getByRole('button', { name: 'Note about lunch' })).toBeInTheDocument()
+    expect(screen.queryByRole('textbox', { name: 'Note about lunch' })).not.toBeInTheDocument()
     expect(screen.queryByRole('option', { name: 'Lunch' })).not.toBeInTheDocument()
     expect(screen.queryByRole('textbox', { name: 'Meal name' })).not.toBeInTheDocument()
   })
@@ -348,7 +346,8 @@ describe('AddMealDialog (#454)', () => {
       />,
     )
 
-    const note = screen.getByLabelText('Meal note')
+    await user.click(screen.getByRole('button', { name: 'Note about breakfast' }))
+    const note = screen.getByLabelText('Note about breakfast')
     expect(note).toHaveAttribute('placeholder', 'Note about breakfast')
     await user.type(note, 'Cheat day')
     expect(note).toHaveValue('Cheat day')
@@ -361,7 +360,8 @@ describe('AddMealDialog (#454)', () => {
     // #129's flow types the note first, then adds the item — moving the
     // note next to the reaction block (which needs an item) must not drop
     // the field for an empty meal.
-    const note = screen.getByLabelText('Meal note')
+    await user.click(screen.getByRole('button', { name: 'Note about breakfast' }))
+    const note = screen.getByLabelText('Note about breakfast')
     await user.type(note, 'Ate chocolates')
 
     expect(note).toHaveValue('Ate chocolates')
@@ -1080,7 +1080,7 @@ describe('AddMealDialog (#454)', () => {
       expect(row).toContainElement(reason)
       expect(screen.queryByRole('menuitem', { name: 'Add food' })).not.toBeInTheDocument()
       const search = screen.getByLabelText('Search foods')
-      const note = screen.getByLabelText('Meal note')
+      const note = screen.getByRole('button', { name: 'Note about breakfast' })
       expect(screen.queryByRole('button', { name: 'Homemade' })).not.toBeInTheDocument()
       expect(screen.queryByText('Homemade soup')).not.toBeInTheDocument()
       expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
@@ -1813,7 +1813,7 @@ describe('AddMealDialog (#454)', () => {
       'flex',
       'items-center',
     )
-    expect(screen.getByLabelText('Meal note')).toHaveClass('h-12')
+    expect(screen.queryByRole('textbox', { name: 'Note about breakfast' })).not.toBeInTheDocument()
   })
 
   it('does not auto-focus the dish name when editing an existing item (#475)', async () => {

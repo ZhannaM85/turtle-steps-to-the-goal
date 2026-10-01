@@ -8,11 +8,9 @@ import { AddMealNoteField } from './AddMealNoteField'
 function ControlledNote({
   mealLabel,
   initialNote = '',
-  collapseUntilPencil = false,
 }: {
   mealLabel: string
   initialNote?: string
-  collapseUntilPencil?: boolean
 }) {
   const [note, setNote] = useState(initialNote)
   return (
@@ -20,7 +18,6 @@ function ControlledNote({
       mealLabel={mealLabel}
       note={note}
       onNoteChange={setNote}
-      collapseUntilPencil={collapseUntilPencil}
     />
   )
 }
@@ -30,14 +27,28 @@ describe('AddMealNoteField (#1059)', () => {
     useLocaleStore.setState({ locale: 'en' })
   })
 
-  it('keeps a non-night note field open when it is empty', () => {
-    render(<ControlledNote mealLabel="Breakfast" />)
+  it.each(['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Night food', 'Tea time'])(
+    'keeps a new %s note closed until the pencil (#1065)', async (mealLabel) => {
+      const user = userEvent.setup()
+      render(<ControlledNote mealLabel={mealLabel} />)
+      expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
+      await user.click(screen.getByRole('button'))
+      const note = screen.getByRole('textbox')
+      expect(note).toHaveFocus()
+      await user.type(note, 'tea')
+      await user.click(screen.getByRole('button', { name: 'Save note' }))
+      expect(screen.getByText('tea')).toBeInTheDocument()
+      expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
+    },
+  )
 
-    expect(screen.getByLabelText('Meal note')).toHaveAttribute(
-      'placeholder',
-      'Note about breakfast',
-    )
-    expect(screen.queryByRole('button', { name: 'Note about night food' })).not.toBeInTheDocument()
+  it('keeps the reported Russian snack note closed until the pencil (#1065)', async () => {
+    useLocaleStore.setState({ locale: 'ru' })
+    const user = userEvent.setup()
+    render(<ControlledNote mealLabel="Перекус" />)
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Заметка о перекусе' }))
+    expect(screen.getByRole('textbox', { name: 'Заметка о перекусе' })).toHaveFocus()
   })
 
   it('opens an empty night-food note with day-note save and cancel (#1063)', async () => {
@@ -107,7 +118,6 @@ describe('AddMealNoteField (#1059)', () => {
       <ControlledNote
         mealLabel="Dinner"
         initialNote="already written"
-        collapseUntilPencil
       />,
     )
 
