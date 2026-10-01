@@ -949,3 +949,4 @@ _Closed rows only. Open / pending items stay in the active file._
 | [#1059](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1059) | ✅ Done | Add food: night note «Заметка о ночной еде» behind a pencil | Confirmed on-device 2026-10-01. |
 | [#1060](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1060) | ✅ Done | Add food: five CTAs → dropdown beside why-eating | Confirmed on-device 2026-10-01. |
 | [#1061](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1061) | ✅ Done | Add food: drop Показать все / Свернуть; scroll the dropdown | Confirmed on-device 2026-10-01. |
+| [#1062](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1062) | ✅ Done | Add food: why-eating and Add… as overlay dropdowns | Confirmed on-device 2026-10-01. |
