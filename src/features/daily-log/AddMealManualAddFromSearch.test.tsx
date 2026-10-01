@@ -13,6 +13,7 @@ import {
   useRecipeStore,
 } from '@/stores'
 import { AddMealDialog } from './AddMealDialog'
+import { openAddMealAction } from './openAddMealAction'
 
 const QUERY = 'Медово-ореховый пирог'
 
@@ -75,7 +76,7 @@ describe('manual add from empty meal search (#992)', () => {
     renderDialog()
 
     await user.type(screen.getByRole('textbox', { name: 'Search foods' }), QUERY)
-    await user.click(screen.getByRole('button', { name: 'Add food' }))
+    await user.click(await openAddMealAction(user, 'Add food'))
 
     const name = await screen.findByRole('combobox', { name: 'Dish name' })
     expect(name).toHaveValue('')

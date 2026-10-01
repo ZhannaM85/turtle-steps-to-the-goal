@@ -18,7 +18,6 @@ const soup: PickableItem = {
 function renderEmptySearch(onOpenManualAdd = vi.fn()) {
   render(
     <AddMealDialogBrowse
-      mealLabel="Breakfast"
       search="honey pie"
       query="honey pie"
       matches={[]}
@@ -32,9 +31,6 @@ function renderEmptySearch(onOpenManualAdd = vi.fn()) {
       onToggleFavorite={vi.fn()}
       onPick={vi.fn()}
       onOpenManualAdd={onOpenManualAdd}
-      onOpenBarcode={vi.fn()}
-      onOpenRecipe={vi.fn()}
-      onImportSharedFood={vi.fn()}
       onlineHits={[]}
       onlineSearchStatus="idle"
       onlineRemoteStatus={null}
@@ -85,23 +81,12 @@ describe('empty food search manual add (#991)', () => {
     expect(onOpenManualAdd).toHaveBeenCalledWith('honey pie')
   })
 
-  it('does not pass the search query from the Add food shortcut (#992)', async () => {
-    const user = userEvent.setup()
-    const onOpenManualAdd = renderEmptySearch()
-
-    await user.click(screen.getByRole('button', { name: 'Add food' }))
-    expect(onOpenManualAdd).toHaveBeenCalledTimes(1)
-    expect(onOpenManualAdd).toHaveBeenCalledWith()
-  })
 })
 
 describe('meal search barcode entry (#998)', () => {
-  it('keeps the scan tile and has no barcode control in the search field', async () => {
-    const user = userEvent.setup()
-    const onOpenBarcode = vi.fn()
+  it('has no barcode control in the search field', () => {
     render(
       <AddMealDialogBrowse
-        mealLabel="Breakfast"
         search="honey"
         query="honey"
         matches={[]}
@@ -115,9 +100,6 @@ describe('meal search barcode entry (#998)', () => {
         onToggleFavorite={vi.fn()}
         onPick={vi.fn()}
         onOpenManualAdd={vi.fn()}
-        onOpenBarcode={onOpenBarcode}
-        onOpenRecipe={vi.fn()}
-        onImportSharedFood={vi.fn()}
         onlineHits={[]}
         onlineSearchStatus="idle"
         onlineRemoteStatus={null}
@@ -139,14 +121,6 @@ describe('meal search barcode entry (#998)', () => {
     expect(
       searchField.queryByRole('button', { name: 'Scan barcode' }),
     ).not.toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', { name: 'Scan barcode' }),
-    ).not.toBeInTheDocument()
-
-    await user.click(
-      screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
-    )
-    expect(onOpenBarcode).toHaveBeenCalledTimes(1)
   })
 })
 
@@ -155,7 +129,6 @@ describe('homemade meal-search chip (#994)', () => {
     const onToggleHomemadeOnly = vi.fn()
     render(
       <AddMealDialogBrowse
-        mealLabel="Breakfast"
         search=""
         query=""
         matches={[]}
@@ -169,9 +142,6 @@ describe('homemade meal-search chip (#994)', () => {
         onToggleFavorite={vi.fn()}
         onPick={vi.fn()}
         onOpenManualAdd={vi.fn()}
-        onOpenBarcode={vi.fn()}
-        onOpenRecipe={vi.fn()}
-        onImportSharedFood={vi.fn()}
         onlineHits={[]}
         onlineSearchStatus="idle"
         onlineRemoteStatus={null}
@@ -191,35 +161,10 @@ describe('homemade meal-search chip (#994)', () => {
   })
 })
 
-describe('compact catalog JSON action (#1054)', () => {
-  it('packs five quick actions and opens the catalog paste', async () => {
-    const user = userEvent.setup()
-    renderEmptySearch()
-
-    const addFood = screen.getByRole('button', { name: 'Add food' })
-    const grid = addFood.parentElement
-    expect(grid).toHaveClass('grid-cols-2', 'gap-1.5')
-    expect(within(grid!).getAllByRole('button')).toHaveLength(5)
-    expect(addFood).toHaveClass('min-h-11', 'gap-1.5', 'px-2')
-
-    await user.click(screen.getByRole('button', { name: 'Import JSON' }))
-    expect(
-      screen.getByRole('heading', { name: 'Import catalog foods' }),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('textbox', { name: 'Import catalog foods' }),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: 'Import foods' }),
-    ).toBeInTheDocument()
-  })
-})
-
 describe('recent foods dropdown (#1055)', () => {
   function renderRecents(onPick = vi.fn(), onToggleShowAllRecent = vi.fn()) {
     render(
       <AddMealDialogBrowse
-        mealLabel="Breakfast"
         search=""
         query=""
         matches={[]}
@@ -235,9 +180,6 @@ describe('recent foods dropdown (#1055)', () => {
         onToggleFavorite={vi.fn()}
         onPick={onPick}
         onOpenManualAdd={vi.fn()}
-        onOpenBarcode={vi.fn()}
-        onOpenRecipe={vi.fn()}
-        onImportSharedFood={vi.fn()}
         onlineHits={[]}
         onlineSearchStatus="idle"
         onlineRemoteStatus={null}
@@ -285,7 +227,6 @@ describe('recent foods dropdown (#1055)', () => {
     const user = userEvent.setup()
     render(
       <AddMealDialogBrowse
-        mealLabel="Night food"
         search=""
         query=""
         matches={[]}
@@ -301,9 +242,6 @@ describe('recent foods dropdown (#1055)', () => {
         onToggleFavorite={vi.fn()}
         onPick={vi.fn()}
         onOpenManualAdd={vi.fn()}
-        onOpenBarcode={vi.fn()}
-        onOpenRecipe={vi.fn()}
-        onImportSharedFood={vi.fn()}
         onlineHits={[]}
         onlineSearchStatus="idle"
         onlineRemoteStatus={null}
@@ -342,7 +280,7 @@ describe('recent foods dropdown (#1055)', () => {
     await user.click(screen.getByLabelText('Search foods'))
     expect(screen.getByRole('region', { name: 'Recent' })).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'Add food' }))
+    await user.click(document.body)
     expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
   })
 })

@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { ChefHat, FileJson, QrCode, ScanBarcode, Utensils, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useLocale, useTranslation } from '@/i18n'
 import { formatKcal } from '@/shared/lib/macroDisplay'
 import { useOnlineStatus } from '@/shared/hooks'
@@ -12,8 +12,6 @@ import {
   type OnlineSearchRemoteStatus,
 } from './searchOnlineFoods'
 import { AddMealPickableItemList } from './AddMealPickableItemList'
-import { AddMealQuickActionCard } from './AddMealQuickActionCard'
-import { CatalogFoodImportDialog } from './CatalogFoodImportDialog'
 import type { PickableItem } from './addMealDialogHelpers'
 import type {
   MealSearchDeleteMode,
@@ -24,7 +22,6 @@ const suggestionPanelClassName =
   'absolute top-full right-0 left-0 z-30 mt-1 flex flex-col gap-1 rounded-xl bg-popover shadow-md [&_ul]:bg-popover'
 
 export function AddMealDialogBrowse({
-  mealLabel,
   search,
   query,
   matches,
@@ -40,9 +37,6 @@ export function AddMealDialogBrowse({
   onDeleteItem,
   deleteMode,
   onOpenManualAdd,
-  onOpenBarcode,
-  onOpenRecipe,
-  onImportSharedFood,
   onlineHits,
   onlineSearchStatus,
   onlineRemoteStatus,
@@ -54,7 +48,6 @@ export function AddMealDialogBrowse({
   mealNoteField,
   showEmptyMealNote,
 }: {
-  mealLabel: string
   search: string
   query: string
   matches: PickableItem[]
@@ -70,9 +63,6 @@ export function AddMealDialogBrowse({
   onDeleteItem?: (item: PickableItem) => Promise<MealSearchDeleteResult>
   deleteMode?: (item: PickableItem) => MealSearchDeleteMode
   onOpenManualAdd: (initialName?: string) => void
-  onOpenBarcode: () => void
-  onOpenRecipe: () => void
-  onImportSharedFood: () => void
   onlineHits: OnlineFoodHit[]
   onlineSearchStatus: 'idle' | 'loading' | 'done'
   onlineRemoteStatus: OnlineSearchRemoteStatus | null
@@ -88,7 +78,6 @@ export function AddMealDialogBrowse({
   const t = useTranslation()
   const locale = useLocale()
   const isOnline = useOnlineStatus()
-  const [catalogImportOpen, setCatalogImportOpen] = useState(false)
   // #1055 / #1057 — one suggestion panel under the field. Empty focus
   // shows recents; a typed query shows matches. Blur or Escape hides it.
   // #1056 — the panel is opaque and stacked above the meal note.
@@ -100,40 +89,6 @@ export function AddMealDialogBrowse({
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-1.5">
-        <AddMealQuickActionCard
-          Icon={Utensils}
-          label={t.dailyEntry.quickActionAddFoodLabel}
-          onClick={() => onOpenManualAdd()}
-        />
-        <AddMealQuickActionCard
-          Icon={ScanBarcode}
-          label={t.dailyEntry.scanBarcodeButton}
-          ariaLabel={`${t.dailyEntry.scanBarcodeButton} — ${mealLabel}`}
-          onClick={onOpenBarcode}
-        />
-        <AddMealQuickActionCard
-          Icon={ChefHat}
-          label={t.recipes.logRecipeButton}
-          onClick={onOpenRecipe}
-        />
-        <AddMealQuickActionCard
-          Icon={QrCode}
-          label={t.dailyEntry.quickActionImportSharedFoodLabel}
-          onClick={onImportSharedFood}
-        />
-        <AddMealQuickActionCard
-          Icon={FileJson}
-          label={t.dailyEntry.quickActionImportCatalogLabel}
-          onClick={() => setCatalogImportOpen(true)}
-        />
-      </div>
-      {catalogImportOpen && (
-        <CatalogFoodImportDialog
-          open
-          onOpenChange={setCatalogImportOpen}
-        />
-      )}
       <div className={cn('relative', showSuggestionPanel && 'z-30')}>
         <Input
           type="text"

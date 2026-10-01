@@ -206,6 +206,7 @@ export const dailyEntry: DailyEntryDict = {
     quickActionAddFoodLabel: 'Add food',
     quickActionImportSharedFoodLabel: 'Shared food',
     quickActionImportCatalogLabel: 'Import JSON',
+    addMealActionsLabel: 'Add…',
     mealSoFarLabel: 'This meal so far',
     shareMealCompositionLabel: 'Share this meal',
     selectMealItemLabel: (name) => `Select ${name}`,

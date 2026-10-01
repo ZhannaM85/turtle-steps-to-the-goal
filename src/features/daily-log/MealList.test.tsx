@@ -10,6 +10,7 @@ import { db } from '@/infrastructure/persistence/indexeddb'
 import { useCopyYesterdayMealsStore, useEatingReasonTrackingStore, useMealItemStore, useMealKcalVsYesterdayStore, useMealLabelPresetStore, useMealSlotDefaultTimesStore, useNutritionFactsStore, useRecipeStore, useSinceLastMealTimerStore } from '@/stores'
 import { BUILTIN_MEAL_SLOT_DEFAULT_TIMES } from '@/shared/lib/mealLabel'
 import { MealList } from './MealList'
+import { openAddMealAction } from './openAddMealAction'
 
 // #301 — a plain `onChange={vi.fn()}` never feeds a save back into
 // MealList's own `calorieEntries` prop, which most tests don't need since
@@ -138,7 +139,7 @@ describe('MealList', () => {
     await user.click(
       screen.getByRole('button', { name: '+ Add a meal' }),
     )
-    await user.click(screen.getByRole('button', { name: 'Add food' }))
+    await user.click(await openAddMealAction(user, 'Add food'))
     await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
     await user.type(screen.getByLabelText('kcal/100g'), '300')
     await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -180,7 +181,7 @@ describe('MealList', () => {
     await user.click(
       screen.getByRole('button', { name: '+ Add a meal' }),
     )
-    await user.click(screen.getByRole('button', { name: 'Add food' }))
+    await user.click(await openAddMealAction(user, 'Add food'))
     await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
     await user.type(screen.getByLabelText('kcal/100g'), '300')
     await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -204,7 +205,7 @@ describe('MealList', () => {
     await user.click(screen.getByRole('option', { name: 'Lunch' }))
     expect(screen.getByLabelText('Meal name')).toHaveTextContent('Lunch')
 
-    await user.click(screen.getByRole('button', { name: 'Add food' }))
+    await user.click(await openAddMealAction(user, 'Add food'))
     await user.type(screen.getByLabelText('Dish name'), 'Salad')
     await user.type(screen.getByLabelText('kcal/100g'), '150')
     await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -1448,7 +1449,7 @@ describe('MealList', () => {
       )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
-      await user.click(screen.getByRole('button', { name: 'Add food' }))
+      await user.click(await openAddMealAction(user, 'Add food'))
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
       await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -1538,7 +1539,7 @@ describe('MealList', () => {
       )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
-      await user.click(screen.getByRole('button', { name: 'Add food' }))
+      await user.click(await openAddMealAction(user, 'Add food'))
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
       await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -1572,7 +1573,7 @@ describe('MealList', () => {
       )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
-      await user.click(screen.getByRole('button', { name: 'Add food' }))
+      await user.click(await openAddMealAction(user, 'Add food'))
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
       await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -1608,7 +1609,7 @@ describe('MealList', () => {
       )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
-      await user.click(screen.getByRole('button', { name: 'Add food' }))
+      await user.click(await openAddMealAction(user, 'Add food'))
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
       await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -1688,7 +1689,7 @@ describe('MealList', () => {
       )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '13:36')
-      await user.click(screen.getByRole('button', { name: 'Add food' }))
+      await user.click(await openAddMealAction(user, 'Add food'))
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
       await user.click(screen.getByRole('button', { name: 'Save' }))

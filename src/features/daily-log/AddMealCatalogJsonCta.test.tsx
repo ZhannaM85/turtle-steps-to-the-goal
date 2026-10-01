@@ -4,7 +4,8 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useCatalogFoodImportStore, useMealItemStore } from '@/stores'
-import { AddMealDialogBrowse } from './AddMealDialogBrowse'
+import { AddMealActionsMenu } from './AddMealActionsMenu'
+import { openAddMealAction } from './openAddMealAction'
 import { useAddMealCatalog } from './useAddMealCatalog'
 
 const pasted = {
@@ -38,37 +39,14 @@ beforeEach(async () => {
   })
 })
 
-function renderBrowse() {
+function renderMenu() {
   render(
-    <AddMealDialogBrowse
+    <AddMealActionsMenu
       mealLabel="Breakfast"
-      search=""
-      query=""
-      matches={[]}
-      recentItems={[]}
-      allMealItemsCount={0}
-      recentCount={3}
-      showAllRecent={false}
-      onToggleShowAllRecent={vi.fn()}
-      textFor={() => ''}
-      isFavorite={() => false}
-      onToggleFavorite={vi.fn()}
-      onPick={vi.fn()}
       onOpenManualAdd={vi.fn()}
       onOpenBarcode={vi.fn()}
       onOpenRecipe={vi.fn()}
       onImportSharedFood={vi.fn()}
-      onlineHits={[]}
-      onlineSearchStatus="idle"
-      onlineRemoteStatus={null}
-      onRunOnlineSearch={vi.fn()}
-      onPickOnlineHit={vi.fn()}
-      onChangeSearch={vi.fn()}
-      onClearSearch={vi.fn()}
-      homemadeOnly={false}
-      onToggleHomemadeOnly={vi.fn()}
-      mealNoteField={null}
-      showEmptyMealNote={false}
     />,
   )
 }
@@ -76,8 +54,8 @@ function renderBrowse() {
 describe('Add meal catalog JSON paste (#1054)', () => {
   it('stamps import time so Recent ranks the paste without a meal log', async () => {
     const user = userEvent.setup()
-    renderBrowse()
-    await user.click(screen.getByRole('button', { name: 'Import JSON' }))
+    renderMenu()
+    await user.click(await openAddMealAction(user, 'Import JSON'))
     fireEvent.change(
       screen.getByRole('textbox', { name: 'Import catalog foods' }),
       { target: { value: JSON.stringify(pasted) } },

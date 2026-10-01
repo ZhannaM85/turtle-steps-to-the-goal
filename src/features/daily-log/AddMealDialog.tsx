@@ -29,6 +29,7 @@ import type { PickedFoodValues } from './FoodPickerDialog'
 import { RepeatMealDialog } from './RepeatMealDialog'
 import { calorieItemFromImportedFood } from './addMealDialogHelpers'
 import { addMealDialogPreviews } from './addMealDialogPreviews'
+import { AddMealActionsMenu } from './AddMealActionsMenu'
 import { AddMealDialogBrowse } from './AddMealDialogBrowse'
 import { AddMealNoteField } from './AddMealNoteField'
 import { AddMealDialogNotices } from './AddMealDialogNotices'
@@ -299,15 +300,41 @@ export function AddMealDialog({
                   onCancelRemoveItem={() => setConfirmRemoveItemId(null)}
                 />
                 <div className="flex flex-col gap-4">
-                  {eatingReasonTrackingEnabled && onEatingReasonsChange && (
-                    <EatingReasonPicker
-                      id="add-meal-eating-reason"
-                      value={eatingReasons}
-                      onChange={onEatingReasonsChange}
-                    />
+                  <div
+                  className={cn(
+                    'grid items-end gap-1.5',
+                    eatingReasonTrackingEnabled && onEatingReasonsChange
+                      ? 'grid-cols-2'
+                      : 'grid-cols-1',
                   )}
+                >
+                    {eatingReasonTrackingEnabled && onEatingReasonsChange && (
+                      <div className="min-w-0">
+                        <EatingReasonPicker
+                          id="add-meal-eating-reason"
+                          value={eatingReasons}
+                          onChange={onEatingReasonsChange}
+                        />
+                      </div>
+                    )}
+                    <AddMealActionsMenu
+                      mealLabel={mealLabel}
+                      onOpenManualAdd={() => sheet.openManualAdd()}
+                      onOpenBarcode={() => setIsBarcodeOpen(true)}
+                      onOpenRecipe={() => setIsRecipeOpen(true)}
+                      onImportSharedFood={() => {
+                        useFoodShareUiStore.getState().setOnImported((results) => {
+                          const items = results.flatMap((result) => {
+                            const item = calorieItemFromImportedFood(result)
+                            return item ? [item] : []
+                          })
+                          if (items.length > 0) onAppendItems(items)
+                        })
+                        useFoodShareUiStore.getState().setEntryOpen(true)
+                      }}
+                    />
+                  </div>
                   <AddMealDialogBrowse
-                    mealLabel={mealLabel}
                     search={search}
                     query={catalog.query}
                     matches={catalog.matches}
@@ -325,18 +352,6 @@ export function AddMealDialog({
                     onDeleteItem={catalog.deletePickableItem}
                     deleteMode={catalog.deleteMode}
                     onOpenManualAdd={sheet.openManualAdd}
-                    onOpenBarcode={() => setIsBarcodeOpen(true)}
-                    onOpenRecipe={() => setIsRecipeOpen(true)}
-                    onImportSharedFood={() => {
-                      useFoodShareUiStore.getState().setOnImported((results) => {
-                        const items = results.flatMap((result) => {
-                          const item = calorieItemFromImportedFood(result)
-                          return item ? [item] : []
-                        })
-                        if (items.length > 0) onAppendItems(items)
-                      })
-                      useFoodShareUiStore.getState().setEntryOpen(true)
-                    }}
                     onlineHits={catalog.onlineHits}
                     onlineSearchStatus={catalog.onlineSearchStatus}
                     onlineRemoteStatus={catalog.onlineRemoteStatus}

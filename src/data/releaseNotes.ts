@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1036,
+    issue: 1060,
+    date: '2026-10-01T20:45:20+03:00',
+    en: 'On add meal, Add food, Scan barcode, Log recipe, Shared food, and Import JSON are one Add… menu beside why you are eating.',
+    ru: 'В «Добавить приём пищи» кнопки «Добавить блюдо», «Сканировать штрихкод», «Записать рецепт», «QR / ссылка» и «Импорт JSON» собраны в меню «Добавить…» рядом с «Почему я сейчас ем?».',
+  },
+  {
     version: 1035,
     issue: 1059,
     date: '2026-10-01T20:34:30+03:00',

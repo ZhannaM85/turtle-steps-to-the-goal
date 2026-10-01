@@ -13,6 +13,7 @@ import { db } from '@/infrastructure/persistence/indexeddb'
 import { useLdlImpactStore } from '@/stores/ldlImpactStore'
 import { useMealItemStore } from '@/stores/mealItemStore'
 import { MealList } from './MealList'
+import { openAddMealAction } from './openAddMealAction'
 
 vi.mock('@/features/food-share/generateQrDataUrl', () => ({
   generateQrDataUrl: vi.fn(async () => 'data:image/png;base64,qq'),
@@ -88,7 +89,7 @@ describe('multi-food share into an open meal (#1028)', () => {
     )
 
     await user.click(screen.getByRole('button', { name: '+ Add a meal' }))
-    await user.click(screen.getByRole('button', { name: 'Shared food' }))
+    await user.click(await openAddMealAction(user, 'Shared food'))
     await user.type(screen.getByPlaceholderText('Paste link here'), shareUrl)
     await user.click(screen.getByRole('button', { name: 'Continue' }))
     expect(
@@ -132,7 +133,7 @@ describe('multi-food share into an open meal (#1028)', () => {
     )
 
     await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
-    await user.click(screen.getByRole('button', { name: 'Shared food' }))
+    await user.click(await openAddMealAction(user, 'Shared food'))
     await user.type(screen.getByPlaceholderText('Paste link here'), shareUrl)
     await user.click(screen.getByRole('button', { name: 'Continue' }))
     await user.click(screen.getByRole('button', { name: 'Add all foods' }))
@@ -177,7 +178,7 @@ describe('multi-food share into an open meal (#1028)', () => {
     )
 
     await user.click(screen.getByRole('button', { name: '+ Add a meal' }))
-    await user.click(screen.getByRole('button', { name: 'Shared food' }))
+    await user.click(await openAddMealAction(user, 'Shared food'))
     await user.type(screen.getByPlaceholderText('Paste link here'), shareUrl)
     await user.click(screen.getByRole('button', { name: 'Continue' }))
     await user.click(screen.getByRole('button', { name: 'Add all foods' }))

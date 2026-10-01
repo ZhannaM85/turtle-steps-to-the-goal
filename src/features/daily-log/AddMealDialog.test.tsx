@@ -14,6 +14,7 @@ import { buildShareFoodBatchUrl, buildShareFoodUrl } from '@/features/food-share
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useFoodOverrideStore, useMealItemStore, useMealLabelPresetStore, useNutritionFactsStore, useRecipeStore, useAddMealRecentVisibilityStore, useEatingReasonTrackingStore } from '@/stores'
 import { AddMealDialog, type AddMealDialogProps } from './AddMealDialog'
+import { openAddMealAction } from './openAddMealAction'
 import { matchSplitText } from './matchSplitText'
 import { replaceSelectedMealItems } from './replaceMealSelectionWithRecipe'
 
@@ -420,7 +421,7 @@ describe('AddMealDialog (#454)', () => {
       </MemoryRouter>,
     )
 
-    await user.click(screen.getByRole('button', { name: 'Shared food' }))
+    await user.click(await openAddMealAction(user, 'Shared food'))
     await user.type(
       screen.getByPlaceholderText('Paste link here'),
       shareUrl,
@@ -497,7 +498,7 @@ describe('AddMealDialog (#454)', () => {
       </MemoryRouter>,
     )
 
-    await user.click(screen.getByRole('button', { name: 'Shared food' }))
+    await user.click(await openAddMealAction(user, 'Shared food'))
     await user.type(screen.getByPlaceholderText('Paste link here'), shareUrl)
     await user.click(screen.getByRole('button', { name: 'Continue' }))
     expect(
@@ -630,7 +631,7 @@ describe('AddMealDialog (#454)', () => {
       </MemoryRouter>,
     )
 
-    await user.click(screen.getByRole('button', { name: 'Shared food' }))
+    await user.click(await openAddMealAction(user, 'Shared food'))
     await user.type(screen.getByPlaceholderText('Paste link here'), shareUrl)
     await user.click(screen.getByRole('button', { name: 'Continue' }))
     await user.click(screen.getByRole('button', { name: 'Add to my foods' }))
@@ -667,8 +668,9 @@ describe('AddMealDialog (#454)', () => {
       screen.queryByRole('button', { name: 'Scan barcode' }),
     ).not.toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
-    ).toBeInTheDocument()
+      screen.queryByRole('menuitem', { name: 'Scan barcode — Breakfast' }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Add…' })).toBeInTheDocument()
   })
 
   it('lets the user edit kcal/macros on the confirm step before adding (#517)', async () => {
@@ -1027,30 +1029,38 @@ describe('AddMealDialog (#454)', () => {
       )
     }
 
-    it('keeps quick actions above search, with no homemade pill (#1055/#1058)', async () => {
+    it('puts the five actions in a dropdown beside why-eating (#1060)', async () => {
       const user = userEvent.setup()
+      useEatingReasonTrackingStore.setState({ enabled: true })
       await useMealItemStore.getState().touch('Homemade soup', { amountKcal: 320 })
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      const addFood = screen.getByRole('button', { name: 'Add food' })
-      const scanCard = screen.getByRole('button', {
-        name: 'Scan barcode — Breakfast',
-      })
-      const logRecipe = screen.getByRole('button', { name: 'Log recipe' })
-      const sharedFood = screen.getByRole('button', { name: 'Shared food' })
+      const reason = screen.getByRole('button', { name: 'Why am I eating?' })
+      const actions = screen.getByRole('button', { name: 'Add…' })
+      const row = actions.parentElement?.parentElement
+      expect(row).toHaveClass('grid-cols-2')
+      expect(row).toContainElement(reason)
+      expect(screen.queryByRole('menuitem', { name: 'Add food' })).not.toBeInTheDocument()
       const search = screen.getByLabelText('Search foods')
       const note = screen.getByLabelText('Meal note')
       expect(screen.queryByRole('button', { name: 'Homemade' })).not.toBeInTheDocument()
       expect(screen.queryByText('Homemade soup')).not.toBeInTheDocument()
       expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
-
-      for (const action of [addFood, scanCard, logRecipe, sharedFood]) {
-        expect(follows(action, search)).toBe(true)
-      }
+      expect(follows(actions, search)).toBe(true)
       expect(search.parentElement?.nextElementSibling).toBe(note)
-      expect(search.parentElement?.previousElementSibling).toContainElement(
-        addFood,
-      )
+
+      await user.click(actions)
+      const menu = screen.getByRole('menu', { name: 'Add…' })
+      for (const name of [
+        'Add food',
+        'Scan barcode — Breakfast',
+        'Log recipe',
+        'Shared food',
+        'Import JSON',
+      ]) {
+        expect(within(menu).getByRole('menuitem', { name })).toBeInTheDocument()
+      }
+      await user.click(actions)
 
       await user.click(search)
       const recentHit = await screen.findByText('Homemade soup')
@@ -1070,13 +1080,12 @@ describe('AddMealDialog (#454)', () => {
       expect(results.compareDocumentPosition(note)).toBe(
         Node.DOCUMENT_POSITION_FOLLOWING,
       )
-      expect(search.parentElement?.previousElementSibling).toContainElement(
-        addFood,
-      )
       expect(
         screen.queryByRole('button', { name: 'Scan barcode' }),
       ).not.toBeInTheDocument()
-      expect(scanCard).toBeInTheDocument()
+      expect(
+        screen.queryByRole('menuitem', { name: 'Scan barcode — Breakfast' }),
+      ).not.toBeInTheDocument()
     })
   })
 
@@ -1151,7 +1160,7 @@ describe('AddMealDialog (#454)', () => {
       expect(screen.getByRole('region', { name: 'Recent' })).toContainElement(hit)
       expect(search.parentElement).toContainElement(hit)
 
-      await user.click(screen.getByRole('button', { name: 'Add food' }))
+      await user.click(await openAddMealAction(user, 'Add food'))
       expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
     })
 
@@ -1199,7 +1208,7 @@ describe('AddMealDialog (#454)', () => {
       const user = userEvent.setup()
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      await user.click(screen.getByRole('button', { name: 'Add food' }))
+      await user.click(await openAddMealAction(user, 'Add food'))
       await user.type(screen.getByLabelText('Dish name'), 'Homemade soup')
       await user.type(screen.getByLabelText('kcal/100g'), '150')
       await user.click(screen.getByRole('button', { name: 'Save' }))
@@ -1216,7 +1225,7 @@ describe('AddMealDialog (#454)', () => {
       const user = userEvent.setup()
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      await user.click(screen.getByRole('button', { name: 'Add food' }))
+      await user.click(await openAddMealAction(user, 'Add food'))
       await user.type(screen.getByLabelText('kcal/100g'), '198.823')
       await user.type(screen.getByLabelText('Protein'), '1.66662580')
       await user.type(screen.getByLabelText('Fat'), '14.45558844')
@@ -1232,7 +1241,7 @@ describe('AddMealDialog (#454)', () => {
       const user = userEvent.setup()
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      await user.click(screen.getByRole('button', { name: 'Add food' }))
+      await user.click(await openAddMealAction(user, 'Add food'))
       await user.type(screen.getByLabelText('Dish name'), 'Homemade soup')
       await user.type(screen.getByLabelText('kcal/100g'), '150')
       await user.click(
@@ -1269,7 +1278,7 @@ describe('AddMealDialog (#454)', () => {
       render(<ControlledAddMealDialog {...defaultProps} />)
 
       await user.click(
-        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+        await openAddMealAction(user, 'Scan barcode — Breakfast'),
       )
 
       // Waits on the sheet's own Save button, not the dish name: "Protein
@@ -1320,7 +1329,7 @@ describe('AddMealDialog (#454)', () => {
       render(<ControlledAddMealDialog {...defaultProps} />)
 
       await user.click(
-        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+        await openAddMealAction(user, 'Scan barcode — Breakfast'),
       )
       const saveButton = await screen.findByRole(
         'button',
@@ -1364,7 +1373,7 @@ describe('AddMealDialog (#454)', () => {
       render(<ControlledAddMealDialog {...defaultProps} />)
 
       await user.click(
-        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+        await openAddMealAction(user, 'Scan barcode — Breakfast'),
       )
 
       const brand = await screen.findByLabelText('Brand (optional)')
@@ -1401,7 +1410,7 @@ describe('AddMealDialog (#454)', () => {
       render(<ControlledAddMealDialog {...defaultProps} />)
 
       await user.click(
-        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+        await openAddMealAction(user, 'Scan barcode — Breakfast'),
       )
       await screen.findByLabelText('Brand (optional)')
 
@@ -1418,7 +1427,7 @@ describe('AddMealDialog (#454)', () => {
       render(<ControlledAddMealDialog {...defaultProps} />)
 
       await user.click(
-        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+        await openAddMealAction(user, 'Scan barcode — Breakfast'),
       )
 
       expect(
@@ -1446,7 +1455,7 @@ describe('AddMealDialog (#454)', () => {
       render(<ControlledAddMealDialog {...defaultProps} />)
 
       await user.click(
-        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+        await openAddMealAction(user, 'Scan barcode — Breakfast'),
       )
       await screen.findByText('Barcode: 0 000000 000000')
 
@@ -1469,7 +1478,7 @@ describe('AddMealDialog (#454)', () => {
       render(<ControlledAddMealDialog {...defaultProps} />)
 
       await user.click(
-        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+        await openAddMealAction(user, 'Scan barcode — Breakfast'),
       )
       expect(
         await screen.findByText(
@@ -1493,7 +1502,7 @@ describe('AddMealDialog (#454)', () => {
       // sheet), not open the not-found sheet again.
       mockScanning('4607001234567')
       await user.click(
-        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+        await openAddMealAction(user, 'Scan barcode — Breakfast'),
       )
       const saveButton = await screen.findByRole(
         'button',
@@ -1516,7 +1525,7 @@ describe('AddMealDialog (#454)', () => {
       render(<ControlledAddMealDialog {...defaultProps} />)
 
       await user.click(
-        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+        await openAddMealAction(user, 'Scan barcode — Breakfast'),
       )
       await screen.findByText(
         'No food found for this barcode — you can still add it by hand below.',
@@ -1535,7 +1544,7 @@ describe('AddMealDialog (#454)', () => {
       render(<ControlledAddMealDialog {...defaultProps} />)
 
       await user.click(
-        screen.getByRole('button', { name: 'Scan barcode — Breakfast' }),
+        await openAddMealAction(user, 'Scan barcode — Breakfast'),
       )
       await screen.findByText(
         'No food found for this barcode — you can still add it by hand below.',
@@ -1638,7 +1647,7 @@ describe('AddMealDialog (#454)', () => {
       const user = userEvent.setup()
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      await user.click(screen.getByRole('button', { name: 'Log recipe' }))
+      await user.click(await openAddMealAction(user, 'Log recipe'))
       await user.click(await screen.findByRole('button', { name: 'Chili' }))
       const servingsInput = screen.getByLabelText('Servings eaten')
       await user.clear(servingsInput)
