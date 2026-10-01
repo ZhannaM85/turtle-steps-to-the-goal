@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1035,
+    issue: 1059,
+    date: '2026-10-01T20:34:30+03:00',
+    en: 'On a night-food meal, the note says “Note about night food” and stays behind a pencil until you write one.',
+    ru: 'У ночной еды заметка называется «Заметка о ночной еде» и скрыта за карандашом, пока она пустая.',
+  },
+  {
     version: 1034,
     issue: 1058,
     date: '2026-10-01T20:30:10+03:00',

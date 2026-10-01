@@ -21,7 +21,6 @@ import {
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent } from '@/shared/ui/dialog'
-import { Input } from '@/shared/ui/input'
 import { useFoodShareUiStore } from '@/features/food-share'
 import { LogRecipeDialog } from '@/features/recipes'
 import { BarcodeScannerDialog } from './BarcodeScannerDialog'
@@ -31,6 +30,7 @@ import { RepeatMealDialog } from './RepeatMealDialog'
 import { calorieItemFromImportedFood } from './addMealDialogHelpers'
 import { addMealDialogPreviews } from './addMealDialogPreviews'
 import { AddMealDialogBrowse } from './AddMealDialogBrowse'
+import { AddMealNoteField } from './AddMealNoteField'
 import { AddMealDialogNotices } from './AddMealDialogNotices'
 import { AddMealDialogComposition } from './AddMealDialogComposition'
 import { AddMealDialogEditorSheet } from './AddMealDialogEditorSheet'
@@ -231,13 +231,10 @@ export function AddMealDialog({
       : undefined)
 
   const mealNoteField = (
-    <Input
-      type="text"
-      aria-label={t.dailyEntry.mealNoteLabel}
-      placeholder={t.dailyEntry.mealNotePlaceholder(mealLabel)}
-      value={note}
-      onChange={(e) => onNoteChange(e.target.value)}
-      className="h-12 text-base"
+    <AddMealNoteField
+      mealLabel={mealLabel}
+      note={note}
+      onNoteChange={onNoteChange}
     />
   )
 

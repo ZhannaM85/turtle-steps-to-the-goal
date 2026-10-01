@@ -70,16 +70,17 @@ export const dailyEntry: DailyEntryDict = {
     saveAndAddAnotherButton: 'Сохранить и добавить ещё',
     mealNoteLabel: 'Заметка о приёме пищи',
     // #480 — meal-aware note placeholder; not the reaction's «Было вкусно?».
-    // Known presets use the prepositional («о завтраке»); custom names fall
-    // back to the lowercase label as-is.
+    // Known presets use the prepositional («о завтраке»). #1059 — night
+    // food is «о ночной еде», not the nominative fallback.
     mealNotePlaceholder: (mealLabel) => {
       const about: Record<string, string> = {
         Завтрак: 'завтраке',
         Обед: 'обеде',
         Ужин: 'ужине',
         Перекус: 'перекусе',
+        'Ночная еда': 'ночной еде',
       }
-      return `Заметка о ${about[mealLabel] ?? mealLabel.toLowerCase()}`
+      return `Заметка о ${about[mealLabel] ?? about[mealLabel.trim()] ?? mealLabel.toLowerCase()}`
     },
     itemNameLabel: 'Название блюда',
     itemNamePlaceholder: 'Создать блюдо?',
