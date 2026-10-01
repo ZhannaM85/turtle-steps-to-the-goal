@@ -34,6 +34,9 @@ describe('AboutScreen', () => {
       screen.getByText(/meals, macros, hydration, sleep, activity/),
     ).toBeInTheDocument()
     expect(
+      screen.getByText(/Optional LDL tags stay off until you turn them on/),
+    ).toBeInTheDocument()
+    expect(
       screen.getByText(
         /steady weekly progress through small, consistent steps/,
       ),
@@ -137,5 +140,8 @@ describe('AboutScreen', () => {
       screen.getByRole('heading', { name: 'О приложении' }),
     ).toBeInTheDocument()
     expect(screen.getByText('Автор: ZhannaM85')).toBeInTheDocument()
+    expect(
+      screen.getByText(/Метки ЛПНП остаются выключенными/),
+    ).toBeInTheDocument()
   })
 })

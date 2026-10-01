@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1028,
+    issue: 1052,
+    date: '2026-10-01T12:17:13+03:00',
+    en: 'About and Features now describe LDL tags, the sticky calorie line and section pins, Recent, catalog paste, sharing several foods, Settings search, starting the next goal when this week’s is reached, and LDL in exports.',
+    ru: '«О приложении» и «Возможности» теперь описывают метки ЛПНП, закреплённую строку КБЖУ и значки разделов, «Недавние», вставку каталога, отправку нескольких блюд, поиск в настройках, новую цель сразу после достигнутой и ЛПНП в экспорте.',
+  },
+  {
     version: 1027,
     issue: 1051,
     date: '2026-09-29T20:01:10+03:00',

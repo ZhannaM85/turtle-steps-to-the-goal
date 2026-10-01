@@ -6,7 +6,7 @@ export const about: AboutDict = {
     intro:
       'Turtle Steps is a private, local-first companion for understanding weight, nutrition, and the everyday factors around them.',
     tracking:
-      'Bring meals, macros, hydration, sleep, activity, body measurements, and any custom metrics you choose together in one place. Explore Features for the full list.',
+      'Bring meals, macros, hydration, sleep, activity, body measurements, and any custom metrics you choose together in one place. Optional LDL tags stay off until you turn them on in Settings. Explore Features for the full list.',
     philosophy:
       'Instead of focusing on perfect days, Turtle Steps encourages steady weekly progress through small, consistent steps.',
     privacyHeading: 'Private by design.',
@@ -33,10 +33,10 @@ export const privacyPolicy: PrivacyPolicyDict = {
       "All data is stored locally on your own device, in your browser's or app's own storage. There is no account, no server, and no cloud sync — Turtle Steps never sees your data.",
     sharingHeading: 'Sharing with third parties',
     sharingBody:
-      'Your data is never sold, shared, or transmitted anywhere. The app contains no analytics, advertising, or tracking of any kind.',
+      'Your data is never sold. The app contains no analytics, advertising, or tracking of any kind.',
     exportHeading: 'Exporting your data',
     exportBody:
-      'The only way your data ever leaves your device is if you choose to export it yourself (as a JSON backup, Excel, CSV, or Markdown file) from Settings. Where that file goes afterward is entirely up to you.',
+      'Your data leaves your device only when you choose to export it from Settings (a JSON backup, Excel, CSV, or Markdown file) or to share a food by QR code or link. A day log can leave the same way. Where that file or link goes afterward is up to you.',
     childrenHeading: 'Children',
     childrenBody:
       "Turtle Steps isn't directed at children and doesn't knowingly collect data from anyone, including children — nothing is collected automatically regardless of age.",
@@ -62,6 +62,7 @@ export const featuresOverview: FeaturesOverviewDict = {
           'Create number, yes/no, or five-point custom metrics for anything else that matters to you',
           'Optional menstrual cycle and digestion tracking — off by default, and never shown unless you turn it on',
           'Fill sleep from an AutoSleep screenshot, or body composition from a Zepp Life screenshot — tap the image icon on Day, then confirm the numbers before they are saved',
+          'On Day, keep a collapsed calories-and-macros line under the date while you scroll, and pin the sections you use most to the top',
         ],
       },
       {
@@ -73,6 +74,10 @@ export const featuresOverview: FeaturesOverviewDict = {
           'Build multi-ingredient recipes with the nutrition calculated for you',
           'Mark favorites and reuse your last-logged amount with one tap',
           "React to a dish with an emoji, and copy a whole day's meals to today",
+          'Show optional LDL impact tags on Day foods and in add-meal search — off until you turn them on in Settings, with a short reason when you tap a tag',
+          'Order Recent by when you added a food to a meal, including built-in catalog foods, and rank foods pasted into the catalog by import time before you log them',
+          'Paste a food or a JSON list into your catalog from Settings, with calories and macros per 100 g; a barcode updates that product, including its brand, instead of adding a duplicate',
+          'Share the foods you select with one QR code or link, and keep the LDL label and reason on every food when those tags are on',
         ],
       },
       {
@@ -82,6 +87,7 @@ export const featuresOverview: FeaturesOverviewDict = {
           'Set a weekly weight-loss pace instead of one big target number',
           'Optional daily calorie, protein, fat, and carb targets',
           "See whether each week's target was reached, and which weigh-ins it was based on",
+          'Start the next weekly goal as soon as this week’s target is reached; the badge still waits until the week ends',
         ],
       },
       {
@@ -123,6 +129,7 @@ export const featuresOverview: FeaturesOverviewDict = {
           'Export a full backup, or as Excel, CSV, or Markdown, any time',
           'Import a backup to restore your data or move to a new device',
           'Import weight, body composition, steps, and meals from Zepp Life, Apple Health, or MyFitnessPal exports',
+          'Include each food’s LDL impact and reason in meal and day exports when LDL tags are on',
         ],
       },
       {
@@ -132,6 +139,7 @@ export const featuresOverview: FeaturesOverviewDict = {
           'English and Russian',
           'Light and dark mode, with several color themes',
           'kg or lb, plus a configurable week-start day and day-start time',
+          'Search Settings to find a section or switch without scrolling the whole page',
         ],
       },
     ],

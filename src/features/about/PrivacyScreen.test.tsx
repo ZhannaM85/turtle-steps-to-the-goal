@@ -34,7 +34,10 @@ describe('PrivacyScreen', () => {
     expect(screen.getByText('Where your data lives')).toBeInTheDocument()
     expect(screen.getByText(/no account, no server/)).toBeInTheDocument()
     expect(screen.getByText('Sharing with third parties')).toBeInTheDocument()
-    expect(screen.getByText(/never sold, shared/)).toBeInTheDocument()
+    expect(screen.getByText(/never sold/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/share a food by QR code or link/),
+    ).toBeInTheDocument()
   })
 
   it('links back to the About page', () => {
@@ -50,6 +53,9 @@ describe('PrivacyScreen', () => {
 
     expect(
       screen.getByRole('heading', { name: 'Политика конфиденциальности' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/делитесь блюдом через QR-код или ссылку/),
     ).toBeInTheDocument()
   })
 })

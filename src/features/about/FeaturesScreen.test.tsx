@@ -51,6 +51,26 @@ describe('FeaturesScreen', () => {
     expect(
       screen.getByText(/Fill sleep from an AutoSleep screenshot/),
     ).toBeInTheDocument()
+    expect(
+      screen.getByText(/collapsed calories-and-macros line/),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/optional LDL impact tags/),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/Order Recent by when you added/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/Paste a food or a JSON list into your catalog/),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/Share the foods you select with one QR code/),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/Start the next weekly goal/),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/LDL impact and reason in meal and day exports/),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/Search Settings to find a section/)).toBeInTheDocument()
   })
 
   it('shows a screenshot for every category (#497)', () => {
@@ -98,5 +118,17 @@ describe('FeaturesScreen', () => {
         name: 'Скриншот приложения — Ежедневные записи',
       }),
     ).toBeInTheDocument()
+    expect(screen.getByText(/свёрнутую строку КБЖУ/)).toBeInTheDocument()
+    expect(screen.getByText(/метки влияния на ЛПНП/)).toBeInTheDocument()
+    expect(screen.getByText(/«Недавние» упорядочены/)).toBeInTheDocument()
+    expect(screen.getByText(/JSON-список/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/одним QR-кодом или одной ссылкой/),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/следующую недельную цель/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/экспорт приёмов пищи и дня/),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/Ищите в «Настройках»/)).toBeInTheDocument()
   })
 })

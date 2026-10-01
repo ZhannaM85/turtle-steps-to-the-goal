@@ -7,7 +7,7 @@ import { PageHeader } from '@/shared/ui/page-header'
 // app's actual data handling. Kept as its own route (rather than folded
 // into `about.privacy`'s existing one-line blurb) so the store listings
 // have one fixed link that won't shift if About's own copy changes later.
-const LAST_UPDATED = '2026-08-09'
+const LAST_UPDATED = '2026-10-01'
 
 export function PrivacyScreen() {
   const t = useTranslation()
