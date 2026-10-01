@@ -97,7 +97,9 @@ export function AddMealDialogBrowse({
           onKeyDown={(e) => {
             if (e.key === 'Escape') setSuggestionOpen(false)
           }}
-          className={cn('h-12 text-base', search !== '' && 'pr-10')}
+          // #1066 — the scroll frame clips outward rings at both sides.
+          // Paint the focus ring inside the field so every edge stays visible.
+          className={cn('h-12 text-base focus-visible:ring-inset', search !== '' && 'pr-10')}
         />
         {search !== '' && (
           <Button

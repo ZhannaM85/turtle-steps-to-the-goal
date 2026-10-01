@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1042,
+    issue: 1066,
+    date: "2026-10-01T22:44:04.883+03:00",
+    en: "The food search focus border stays visible on both sides.",
+    ru: "Рамка активного поиска еды больше не обрезается по бокам.",
+  },
+  {
     version: 1041,
     issue: 1065,
     date: "2026-10-01T22:39:29.973+03:00",
