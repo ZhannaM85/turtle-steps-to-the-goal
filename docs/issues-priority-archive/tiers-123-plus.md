@@ -931,3 +931,13 @@ _Adding a food to a meal refreshes its place in Recent, including a built-in cat
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1051](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1051) | ✅ Done | Недавние: meal adds always on top; imports compete by import time | Confirmed on-device 2026-09-30 — meal save refreshes Недавние for every named food, including a built-in catalog name; paste-imports still rank by import time on the same clock. |
+
+---
+
+## Tier 176 — Live feedback (2026-10-01)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1053](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1053) | ✅ Done | About: remove redundant subheader under «О приложении» | Confirmed on-device 2026-10-01 — redundant About subheader removed. Release note v1029. |
