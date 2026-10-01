@@ -951,3 +951,4 @@ _Closed rows only. Open / pending items stay in the active file._
 | [#1061](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1061) | ✅ Done | Add food: drop Показать все / Свернуть; scroll the dropdown | Confirmed on-device 2026-10-01. |
 | [#1062](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1062) | ✅ Done | Add food: why-eating and Add… as overlay dropdowns | Confirmed on-device 2026-10-01. |
 | [#1063](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1063) | ✅ Done | Notes: save/cancel on night note + shared note chrome | Confirmed on-device 2026-10-01. |
+| [#1064](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1064) | ✅ Done | Edit meal: note activates only on the pencil | Confirmed on-device 2026-10-01. |
