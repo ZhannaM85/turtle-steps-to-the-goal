@@ -1,7 +1,19 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
+import type { PickableItem } from './addMealDialogHelpers'
 import { AddMealDialogBrowse } from './AddMealDialogBrowse'
+
+const soup: PickableItem = {
+  source: 'mealItem',
+  mealItem: {
+    id: 'soup',
+    name: 'Homemade soup',
+    createdAt: '2026-09-01T00:00:00.000Z',
+    updatedAt: '2026-09-01T00:00:00.000Z',
+    lastAmountKcal: 320,
+  },
+}
 
 function renderEmptySearch(onOpenManualAdd = vi.fn()) {
   render(
@@ -15,8 +27,6 @@ function renderEmptySearch(onOpenManualAdd = vi.fn()) {
       recentCount={3}
       showAllRecent={false}
       onToggleShowAllRecent={vi.fn()}
-      recentVisible
-      onToggleRecentVisible={vi.fn()}
       textFor={() => ''}
       isFavorite={() => false}
       onToggleFavorite={vi.fn()}
@@ -92,8 +102,6 @@ describe('meal search barcode entry (#998)', () => {
         recentCount={3}
         showAllRecent={false}
         onToggleShowAllRecent={vi.fn()}
-        recentVisible
-        onToggleRecentVisible={vi.fn()}
         textFor={() => ''}
         isFavorite={() => false}
         onToggleFavorite={vi.fn()}
@@ -149,8 +157,6 @@ describe('homemade meal-search chip (#994)', () => {
         recentCount={3}
         showAllRecent={false}
         onToggleShowAllRecent={vi.fn()}
-        recentVisible
-        onToggleRecentVisible={vi.fn()}
         textFor={() => ''}
         isFavorite={() => false}
         onToggleFavorite={vi.fn()}
@@ -201,5 +207,83 @@ describe('compact catalog JSON action (#1054)', () => {
     expect(
       screen.getByRole('button', { name: 'Import foods' }),
     ).toBeInTheDocument()
+  })
+})
+
+describe('recent foods dropdown (#1055)', () => {
+  function renderRecents(onPick = vi.fn(), onToggleShowAllRecent = vi.fn()) {
+    render(
+      <AddMealDialogBrowse
+        mealLabel="Breakfast"
+        search=""
+        query=""
+        matches={[]}
+        recentItems={[soup]}
+        allMealItemsCount={4}
+        recentCount={3}
+        showAllRecent={false}
+        onToggleShowAllRecent={onToggleShowAllRecent}
+        textFor={(item) =>
+          item.source === 'mealItem' ? item.mealItem.name : ''
+        }
+        isFavorite={() => false}
+        onToggleFavorite={vi.fn()}
+        onPick={onPick}
+        onOpenManualAdd={vi.fn()}
+        onOpenBarcode={vi.fn()}
+        onOpenRecipe={vi.fn()}
+        onImportSharedFood={vi.fn()}
+        onlineHits={[]}
+        onlineSearchStatus="idle"
+        onlineRemoteStatus={null}
+        onRunOnlineSearch={vi.fn()}
+        onPickOnlineHit={vi.fn()}
+        onChangeSearch={vi.fn()}
+        onClearSearch={vi.fn()}
+        homemadeOnly={false}
+        onToggleHomemadeOnly={vi.fn()}
+        mealNoteField={null}
+        showEmptyMealNote={false}
+      />,
+    )
+    return { onPick, onToggleShowAllRecent }
+  }
+
+  it('hides recents until the empty search field is focused', async () => {
+    const user = userEvent.setup()
+    renderRecents()
+
+    expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
+    expect(screen.queryByText('Recent')).not.toBeInTheDocument()
+
+    const search = screen.getByLabelText('Search foods')
+    await user.click(search)
+
+    const dropdown = screen.getByRole('region', { name: 'Recent' })
+    expect(dropdown).toContainElement(screen.getByText('Homemade soup'))
+    expect(search.parentElement).toContainElement(dropdown)
+    expect(screen.getByRole('button', { name: 'Show all' })).toBeInTheDocument()
+  })
+
+  it('picks a recent row and closes the dropdown', async () => {
+    const user = userEvent.setup()
+    const { onPick } = renderRecents()
+
+    await user.click(screen.getByLabelText('Search foods'))
+    await user.click(screen.getByText('Homemade soup'))
+
+    expect(onPick).toHaveBeenCalledWith(soup)
+    expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
+  })
+
+  it('hides the dropdown when focus leaves the field', async () => {
+    const user = userEvent.setup()
+    renderRecents()
+
+    await user.click(screen.getByLabelText('Search foods'))
+    expect(screen.getByRole('region', { name: 'Recent' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Add food' }))
+    expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
   })
 })

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1031,
+    issue: 1055,
+    date: '2026-10-01T18:32:00+03:00',
+    en: 'In add meal, recent foods appear under the search field only while that field is focused and empty.',
+    ru: 'В «Добавить приём пищи» недавние продукты появляются под полем поиска только когда оно в фокусе и пустое.',
+  },
+  {
     version: 1030,
     issue: 1054,
     date: '2026-10-01T18:15:56+03:00',

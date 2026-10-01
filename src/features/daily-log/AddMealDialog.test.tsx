@@ -805,6 +805,7 @@ describe('AddMealDialog (#454)', () => {
       />,
     )
 
+    await user.click(screen.getByLabelText('Search foods'))
     await user.click(await screen.findByText('Cookie'))
 
     // Known lastAmountG → open in per-100g with density as source of truth.
@@ -1026,7 +1027,7 @@ describe('AddMealDialog (#454)', () => {
       )
     }
 
-    it('keeps quick actions above search, then the homemade chip, then Recent', async () => {
+    it('keeps quick actions above search, then the homemade chip (#1055)', async () => {
       const user = userEvent.setup()
       await useMealItemStore.getState().touch('Homemade soup', { amountKcal: 320 })
       render(<ControlledAddMealDialog {...defaultProps} />)
@@ -1039,21 +1040,26 @@ describe('AddMealDialog (#454)', () => {
       const sharedFood = screen.getByRole('button', { name: 'Shared food' })
       const search = screen.getByLabelText('Search foods')
       const homemade = screen.getByRole('button', { name: 'Homemade' })
-      expect(await screen.findByText('Homemade soup')).toBeInTheDocument()
-      const recent = screen.getByText('Recent')
+      expect(screen.queryByText('Homemade soup')).not.toBeInTheDocument()
+      expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
 
       for (const action of [addFood, scanCard, logRecipe, sharedFood]) {
         expect(follows(action, search)).toBe(true)
       }
       expect(search.parentElement?.nextElementSibling).toBe(homemade)
-      expect(homemade.nextElementSibling).toContainElement(recent)
       expect(search.parentElement?.previousElementSibling).toContainElement(
         addFood,
       )
 
+      await user.click(search)
+      const recentHit = await screen.findByText('Homemade soup')
+      expect(screen.getByRole('region', { name: 'Recent' })).toContainElement(
+        recentHit,
+      )
+
       await user.type(search, 'soup')
       const match = await screen.findByText('Homemade soup')
-      expect(screen.queryByText('Recent')).not.toBeInTheDocument()
+      expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
       expect(homemade.nextElementSibling).toContainElement(match)
       expect(search.parentElement?.previousElementSibling).toContainElement(
         addFood,
@@ -1101,7 +1107,7 @@ describe('AddMealDialog (#454)', () => {
 
       await user.clear(search)
       expect(screen.queryByText('Бутерброд с форелью')).not.toBeInTheDocument()
-      expect(screen.queryByText('Recent')).not.toBeInTheDocument()
+      expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
     })
 
     it('adds the matched recipe from search', async () => {
@@ -1121,25 +1127,38 @@ describe('AddMealDialog (#454)', () => {
     })
   })
 
-  describe('Recent (#454)', () => {
-    it('shows recently-touched personal items when the search box is empty', async () => {
+  describe('Recent dropdown (#1055)', () => {
+    it('shows recently-touched items in a dropdown only while search is focused and empty', async () => {
+      const user = userEvent.setup()
       await useMealItemStore.getState().touch('Homemade soup', { amountKcal: 320 })
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      expect(screen.getByText('Recent')).toBeInTheDocument()
-      expect(await screen.findByText('Homemade soup')).toBeInTheDocument()
+      expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
+      expect(screen.queryByText('Homemade soup')).not.toBeInTheDocument()
+
+      const search = screen.getByLabelText('Search foods')
+      await user.click(search)
+      const hit = await screen.findByText('Homemade soup')
+      expect(screen.getByRole('region', { name: 'Recent' })).toContainElement(hit)
+      expect(search.parentElement).toContainElement(hit)
+
+      await user.click(screen.getByRole('button', { name: 'Add food' }))
+      expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
     })
 
     it('puts a saved built-in catalog food above an older Recent row (#1051)', async () => {
       const user = userEvent.setup()
       await useMealItemStore.getState().touch('Homemade soup', { amountKcal: 100 })
       render(<ControlledAddMealDialog {...defaultProps} />)
+      const search = screen.getByLabelText('Search foods')
+      await user.click(search)
       expect(await screen.findByText('Homemade soup')).toBeInTheDocument()
 
-      await user.type(screen.getByLabelText('Search foods'), 'Salmon')
+      await user.type(search, 'Salmon')
       await user.click(await screen.findByText('Salmon'))
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
+      await user.click(screen.getByLabelText('Search foods'))
       await waitFor(() => {
         const recentList = screen.getAllByRole('list').find((list) =>
           within(list).queryByText('Homemade soup'),
@@ -1157,40 +1176,12 @@ describe('AddMealDialog (#454)', () => {
       })
     })
 
-    it('does not show a Recent section with no personal items yet', () => {
-      render(<ControlledAddMealDialog {...defaultProps} />)
-
-      expect(screen.queryByText('Recent')).not.toBeInTheDocument()
-    })
-  })
-
-  describe('Recent eye toggle (#507)', () => {
-    it('hides the Recent list while keeping the heading so it can be shown again', async () => {
+    it('does not show a Recent dropdown with no personal items yet', async () => {
       const user = userEvent.setup()
-      await useMealItemStore.getState().touch('Homemade soup', { amountKcal: 320 })
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      expect(await screen.findByText('Homemade soup')).toBeInTheDocument()
-
-      await user.click(screen.getByRole('button', { name: 'Hide Recent' }))
-
-      expect(screen.getByText('Recent')).toBeInTheDocument()
-      expect(screen.queryByText('Homemade soup')).not.toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Show Recent' })).toBeInTheDocument()
-    })
-
-    it('shows the Recent list again after tapping Show', async () => {
-      const user = userEvent.setup()
-      await useMealItemStore.getState().touch('Homemade soup', { amountKcal: 320 })
-      useAddMealRecentVisibilityStore.setState({ recentVisible: false })
-      render(<ControlledAddMealDialog {...defaultProps} />)
-
-      expect(screen.getByText('Recent')).toBeInTheDocument()
-      expect(screen.queryByText('Homemade soup')).not.toBeInTheDocument()
-
-      await user.click(screen.getByRole('button', { name: 'Show Recent' }))
-
-      expect(await screen.findByText('Homemade soup')).toBeInTheDocument()
+      await user.click(screen.getByLabelText('Search foods'))
+      expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
     })
   })
 

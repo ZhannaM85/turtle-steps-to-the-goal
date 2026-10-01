@@ -15,7 +15,6 @@ import {
   useMicronutrientTrackingStore,
   useNutritionFactsStore,
   useRecipeStore,
-  useAddMealRecentVisibilityStore,
   useEatingReasonTrackingStore,
   useTrackedFieldsStore,
 } from '@/stores'
@@ -123,12 +122,6 @@ export function AddMealDialog({
   const loadRecipes = useRecipeStore((state) => state.loadRecipes)
   const loadFoodOverrides = useFoodOverrideStore((state) => state.loadOverrides)
   const loadCatalogFoodImports = useCatalogFoodImportStore((state) => state.load)
-  const recentVisible = useAddMealRecentVisibilityStore(
-    (state) => state.recentVisible,
-  )
-  const toggleRecentVisible = useAddMealRecentVisibilityStore(
-    (state) => state.toggleRecentVisible,
-  )
   const mealLabelPresets = useMealLabelPresetStore((state) => state.presets)
   const addMealLabelPreset = useMealLabelPresetStore((state) => state.addPreset)
   const micronutrients = useMicronutrientTrackingStore((state) => state.tracked)
@@ -328,8 +321,6 @@ export function AddMealDialog({
                     onToggleShowAllRecent={() =>
                       catalog.setShowAllRecent((current) => !current)
                     }
-                    recentVisible={recentVisible}
-                    onToggleRecentVisible={toggleRecentVisible}
                     textFor={catalog.textFor}
                     isFavorite={catalog.isFavorite}
                     onToggleFavorite={catalog.handleToggleFavorite}

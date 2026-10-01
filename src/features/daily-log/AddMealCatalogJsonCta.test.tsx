@@ -50,8 +50,6 @@ function renderBrowse() {
       recentCount={3}
       showAllRecent={false}
       onToggleShowAllRecent={vi.fn()}
-      recentVisible
-      onToggleRecentVisible={vi.fn()}
       textFor={() => ''}
       isFavorite={() => false}
       onToggleFavorite={vi.fn()}

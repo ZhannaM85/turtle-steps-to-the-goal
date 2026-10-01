@@ -6,7 +6,6 @@ import { useOnlineStatus } from '@/shared/hooks'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
-import { SectionTitleWithToggle } from '@/shared/ui/section-title-with-toggle'
 import {
   OFF_SEARCH_MIN_CHARS,
   type OnlineFoodHit,
@@ -32,8 +31,6 @@ export function AddMealDialogBrowse({
   recentCount,
   showAllRecent,
   onToggleShowAllRecent,
-  recentVisible,
-  onToggleRecentVisible,
   textFor,
   isFavorite,
   onToggleFavorite,
@@ -65,8 +62,6 @@ export function AddMealDialogBrowse({
   recentCount: number
   showAllRecent: boolean
   onToggleShowAllRecent: () => void
-  recentVisible: boolean
-  onToggleRecentVisible: () => void
   textFor: (item: PickableItem) => string
   isFavorite: (item: PickableItem) => boolean
   onToggleFavorite: (item: PickableItem) => void
@@ -93,6 +88,11 @@ export function AddMealDialogBrowse({
   const locale = useLocale()
   const isOnline = useOnlineStatus()
   const [catalogImportOpen, setCatalogImportOpen] = useState(false)
+  // #1055 — recents are a dropdown under the field, not a section on the
+  // page. Open only while the empty field is focused; blur or typing hides it.
+  const [recentDropdownOpen, setRecentDropdownOpen] = useState(false)
+  const showRecentDropdown =
+    recentDropdownOpen && !query && !homemadeOnly && recentItems.length > 0
 
   return (
     <>
@@ -134,9 +134,15 @@ export function AddMealDialogBrowse({
         <Input
           type="text"
           aria-label={t.dailyEntry.foodSearchLabel}
+          aria-expanded={showRecentDropdown}
           placeholder={t.dailyEntry.foodSearchPlaceholder}
           value={search}
           onChange={(e) => onChangeSearch(e.target.value)}
+          onFocus={() => setRecentDropdownOpen(true)}
+          onBlur={() => setRecentDropdownOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setRecentDropdownOpen(false)
+          }}
           className={cn('h-12 text-base', search !== '' && 'pr-10')}
         />
         {search !== '' && (
@@ -146,10 +152,47 @@ export function AddMealDialogBrowse({
             size="icon-xs"
             aria-label={t.dailyEntry.clearFoodSearchLabel}
             className="absolute top-1/2 right-1.5 -translate-y-1/2"
+            onMouseDown={(event) => event.preventDefault()}
             onClick={onClearSearch}
           >
             <X aria-hidden="true" className="size-3.5" />
           </Button>
+        )}
+        {showRecentDropdown && (
+          <div
+            role="region"
+            aria-label={t.dailyEntry.recentFoodsLabel}
+            className="absolute top-full right-0 left-0 z-10 mt-1 flex flex-col gap-1 drop-shadow-md"
+            onMouseDown={(event) => event.preventDefault()}
+          >
+            <AddMealPickableItemList
+              items={recentItems}
+              textFor={textFor}
+              isFavorite={isFavorite}
+              onToggleFavorite={onToggleFavorite}
+              onPick={(item) => {
+                setRecentDropdownOpen(false)
+                onPick(item)
+              }}
+              onDeleteItem={onDeleteItem}
+              deleteMode={deleteMode}
+              t={t}
+              locale={locale}
+            />
+            {allMealItemsCount > recentCount && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="self-start bg-popover"
+                onClick={onToggleShowAllRecent}
+              >
+                {showAllRecent
+                  ? t.dailyEntry.collapseRecentLabel
+                  : t.dailyEntry.showAllRecentLabel}
+              </Button>
+            )}
+          </div>
         )}
       </div>
       <HomemadeFoodFilterChip
@@ -272,51 +315,7 @@ export function AddMealDialogBrowse({
           />
         )
       ) : (
-        <>
-          {recentItems.length > 0 && (
-            <div className="flex flex-col gap-3">
-              <SectionTitleWithToggle
-                title={t.dailyEntry.recentFoodsLabel}
-                visible={recentVisible}
-                onToggle={onToggleRecentVisible}
-                hideLabel={t.common.hideSectionLabel(
-                  t.dailyEntry.recentFoodsLabel,
-                )}
-                showLabel={t.common.showSectionLabel(
-                  t.dailyEntry.recentFoodsLabel,
-                )}
-                extraAction={
-                  recentVisible && allMealItemsCount > recentCount ? (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={onToggleShowAllRecent}
-                    >
-                      {showAllRecent
-                        ? t.dailyEntry.collapseRecentLabel
-                        : t.dailyEntry.showAllRecentLabel}
-                    </Button>
-                  ) : undefined
-                }
-              />
-              {recentVisible && (
-                <AddMealPickableItemList
-                  items={recentItems}
-                  textFor={textFor}
-                  isFavorite={isFavorite}
-                  onToggleFavorite={onToggleFavorite}
-                  onPick={onPick}
-                  onDeleteItem={onDeleteItem}
-                  deleteMode={deleteMode}
-                  t={t}
-                  locale={locale}
-                />
-              )}
-            </div>
-          )}
-          {showEmptyMealNote && mealNoteField}
-        </>
+        showEmptyMealNote ? mealNoteField : null
       )}
     </>
   )
