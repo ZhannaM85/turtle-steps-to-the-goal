@@ -2,7 +2,6 @@ import type { AboutDict, PrivacyPolicyDict, FeaturesOverviewDict } from '../type
 
 export const about: AboutDict = {
     title: 'About',
-    description: 'What this app is, and why it exists',
     intro:
       'Turtle Steps is a private, local-first companion for understanding weight, nutrition, and the everyday factors around them.',
     tracking:

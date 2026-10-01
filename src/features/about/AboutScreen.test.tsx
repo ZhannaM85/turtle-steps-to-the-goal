@@ -28,6 +28,9 @@ describe('AboutScreen', () => {
 
     expect(screen.getByRole('heading', { name: 'About' })).toBeInTheDocument()
     expect(
+      screen.queryByText('What this app is, and why it exists'),
+    ).not.toBeInTheDocument()
+    expect(
       screen.getByText(/private, local-first companion/),
     ).toBeInTheDocument()
     expect(
@@ -139,6 +142,9 @@ describe('AboutScreen', () => {
     expect(
       screen.getByRole('heading', { name: 'О приложении' }),
     ).toBeInTheDocument()
+    expect(
+      screen.queryByText('Что это за приложение и зачем оно нужно'),
+    ).not.toBeInTheDocument()
     expect(screen.getByText('Автор: ZhannaM85')).toBeInTheDocument()
     expect(
       screen.getByText(/Метки ЛПНП остаются выключенными/),

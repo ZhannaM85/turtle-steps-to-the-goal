@@ -1,6 +1,5 @@
 export interface AboutDict {
     title: string
-    description: string
     intro: string
     /** #213 rewrite: why the app tracks more than just weight/calories. */
     tracking: string

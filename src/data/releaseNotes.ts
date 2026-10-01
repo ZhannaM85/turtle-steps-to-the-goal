@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1029,
+    issue: 1053,
+    date: '2026-10-01T13:49:46+03:00',
+    en: 'The About page no longer shows the line under the title.',
+    ru: 'На странице «О приложении» больше нет строки под заголовком.',
+  },
+  {
     version: 1028,
     issue: 1052,
     date: '2026-10-01T12:17:13+03:00',

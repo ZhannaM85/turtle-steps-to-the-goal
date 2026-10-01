@@ -91,8 +91,9 @@ _Adding a food to a meal refreshes its place in Recent, including a built-in cat
 
 ## Tier 176 — Live feedback (2026-10-01)
 
-_About and Features list what shipped in Tiers 172–175: optional LDL tags, the sticky calories-and-macros line and section pins on Day, Recent ranked by meal-add and catalog-import time, Settings catalog paste with barcode updates, one QR or link for several foods, Settings search, starting the next weekly goal as soon as this one is reached, and LDL in meal and day exports. Privacy notes that a food QR or link — and a day log shared the same way — leaves the device._
+_About and Features list what shipped in Tiers 172–175: optional LDL tags, the sticky calories-and-macros line and section pins on Day, Recent ranked by meal-add and catalog-import time, Settings catalog paste with barcode updates, one QR or link for several foods, Settings search, starting the next weekly goal as soon as this one is reached, and LDL in meal and day exports. Privacy notes that a food QR or link — and a day log shared the same way — leaves the device. About drops the line under «О приложении»._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1052](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1052) | 🔍 Pending validation | About/Capabilities: document Tier 172–175 (LDL, sticky КБЖУ, Недавние, catalog paste, multi-share) | en+ru Capabilities now cover optional LDL tags, the sticky Day calorie line and section pins, Recent ranking, catalog JSON paste with barcode/brand updates, one QR or link for selected foods, Settings search, starting the next goal when this week’s is reached, and LDL in meal and day exports. Privacy says a food QR/link (and a day-log share) leaves the device. Release note v1028. Awaiting on-device confirmation |
+| [#1053](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1053) | 🔍 Pending validation | About: remove redundant subheader under «О приложении» | en+ru About title no longer has «Что это за приложение и зачем оно нужно» / "What this app is, and why it exists". Release note v1029. Awaiting on-device confirmation |

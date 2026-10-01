@@ -28,7 +28,7 @@ export function AboutScreen() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title={t.about.title} description={t.about.description} />
+      <PageHeader title={t.about.title} />
 
       {/* #498 — Features / Privacy / Version lead as cards so they aren't
        * quiet text links under a wall of prose. Narrative copy stays below. */}

@@ -2,7 +2,6 @@ import type { AboutDict, PrivacyPolicyDict, FeaturesOverviewDict } from '../type
 
 export const about: AboutDict = {
     title: 'О приложении',
-    description: 'Что это за приложение и зачем оно нужно',
     intro:
       '«Черепашка идёт к цели» — приватный локальный помощник для понимания веса, питания и повседневных факторов, которые на них влияют.',
     tracking:
