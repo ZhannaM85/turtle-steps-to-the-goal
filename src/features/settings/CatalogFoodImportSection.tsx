@@ -28,8 +28,13 @@ function failureText(t: Dictionary, failure: CatalogFoodPasteFailure): string {
   return t.settings.catalogFoodImportFailure(failure.label, reason)
 }
 
-/** #1015 — paste JSON into the searchable catalog. Near the LDL toggle. */
-export function CatalogFoodImportSection() {
+/** #1015 — paste JSON into the searchable catalog. Near the LDL toggle.
+ * #1054 reuses this form from Add meal (`framed` drops the Settings divider). */
+export function CatalogFoodImportSection({
+  framed = true,
+}: {
+  framed?: boolean
+} = {}) {
   const t = useTranslation()
   const importFoods = useCatalogFoodImportStore((state) => state.importFoods)
   const [text, setText] = useState('')
@@ -60,16 +65,26 @@ export function CatalogFoodImportSection() {
     }
   }
 
+  const fieldId = framed ? 'catalog-food-import' : 'catalog-food-import-dialog'
   return (
-    <div className="flex flex-col gap-2 border-t border-border pt-4">
-      <Label htmlFor="catalog-food-import" className="text-sm font-medium">
-        {t.settings.catalogFoodImportLabel}
-      </Label>
+    <div
+      className={
+        framed
+          ? 'flex flex-col gap-2 border-t border-border pt-4'
+          : 'flex flex-col gap-2'
+      }
+    >
+      {framed ? (
+        <Label htmlFor={fieldId} className="text-sm font-medium">
+          {t.settings.catalogFoodImportLabel}
+        </Label>
+      ) : null}
       <span className="text-sm text-muted-foreground">
         {t.settings.catalogFoodImportDescription}
       </span>
       <Textarea
-        id="catalog-food-import"
+        id={fieldId}
+        aria-label={framed ? undefined : t.settings.catalogFoodImportLabel}
         value={text}
         rows={6}
         className="min-h-28 font-mono text-xs"

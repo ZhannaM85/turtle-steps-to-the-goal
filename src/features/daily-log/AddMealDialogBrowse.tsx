@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react'
-import { ChefHat, QrCode, ScanBarcode, Utensils, X } from 'lucide-react'
+import { useState, type ReactNode } from 'react'
+import { ChefHat, FileJson, QrCode, ScanBarcode, Utensils, X } from 'lucide-react'
 import { useLocale, useTranslation } from '@/i18n'
 import { formatKcal } from '@/shared/lib/macroDisplay'
 import { useOnlineStatus } from '@/shared/hooks'
@@ -14,6 +14,7 @@ import {
 } from './searchOnlineFoods'
 import { AddMealPickableItemList } from './AddMealPickableItemList'
 import { AddMealQuickActionCard } from './AddMealQuickActionCard'
+import { CatalogFoodImportDialog } from './CatalogFoodImportDialog'
 import { HomemadeFoodFilterChip } from './HomemadeFoodFilterChip'
 import type { PickableItem } from './addMealDialogHelpers'
 import type {
@@ -91,10 +92,11 @@ export function AddMealDialogBrowse({
   const t = useTranslation()
   const locale = useLocale()
   const isOnline = useOnlineStatus()
+  const [catalogImportOpen, setCatalogImportOpen] = useState(false)
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-1.5">
         <AddMealQuickActionCard
           Icon={Utensils}
           label={t.dailyEntry.quickActionAddFoodLabel}
@@ -116,7 +118,18 @@ export function AddMealDialogBrowse({
           label={t.dailyEntry.quickActionImportSharedFoodLabel}
           onClick={onImportSharedFood}
         />
+        <AddMealQuickActionCard
+          Icon={FileJson}
+          label={t.dailyEntry.quickActionImportCatalogLabel}
+          onClick={() => setCatalogImportOpen(true)}
+        />
       </div>
+      {catalogImportOpen && (
+        <CatalogFoodImportDialog
+          open
+          onOpenChange={setCatalogImportOpen}
+        />
+      )}
       <div className="relative">
         <Input
           type="text"

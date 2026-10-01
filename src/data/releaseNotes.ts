@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1030,
+    issue: 1054,
+    date: '2026-10-01T18:15:56+03:00',
+    en: 'Add meal’s buttons are tighter, and Import JSON pastes catalog foods so they show up in Recent.',
+    ru: 'Кнопки в «Добавить приём пищи» стали компактнее, а «Импорт JSON» вставляет продукты в каталог, и они появляются в «Недавние».',
+  },
+  {
     version: 1029,
     issue: 1053,
     date: '2026-10-01T13:49:46+03:00',

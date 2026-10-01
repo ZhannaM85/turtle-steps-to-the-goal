@@ -213,6 +213,7 @@ export const dailyEntry: DailyEntryDict = {
     cantFindItAddManuallyLabel: 'Добавить вручную',
     quickActionAddFoodLabel: 'Добавить блюдо',
     quickActionImportSharedFoodLabel: 'QR / ссылка',
+    quickActionImportCatalogLabel: 'Импорт JSON',
     mealSoFarLabel: 'Состав приёма пищи',
     shareMealCompositionLabel: 'Поделиться составом приёма пищи',
     selectMealItemLabel: (name) => `Выбрать «${name}»`,

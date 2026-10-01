@@ -17,10 +17,10 @@ export function AddMealQuickActionCard({
     <button
       type="button"
       aria-label={ariaLabel}
-      className="flex flex-col items-center gap-1.5 rounded-xl border border-border p-3 text-center text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+      className="flex min-h-11 items-center gap-1.5 rounded-lg border border-border px-2 py-1.5 text-left text-xs font-medium leading-tight text-muted-foreground hover:bg-muted hover:text-foreground"
       onClick={onClick}
     >
-      <Icon aria-hidden="true" className="size-5" />
+      <Icon aria-hidden="true" className="size-4 shrink-0" />
       {label}
     </button>
   )

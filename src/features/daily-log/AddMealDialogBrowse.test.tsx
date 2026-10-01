@@ -179,3 +179,27 @@ describe('homemade meal-search chip (#994)', () => {
     expect(onToggleHomemadeOnly).toHaveBeenCalledTimes(1)
   })
 })
+
+describe('compact catalog JSON action (#1054)', () => {
+  it('packs five quick actions and opens the catalog paste', async () => {
+    const user = userEvent.setup()
+    renderEmptySearch()
+
+    const addFood = screen.getByRole('button', { name: 'Add food' })
+    const grid = addFood.parentElement
+    expect(grid).toHaveClass('grid-cols-2', 'gap-1.5')
+    expect(within(grid!).getAllByRole('button')).toHaveLength(5)
+    expect(addFood).toHaveClass('min-h-11', 'gap-1.5', 'px-2')
+
+    await user.click(screen.getByRole('button', { name: 'Import JSON' }))
+    expect(
+      screen.getByRole('heading', { name: 'Import catalog foods' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('textbox', { name: 'Import catalog foods' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Import foods' }),
+    ).toBeInTheDocument()
+  })
+})

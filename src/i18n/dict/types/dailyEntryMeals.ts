@@ -22,10 +22,13 @@ export interface DailyEntryMealsDict {
     /** #459 — the quick-action row's bordered cards (Add food / Scan
      * barcode / Log recipe), replacing the old plain-text links.
      * scanBarcodeButton/recipes.logRecipeButton are reused for the other
-     * two cards' labels. **#802** adds a fourth tile for shared-food QR/link. */
+     * two cards' labels. **#802** adds a fourth tile for shared-food QR/link.
+     * **#1054** adds a fifth, compact tile for catalog JSON paste. */
     quickActionAddFoodLabel: string
     /** #802 — scan a food-share QR or paste a share link into this meal. */
     quickActionImportSharedFoodLabel: string
+    /** #1054 — same catalog JSON paste as Settings, from Add meal. */
+    quickActionImportCatalogLabel: string
     mealSoFarLabel: string
     /** #982 — section share beside «Состав приёма пищи» for every named dish. */
     shareMealCompositionLabel: string
