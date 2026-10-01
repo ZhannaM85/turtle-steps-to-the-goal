@@ -1166,7 +1166,7 @@ describe('MealList', () => {
       expect(screen.queryByText(/Breakfast/)).not.toBeInTheDocument()
     })
 
-    it('keeps a typed meal-note space while editing (does not trim mid-keystroke)', async () => {
+    it('keeps a typed meal-note space while editing and focuses only from the pencil (#1064)', async () => {
       const user = userEvent.setup()
       render(
         <ControlledMealList
@@ -1184,7 +1184,17 @@ describe('MealList', () => {
       )
 
       await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
-      const note = screen.getByLabelText('Meal note')
+      expect(
+        screen.queryByRole('textbox', { name: 'Note about breakfast' }),
+      ).not.toBeInTheDocument()
+      expect(document.activeElement).not.toHaveAttribute(
+        'aria-label',
+        'Note about breakfast',
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Edit note' }))
+      const note = screen.getByRole('textbox', { name: 'Note about breakfast' })
+      expect(note).toHaveFocus()
       await user.type(note, ' spicy')
 
       expect(note).toHaveValue('extra spicy')

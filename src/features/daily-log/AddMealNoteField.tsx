@@ -10,24 +10,29 @@ function isNightFoodMealLabel(mealLabel: string) {
 /**
  * #1059 — a night-food note starts as a pencil while empty.
  * #1063 — opening it uses the day-note editor (save, cancel, confirmed
- * delete). Other meals stay an always-visible field saved with the meal.
+ * delete). Adding any other meal keeps an always-visible field.
+ * #1064 — editing a meal keeps that note collapsed and unfocused until
+ * the pencil.
  */
 export function AddMealNoteField({
   mealLabel,
   note,
   onNoteChange,
+  collapseUntilPencil = false,
 }: {
   mealLabel: string
   note: string
   onNoteChange: (value: string) => void
+  collapseUntilPencil?: boolean
 }) {
   const t = useTranslation()
   const night = isNightFoodMealLabel(mealLabel)
-  const nightCopy = t.dailyEntry.mealNotePlaceholder(mealLabel)
-  const label = night ? nightCopy : t.dailyEntry.mealNoteLabel
-  const placeholder = night ? nightCopy : t.dailyEntry.mealNotePlaceholder(mealLabel)
+  const mealCopy = t.dailyEntry.mealNotePlaceholder(mealLabel)
+  const useEditor = night || collapseUntilPencil
+  const label = useEditor ? mealCopy : t.dailyEntry.mealNoteLabel
+  const placeholder = mealCopy
 
-  if (night) {
+  if (useEditor) {
     return (
       <NoteEditor
         label={label}

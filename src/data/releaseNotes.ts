@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1040,
+    issue: 1064,
+    date: '2026-10-01T21:48:50+03:00',
+    en: 'When you edit a meal, the note stays closed until you tap the pencil. It no longer opens the keyboard by itself.',
+    ru: 'При правке приёма пищи заметка закрыта, пока не нажмёте карандаш. Клавиатура сама больше не открывается.',
+  },
+  {
     version: 1039,
     issue: 1063,
     date: '2026-10-01T21:43:49+03:00',

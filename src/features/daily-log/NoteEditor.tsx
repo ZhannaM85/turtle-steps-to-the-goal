@@ -36,13 +36,17 @@ export function NoteEditor({
   const [draft, setDraft] = useState(value)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const fieldRef = useRef<HTMLTextAreaElement>(null)
+  const focusAfterOpen = useRef(false)
   const saved = value.trim()
 
   useEffect(() => {
-    if (editing) fieldRef.current?.focus()
+    if (!editing || !focusAfterOpen.current) return
+    focusAfterOpen.current = false
+    fieldRef.current?.focus()
   }, [editing])
 
   function open() {
+    focusAfterOpen.current = true
     setDraft(value)
     setConfirmingDelete(false)
     setEditing(true)

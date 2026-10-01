@@ -12,4 +12,6 @@ A note that is saved on its own (day note, morning note, night-food meal note, n
 3. **Saved.** `NoteDisplayBlock` — the text, a pencil to edit again, and trash. Trash asks with `ConfirmDeleteEntryBar` before clearing. A weekly note may keep its truncated preview and “show full / show less” control; opening it still uses `NoteEditRow`.
 4. **Shared component.** New collapsed notes use `NoteEditor` (`src/features/daily-log/NoteEditor.tsx`), which is this cycle. Callers that already render `NoteEditRow` / `NoteDisplayBlock` with the same save, cancel, and confirmed delete stay on those pieces.
 
-A text field that is only part of a larger form, and is stored when that form’s own Save runs (a dish note, the always-visible note on Breakfast / Lunch / Dinner / Snack), is not a separate note editor. Do not give it a second save control.
+A text field that is only part of a larger form, and is stored when that form’s own Save runs (a dish note, the always-visible note while adding Breakfast / Lunch / Dinner / Snack), is not a separate note editor. Do not give it a second save control.
+
+Editing a meal is different (#1064): that note stays collapsed and unfocused when the sheet opens. It uses `NoteEditor`, and the field is focused only after the pencil.

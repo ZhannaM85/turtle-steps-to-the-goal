@@ -8,9 +8,11 @@ import { AddMealNoteField } from './AddMealNoteField'
 function ControlledNote({
   mealLabel,
   initialNote = '',
+  collapseUntilPencil = false,
 }: {
   mealLabel: string
   initialNote?: string
+  collapseUntilPencil?: boolean
 }) {
   const [note, setNote] = useState(initialNote)
   return (
@@ -18,6 +20,7 @@ function ControlledNote({
       mealLabel={mealLabel}
       note={note}
       onNoteChange={setNote}
+      collapseUntilPencil={collapseUntilPencil}
     />
   )
 }
@@ -96,6 +99,28 @@ describe('AddMealNoteField (#1059)', () => {
 
     expect(screen.queryByText('already written')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Note about night food' })).toBeInTheDocument()
+  })
+
+  it('keeps an edited meal note collapsed until the pencil (#1064)', async () => {
+    const user = userEvent.setup()
+    render(
+      <ControlledNote
+        mealLabel="Dinner"
+        initialNote="already written"
+        collapseUntilPencil
+      />,
+    )
+
+    expect(
+      screen.queryByRole('textbox', { name: 'Note about dinner' }),
+    ).not.toBeInTheDocument()
+    expect(document.activeElement).not.toBeInstanceOf(HTMLTextAreaElement)
+    expect(screen.getByText('already written')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Edit note' }))
+    const note = screen.getByRole('textbox', { name: 'Note about dinner' })
+    expect(note).toHaveFocus()
+    expect(note).toHaveValue('already written')
   })
 
   it('uses «Заметка о ночной еде» for the Russian night-food note', async () => {
