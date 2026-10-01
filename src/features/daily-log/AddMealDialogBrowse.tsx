@@ -14,7 +14,6 @@ import {
 import { AddMealPickableItemList } from './AddMealPickableItemList'
 import { AddMealQuickActionCard } from './AddMealQuickActionCard'
 import { CatalogFoodImportDialog } from './CatalogFoodImportDialog'
-import { HomemadeFoodFilterChip } from './HomemadeFoodFilterChip'
 import type { PickableItem } from './addMealDialogHelpers'
 import type {
   MealSearchDeleteMode,
@@ -52,7 +51,6 @@ export function AddMealDialogBrowse({
   onChangeSearch,
   onClearSearch,
   homemadeOnly,
-  onToggleHomemadeOnly,
   mealNoteField,
   showEmptyMealNote,
 }: {
@@ -93,7 +91,7 @@ export function AddMealDialogBrowse({
   const [catalogImportOpen, setCatalogImportOpen] = useState(false)
   // #1055 / #1057 — one suggestion panel under the field. Empty focus
   // shows recents; a typed query shows matches. Blur or Escape hides it.
-  // #1056 — the panel is opaque and stacked above the homemade chip and note.
+  // #1056 — the panel is opaque and stacked above the meal note.
   const [suggestionOpen, setSuggestionOpen] = useState(false)
   const showRecentDropdown =
     suggestionOpen && !query && !homemadeOnly && recentItems.length > 0
@@ -306,10 +304,9 @@ export function AddMealDialogBrowse({
           </div>
         )}
       </div>
-      <HomemadeFoodFilterChip
-        pressed={homemadeOnly}
-        onToggle={onToggleHomemadeOnly}
-      />
+      {/* #1058 — Домашнее stays off this screen for now. Tagged foods and
+          the dish editor checkbox are unchanged; homemadeOnly still filters
+          if a caller sets it. */}
 
       {!query && homemadeOnly ? (
         recentItems.length === 0 ? (

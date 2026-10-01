@@ -62,9 +62,7 @@ describe('empty food search manual add (#991)', () => {
     expect(screen.getByLabelText('Search foods').parentElement).toContainElement(
       results,
     )
-    expect(results.compareDocumentPosition(screen.getByRole('button', { name: 'Homemade' }))).toBe(
-      Node.DOCUMENT_POSITION_FOLLOWING,
-    )
+    expect(screen.queryByRole('button', { name: 'Homemade' })).not.toBeInTheDocument()
     expect(results).toContainElement(screen.getByText('No foods found.'))
     expect(
       screen.queryByText("Can't find it? Add manually"),
@@ -153,8 +151,7 @@ describe('meal search barcode entry (#998)', () => {
 })
 
 describe('homemade meal-search chip (#994)', () => {
-  it('shows a homemade chip that starts off', async () => {
-    const user = userEvent.setup()
+  it('hides the homemade pill on Add food (#1058)', () => {
     const onToggleHomemadeOnly = vi.fn()
     render(
       <AddMealDialogBrowse
@@ -189,10 +186,8 @@ describe('homemade meal-search chip (#994)', () => {
       />,
     )
 
-    const chip = screen.getByRole('button', { name: 'Homemade' })
-    expect(chip).toHaveAttribute('aria-pressed', 'false')
-    await user.click(chip)
-    expect(onToggleHomemadeOnly).toHaveBeenCalledTimes(1)
+    expect(screen.queryByRole('button', { name: 'Homemade' })).not.toBeInTheDocument()
+    expect(onToggleHomemadeOnly).not.toHaveBeenCalled()
   })
 })
 
@@ -323,7 +318,7 @@ describe('recent foods dropdown (#1055)', () => {
       />,
     )
 
-    const homemade = screen.getByRole('button', { name: 'Homemade' })
+    expect(screen.queryByRole('button', { name: 'Homemade' })).not.toBeInTheDocument()
     const note = screen.getByLabelText('Note about night food')
     const search = screen.getByLabelText('Search foods')
     expect(search.parentElement).not.toHaveClass('z-30')
@@ -334,9 +329,6 @@ describe('recent foods dropdown (#1055)', () => {
     expect(dropdown).toHaveClass('z-30', 'bg-popover')
     expect(search.parentElement).toHaveClass('relative', 'z-30')
     expect(search.parentElement).toContainElement(dropdown)
-    expect(dropdown.compareDocumentPosition(homemade)).toBe(
-      Node.DOCUMENT_POSITION_FOLLOWING,
-    )
     expect(dropdown.compareDocumentPosition(note)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     )

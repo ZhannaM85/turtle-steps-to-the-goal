@@ -1,7 +1,8 @@
 import { useTranslation } from '@/i18n'
 import { cn } from '@/shared/lib/utils'
 
-/** #994 — meal-search chip. Pressed lists only homemade catalog dishes. */
+/** #994 — meal-search chip. Pressed lists only homemade catalog dishes.
+ * #1058 — not mounted on Add food for now. Kept so the control can return. */
 export function HomemadeFoodFilterChip({
   pressed,
   onToggle,

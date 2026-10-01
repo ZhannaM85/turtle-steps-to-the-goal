@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1034,
+    issue: 1058,
+    date: '2026-10-01T20:30:10+03:00',
+    en: 'In add meal, the Homemade filter under search is hidden for now. Dishes you already marked homemade stay in the list.',
+    ru: 'В «Добавить приём пищи» фильтр «Домашнее» под поиском пока скрыт. Блюда, уже отмеченные как домашние, остаются в списке.',
+  },
+  {
     version: 1033,
     issue: 1057,
     date: '2026-10-01T20:27:00+03:00',

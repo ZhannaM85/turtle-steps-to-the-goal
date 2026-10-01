@@ -1027,7 +1027,7 @@ describe('AddMealDialog (#454)', () => {
       )
     }
 
-    it('keeps quick actions above search, then the homemade chip (#1055)', async () => {
+    it('keeps quick actions above search, with no homemade pill (#1055/#1058)', async () => {
       const user = userEvent.setup()
       await useMealItemStore.getState().touch('Homemade soup', { amountKcal: 320 })
       render(<ControlledAddMealDialog {...defaultProps} />)
@@ -1039,14 +1039,15 @@ describe('AddMealDialog (#454)', () => {
       const logRecipe = screen.getByRole('button', { name: 'Log recipe' })
       const sharedFood = screen.getByRole('button', { name: 'Shared food' })
       const search = screen.getByLabelText('Search foods')
-      const homemade = screen.getByRole('button', { name: 'Homemade' })
+      const note = screen.getByLabelText('Meal note')
+      expect(screen.queryByRole('button', { name: 'Homemade' })).not.toBeInTheDocument()
       expect(screen.queryByText('Homemade soup')).not.toBeInTheDocument()
       expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
 
       for (const action of [addFood, scanCard, logRecipe, sharedFood]) {
         expect(follows(action, search)).toBe(true)
       }
-      expect(search.parentElement?.nextElementSibling).toBe(homemade)
+      expect(search.parentElement?.nextElementSibling).toBe(note)
       expect(search.parentElement?.previousElementSibling).toContainElement(
         addFood,
       )
@@ -1066,7 +1067,7 @@ describe('AddMealDialog (#454)', () => {
         screen.getByRole('button', { name: 'Search online' }),
       )
       expect(search.parentElement).toContainElement(results)
-      expect(results.compareDocumentPosition(homemade)).toBe(
+      expect(results.compareDocumentPosition(note)).toBe(
         Node.DOCUMENT_POSITION_FOLLOWING,
       )
       expect(search.parentElement?.previousElementSibling).toContainElement(
