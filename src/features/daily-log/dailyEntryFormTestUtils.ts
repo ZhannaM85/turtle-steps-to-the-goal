@@ -15,6 +15,7 @@ import {
   useTrackedFieldsStore,
   useWaterTrackingStore,
 } from '@/stores'
+import { openAddMealAction } from './openAddMealAction'
 
 /**
  * Shared DailyEntryForm test setup (#863). Side-effect import registers
@@ -31,9 +32,9 @@ export function render(ui: ReactElement) {
 
 // #454 replaced the always-visible inline add-row with a dedicated flyout
 // (AddMealDialog) opened via "+ Add another meal", with manual entry now
-// one level deeper behind the "Add food" quick-action card (#459 restyled
-// this from a plain "Can't find it? Add manually" text link into a
-// bordered card, same underlying action) — this opens the same
+// one level deeper behind the "Add food" action (#459 restyled this from
+// a plain "Can't find it? Add manually" text link into a bordered card;
+// #1060 folded that card into the Add… menu). This opens the same
 // MealItemEditorSheet these pre-#454 tests already exercise, whether the
 // flyout is already open (a second add within the same test) or not. Once
 // open, the trigger button itself becomes `aria-hidden` (covered by the
@@ -47,7 +48,7 @@ export async function openAddItemFlow(
     screen.queryByRole('button', { name: '+ Add a meal' }) ??
     screen.queryByRole('button', { name: '+ Add another meal' })
   if (trigger) await user.click(trigger)
-  await user.click(screen.getByRole('button', { name: 'Add food' }))
+  await user.click(await openAddMealAction(user, 'Add food'))
 }
 
 // #473 split the meal card's old single "Breakfast — 200 kcal" header line
