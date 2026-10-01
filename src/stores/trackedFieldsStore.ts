@@ -25,8 +25,12 @@ export type TrackedField =
   | 'fiber'
   | 'zeppScreenshot'
   | 'autoSleepScreenshot'
+  | 'mealNotes'
+  | 'mealReactions'
 
 const DEFAULT_TRACKED: Record<TrackedField, boolean> = {
+  mealNotes: false,
+  mealReactions: false,
   sleep: true,
   steps: true,
   bodyMeasurements: true,

@@ -215,6 +215,10 @@ function trackedRowLabels(id: string, dict: Dictionary): string[] {
       return [s.ldlImpactTrackingLabel, s.trackedFieldHintLdlImpact]
     case 'eatingReason':
       return [s.eatingReasonTrackingLabel, s.trackedFieldHintEatingReason]
+    case 'mealNotes':
+      return [s.mealNotesTrackingLabel, s.trackedFieldHintMealNotes]
+    case 'mealReactions':
+      return [s.mealReactionsTrackingLabel, s.trackedFieldHintMealReactions]
     case 'autoSleepScreenshot':
       return [
         s.autoSleepScreenshotTrackingLabel,
@@ -262,6 +266,8 @@ const TRACKED_ROW_IDS = [
   'dayTotals',
   'fiber',
   'plannedMeals',
+  'mealNotes',
+  'mealReactions',
   'copyYesterdayMeals',
   'mealKcalVsYesterday',
   'ldlImpact',

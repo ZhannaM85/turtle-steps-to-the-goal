@@ -231,13 +231,14 @@ export function AddMealDialog({
         )?.barcode
       : undefined)
 
-  const mealNoteField = (
+  const mealNotesEnabled = useTrackedFieldsStore((state) => state.tracked.mealNotes)
+  const mealNoteField = mealNotesEnabled ? (
     <AddMealNoteField
       mealLabel={mealLabel}
       note={note}
       onNoteChange={onNoteChange}
     />
-  )
+  ) : null
 
   return (
     <>

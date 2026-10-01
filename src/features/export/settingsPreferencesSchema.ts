@@ -40,6 +40,8 @@ export const settingsPreferencesSchema = z
         fiber: z.boolean().optional(),
         zeppScreenshot: z.boolean().optional(),
         autoSleepScreenshot: z.boolean().optional(),
+        mealNotes: z.boolean().optional(),
+        mealReactions: z.boolean().optional(),
       })
       .optional(),
     dailyReminder: z.boolean().optional(),

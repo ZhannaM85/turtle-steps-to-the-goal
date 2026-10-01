@@ -1,4 +1,5 @@
 import 'fake-indexeddb/auto'
+import { useTrackedFieldsStore } from "@/stores"
 import { useState } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { render, screen, waitFor, within } from '@testing-library/react'
@@ -45,6 +46,7 @@ function mockScanning(barcode: string) {
 }
 
 beforeEach(async () => {
+  useTrackedFieldsStore.setState(state => ({tracked: {...state.tracked, mealNotes: true, mealReactions: true}}))
   await db.mealItems.clear()
   await db.recipes.clear()
   await db.foodOverrides.clear()
@@ -156,6 +158,24 @@ const defaultProps = {
 }
 
 describe('AddMealDialog (#454)', () => {
+  it('hides optional meal inputs without clearing saved values (#1071)', () => {
+    useTrackedFieldsStore.setState(state => ({
+      tracked: { ...state.tracked, mealNotes: false, mealReactions: false },
+    }))
+    const onNoteChange = vi.fn()
+    const onReactionChange = vi.fn()
+    render(<AddMealDialog {...defaultProps}
+      items={[{ id: 'i1', name: 'Oatmeal', amountKcal: 250 }]}
+      note="saved note" reaction="happy"
+      onNoteChange={onNoteChange} onReactionChange={onReactionChange}
+      onAppendItems={vi.fn()} onRemoveItem={vi.fn()}
+    />)
+    expect(screen.queryByRole('button', { name: 'Note about breakfast' })).not.toBeInTheDocument()
+    expect(screen.queryByText('saved note')).not.toBeInTheDocument()
+    expect(screen.queryByText('Was it tasty?')).not.toBeInTheDocument()
+    expect(onNoteChange).not.toHaveBeenCalled()
+    expect(onReactionChange).not.toHaveBeenCalled()
+  })
   it('shows the meal label and time field', () => {
     render(<ControlledAddMealDialog {...defaultProps} />)
 

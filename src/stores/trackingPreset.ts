@@ -20,6 +20,8 @@ export type TrackingPreset = 'simple' | 'full'
  * the user defines one, so there's nothing to hide for someone who hasn't.
  */
 const SIMPLE_TRACKED_FIELDS: Record<TrackedField, boolean> = {
+  mealNotes: false,
+  mealReactions: false,
   sleep: false,
   steps: false,
   bodyMeasurements: false,
@@ -40,6 +42,8 @@ const SIMPLE_TRACKED_FIELDS: Record<TrackedField, boolean> = {
  * layout," not "whatever the store's current default happens to be" if
  * that ever drifts independently of this preset. */
 const FULL_TRACKED_FIELDS: Record<TrackedField, boolean> = {
+  mealNotes: false,
+  mealReactions: false,
   sleep: true,
   steps: true,
   bodyMeasurements: true,

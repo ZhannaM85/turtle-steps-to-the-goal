@@ -771,6 +771,8 @@ describe('SettingsScreen', () => {
           fiber: true,
           zeppScreenshot: true,
           autoSleepScreenshot: true,
+          mealNotes: false,
+          mealReactions: false,
         },
       })
       renderSettings()
@@ -793,6 +795,8 @@ describe('SettingsScreen', () => {
           fiber: true,
           zeppScreenshot: true,
           autoSleepScreenshot: true,
+          mealNotes: false,
+          mealReactions: false,
         },
       })
       renderSettings()

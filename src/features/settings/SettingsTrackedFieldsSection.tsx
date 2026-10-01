@@ -117,6 +117,8 @@ export function SettingsTrackedFieldsSection() {
     'dayTotals',
     'fiber',
     'plannedMeals',
+    'mealNotes',
+    'mealReactions',
     'copyYesterdayMeals',
     'mealKcalVsYesterday',
     'ldlImpact',
@@ -153,6 +155,10 @@ export function SettingsTrackedFieldsSection() {
     description: string
   } {
     switch (key) {
+      case 'mealNotes':
+        return { label: t.settings.mealNotesTrackingLabel, description: t.settings.trackedFieldHintMealNotes }
+      case 'mealReactions':
+        return { label: t.settings.mealReactionsTrackingLabel, description: t.settings.trackedFieldHintMealReactions }
       case 'sleep':
         return {
           label: t.dailyEntry.sleepLabel,

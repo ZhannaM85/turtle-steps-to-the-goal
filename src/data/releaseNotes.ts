@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1044,
+    issue: 1071,
+    date: "2026-10-01T23:19:31.069+03:00",
+    en: "Meal notes and meal/food reactions are off by default; enable either in Settings → What to track.",
+    ru: "Заметки к приёмам пищи и реакции на еду по умолчанию выключены; включить их можно в Настройках → Что отслеживать.",
+  },
+  {
     version: 1043,
     issue: 1067,
     date: "2026-10-01T22:48:25.437+03:00",

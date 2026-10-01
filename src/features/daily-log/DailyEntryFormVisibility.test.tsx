@@ -38,6 +38,8 @@ describe('DailyEntryForm', () => {
           fiber: true,
           zeppScreenshot: true,
           autoSleepScreenshot: true,
+          mealNotes: false,
+          mealReactions: false,
         },
       })
       render(

@@ -3,9 +3,19 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useLocaleStore } from '@/i18n'
 import { MealItemEditorSheet } from './MealItemEditorSheet'
+import { useTrackedFieldsStore } from '@/stores/trackedFieldsStore'
 
 afterEach(() => {
   useLocaleStore.setState({ locale: 'en' })
+  useTrackedFieldsStore.setState(state => ({ tracked: { ...state.tracked, mealReactions: false } }))
+})
+
+it('shows food reactions only when enabled (#1071)', () => {
+  const { rerender } = render(sheetElement())
+  expect(screen.queryByText('Reaction')).not.toBeInTheDocument()
+  useTrackedFieldsStore.setState(state => ({ tracked: { ...state.tracked, mealReactions: true } }))
+  rerender(sheetElement())
+  expect(screen.getByText('Reaction')).toBeInTheDocument()
 })
 
 function sheetElement(brand = '') {

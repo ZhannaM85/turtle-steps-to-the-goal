@@ -110,6 +110,7 @@ export function calories(
 }
 
 beforeEach(async () => {
+  useTrackedFieldsStore.setState(state => ({tracked: {...state.tracked, mealNotes: true, mealReactions: true}}))
   await db.mealItems.clear()
   useMealItemStore.setState({ items: [], status: 'idle', error: null })
   useMealLabelPresetStore.setState({ presets: [] })

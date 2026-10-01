@@ -9,6 +9,7 @@ import { Textarea } from '@/shared/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { CholesterolImpactFields } from './CholesterolImpactFields'
 import { EmotionPicker } from './EmotionPicker'
+import { useTrackedFieldsStore } from '@/stores'
 import { MealItemFormSection } from './MealItemFormSection'
 import { MealItemHomemadeCheckbox } from './MealItemHomemadeCheckbox'
 import { MealItemNumberField } from './MealItemNumberField'
@@ -122,6 +123,7 @@ export function MealItemEditorSections({
 }) {
   const t = useTranslation()
   const locale = useLocale()
+  const reactionsEnabled = useTrackedFieldsStore((state) => state.tracked.mealReactions)
 
   return (
     <>
@@ -363,7 +365,7 @@ export function MealItemEditorSections({
         </div>
       )}
 
-      <MealItemFormSection heading={t.dailyEntry.itemEmotionLabel}>
+      {reactionsEnabled && <MealItemFormSection heading={t.dailyEntry.itemEmotionLabel}>
         <EmotionPicker
           value={emotion}
           onChange={onEmotionChange}
@@ -372,7 +374,7 @@ export function MealItemEditorSections({
           contextLabel={name || undefined}
           size="icon-xl"
         />
-      </MealItemFormSection>
+      </MealItemFormSection>}
 
       <MealItemFormSection heading={t.dailyEntry.itemNoteLabel}>
         <Textarea

@@ -165,6 +165,10 @@ export const settings: SettingsDict = {
     waterTrackingLabel: 'Отслеживание воды',
     plannedMealsTrackingLabel: 'Запланированные приёмы пищи',
     eatingReasonTrackingLabel: 'Почему я сейчас ем?',
+    mealNotesTrackingLabel: 'Заметки к приёмам пищи',
+    mealReactionsTrackingLabel: 'Реакции на приёмы пищи и блюда',
+    trackedFieldHintMealNotes: 'Показывать карандаш для заметки к приёму пищи. Отключение не удаляет сохранённые заметки.',
+    trackedFieldHintMealReactions: 'Показывать реакции на приёмы пищи и оценки блюд. Отключение не удаляет сохранённые реакции.',
     customEatingReasonsLabel: 'Свои причины',
     customEatingReasonsDescription:
       'Стандартные причины и те, что вы добавите. Все они появятся в списке приёма пищи.',

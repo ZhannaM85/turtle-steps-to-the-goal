@@ -1,4 +1,5 @@
 import 'fake-indexeddb/auto'
+import { useTrackedFieldsStore } from "@/stores"
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -29,6 +30,7 @@ function mealItem(overrides: Partial<MealItem> = {}): MealItem {
 }
 
 beforeEach(async () => {
+  useTrackedFieldsStore.setState(state => ({tracked: {...state.tracked, mealNotes: true, mealReactions: true}}))
   await db.foodOverrides.clear()
   await db.mealItems.clear()
   useFoodOverrideStore.setState({ overrides: [], status: 'idle', error: null })

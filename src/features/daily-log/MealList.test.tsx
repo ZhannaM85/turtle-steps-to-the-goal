@@ -1,4 +1,5 @@
 import 'fake-indexeddb/auto'
+import { useTrackedFieldsStore } from "@/stores"
 import { useState } from 'react'
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -49,6 +50,7 @@ function makeDailyEntry(overrides: Partial<DailyEntry> = {}): DailyEntry {
 }
 
 beforeEach(async () => {
+  useTrackedFieldsStore.setState(state => ({tracked: {...state.tracked, mealNotes: true, mealReactions: true}}))
   await db.dailyEntries.clear()
   await db.mealItems.clear()
   await db.recipes.clear()

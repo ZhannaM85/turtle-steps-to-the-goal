@@ -14,6 +14,7 @@ import { Button } from '@/shared/ui/button'
 import { CholesterolImpactIndicator } from './CholesterolImpactIndicator'
 import { ConfirmDeleteEntryBar } from './ConfirmDeleteEntryBar'
 import { EmotionPicker } from './EmotionPicker'
+import { useTrackedFieldsStore } from '@/stores'
 
 export function AddMealDialogComposition({
   items,
@@ -60,6 +61,7 @@ export function AddMealDialogComposition({
   onConfirmingMealDeleteChange: (confirming: boolean) => void
 }) {
   const t = useTranslation()
+  const reactionsEnabled = useTrackedFieldsStore((state) => state.tracked.mealReactions)
   const locale = useLocale()
   const ldlImpactEnabled = useLdlImpactStore((state) => state.enabled)
   const [selectedIds, setSelectedIds] = useState<string[] | null>(null)
@@ -324,10 +326,11 @@ export function AddMealDialogComposition({
                 </div>
               )}
               <div className="flex flex-col gap-3 pt-2 pb-4">
-                <span className="text-sm text-muted-foreground">
-                  {t.dailyEntry.wasItTastyLabel}
-                </span>
-                <EmotionPicker
+                {reactionsEnabled && <>
+                  <span className="text-sm text-muted-foreground">
+                    {t.dailyEntry.wasItTastyLabel}
+                  </span>
+                  <EmotionPicker
                   value={reaction}
                   onChange={onReactionChange}
                   options={DAY_EMOTIONS}
@@ -336,6 +339,7 @@ export function AddMealDialogComposition({
                   layout="spread"
                   contextLabel={mealLabel}
                 />
+                </>}
                 {mealNoteField}
                 {deleteMealSection}
               </div>

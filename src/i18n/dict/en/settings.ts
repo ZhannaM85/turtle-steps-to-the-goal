@@ -163,6 +163,10 @@ export const settings: SettingsDict = {
     waterTrackingLabel: 'Water tracking',
     plannedMealsTrackingLabel: 'Planned meals',
     eatingReasonTrackingLabel: 'Why am I eating?',
+    mealNotesTrackingLabel: 'Meal notes',
+    mealReactionsTrackingLabel: 'Meal and food reactions',
+    trackedFieldHintMealNotes: 'Show the pencil to add or edit a meal note. Turning this off keeps saved notes.',
+    trackedFieldHintMealReactions: 'Show meal reactions and thumbs up/down for foods. Turning this off keeps saved reactions.',
     customEatingReasonsLabel: 'Your reasons',
     customEatingReasonsDescription:
       'Built-in reasons plus any you add. They all show up in the meal dropdown.',

@@ -1,3 +1,4 @@
+import { useTrackedFieldsStore } from "@/stores/trackedFieldsStore"
 import { describe, expect, it } from 'vitest'
 import {
   applyPortableDayToggles,
@@ -11,6 +12,13 @@ import {
   collectSettingsPreferences,
 } from './settingsPreferences'
 import { settingsPreferencesSchema } from './settingsPreferencesSchema'
+
+it("round-trips optional meal toggles including false (#1071)", () => {
+  applySettingsPreferences(settingsPreferencesSchema.parse({ trackedFields: { mealNotes: true, mealReactions: false } }))
+  expect(collectSettingsPreferences().trackedFields).toMatchObject({ mealNotes: true, mealReactions: false })
+  applySettingsPreferences({ trackedFields: { mealNotes: false, mealReactions: true } })
+  expect(useTrackedFieldsStore.getState().tracked).toMatchObject({ mealNotes: false, mealReactions: true })
+})
 
 describe('portable Day toggles (#861)', () => {
   it('marks every portable toggle on the settings schema', () => {

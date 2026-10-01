@@ -181,6 +181,10 @@ export interface SettingsDict {
     plannedMealsTrackingLabel: string
     /** #764 — opt-in "Why am I eating?" on Add meal. */
     eatingReasonTrackingLabel: string
+    mealNotesTrackingLabel: string
+    mealReactionsTrackingLabel: string
+    trackedFieldHintMealNotes: string
+    trackedFieldHintMealReactions: string
     /** #765 — extra reason labels shown in the Add-meal dropdown. */
     customEatingReasonsLabel: string
     customEatingReasonsDescription: string

@@ -23,6 +23,7 @@ import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { EmotionPicker } from './EmotionPicker'
+import { useTrackedFieldsStore } from '@/stores'
 
 export interface PickedFoodValues {
   amountKcal: number
@@ -136,6 +137,7 @@ export function FoodPickerDialog({
   dailyCalorieTargetKcal,
 }: FoodPickerDialogProps) {
   const t = useTranslation()
+  const reactionsEnabled = useTrackedFieldsStore((state) => state.tracked.mealReactions)
   const locale = useLocale()
   const [search, setSearch] = useState('')
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set())
@@ -761,7 +763,7 @@ export function FoodPickerDialog({
                   />
                 </div>
               ))}
-            {singleSelected && (
+            {singleSelected && reactionsEnabled && (
               <div className="flex flex-col gap-1.5">
                 <Label>{t.dailyEntry.itemEmotionLabel}</Label>
                 <EmotionPicker
