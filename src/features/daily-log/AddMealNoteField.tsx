@@ -1,8 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
-import { Pencil } from 'lucide-react'
 import { useTranslation } from '@/i18n'
-import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
+import { NoteEditor } from './NoteEditor'
 
 function isNightFoodMealLabel(mealLabel: string) {
   const normalized = mealLabel.trim().toLowerCase()
@@ -10,9 +8,9 @@ function isNightFoodMealLabel(mealLabel: string) {
 }
 
 /**
- * #1059 — a night-food note starts as a pencil while empty, and stays an
- * open field once it has text or the pencil is tapped. Other meals keep
- * the always-visible note field.
+ * #1059 — a night-food note starts as a pencil while empty.
+ * #1063 — opening it uses the day-note editor (save, cancel, confirmed
+ * delete). Other meals stay an always-visible field saved with the meal.
  */
 export function AddMealNoteField({
   mealLabel,
@@ -28,36 +26,25 @@ export function AddMealNoteField({
   const nightCopy = t.dailyEntry.mealNotePlaceholder(mealLabel)
   const label = night ? nightCopy : t.dailyEntry.mealNoteLabel
   const placeholder = night ? nightCopy : t.dailyEntry.mealNotePlaceholder(mealLabel)
-  const [opened, setOpened] = useState(() => note.trim() !== '')
-  const openedByUser = useRef(false)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const showInput = !night || opened || note.trim() !== ''
 
-  useEffect(() => {
-    if (openedByUser.current) inputRef.current?.focus()
-  }, [opened])
-
-  if (!showInput) {
+  if (night) {
     return (
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-touch"
-        className="self-start"
-        aria-label={label}
-        onClick={() => {
-          openedByUser.current = true
-          setOpened(true)
-        }}
-      >
-        <Pencil aria-hidden="true" />
-      </Button>
+      <NoteEditor
+        label={label}
+        placeholder={placeholder}
+        value={note}
+        onSave={onNoteChange}
+        saveLabel={t.dailyEntry.saveNoteLabel}
+        cancelLabel={t.dailyEntry.cancelEditNoteLabel}
+        editLabel={t.dailyEntry.editNoteLabel}
+        deleteLabel={t.dailyEntry.deleteNoteLabel}
+        confirmDeleteLabel={t.dailyEntry.confirmDeleteNoteLabel}
+      />
     )
   }
 
   return (
     <Input
-      ref={inputRef}
       type="text"
       aria-label={label}
       placeholder={placeholder}

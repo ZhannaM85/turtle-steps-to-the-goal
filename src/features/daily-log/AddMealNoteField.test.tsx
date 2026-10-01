@@ -37,7 +37,7 @@ describe('AddMealNoteField (#1059)', () => {
     expect(screen.queryByRole('button', { name: 'Note about night food' })).not.toBeInTheDocument()
   })
 
-  it('hides an empty night-food note behind a pencil, then opens it', async () => {
+  it('opens an empty night-food note with day-note save and cancel (#1063)', async () => {
     const user = userEvent.setup()
     render(<ControlledNote mealLabel="Night food" />)
 
@@ -47,19 +47,55 @@ describe('AddMealNoteField (#1059)', () => {
     const note = screen.getByRole('textbox', { name: 'Note about night food' })
     expect(note).toHaveAttribute('placeholder', 'Note about night food')
     expect(note).toHaveFocus()
+    expect(screen.getByRole('button', { name: 'Save note' })).toBeDisabled()
+
     await user.type(note, 'tea')
     expect(note).toHaveValue('tea')
+    await user.click(screen.getByRole('button', { name: 'Cancel editing note' }))
+
+    expect(screen.queryByRole('textbox', { name: 'Note about night food' })).not.toBeInTheDocument()
+    expect(screen.queryByText('tea')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Note about night food' })).toBeInTheDocument()
   })
 
-  it('keeps a filled night-food note open', () => {
+  it('saves a night-food note and reverts an edit to the last saved text (#1063)', async () => {
+    const user = userEvent.setup()
+    render(<ControlledNote mealLabel="Night food" />)
+
+    await user.click(screen.getByRole('button', { name: 'Note about night food' }))
+    await user.type(screen.getByRole('textbox', { name: 'Note about night food' }), 'tea')
+    await user.click(screen.getByRole('button', { name: 'Save note' }))
+
+    expect(screen.getByText('tea')).toBeInTheDocument()
+    expect(screen.queryByRole('textbox', { name: 'Note about night food' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Edit note' }))
+    const note = screen.getByRole('textbox', { name: 'Note about night food' })
+    await user.clear(note)
+    await user.type(note, 'water')
+    await user.click(screen.getByRole('button', { name: 'Cancel editing note' }))
+
+    expect(screen.getByText('tea')).toBeInTheDocument()
+    expect(screen.queryByText('water')).not.toBeInTheDocument()
+    expect(screen.queryByRole('textbox', { name: 'Note about night food' })).not.toBeInTheDocument()
+  })
+
+  it('shows a saved night-food note, and delete collapses it to the pencil', async () => {
+    const user = userEvent.setup()
     render(<ControlledNote mealLabel="Night food" initialNote="already written" />)
 
-    expect(screen.getByRole('textbox', { name: 'Note about night food' })).toHaveValue(
-      'already written',
-    )
+    expect(screen.getByText('already written')).toBeInTheDocument()
+    expect(screen.queryByRole('textbox', { name: 'Note about night food' })).not.toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: 'Note about night food' }),
     ).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Delete note' }))
+    expect(screen.getByText('Delete this note?')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
+
+    expect(screen.queryByText('already written')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Note about night food' })).toBeInTheDocument()
   })
 
   it('uses «Заметка о ночной еде» for the Russian night-food note', async () => {

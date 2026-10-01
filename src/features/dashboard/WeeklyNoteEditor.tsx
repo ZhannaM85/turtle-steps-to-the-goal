@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { Check, Pencil, X } from 'lucide-react'
+import { Pencil } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { truncateDayNote } from '@/features/dashboard/dayNotePreview'
+import { ConfirmDeleteEntryBar } from '@/features/daily-log/ConfirmDeleteEntryBar'
+import { NoteEditRow } from '@/features/daily-log/NoteEditRow'
 import { useWeeklyNoteStore } from '@/stores'
+import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
 import { Button } from '@/shared/ui/button'
-import { Textarea } from '@/shared/ui/textarea'
 
 const WEEKLY_NOTE_PREVIEW_MAX_CHARS = 80
 
@@ -13,10 +15,10 @@ export interface WeeklyNoteEditorProps {
 }
 
 /**
- * Per-week freeform note on Dashboard weekly recap (#557) — edit opens a
- * textarea; empty saves delete the row. Preview uses the same truncate
- * helper as day-note chips (#540). **#571**: long notes toggle collapsed
- * preview ↔ full text without requiring Edit.
+ * Per-week freeform note on Dashboard weekly recap (#557). Preview uses
+ * the same truncate helper as day-note chips (#540). **#571**: long notes
+ * toggle collapsed preview ↔ full text without requiring Edit.
+ * **#1063**: editing uses the day-note row (save, cancel, confirmed delete).
  */
 export function WeeklyNoteEditor({ weekStart }: WeeklyNoteEditorProps) {
   const t = useTranslation()
@@ -27,6 +29,7 @@ export function WeeklyNoteEditor({ weekStart }: WeeklyNoteEditorProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [draft, setDraft] = useState('')
   const [isExpanded, setIsExpanded] = useState(false)
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
 
   const truncated = truncateDayNote(savedNote, WEEKLY_NOTE_PREVIEW_MAX_CHARS)
   const isTruncated =
@@ -36,6 +39,7 @@ export function WeeklyNoteEditor({ weekStart }: WeeklyNoteEditorProps) {
 
   function startEditing() {
     setDraft(savedNote)
+    setIsConfirmingDelete(false)
     setIsEditing(true)
   }
 
@@ -47,41 +51,51 @@ export function WeeklyNoteEditor({ weekStart }: WeeklyNoteEditorProps) {
 
   function cancel() {
     setDraft(savedNote)
+    setIsConfirmingDelete(false)
     setIsEditing(false)
+  }
+
+  async function confirmDelete() {
+    await setNote(weekStart, '')
+    setDraft('')
+    setIsConfirmingDelete(false)
+    setIsEditing(false)
+    setIsExpanded(false)
+  }
+
+  if (isConfirmingDelete) {
+    return (
+      <div className="mt-2 flex flex-col gap-1.5">
+        <span className="text-sm font-medium">{t.dashboard.weeklyNoteLabel}</span>
+        <ConfirmDeleteEntryBar
+          label={t.dailyEntry.confirmDeleteNoteLabel}
+          onConfirm={() => void confirmDelete()}
+          onCancel={() => setIsConfirmingDelete(false)}
+        />
+      </div>
+    )
   }
 
   if (isEditing) {
     return (
-      <div className="mt-2 flex flex-col gap-2">
-        <Textarea
-          aria-label={t.dashboard.weeklyNoteLabel}
-          placeholder={t.dashboard.weeklyNotePlaceholder}
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          rows={3}
+      <div className="mt-2 flex flex-col gap-1.5">
+        <NoteEditRow
+          label={t.dashboard.weeklyNoteLabel}
+          textareaProps={{
+            'aria-label': t.dashboard.weeklyNoteLabel,
+            placeholder: t.dashboard.weeklyNotePlaceholder,
+            value: draft,
+            onChange: (event) => setDraft(event.target.value),
+          }}
+          saveLabel={t.dashboard.saveWeeklyNoteLabel}
+          onSave={() => void save()}
+          saveDisabled={isBlankSaveValue(draft)}
+          cancelLabel={t.dashboard.cancelWeeklyNoteLabel}
+          onCancel={cancel}
+          hasSavedValue={savedNote.trim() !== ''}
+          deleteLabel={t.dailyEntry.deleteNoteLabel}
+          onDelete={() => setIsConfirmingDelete(true)}
         />
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            aria-label={t.dashboard.saveWeeklyNoteLabel}
-            onClick={() => void save()}
-          >
-            <Check aria-hidden="true" />
-            {t.dashboard.saveWeeklyNoteLabel}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            aria-label={t.dashboard.cancelWeeklyNoteLabel}
-            onClick={cancel}
-          >
-            <X aria-hidden="true" />
-            {t.dashboard.cancelWeeklyNoteLabel}
-          </Button>
-        </div>
       </div>
     )
   }

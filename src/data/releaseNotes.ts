@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1039,
+    issue: 1063,
+    date: '2026-10-01T21:43:49+03:00',
+    en: 'On a night-food meal, the note has Save and Cancel, like the day note. Cancel drops unsaved text, and an empty note goes back to the pencil.',
+    ru: 'У ночной еды у заметки появились сохранение и отмена, как у заметки дня. Отмена сбрасывает несохранённый текст, а пустая заметка снова прячется за карандашом.',
+  },
+  {
     version: 1038,
     issue: 1062,
     date: '2026-10-01T21:36:22+03:00',
