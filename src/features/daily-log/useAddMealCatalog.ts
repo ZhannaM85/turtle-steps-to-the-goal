@@ -32,8 +32,6 @@ import {
 import { dedupeMealSearchMatches } from './mealSearchDedupe'
 import { rankRecentMealPickables } from './recentMealPickables'
 
-const RECENT_COUNT = 3
-
 export function useAddMealCatalog({
   locale,
   isOnline,
@@ -56,7 +54,6 @@ export function useAddMealCatalog({
   const catalogImports = useCatalogFoodImportStore((state) => state.imports)
   const setFoodFavorite = useFoodOverrideStore((state) => state.setFavorite)
   const toggleMealItemFavorite = useMealItemStore((state) => state.toggleFavorite)
-  const [showAllRecent, setShowAllRecent] = useState(false)
   const [homemadeOnly, setHomemadeOnly] = useState(false)
   const [onlineHits, setOnlineHits] = useState<OnlineFoodHit[]>([])
   const [onlineSearchStatus, setOnlineSearchStatus] = useState<
@@ -139,11 +136,8 @@ export function useAddMealCatalog({
     foods: visibleFoods,
     imports: catalogImports,
   })
-  const recentItems = homemadeOnly
-    ? homemadeItems
-    : showAllRecent
-      ? recentPool
-      : recentPool.slice(0, RECENT_COUNT)
+  // #1061 — the dropdown shows the full ranked pool and scrolls.
+  const recentItems = homemadeOnly ? homemadeItems : recentPool
   const searchableItems = filterToHomemadeDishes(allItems, homemadeOnly)
   function matchesQuery(item: PickableItem): boolean {
     if (textFor(item).toLowerCase().includes(query)) return true
@@ -225,14 +219,10 @@ export function useAddMealCatalog({
     mealItems,
     allMealItems,
     recentItems,
-    recentPoolCount: recentPool.length,
     matches,
     deleteMode: deleteModeFor,
     deletePickableItem,
     query,
-    showAllRecent,
-    setShowAllRecent,
-    recentCount: RECENT_COUNT,
     homemadeOnly,
     toggleHomemadeOnly: () => setHomemadeOnly((current) => !current),
     onlineHits,

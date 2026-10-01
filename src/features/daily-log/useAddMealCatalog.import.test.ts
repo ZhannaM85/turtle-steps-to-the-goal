@@ -114,19 +114,11 @@ describe('imported catalog foods in meal Recent (#1035)', () => {
       'Лимон',
       'Масло для приготовления',
       'Белый соус с зеленью',
-    ])
-    expect(result.current.recentPoolCount).toBe(6)
-    expect(result.current.matches).toEqual([])
-
-    act(() => result.current.setShowAllRecent(true))
-    expect(result.current.recentItems.map(recentName)).toEqual([
-      'Лимон',
-      'Масло для приготовления',
-      'Белый соус с зеленью',
       'Стручковая фасоль',
       'Лосось/форель на гриле',
       'Куриные котлеты жареные',
     ])
+    expect(result.current.matches).toEqual([])
     expect(result.current.recentItems[0]?.source).toBe('food')
     expect(result.current.recentItems[5]?.source).toBe('mealItem')
 

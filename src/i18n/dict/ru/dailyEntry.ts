@@ -208,8 +208,6 @@ export const dailyEntry: DailyEntryDict = {
     barcodeCopiedLabel: 'Скопировано',
     barcodeCopiedToastMessage: 'Штрихкод скопирован в буфер обмена',
     recentFoodsLabel: 'Недавние',
-    showAllRecentLabel: 'Показать все',
-    collapseRecentLabel: 'Свернуть',
     cantFindItLeadIn: 'Не нашли?',
     cantFindItAddManuallyLabel: 'Добавить вручную',
     quickActionAddFoodLabel: 'Добавить блюдо',

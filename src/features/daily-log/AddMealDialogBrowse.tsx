@@ -18,18 +18,17 @@ import type {
   MealSearchDeleteResult,
 } from './catalogItemDelete'
 
+// #1061 — one scrollport for recents and typed matches. The cap stays
+// inside the visible sheet when the keyboard is open; the inner list
+// must not start a second scrollbar.
 const suggestionPanelClassName =
-  'absolute top-full right-0 left-0 z-30 mt-1 flex flex-col gap-1 rounded-xl bg-popover shadow-md [&_ul]:bg-popover'
+  'absolute top-full right-0 left-0 z-30 mt-1 flex max-h-[min(12rem,35dvh)] flex-col gap-1 overflow-y-auto overscroll-y-contain rounded-xl bg-popover shadow-md [&_ul]:max-h-none [&_ul]:overflow-visible [&_ul]:bg-popover'
 
 export function AddMealDialogBrowse({
   search,
   query,
   matches,
   recentItems,
-  allMealItemsCount,
-  recentCount,
-  showAllRecent,
-  onToggleShowAllRecent,
   textFor,
   isFavorite,
   onToggleFavorite,
@@ -52,10 +51,6 @@ export function AddMealDialogBrowse({
   query: string
   matches: PickableItem[]
   recentItems: PickableItem[]
-  allMealItemsCount: number
-  recentCount: number
-  showAllRecent: boolean
-  onToggleShowAllRecent: () => void
   textFor: (item: PickableItem) => string
   isFavorite: (item: PickableItem) => boolean
   onToggleFavorite: (item: PickableItem) => void
@@ -138,19 +133,6 @@ export function AddMealDialogBrowse({
               t={t}
               locale={locale}
             />
-            {allMealItemsCount > recentCount && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="self-start bg-popover"
-                onClick={onToggleShowAllRecent}
-              >
-                {showAllRecent
-                  ? t.dailyEntry.collapseRecentLabel
-                  : t.dailyEntry.showAllRecentLabel}
-              </Button>
-            )}
           </div>
         )}
         {showSearchDropdown && (

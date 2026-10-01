@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1037,
+    issue: 1061,
+    date: '2026-10-01T20:49:40+03:00',
+    en: 'In add meal, Recent and search results scroll inside the list under the search field. Show all and Collapse are gone.',
+    ru: 'В «Добавить приём пищи» список «Недавние» и результаты поиска прокручиваются под полем. «Показать все» и «Свернуть» убраны.',
+  },
+  {
     version: 1036,
     issue: 1060,
     date: '2026-10-01T20:45:20+03:00',

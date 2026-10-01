@@ -339,12 +339,6 @@ export function AddMealDialog({
                     query={catalog.query}
                     matches={catalog.matches}
                     recentItems={catalog.recentItems}
-                    allMealItemsCount={catalog.recentPoolCount}
-                    recentCount={catalog.recentCount}
-                    showAllRecent={catalog.showAllRecent}
-                    onToggleShowAllRecent={() =>
-                      catalog.setShowAllRecent((current) => !current)
-                    }
                     textFor={catalog.textFor}
                     isFavorite={catalog.isFavorite}
                     onToggleFavorite={catalog.handleToggleFavorite}

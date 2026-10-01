@@ -8,13 +8,6 @@ export interface DailyEntryMealsDict {
      * from `dayMoodLabel`'s whole-day framing), the quantity-confirm
      * step's own Cancel, and the flyout's final "Done" action. */
     recentFoodsLabel: string
-    /** #459 — expands the Recent list past its default 3-item cap to the
-     * full list, matching the mockup's "Show all" link. */
-    showAllRecentLabel: string
-    /** #459 — the same link's other state, once expanded: collapses the
-     * Recent list back to its 3-item cap. Reported live after the initial
-     * "Show all" had no way back. */
-    collapseRecentLabel: string
     /** #991 — empty-search lead-in, kept as plain text beside the action. */
     cantFindItLeadIn: string
     /** #991 — empty-search manual add, a bordered button like search online. */

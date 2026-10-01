@@ -22,10 +22,6 @@ function renderEmptySearch(onOpenManualAdd = vi.fn()) {
       query="honey pie"
       matches={[]}
       recentItems={[]}
-      allMealItemsCount={0}
-      recentCount={3}
-      showAllRecent={false}
-      onToggleShowAllRecent={vi.fn()}
       textFor={() => ''}
       isFavorite={() => false}
       onToggleFavorite={vi.fn()}
@@ -54,7 +50,12 @@ describe('empty food search manual add (#991)', () => {
     await user.click(screen.getByLabelText('Search foods'))
 
     const results = screen.getByRole('region', { name: 'Search results' })
-    expect(results).toHaveClass('z-30', 'bg-popover')
+    expect(results).toHaveClass(
+      'z-30',
+      'bg-popover',
+      'max-h-[min(12rem,35dvh)]',
+      'overflow-y-auto',
+    )
     expect(screen.getByLabelText('Search foods').parentElement).toContainElement(
       results,
     )
@@ -91,10 +92,6 @@ describe('meal search barcode entry (#998)', () => {
         query="honey"
         matches={[]}
         recentItems={[]}
-        allMealItemsCount={0}
-        recentCount={3}
-        showAllRecent={false}
-        onToggleShowAllRecent={vi.fn()}
         textFor={() => ''}
         isFavorite={() => false}
         onToggleFavorite={vi.fn()}
@@ -133,10 +130,6 @@ describe('homemade meal-search chip (#994)', () => {
         query=""
         matches={[]}
         recentItems={[]}
-        allMealItemsCount={0}
-        recentCount={3}
-        showAllRecent={false}
-        onToggleShowAllRecent={vi.fn()}
         textFor={() => ''}
         isFavorite={() => false}
         onToggleFavorite={vi.fn()}
@@ -162,17 +155,13 @@ describe('homemade meal-search chip (#994)', () => {
 })
 
 describe('recent foods dropdown (#1055)', () => {
-  function renderRecents(onPick = vi.fn(), onToggleShowAllRecent = vi.fn()) {
+  function renderRecents(onPick = vi.fn()) {
     render(
       <AddMealDialogBrowse
         search=""
         query=""
         matches={[]}
         recentItems={[soup]}
-        allMealItemsCount={4}
-        recentCount={3}
-        showAllRecent={false}
-        onToggleShowAllRecent={onToggleShowAllRecent}
         textFor={(item) =>
           item.source === 'mealItem' ? item.mealItem.name : ''
         }
@@ -193,7 +182,7 @@ describe('recent foods dropdown (#1055)', () => {
         showEmptyMealNote={false}
       />,
     )
-    return { onPick, onToggleShowAllRecent }
+    return { onPick }
   }
 
   it('hides recents until the empty search field is focused', async () => {
@@ -209,7 +198,16 @@ describe('recent foods dropdown (#1055)', () => {
     const dropdown = screen.getByRole('region', { name: 'Recent' })
     expect(dropdown).toContainElement(screen.getByText('Homemade soup'))
     expect(search.parentElement).toContainElement(dropdown)
-    expect(screen.getByRole('button', { name: 'Show all' })).toBeInTheDocument()
+    expect(dropdown).toHaveClass(
+      'max-h-[min(12rem,35dvh)]',
+      'overflow-y-auto',
+    )
+    expect(
+      screen.queryByRole('button', { name: 'Show all' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Show less' }),
+    ).not.toBeInTheDocument()
   })
 
   it('picks a recent row and closes the dropdown', async () => {
@@ -231,10 +229,6 @@ describe('recent foods dropdown (#1055)', () => {
         query=""
         matches={[]}
         recentItems={[soup]}
-        allMealItemsCount={4}
-        recentCount={3}
-        showAllRecent={false}
-        onToggleShowAllRecent={vi.fn()}
         textFor={(item) =>
           item.source === 'mealItem' ? item.mealItem.name : ''
         }

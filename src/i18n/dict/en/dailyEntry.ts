@@ -199,8 +199,6 @@ export const dailyEntry: DailyEntryDict = {
     barcodeCopiedLabel: 'Copied',
     barcodeCopiedToastMessage: 'Barcode copied to clipboard',
     recentFoodsLabel: 'Recent',
-    showAllRecentLabel: 'Show all',
-    collapseRecentLabel: 'Show less',
     cantFindItLeadIn: "Can't find it?",
     cantFindItAddManuallyLabel: 'Add manually',
     quickActionAddFoodLabel: 'Add food',
