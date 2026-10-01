@@ -6,12 +6,14 @@ import { cn } from '@/shared/lib/utils'
 
 const Dialog = DialogPrimitive.Root
 const DialogTrigger = DialogPrimitive.Trigger
+const DialogClose = DialogPrimitive.Close
 
 function DialogContent({
   className,
   children,
   closeLabel,
   closeClassName,
+  showCloseButton = true,
   size = 'default',
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
@@ -24,6 +26,8 @@ function DialogContent({
    * (#513) centers Close on its `h-9` time widget.
    */
   closeClassName?: string
+  /** A caller with a header-row Close renders its own DialogClose. */
+  showCloseButton?: boolean
   /**
    * 'fullscreen' (#122) is a large flyout instead of the default centered
    * card — for content dense enough that even the 85dvh centered treatment
@@ -74,7 +78,7 @@ function DialogContent({
         {...props}
       >
         {children}
-        <DialogPrimitive.Close
+        {showCloseButton && <DialogPrimitive.Close
           aria-label={closeLabel}
           className={cn(
             'absolute inline-flex size-7 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50',
@@ -85,7 +89,7 @@ function DialogContent({
           )}
         >
           <X className="size-4" aria-hidden="true" />
-        </DialogPrimitive.Close>
+        </DialogPrimitive.Close>}
       </DialogPrimitive.Content>
     </DialogPrimitive.Portal>
   )
@@ -117,4 +121,4 @@ function DialogDescription({
   )
 }
 
-export { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription }
+export { Dialog, DialogTrigger, DialogClose, DialogContent, DialogTitle, DialogDescription }

@@ -2,7 +2,7 @@ import { RotateCcw, X } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
 import { Chip } from '@/shared/ui/chip'
-import { DialogTitle } from '@/shared/ui/dialog'
+import { DialogClose, DialogTitle } from '@/shared/ui/dialog'
 import { ControlWithInfo, InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Label } from '@/shared/ui/label'
 import { TimeInput } from '@/shared/ui/time-input'
@@ -33,12 +33,12 @@ export function AddMealDialogHeader({
   return (
     <div
       data-testid="add-meal-header"
-      className="flex shrink-0 flex-col gap-2 bg-card pr-10"
+      className="flex shrink-0 flex-col gap-2 bg-card"
     >
       <Label htmlFor="add-meal-name">{t.dailyEntry.mealLabelFieldLabel}</Label>
       <div
         data-testid="add-meal-name-row"
-        className="flex items-start justify-between gap-2"
+        className="flex items-center justify-between gap-2"
       >
         <DialogTitle className="sr-only">{mealLabel}</DialogTitle>
         <MealTypePicker
@@ -87,6 +87,17 @@ export function AddMealDialogHeader({
             />
           </ControlWithInfo>
         )}
+        <DialogClose asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-touch"
+            className="shrink-0"
+            aria-label={t.dailyEntry.closeFoodDialogLabel}
+          >
+            <X aria-hidden="true" className="size-5" />
+          </Button>
+        </DialogClose>
       </div>
       {mealLabel.trim() !== '' &&
         !mealLabelSuggestions.includes(mealLabel.trim()) && (

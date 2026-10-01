@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1043,
+    issue: 1067,
+    date: "2026-10-01T22:48:25.437+03:00",
+    en: "The meal sheet close icon lines up with the meal name, time, and repeat controls.",
+    ru: "Кнопка закрытия приёма пищи выровнена с названием, временем и кнопкой повтора.",
+  },
+  {
     version: 1042,
     issue: 1066,
     date: "2026-10-01T22:44:04.883+03:00",

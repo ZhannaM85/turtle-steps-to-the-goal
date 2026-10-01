@@ -245,15 +245,14 @@ export function AddMealDialog({
         <DialogContent
           size="fullscreen"
           closeLabel={t.dailyEntry.closeFoodDialogLabel}
-          closeClassName="top-[calc(env(safe-area-inset-top)+1.25rem)] size-9 [&_svg]:size-5"
+          showCloseButton={false}
           className="flex flex-col overflow-hidden pb-0"
           onOpenAutoFocus={(event) => {
             event.preventDefault()
           }}
         >
-          {/* #999 — title row stays a sibling of the scroll frame so the
-              absolute close sits in this band and list content cannot
-              scroll underneath it. */}
+          {/* #999 / #1067 — header and its row-aligned Close stay outside
+              the scroll frame so list content cannot scroll under them. */}
           <AddMealDialogHeader
             mealLabel={mealLabel}
             onMealLabelChange={onMealLabelChange}

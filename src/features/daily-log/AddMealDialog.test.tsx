@@ -1770,6 +1770,9 @@ describe('AddMealDialog (#454)', () => {
 
     expect(scroll.contains(header)).toBe(false)
     expect(scroll.contains(close)).toBe(false)
+    expect(screen.getByTestId('add-meal-name-row')).toContainElement(close)
+    expect(screen.getByTestId('add-meal-name-row')).toHaveClass('items-center')
+    expect(close).toHaveClass('size-11')
     expect(header).toHaveClass('shrink-0')
     expect(scroll.parentElement?.previousElementSibling).toBe(header)
   })
