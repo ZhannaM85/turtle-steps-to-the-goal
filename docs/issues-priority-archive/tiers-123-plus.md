@@ -946,3 +946,4 @@ _Closed rows only. Open / pending items stay in the active file._
 | [#1056](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1056) | ✅ Done | Add food: recents dropdown covers homemade and the night-food note | Confirmed on-device 2026-10-01. |
 | [#1057](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1057) | ✅ Done | Add food: typed search results as a dropdown under the field | Confirmed on-device 2026-10-01. |
 | [#1058](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1058) | ✅ Done | Add food: hide the Домашнее pill under search | Confirmed on-device 2026-10-01. |
+| [#1059](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1059) | ✅ Done | Add food: night note «Заметка о ночной еде» behind a pencil | Confirmed on-device 2026-10-01. |
