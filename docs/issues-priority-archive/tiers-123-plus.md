@@ -942,3 +942,4 @@ _Closed rows only. Open / pending items stay in the active file._
 |---|--------|-------|-------|
 | [#1053](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1053) | ✅ Done | About: remove redundant subheader under «О приложении» | Confirmed on-device 2026-10-01 — redundant About subheader removed. Release note v1029. |
 | [#1054](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1054) | ✅ Done | Add meal: compact CTAs + catalog JSON import | Confirmed on-device 2026-10-01 — compact actions and catalog JSON import work. Release note v1030. |
+| [#1055](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1055) | ✅ Done | Add food: show Недавние only when search is focused | Confirmed on-device 2026-10-01. |
