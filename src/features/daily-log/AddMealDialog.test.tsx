@@ -1060,7 +1060,15 @@ describe('AddMealDialog (#454)', () => {
       await user.type(search, 'soup')
       const match = await screen.findByText('Homemade soup')
       expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
-      expect(homemade.nextElementSibling).toContainElement(match)
+      const results = screen.getByRole('region', { name: 'Search results' })
+      expect(results).toContainElement(match)
+      expect(results).toContainElement(
+        screen.getByRole('button', { name: 'Search online' }),
+      )
+      expect(search.parentElement).toContainElement(results)
+      expect(results.compareDocumentPosition(homemade)).toBe(
+        Node.DOCUMENT_POSITION_FOLLOWING,
+      )
       expect(search.parentElement?.previousElementSibling).toContainElement(
         addFood,
       )

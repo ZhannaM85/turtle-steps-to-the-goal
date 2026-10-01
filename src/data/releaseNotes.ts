@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1033,
+    issue: 1057,
+    date: '2026-10-01T20:27:00+03:00',
+    en: 'In add meal, foods that match what you type appear under the search field, and Search online is in that list.',
+    ru: 'В «Добавить приём пищи» подходящие продукты появляются под полем поиска, и «Искать онлайн» находится в этом списке.',
+  },
+  {
     version: 1032,
     issue: 1056,
     date: '2026-10-01T20:21:30+03:00',

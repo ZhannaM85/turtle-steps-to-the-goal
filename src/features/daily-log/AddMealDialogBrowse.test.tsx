@@ -55,8 +55,17 @@ describe('empty food search manual add (#991)', () => {
   it('styles Add manually as an outline button and keeps the lead-in as text', async () => {
     const user = userEvent.setup()
     const onOpenManualAdd = renderEmptySearch()
+    await user.click(screen.getByLabelText('Search foods'))
 
-    expect(screen.getByText('No foods found.')).toBeInTheDocument()
+    const results = screen.getByRole('region', { name: 'Search results' })
+    expect(results).toHaveClass('z-30', 'bg-popover')
+    expect(screen.getByLabelText('Search foods').parentElement).toContainElement(
+      results,
+    )
+    expect(results.compareDocumentPosition(screen.getByRole('button', { name: 'Homemade' }))).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+    expect(results).toContainElement(screen.getByText('No foods found.'))
     expect(
       screen.queryByText("Can't find it? Add manually"),
     ).not.toBeInTheDocument()
@@ -67,6 +76,7 @@ describe('empty food search manual add (#991)', () => {
 
     const addManually = screen.getByRole('button', { name: 'Add manually' })
     const searchOnline = screen.getByRole('button', { name: 'Search online' })
+    expect(results).toContainElement(searchOnline)
     expect(addManually).toHaveAttribute('data-variant', 'outline')
     expect(addManually).toHaveAttribute('data-size', 'sm')
     expect(searchOnline).toHaveAttribute('data-variant', 'outline')

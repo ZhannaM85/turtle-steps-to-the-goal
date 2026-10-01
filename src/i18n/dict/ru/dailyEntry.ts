@@ -261,6 +261,7 @@ export const dailyEntry: DailyEntryDict = {
         ? `Ваше окно голодания составило ${hours} ч.`
         : `Ваше окно голодания составило ${hours} ч ${minutes} м.`,
     foodSearchLabel: 'Поиск продуктов',
+    foodSearchResultsLabel: 'Результаты поиска',
     foodSearchPlaceholder: 'Поиск…',
     foodQuantityLabel: 'Количество (г)',
     servingModeLabel: 'Порция',

@@ -253,6 +253,7 @@ export const dailyEntry: DailyEntryDict = {
         ? `Your fasting window was ${hours}h.`
         : `Your fasting window was ${hours}h ${minutes}m.`,
     foodSearchLabel: 'Search foods',
+    foodSearchResultsLabel: 'Search results',
     foodSearchPlaceholder: 'Search…',
     foodQuantityLabel: 'Quantity (g)',
     servingModeLabel: 'Serving',
