@@ -276,6 +276,63 @@ describe('recent foods dropdown (#1055)', () => {
     expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
   })
 
+  it('stacks an opaque recents panel over the homemade chip and meal note (#1056)', async () => {
+    const user = userEvent.setup()
+    render(
+      <AddMealDialogBrowse
+        mealLabel="Night food"
+        search=""
+        query=""
+        matches={[]}
+        recentItems={[soup]}
+        allMealItemsCount={4}
+        recentCount={3}
+        showAllRecent={false}
+        onToggleShowAllRecent={vi.fn()}
+        textFor={(item) =>
+          item.source === 'mealItem' ? item.mealItem.name : ''
+        }
+        isFavorite={() => false}
+        onToggleFavorite={vi.fn()}
+        onPick={vi.fn()}
+        onOpenManualAdd={vi.fn()}
+        onOpenBarcode={vi.fn()}
+        onOpenRecipe={vi.fn()}
+        onImportSharedFood={vi.fn()}
+        onlineHits={[]}
+        onlineSearchStatus="idle"
+        onlineRemoteStatus={null}
+        onRunOnlineSearch={vi.fn()}
+        onPickOnlineHit={vi.fn()}
+        onChangeSearch={vi.fn()}
+        onClearSearch={vi.fn()}
+        homemadeOnly={false}
+        onToggleHomemadeOnly={vi.fn()}
+        mealNoteField={<input aria-label="Note about night food" />}
+        showEmptyMealNote
+      />,
+    )
+
+    const homemade = screen.getByRole('button', { name: 'Homemade' })
+    const note = screen.getByLabelText('Note about night food')
+    const search = screen.getByLabelText('Search foods')
+    expect(search.parentElement).not.toHaveClass('z-30')
+
+    await user.click(search)
+
+    const dropdown = screen.getByRole('region', { name: 'Recent' })
+    expect(dropdown).toHaveClass('z-30', 'bg-popover')
+    expect(search.parentElement).toHaveClass('relative', 'z-30')
+    expect(search.parentElement).toContainElement(dropdown)
+    expect(dropdown.compareDocumentPosition(homemade)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+    expect(dropdown.compareDocumentPosition(note)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+    expect(screen.getByText('Homemade soup')).toBeInTheDocument()
+  })
+
   it('hides the dropdown when focus leaves the field', async () => {
     const user = userEvent.setup()
     renderRecents()

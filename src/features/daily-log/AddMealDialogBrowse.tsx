@@ -90,6 +90,8 @@ export function AddMealDialogBrowse({
   const [catalogImportOpen, setCatalogImportOpen] = useState(false)
   // #1055 — recents are a dropdown under the field, not a section on the
   // page. Open only while the empty field is focused; blur or typing hides it.
+  // #1056 — the panel is an opaque stacking context so the homemade chip
+  // and the meal note, which follow this field, cannot paint through it.
   const [recentDropdownOpen, setRecentDropdownOpen] = useState(false)
   const showRecentDropdown =
     recentDropdownOpen && !query && !homemadeOnly && recentItems.length > 0
@@ -130,7 +132,7 @@ export function AddMealDialogBrowse({
           onOpenChange={setCatalogImportOpen}
         />
       )}
-      <div className="relative">
+      <div className={cn('relative', showRecentDropdown && 'z-30')}>
         <Input
           type="text"
           aria-label={t.dailyEntry.foodSearchLabel}
@@ -162,7 +164,7 @@ export function AddMealDialogBrowse({
           <div
             role="region"
             aria-label={t.dailyEntry.recentFoodsLabel}
-            className="absolute top-full right-0 left-0 z-10 mt-1 flex flex-col gap-1 drop-shadow-md"
+            className="absolute top-full right-0 left-0 z-30 mt-1 flex flex-col gap-1 rounded-xl bg-popover shadow-md [&_ul]:bg-popover"
             onMouseDown={(event) => event.preventDefault()}
           >
             <AddMealPickableItemList

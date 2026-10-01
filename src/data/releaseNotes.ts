@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1032,
+    issue: 1056,
+    date: '2026-10-01T20:21:30+03:00',
+    en: 'In add meal, the recent-foods list covers the homemade filter and the meal note while it is open.',
+    ru: 'В «Добавить приём пищи» список недавних продуктов закрывает «Домашнее» и заметку о приёме пищи, пока он открыт.',
+  },
+  {
     version: 1031,
     issue: 1055,
     date: '2026-10-01T18:32:00+03:00',
