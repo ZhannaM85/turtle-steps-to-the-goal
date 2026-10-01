@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1038,
+    issue: 1062,
+    date: '2026-10-01T21:36:22+03:00',
+    en: 'On add meal, Why am I eating? and Add… open over the page instead of pushing the rest of the sheet down.',
+    ru: 'В «Добавить приём пищи» «Почему я сейчас ем?» и «Добавить…» открываются поверх страницы и больше не сдвигают остальное вниз.',
+  },
+  {
     version: 1037,
     issue: 1061,
     date: '2026-10-01T20:49:40+03:00',

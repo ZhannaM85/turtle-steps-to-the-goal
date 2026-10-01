@@ -21,8 +21,11 @@ interface EatingReasonPickerProps {
 }
 
 /**
- * #774 — Why-am-I-eating control. In-flow list (not a native `<select>`)
- * so several options can stay selected; the closed row shows every pick.
+ * #774 — Why-am-I-eating control. Not a native `<select>`, so several
+ * options can stay selected; the closed row shows every pick.
+ * #1062 — the open list overlays the sheet (same stacking as meal
+ * search suggestions) instead of growing the row and pushing the
+ * search field down.
  */
 export function EatingReasonPicker({
   id,
@@ -40,6 +43,7 @@ export function EatingReasonPicker({
   const fieldId = id ?? generatedId
   const listId = `${fieldId}-list`
   const rootRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
   const [open, setOpen] = useState(false)
 
   const extras = value.filter(
@@ -61,7 +65,9 @@ export function EatingReasonPicker({
       setOpen(false)
     }
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') setOpen(false)
+      if (event.key !== 'Escape') return
+      setOpen(false)
+      triggerRef.current?.focus()
     }
     document.addEventListener('pointerdown', onPointerDown)
     document.addEventListener('keydown', onKeyDown)
@@ -80,9 +86,16 @@ export function EatingReasonPicker({
   }
 
   return (
-    <div ref={rootRef} className="flex flex-col gap-1.5">
+    <div
+      ref={rootRef}
+      className={cn(
+        'relative flex min-w-0 flex-col gap-1.5',
+        open && 'z-30',
+      )}
+    >
       <Label htmlFor={fieldId}>{t.dailyEntry.eatingReasonFieldLabel}</Label>
       <button
+        ref={triggerRef}
         type="button"
         id={fieldId}
         aria-label={t.dailyEntry.eatingReasonFieldLabel}
@@ -109,7 +122,7 @@ export function EatingReasonPicker({
           role="listbox"
           aria-label={t.dailyEntry.eatingReasonFieldLabel}
           aria-multiselectable="true"
-          className="max-h-64 overflow-y-auto overscroll-y-contain rounded-lg border border-input bg-background py-1"
+          className="absolute top-full right-0 left-0 z-30 mt-1 max-h-64 overflow-y-auto overscroll-y-contain rounded-lg border border-input bg-popover py-1 shadow-md"
         >
           <li role="presentation">
             <button

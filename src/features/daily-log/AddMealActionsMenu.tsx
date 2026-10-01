@@ -8,6 +8,8 @@ import { CatalogFoodImportDialog } from './CatalogFoodImportDialog'
 /**
  * #1060 — the five Add-food actions as one dropdown, half of the
  * why-eating row. Choosing an item runs the same handler as the old tile.
+ * #1062 — the menu stays out of flow (`absolute`) so opening it does
+ * not push search or the rest of the sheet.
  */
 export function AddMealActionsMenu({
   mealLabel,

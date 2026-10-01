@@ -998,6 +998,44 @@ describe('AddMealDialog (#454)', () => {
     expect(trigger).toHaveTextContent('Not specified')
   })
 
+  it('opens why-eating and Add… over the sheet without shifting the row (#1062)', async () => {
+    const user = userEvent.setup()
+    useEatingReasonTrackingStore.setState({ enabled: true })
+    render(<ControlledAddMealDialog {...defaultProps} />)
+
+    const reason = screen.getByRole('button', { name: 'Why am I eating?' })
+    const actions = screen.getByRole('button', { name: 'Add…' })
+    const search = screen.getByLabelText('Search foods')
+    const row = reason.closest('.grid')
+    expect(row).toHaveClass('grid-cols-2')
+    expect(row?.nextElementSibling).toBe(search.parentElement)
+
+    await user.click(reason)
+    const list = screen.getByRole('listbox', { name: 'Why am I eating?' })
+    expect(list).toHaveClass('absolute', 'top-full', 'z-30', 'bg-popover')
+    expect(reason.parentElement).toHaveClass('relative', 'z-30')
+    expect(row).toContainElement(list)
+    expect(row?.nextElementSibling).toBe(search.parentElement)
+
+    await user.keyboard('{Escape}')
+    expect(
+      screen.queryByRole('listbox', { name: 'Why am I eating?' }),
+    ).not.toBeInTheDocument()
+    expect(reason).toHaveFocus()
+    expect(row?.nextElementSibling).toBe(search.parentElement)
+
+    await user.click(actions)
+    const menu = screen.getByRole('menu', { name: 'Add…' })
+    expect(menu).toHaveClass('absolute', 'top-full', 'z-30', 'bg-popover')
+    expect(actions.parentElement).toHaveClass('relative', 'z-30')
+    expect(row).toContainElement(menu)
+    expect(row?.nextElementSibling).toBe(search.parentElement)
+
+    await user.click(actions)
+    expect(screen.queryByRole('menu', { name: 'Add…' })).not.toBeInTheDocument()
+    expect(row?.nextElementSibling).toBe(search.parentElement)
+  })
+
   it('asks before removing an item from the meal so far (#509)', async () => {
     const user = userEvent.setup()
     const onRemoveItem = vi.fn()
