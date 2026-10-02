@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1048,
+    issue: 1073,
+    date: "2026-10-02T14:02:10.678+03:00",
+    en: "On Day, water scrolls away with the day, and only the calorie and macro line stays pinned.",
+    ru: "На «Дне» вода уходит вместе с днём при прокрутке, а закреплённой остаётся только строка калорий и БЖУ.",
+  },
+  {
     version: 1047,
     issue: 1072,
     date: "2026-10-02T11:34:22.386+03:00",

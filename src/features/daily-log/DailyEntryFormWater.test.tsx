@@ -4,9 +4,14 @@ import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {
+  DAY_SECTION_PIN_STORAGE_KEY,
+  DEFAULT_TODAY_SECTIONS,
+  useDaySectionPinStore,
+  useTodaySectionsCollapseStore,
   useWaterTrackingStore,
 } from '@/stores'
 import { DailyEntryForm } from './DailyEntryForm'
+import { DayPinnedFlow, DayPinProvider } from './DaySectionPin'
 import {
   now,
   render,
@@ -318,6 +323,41 @@ describe('DailyEntryForm', () => {
       expect(
         screen.queryByRole('heading', { name: 'Edit water' }),
       ).not.toBeInTheDocument()
+    })
+
+    it('does not pin or stick collapsed water (#1073)', () => {
+      useWaterTrackingStore.setState({ enabled: true })
+      useTodaySectionsCollapseStore.setState({
+        sections: { ...DEFAULT_TODAY_SECTIONS, water: true },
+      })
+      localStorage.setItem(
+        DAY_SECTION_PIN_STORAGE_KEY,
+        JSON.stringify({ state: { pinned: ['water', 'macros'] }, version: 0 }),
+      )
+      useDaySectionPinStore.persist.rehydrate()
+      render(
+        <DayPinProvider>
+          <div data-slot="day-intro" />
+          <DayPinnedFlow />
+          <DailyEntryForm
+            date="2026-03-01"
+            existingEntry={null}
+            onSave={vi.fn()}
+          />
+        </DayPinProvider>,
+      )
+
+      const water = document.getElementById('water-entry-section')
+      expect(water).not.toBeNull()
+      expect(water?.closest('[data-day-section="water"]')).toBeNull()
+      expect(water?.closest('.sticky')).toBeNull()
+      expect(
+        within(water as HTMLElement).queryByRole('button', { name: 'Pin to top' }),
+      ).not.toBeInTheDocument()
+      expect(
+        within(water as HTMLElement).queryByRole('button', { name: 'Unpin' }),
+      ).not.toBeInTheDocument()
+      expect(document.querySelector('[data-day-pin-flow="water"]')).toBeNull()
     })
   })
 

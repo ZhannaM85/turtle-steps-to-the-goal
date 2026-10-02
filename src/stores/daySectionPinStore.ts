@@ -11,7 +11,6 @@ export const DAY_SECTION_PIN_IDS = [
   'dayTotals',
   'meals',
   'plannedMeals',
-  'water',
   'customMetrics',
   'evening',
   'nightFood',
