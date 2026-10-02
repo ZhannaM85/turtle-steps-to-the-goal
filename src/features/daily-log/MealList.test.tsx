@@ -282,8 +282,8 @@ describe('MealList', () => {
     // (Dinner) is the default. Yesterday's free-text «Lunch two» stays off.
     expect(screen.getByLabelText('Meal name')).toHaveTextContent('Dinner')
     expect(
-      screen.getByRole('button', { name: "Repeat yesterday's dinner?" }),
-    ).toBeInTheDocument()
+      screen.queryByRole('button', { name: "Repeat yesterday's dinner?" }),
+    ).not.toBeInTheDocument()
     expect(screen.queryByDisplayValue('Lunch two')).not.toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: /Lunch two/ }),
@@ -333,11 +333,10 @@ describe('MealList', () => {
     )
 
     // Unlabeled first meal displays as Breakfast; next unused is Lunch.
-    // Repeat still copies yesterday's foods under that unused title.
     expect(screen.getByLabelText('Meal name')).toHaveTextContent('Lunch')
     expect(
-      screen.getByRole('button', { name: "Repeat yesterday's lunch?" }),
-    ).toBeInTheDocument()
+      screen.queryByRole('button', { name: "Repeat yesterday's lunch?" }),
+    ).not.toBeInTheDocument()
     expect(screen.queryByDisplayValue('Night food')).not.toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: "Repeat yesterday's night food?" }),
@@ -388,8 +387,8 @@ describe('MealList', () => {
     expect(screen.getByLabelText('Meal name')).toHaveTextContent('Dinner')
     expect(screen.queryByDisplayValue('Lunch')).not.toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: "Repeat yesterday's dinner?" }),
-    ).toBeInTheDocument()
+      screen.queryByRole('button', { name: "Repeat yesterday's dinner?" }),
+    ).not.toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: "Repeat yesterday's lunch?" }),
     ).not.toBeInTheDocument()

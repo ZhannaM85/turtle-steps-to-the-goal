@@ -2,10 +2,7 @@ import { useEffect, useState } from 'react'
 import type { CalorieItem, Emotion } from '@/domain/dailyEntry'
 import { type NutritionFactId } from '@/domain/nutritionFacts'
 import { useLocale, useTranslation } from '@/i18n'
-import {
-  mealLabelSuggestionsForLocale,
-  repeatMealDisplayLabel,
-} from '@/shared/lib/mealLabel'
+import { mealLabelSuggestionsForLocale } from '@/shared/lib/mealLabel'
 import { useOnlineStatus } from '@/shared/hooks'
 import {
   useCatalogFoodImportStore,
@@ -26,7 +23,6 @@ import { LogRecipeDialog } from '@/features/recipes'
 import { BarcodeScannerDialog } from './BarcodeScannerDialog'
 import { EatingReasonPicker } from './EatingReasonPicker'
 import type { PickedFoodValues } from './FoodPickerDialog'
-import { RepeatMealDialog } from './RepeatMealDialog'
 import { calorieItemFromImportedFood } from './addMealDialogHelpers'
 import { addMealDialogPreviews } from './addMealDialogPreviews'
 import { AddMealActionsMenu } from './AddMealActionsMenu'
@@ -56,7 +52,6 @@ export interface AddMealDialogProps {
   onTimeEatenChange: (value: string) => void
   note: string
   onNoteChange: (value: string) => void
-  previousMeal?: { label?: string; items: CalorieItem[] }
   items: CalorieItem[]
   reaction: Emotion | undefined
   onReactionChange: (reaction: Emotion | undefined) => void
@@ -94,7 +89,6 @@ export function AddMealDialog({
   onTimeEatenChange,
   note,
   onNoteChange,
-  previousMeal,
   items,
   reaction,
   onReactionChange,
@@ -111,9 +105,6 @@ export function AddMealDialog({
 }: AddMealDialogProps) {
   const t = useTranslation()
   const locale = useLocale()
-  // #997 / #1000 — a cleared name stays empty in the field, but the
-  // confirm still needs a real meal type (never empty quotes).
-  const repeatMealName = repeatMealDisplayLabel(t, mealLabel, mealPosition)
   const isOnline = useOnlineStatus()
   const eatingReasonTrackingEnabled = useEatingReasonTrackingStore(
     (state) => state.enabled,
@@ -147,7 +138,6 @@ export function AddMealDialog({
   }, [])
 
   const [search, setSearch] = useState('')
-  const [isRepeatOpen, setIsRepeatOpen] = useState(false)
   const [isRecipeOpen, setIsRecipeOpen] = useState(false)
   const [isBarcodeOpen, setIsBarcodeOpen] = useState(false)
   const [isConfirmingMealDelete, setIsConfirmingMealDelete] = useState(false)
@@ -170,18 +160,6 @@ export function AddMealDialog({
     setSearch,
     openPickedItemSheet: sheet.openPickedItemSheet,
   })
-
-  function handleRepeatConfirm(selected: CalorieItem[]) {
-    if (selected.length === 0) return
-    const cloned = selected.map((item) => ({
-      ...item,
-      id: crypto.randomUUID(),
-      emotion: undefined,
-    }))
-    onAppendItems(cloned)
-    for (const item of cloned) sheet.touchIfPersonal(item)
-    setIsRepeatOpen(false)
-  }
 
   function handleRecipeLog(values: PickedFoodValues[]) {
     const newItems: CalorieItem[] = values.map((value) => ({
@@ -252,9 +230,8 @@ export function AddMealDialog({
             event.preventDefault()
           }}
         >
-          {/* #999 / #1076 — title, close, repeat toolbar, name, and time
-              stay outside the scroll frame so list content cannot scroll
-              under them. */}
+          {/* #999 / #1076 — title, close, name, and time stay outside
+              the scroll frame so list content cannot scroll under them. */}
           <AddMealDialogHeader
             mealLabel={mealLabel}
             onMealLabelChange={onMealLabelChange}
@@ -262,14 +239,6 @@ export function AddMealDialog({
             onTimeEatenChange={onTimeEatenChange}
             mealLabelSuggestions={mealLabelSuggestions}
             onSaveMealNameAsTemplate={addMealLabelPreset}
-            repeatYesterdayLabel={t.dailyEntry.repeatMealDialogTitle(
-              repeatMealName,
-            )}
-            onRepeatYesterday={
-              previousMeal && previousMeal.items.length > 0
-                ? () => setIsRepeatOpen(true)
-                : undefined
-            }
           />
           {/* #996 — WebKit sizes a lone `flex-1` / `overflow-y-auto` child to
               its content (`flex-basis: 0%` does not resolve against `h-dvh`),
@@ -403,15 +372,6 @@ export function AddMealDialog({
                 {t.dailyEntry.doneAddingMealButton}
               </Button>
             </div>
-          )}
-          {isRepeatOpen && previousMeal && (
-            <RepeatMealDialog
-              open={isRepeatOpen}
-              onOpenChange={setIsRepeatOpen}
-              mealLabel={repeatMealName}
-              items={previousMeal.items}
-              onConfirm={handleRepeatConfirm}
-            />
           )}
           {isRecipeOpen && (
             <LogRecipeDialog

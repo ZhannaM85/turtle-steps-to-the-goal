@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1053,
+    issue: 1078,
+    date: "2026-10-02T23:19:51.092+03:00",
+    en: "Add meal no longer shows the repeat and info icons under the title.",
+    ru: "В «Добавить приём пищи» больше нет значков повтора и подсказки под заголовком.",
+  },
+  {
     version: 1052,
     issue: 1077,
     date: "2026-10-02T23:13:02.168+03:00",

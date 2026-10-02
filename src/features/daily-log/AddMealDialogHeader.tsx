@@ -1,9 +1,8 @@
-import { RotateCcw, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import { Button } from '@/shared/ui/button'
 import { Chip } from '@/shared/ui/chip'
 import { DialogClose, DialogTitle } from '@/shared/ui/dialog'
-import { ControlWithInfo, InfoTooltip } from '@/shared/ui/info-tooltip'
 import { Label } from '@/shared/ui/label'
 import { TimeInput } from '@/shared/ui/time-input'
 import { MealTypePicker } from './MealTypePicker'
@@ -23,8 +22,6 @@ export function AddMealDialogHeader({
   onTimeEatenChange,
   mealLabelSuggestions,
   onSaveMealNameAsTemplate,
-  repeatYesterdayLabel,
-  onRepeatYesterday,
 }: {
   mealLabel: string
   onMealLabelChange: (value: string) => void
@@ -32,10 +29,6 @@ export function AddMealDialogHeader({
   onTimeEatenChange: (value: string) => void
   mealLabelSuggestions: string[]
   onSaveMealNameAsTemplate: (name: string) => void
-  /** #1000 — set only when yesterday has foods to copy. No title tooltip.
-   * #1003 — the same condition shows the info tip beside the arrow. */
-  repeatYesterdayLabel?: string
-  onRepeatYesterday?: () => void
 }) {
   const t = useTranslation()
   return (
@@ -60,29 +53,6 @@ export function AddMealDialogHeader({
           </Button>
         </DialogClose>
       </div>
-      {onRepeatYesterday && repeatYesterdayLabel && (
-        <div
-          data-testid="add-meal-repeat-toolbar"
-          className="flex justify-end"
-        >
-          <ControlWithInfo>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-touch"
-              className="shrink-0"
-              aria-label={repeatYesterdayLabel}
-              onClick={onRepeatYesterday}
-            >
-              <RotateCcw aria-hidden="true" />
-            </Button>
-            <InfoTooltip
-              text={t.dailyEntry.repeatMealInfoText}
-              label={t.dailyEntry.repeatMealInfoLabel}
-            />
-          </ControlWithInfo>
-        </div>
-      )}
       <div data-testid="add-meal-name-row" className={MEAL_CONTROL_ROW}>
         <div className="flex min-w-0 flex-col gap-1.5">
           <Label htmlFor="add-meal-name">{t.dailyEntry.mealLabelFieldLabel}</Label>

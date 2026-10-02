@@ -276,14 +276,11 @@ export function MealList({
   // `inProgressMealId` tracks which CalorieEntry the flyout is currently
   // building: null until the *first* item this session is actually added,
   // at which point a new entry is created and every subsequent add (search
-  // pick, barcode scan, Repeat, recipe, manual entry) appends to that same
+  // pick, barcode scan, recipe, manual entry) appends to that same
   // entry instead of creating a new one — the flyout stays open across
   // several single-dish adds (resolved via `AskUserQuestion`) rather than
-  // closing after each one. `newMealPosition`/`newMealPreviousMeal` are
-  // captured once at the moment the flyout opens (openAddMealDialog below),
-  // not recomputed reactively — `calorieEntries.length` grows the instant
-  // the first item lands, which would otherwise drift `previousMeal`
-  // (keyed by position) to the *next* slot mid-session.
+  // closing after each one. `newMealPosition` is captured once when the
+  // flyout opens (openAddMealDialog below), not recomputed reactively.
   const [isAddMealDialogOpen, setIsAddMealDialogOpen] = useState(false)
   const [inProgressMealId, setInProgressMealId] = useState<string | null>(null)
   const [newMealTime, setNewMealTime] = useState(currentTimeHHMM())
@@ -299,9 +296,6 @@ export function MealList({
     undefined,
   )
   const [newMealPosition, setNewMealPosition] = useState(1)
-  const [newMealPreviousMeal, setNewMealPreviousMeal] = useState<
-    CalorieEntry | undefined
-  >(undefined)
   // #491 — Done sets this so closing the dialog keeps the in-progress
   // meal; X / escape / overlay leave it false and we discard (#494 asks
   // first when that discard would drop foods already added this session).
@@ -313,9 +307,6 @@ export function MealList({
     setNewMealNote('')
     setNewMealEatingReasons([])
     setNewMealPosition(calorieEntries.length + 1)
-    const previous =
-      previousDayEntry?.calorieEntries?.[calorieEntries.length]
-    setNewMealPreviousMeal(previous)
     // #844 / #1075 — next unused template in the stored Settings order
     // (locale defaults when nothing is stored), starting at this meal's
     // position, skipping names already logged today. #843 — titles still
@@ -745,8 +736,7 @@ export function MealList({
   }
 
   // #253: every meal from the source day with at least one item, for
-  // "Copy yesterday's meals" — independent of the single-position matching
-  // `previousMeal` above uses, and available regardless of how many meals
+  // "Copy yesterday's meals", available regardless of how many meals
   // today already has.
   const previousDayMealGroups = (previousDayEntry?.calorieEntries ?? []).filter(
     (group) => group.items.length > 0,
@@ -1073,7 +1063,6 @@ export function MealList({
           onTimeEatenChange={updateNewMealTime}
           note={newMealNote}
           onNoteChange={updateNewMealNote}
-          previousMeal={newMealPreviousMeal}
           items={inProgressMeal?.items ?? []}
           reaction={inProgressMeal?.reaction}
           onReactionChange={setNewMealReaction}

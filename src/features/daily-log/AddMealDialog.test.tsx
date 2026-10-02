@@ -935,19 +935,11 @@ describe('AddMealDialog (#454)', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('keeps the title and repeat toolbar, with name and time on one row above why-eating (#1077)', () => {
+  it('keeps the title, with name and time on one row above why-eating (#1077)', () => {
     useEatingReasonTrackingStore.setState({ enabled: true })
-    render(
-      <ControlledAddMealDialog
-        {...defaultProps}
-        previousMeal={{
-          items: [{ id: 'yi1', name: 'Eggs', amountKcal: 150 }],
-        }}
-      />,
-    )
+    render(<ControlledAddMealDialog {...defaultProps} />)
 
     const title = screen.getByRole('heading', { name: 'Add a meal' })
-    const toolbar = screen.getByTestId('add-meal-repeat-toolbar')
     const nameTime = screen.getByTestId('add-meal-name-row')
     const mealName = screen.getByRole('button', { name: 'Meal name' })
     const time = screen.getByLabelText('Time')
@@ -955,12 +947,11 @@ describe('AddMealDialog (#454)', () => {
     const search = screen.getByLabelText('Search foods')
     const following = Node.DOCUMENT_POSITION_FOLLOWING
 
-    expect(title.compareDocumentPosition(toolbar) & following).toBeTruthy()
-    expect(toolbar.compareDocumentPosition(nameTime) & following).toBeTruthy()
+    expect(screen.queryByTestId('add-meal-repeat-toolbar')).not.toBeInTheDocument()
+    expect(title.compareDocumentPosition(nameTime) & following).toBeTruthy()
     expect(nameTime.compareDocumentPosition(why) & following).toBeTruthy()
     expect(why.compareDocumentPosition(search) & following).toBeTruthy()
 
-    expect(toolbar).toHaveClass('justify-end')
     expect(nameTime).toHaveClass(
       'grid',
       'grid-cols-2',
@@ -1319,8 +1310,7 @@ describe('AddMealDialog (#454)', () => {
 
       // The saved dish is also touched into the personal library, so once
       // search is empty again it can legitimately show up a second time in
-      // "Recent" — scope this assertion to the meal-so-far list itself,
-      // same reasoning as the "Repeat yesterday's meal" test below.
+      // "Recent" — scope this assertion to the meal-so-far list itself.
       const mealSoFar = screen.getByText('This meal so far').closest('div')!
       expect(mealSoFar).toHaveTextContent('Homemade soup')
     })
@@ -1669,73 +1659,17 @@ describe('AddMealDialog (#454)', () => {
     })
   })
 
-  describe("Repeat yesterday's meal", () => {
-    it('offers to repeat when a previous meal is passed, appending the selected items', async () => {
-      const user = userEvent.setup()
-      render(
-        <ControlledAddMealDialog
-          {...defaultProps}
-          previousMeal={{
-            items: [{ id: 'yi1', name: 'Eggs', amountKcal: 150 }],
-          }}
-        />,
-      )
+  it('does not show repeat or info icons in the meal sheet (#1078)', () => {
+    render(<ControlledAddMealDialog {...defaultProps} mealLabel="" mealPosition={2} />)
 
-      const repeat = screen.getByRole('button', {
-        name: "Repeat yesterday's breakfast?",
-      })
-      expect(repeat).not.toHaveAttribute('title')
-      expect(repeat).not.toHaveClass('w-full')
-      expect(screen.getByTestId('add-meal-header')).toContainElement(repeat)
-      expect(screen.getByTestId('add-meal-repeat-toolbar')).toContainElement(repeat)
-      expect(screen.getByTestId('add-meal-repeat-toolbar')).toHaveClass('justify-end')
-      expect(screen.getByTestId('add-meal-name-row')).not.toContainElement(repeat)
-      expect(screen.getByTestId('add-meal-scroll')).not.toContainElement(repeat)
-      await user.click(repeat)
-      await user.click(screen.getByRole('button', { name: 'Add selected' }))
-
-      // A repeated item is also touched into the personal library, so once
-      // search is empty again it can legitimately show up a second time in
-      // "Recent" — scope this assertion to the meal-so-far list itself.
-      const mealSoFar = screen.getByText('This meal so far').closest('div')!
-      expect(mealSoFar).toHaveTextContent('Eggs')
-    })
-
-    it('does not offer to repeat when there is no previous meal', () => {
-      render(<ControlledAddMealDialog {...defaultProps} />)
-
-      expect(
-        screen.queryByRole('button', { name: /Repeat yesterday's/i }),
-      ).not.toBeInTheDocument()
-    })
-
-    it('uses the positional meal type when the meal name is empty (#997)', async () => {
-      const user = userEvent.setup()
-      render(
-        <ControlledAddMealDialog
-          {...defaultProps}
-          mealLabel=""
-          mealPosition={2}
-          previousMeal={{
-            label: 'Lunch two',
-            items: [{ id: 'yi1', name: 'Eggs', amountKcal: 150 }],
-          }}
-        />,
-      )
-
-      expect(screen.getByLabelText('Meal name')).toHaveTextContent('Not selected')
-      expect(
-        screen.queryByRole('button', { name: /Lunch two/ }),
-      ).not.toBeInTheDocument()
-      expect(screen.queryByText(/«\s*»/)).not.toBeInTheDocument()
-
-      await user.click(
-        screen.getByRole('button', { name: "Repeat yesterday's lunch?" }),
-      )
-      expect(
-        screen.getByRole('heading', { name: "Repeat yesterday's lunch?" }),
-      ).toBeInTheDocument()
-    })
+    expect(screen.queryByTestId('add-meal-repeat-toolbar')).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: /Repeat yesterday/i }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: "About repeating yesterday's meal" }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Not selected')
   })
 
   describe('logging a recipe', () => {
