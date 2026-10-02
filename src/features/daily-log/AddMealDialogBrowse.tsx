@@ -18,11 +18,15 @@ import type {
   MealSearchDeleteResult,
 } from './catalogItemDelete'
 
-// #1061 — one scrollport for recents and typed matches. The cap stays
-// inside the visible sheet when the keyboard is open; the inner list
+// #1061 — one scrollport for recents and typed matches. The inner list
 // must not start a second scrollbar.
+// #1068 — `min(12rem, 35dvh)` stuck at two rows once the visible viewport
+// was taller than ~34rem, leaving empty sheet above the keyboard. Fill
+// the space under the search field (about 18rem of chrome above the
+// panel), never grow past the old 35dvh cap on a short keyboard viewport,
+// and stop at 28rem when the keyboard is closed.
 const suggestionPanelClassName =
-  'absolute top-full right-0 left-0 z-30 mt-1 flex max-h-[min(12rem,35dvh)] flex-col gap-1 overflow-y-auto overscroll-y-contain rounded-xl bg-popover shadow-md [&_ul]:max-h-none [&_ul]:overflow-visible [&_ul]:bg-popover'
+  'absolute top-full right-0 left-0 z-30 mt-1 flex max-h-[min(28rem,max(35dvh,calc(100dvh-18rem)))] flex-col gap-1 overflow-y-auto overscroll-y-contain rounded-xl bg-popover shadow-md [&_ul]:max-h-none [&_ul]:overflow-visible [&_ul]:bg-popover'
 
 export function AddMealDialogBrowse({
   search,

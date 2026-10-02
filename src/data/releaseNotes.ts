@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1045,
+    issue: 1068,
+    date: "2026-10-02T11:22:37.481+03:00",
+    en: "The food list under search on Add meal is taller, so more foods fit above the keyboard.",
+    ru: "Список еды под поиском в «Добавить приём пищи» стал выше, и над клавиатурой помещается больше блюд.",
+  },
+  {
     version: 1044,
     issue: 1071,
     date: "2026-10-01T23:19:31.069+03:00",

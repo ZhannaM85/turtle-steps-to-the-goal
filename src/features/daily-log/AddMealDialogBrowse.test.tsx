@@ -53,7 +53,7 @@ describe('empty food search manual add (#991)', () => {
     expect(results).toHaveClass(
       'z-30',
       'bg-popover',
-      'max-h-[min(12rem,35dvh)]',
+      'max-h-[min(28rem,max(35dvh,calc(100dvh-18rem)))]',
       'overflow-y-auto',
     )
     expect(screen.getByLabelText('Search foods').parentElement).toContainElement(
@@ -199,7 +199,7 @@ describe('recent foods dropdown (#1055)', () => {
     expect(dropdown).toContainElement(screen.getByText('Homemade soup'))
     expect(search.parentElement).toContainElement(dropdown)
     expect(dropdown).toHaveClass(
-      'max-h-[min(12rem,35dvh)]',
+      'max-h-[min(28rem,max(35dvh,calc(100dvh-18rem)))]',
       'overflow-y-auto',
     )
     expect(
