@@ -102,30 +102,27 @@ export function localizeLeftoverEnglishMealPresets(
   return result
 }
 
-/** Built-in Breakfast/Lunch/… names in every locale — used to hide
- * other-locale defaults from the Add-meal type list (#567). */
-export function allLocaleDefaultMealNames(): Set<string> {
-  return new Set(
-    ALL_LOCALES.flatMap(
-      (locale) => getDictionary(locale).dailyEntry.defaultMealNamePresets,
-    ),
-  )
+function localeForDictionary(t: Dictionary): Locale {
+  for (const locale of ALL_LOCALES) {
+    if (getDictionary(locale) === t) return locale
+  }
+  return 'en'
 }
 
 /**
- * #563/#567 — active-locale defaults first, then custom Settings presets
- * that are not a built-in default in any locale (so EN leftovers don't
- * appear beside RU names after a language switch).
+ * #1075 — Settings and every meal-name picker share one stored sequence.
+ * Leftover English built-ins are rewritten in place for the active locale
+ * (#817/#567) so a language switch does not leave "Breakfast" beside
+ * «Завтрак», and built-in names stay where the user put them. An empty
+ * list still offers the four locale defaults, because nothing is stored
+ * to order yet (#563).
  */
 export function mealLabelSuggestionsForLocale(
   t: Dictionary,
   presets: readonly string[],
 ): string[] {
-  const builtIns = allLocaleDefaultMealNames()
-  return [
-    ...t.dailyEntry.defaultMealNamePresets,
-    ...presets.filter((preset) => !builtIns.has(preset)),
-  ]
+  if (presets.length === 0) return [...t.dailyEntry.defaultMealNamePresets]
+  return localizeLeftoverEnglishMealPresets(presets, localeForDictionary(t))
 }
 
 /**
@@ -151,9 +148,10 @@ export function seedAddMealLabelFromPrevious(
 }
 
 /**
- * #844 — first Settings/built-in template not already used today, walking
- * `allowedTemplates` (built-ins, then Settings meal-name templates) from
- * `startIndex` (the new meal's 0-based position) and wrapping once.
+ * #844 — first template not already used today, walking
+ * `allowedTemplates` (the stored Settings order, or the four locale
+ * defaults when nothing is stored — #1075) from `startIndex` (the new
+ * meal's 0-based position) and wrapping once.
  * Returns undefined when every template is already used so the field can
  * stay unset for a chip pick, instead of repeating a used name.
  */

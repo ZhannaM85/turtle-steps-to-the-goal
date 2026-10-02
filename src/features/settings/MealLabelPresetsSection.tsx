@@ -1,5 +1,21 @@
-import { useEffect, useState } from 'react'
-import { Check, Pencil, Trash2 } from 'lucide-react'
+import { useEffect, useState, type ReactNode } from 'react'
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { Check, GripVertical, Pencil, Trash2 } from 'lucide-react'
 import { getDictionary, useLocale, useTranslation, type Locale } from '@/i18n'
 import { localizeLeftoverEnglishMealPresets } from '@/shared/lib/mealLabel'
 import { ConfirmDeleteEntryBar } from '@/features/daily-log/ConfirmDeleteEntryBar'
@@ -9,6 +25,35 @@ import { Input } from '@/shared/ui/input'
 
 const ALL_LOCALES: Locale[] = ['en', 'ru']
 
+function SortablePresetRow({
+  preset,
+  children,
+}: {
+  preset: string
+  children: (dragHandle: ReactNode) => ReactNode
+}) {
+  const t = useTranslation()
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: preset })
+  const style = { transform: CSS.Transform.toString(transform), transition }
+  const dragHandle = (
+    <button
+      type="button"
+      aria-label={t.settings.reorderPresetLabel(preset)}
+      className="shrink-0 cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
+      {...attributes}
+      {...listeners}
+    >
+      <GripVertical aria-hidden="true" className="size-4" />
+    </button>
+  )
+  return (
+    <li ref={setNodeRef} style={style} className="flex flex-col gap-2">
+      {children(dragHandle)}
+    </li>
+  )
+}
+
 export function MealLabelPresetsSection() {
   const t = useTranslation()
   const locale = useLocale()
@@ -16,6 +61,19 @@ export function MealLabelPresetsSection() {
   const addPreset = useMealLabelPresetStore((state) => state.addPreset)
   const renamePreset = useMealLabelPresetStore((state) => state.renamePreset)
   const removePreset = useMealLabelPresetStore((state) => state.removePreset)
+  const reorderPresets = useMealLabelPresetStore((state) => state.reorderPresets)
+  const dragSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  )
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    reorderPresets(String(active.id), String(over.id))
+  }
   const [newPreset, setNewPreset] = useState('')
   const [editingPreset, setEditingPreset] = useState<string | null>(null)
   const [editDraft, setEditDraft] = useState('')
@@ -75,9 +133,17 @@ export function MealLabelPresetsSection() {
           {t.settings.mealNamePresetsEmpty}
         </p>
       ) : (
+        <DndContext
+          sensors={dragSensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext items={presets} strategy={verticalListSortingStrategy}>
         <ul className="flex flex-col gap-2">
           {presets.map((preset) => (
-            <li key={preset} className="flex flex-col gap-2">
+            <SortablePresetRow key={preset} preset={preset}>
+              {(dragHandle) => (
+                <>
               {pendingDelete === preset ? (
                 <ConfirmDeleteEntryBar
                   label={t.dailyEntry.confirmDeleteNamedLabel(preset)}
@@ -89,6 +155,7 @@ export function MealLabelPresetsSection() {
                 />
               ) : null}
               <div className="flex items-center gap-2">
+              {dragHandle}
               {editingPreset === preset ? (
                 <Input
                   type="text"
@@ -145,9 +212,13 @@ export function MealLabelPresetsSection() {
                 </Button>
               </div>
               </div>
-            </li>
+                </>
+              )}
+            </SortablePresetRow>
           ))}
         </ul>
+          </SortableContext>
+        </DndContext>
       )}
       <div className="flex items-center gap-2">
         <Input

@@ -57,7 +57,13 @@ describe('mealLabel helpers', () => {
   })
 
   it('seedAddMealLabelFromPrevious keeps templates and drops free-text (#843)', () => {
-    const templates = mealLabelSuggestionsForLocale(en, ['Night food'])
+    const templates = mealLabelSuggestionsForLocale(en, [
+      'Breakfast',
+      'Lunch',
+      'Dinner',
+      'Snack',
+      'Night food',
+    ])
     expect(seedAddMealLabelFromPrevious('Lunch', templates)).toBe('Lunch')
     expect(seedAddMealLabelFromPrevious('Night food', templates)).toBe(
       'Night food',
@@ -69,7 +75,13 @@ describe('mealLabel helpers', () => {
   })
 
   it('nextUnusedMealTemplate skips names already used today (#844)', () => {
-    const templates = mealLabelSuggestionsForLocale(en, ['Night food'])
+    const templates = mealLabelSuggestionsForLocale(en, [
+      'Breakfast',
+      'Lunch',
+      'Dinner',
+      'Snack',
+      'Night food',
+    ])
     expect(nextUnusedMealTemplate(templates, [], 0)).toBe('Breakfast')
     expect(nextUnusedMealTemplate(templates, ['Breakfast'], 1)).toBe('Lunch')
     expect(nextUnusedMealTemplate(templates, ['Lunch'], 1)).toBe('Dinner')
@@ -100,9 +112,45 @@ describe('mealLabel helpers', () => {
 
     const ruTemplates = mealLabelSuggestionsForLocale(ru, [])
     expect(nextUnusedMealTemplate(ruTemplates, ['Обед'], 1)).toBe('Ужин')
+    expect(
+      nextUnusedMealTemplate(
+        mealLabelSuggestionsForLocale(en, ['Night food', 'Breakfast', 'Lunch']),
+        [],
+        0,
+      ),
+    ).toBe('Night food')
   })
 
-  it('mealLabelSuggestionsForLocale hides other-locale built-ins (#567)', () => {
+  it('mealLabelSuggestionsForLocale keeps the stored order (#1075)', () => {
+    expect(
+      mealLabelSuggestionsForLocale(ru, [
+        'Ночная еда',
+        'Перекус',
+        'Завтрак',
+        'Обед',
+        'Ужин',
+      ]),
+    ).toEqual(['Ночная еда', 'Перекус', 'Завтрак', 'Обед', 'Ужин'])
+
+    expect(
+      mealLabelSuggestionsForLocale(en, ['Snack', 'Breakfast', 'Brunch']),
+    ).toEqual(['Snack', 'Breakfast', 'Brunch'])
+
+    expect(mealLabelSuggestionsForLocale(en, [])).toEqual([
+      'Breakfast',
+      'Lunch',
+      'Dinner',
+      'Snack',
+    ])
+    expect(mealLabelSuggestionsForLocale(ru, [])).toEqual([
+      'Завтрак',
+      'Обед',
+      'Ужин',
+      'Перекус',
+    ])
+  })
+
+  it('localizes leftover English built-ins in place (#567/#817/#1075)', () => {
     expect(
       mealLabelSuggestionsForLocale(ru, [
         'Breakfast',
@@ -110,11 +158,11 @@ describe('mealLabel helpers', () => {
         'Перекус',
         'Brunch',
       ]),
-    ).toEqual(['Завтрак', 'Обед', 'Ужин', 'Перекус', 'Brunch'])
+    ).toEqual(['Завтрак', 'Перекус', 'Brunch'])
 
     expect(
       mealLabelSuggestionsForLocale(en, ['Завтрак', 'Snack', 'Brunch']),
-    ).toEqual(['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Brunch'])
+    ).toEqual(['Завтрак', 'Snack', 'Brunch'])
   })
 
   it('localizeLeftoverEnglishMealPresets rewrites English built-ins only (#817)', () => {

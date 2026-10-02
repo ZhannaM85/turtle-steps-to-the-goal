@@ -168,6 +168,8 @@ export interface SettingsDict {
     /** #811 — rename a saved meal-name preset in Settings. */
     editPresetLabel: (name: string) => string
     savePresetLabel: (name: string) => string
+    /** #1075 — drag handle that reorders a saved meal-name template. */
+    reorderPresetLabel: (name: string) => string
     releaseNotesLabel: string
     showReleaseNotes: string
     hideReleaseNotes: string

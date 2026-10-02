@@ -16,6 +16,8 @@ interface MealLabelPresetStoreState {
   addPreset: (name: string) => void
   renamePreset: (from: string, to: string) => void
   removePreset: (name: string) => void
+  /** #1075 — array index is the shared order Settings and every picker use. */
+  reorderPresets: (activeName: string, overName: string) => void
 }
 
 export const useMealLabelPresetStore = create<MealLabelPresetStoreState>()(
@@ -43,6 +45,18 @@ export const useMealLabelPresetStore = create<MealLabelPresetStoreState>()(
         set((state) => ({
           presets: state.presets.filter((preset) => preset !== name),
         })),
+      reorderPresets: (activeName, overName) =>
+        set((state) => {
+          const oldIndex = state.presets.indexOf(activeName)
+          const newIndex = state.presets.indexOf(overName)
+          if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) {
+            return state
+          }
+          const presets = [...state.presets]
+          const [moved] = presets.splice(oldIndex, 1)
+          presets.splice(newIndex, 0, moved)
+          return { presets }
+        }),
     }),
     {
       name: 'turtle-steps-meal-label-presets',

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1050,
+    issue: 1075,
+    date: "2026-10-02T22:16:55.002+03:00",
+    en: "Meal name templates can be dragged into order in Settings, and every meal-name list uses that same order.",
+    ru: "Шаблоны названий приёма пищи в настройках можно перетаскивать, и в том же порядке они показываются при выборе названия.",
+  },
+  {
     version: 1049,
     issue: 1074,
     date: "2026-10-02T19:00:53.977+03:00",

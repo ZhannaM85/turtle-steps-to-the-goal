@@ -316,11 +316,12 @@ export function MealList({
     const previous =
       previousDayEntry?.calorieEntries?.[calorieEntries.length]
     setNewMealPreviousMeal(previous)
-    // #844 — next unused built-in / Settings template in list order,
-    // starting at this meal's position, skipping names already logged
-    // today. #843 — titles still come from templates only (never
-    // yesterday's free-text). Empty string when every template is used
-    // so `editableMealLabel` does not fall back to a used positional name.
+    // #844 / #1075 — next unused template in the stored Settings order
+    // (locale defaults when nothing is stored), starting at this meal's
+    // position, skipping names already logged today. #843 — titles still
+    // come from templates only (never yesterday's free-text). Empty
+    // string when every template is used so `editableMealLabel` does not
+    // fall back to a used positional name.
     const templates = mealLabelSuggestionsForLocale(t, mealLabelPresets)
     const usedToday = calorieEntries.map((entry, index) =>
       effectiveMealLabel(t, index + 1, entry.label),

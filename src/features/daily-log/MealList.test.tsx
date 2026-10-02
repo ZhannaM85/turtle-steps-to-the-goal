@@ -291,7 +291,9 @@ describe('MealList', () => {
   })
 
   it('prefills the next unused template, not yesterday’s same-position template (#843/#844)', async () => {
-    useMealLabelPresetStore.setState({ presets: ['Night food'] })
+    useMealLabelPresetStore.setState({
+      presets: ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Night food'],
+    })
     await db.dailyEntries.put(
       makeDailyEntry({
         date: '2026-02-28',
@@ -394,7 +396,9 @@ describe('MealList', () => {
   })
 
   it('uses a Settings template once the built-ins are taken today (#844)', async () => {
-    useMealLabelPresetStore.setState({ presets: ['Night food'] })
+    useMealLabelPresetStore.setState({
+      presets: ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Night food'],
+    })
     const user = userEvent.setup()
     render(
       <ControlledMealList

@@ -1,9 +1,30 @@
-import { render, screen } from '@testing-library/react'
+import type { ReactNode } from 'react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useLocaleStore } from '@/i18n'
 import { useMealLabelPresetStore } from '@/stores'
 import { MealLabelPresetsSection } from './MealLabelPresetsSection'
+
+// jsdom has no layout, so a real pointer drag cannot produce dnd-kit
+// collision rects. The test invokes this screen's onDragEnd directly.
+let capturedOnDragEnd:
+  | ((event: { active: { id: string }; over: { id: string } | null }) => void)
+  | undefined
+
+vi.mock('@dnd-kit/core', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@dnd-kit/core')>()
+  return {
+    ...actual,
+    DndContext: (props: {
+      onDragEnd: typeof capturedOnDragEnd
+      children: ReactNode
+    }) => {
+      capturedOnDragEnd = props.onDragEnd
+      return props.children
+    },
+  }
+})
 
 beforeEach(() => {
   useMealLabelPresetStore.setState({ presets: [] })
@@ -28,6 +49,50 @@ describe('MealLabelPresetsSection', () => {
 
     expect(screen.getByText('Breakfast')).toBeInTheDocument()
     expect(screen.getByText('Lunch')).toBeInTheDocument()
+  })
+
+  it('reorders presets from the drag handle and keeps that order (#1075)', () => {
+    useMealLabelPresetStore.setState({
+      presets: ['Breakfast', 'Lunch', 'Dinner'],
+    })
+    render(<MealLabelPresetsSection />)
+
+    expect(
+      screen.getByRole('button', { name: 'Reorder "Breakfast"' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Reorder "Dinner"' }),
+    ).toBeInTheDocument()
+
+    act(() => {
+      capturedOnDragEnd?.({
+        active: { id: 'Dinner' },
+        over: { id: 'Breakfast' },
+      })
+    })
+
+    expect(useMealLabelPresetStore.getState().presets).toEqual([
+      'Dinner',
+      'Breakfast',
+      'Lunch',
+    ])
+    const rows = screen.getAllByRole('listitem')
+    expect(rows[0]).toHaveTextContent('Dinner')
+    expect(rows[1]).toHaveTextContent('Breakfast')
+    expect(rows[2]).toHaveTextContent('Lunch')
+
+    act(() => {
+      capturedOnDragEnd?.({
+        active: { id: 'Dinner' },
+        over: { id: 'Dinner' },
+      })
+      capturedOnDragEnd?.({ active: { id: 'Dinner' }, over: null })
+    })
+    expect(useMealLabelPresetStore.getState().presets).toEqual([
+      'Dinner',
+      'Breakfast',
+      'Lunch',
+    ])
   })
 
   it('disables Add until the field has non-whitespace text (#810)', async () => {

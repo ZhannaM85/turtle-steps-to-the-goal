@@ -156,6 +156,7 @@ export const settings: SettingsDict = {
     deletePresetLabel: (name) => `Удалить «${name}»`,
     editPresetLabel: (name) => `Изменить «${name}»`,
     savePresetLabel: (name) => `Сохранить «${name}»`,
+    reorderPresetLabel: (name) => `Изменить порядок «${name}»`,
     releaseNotesLabel: 'История изменений',
     showReleaseNotes: 'Показать историю изменений',
     hideReleaseNotes: 'Скрыть историю изменений',

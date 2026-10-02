@@ -264,20 +264,19 @@ describe('AddMealDialog (#454)', () => {
     expect(screen.queryByText('Meal type')).not.toBeInTheDocument()
   })
 
-  it('does not offer other-locale default meal names in the dropdown (#567)', async () => {
+  it('lists meal-name templates in the stored Settings order (#1075)', async () => {
     const user = userEvent.setup()
     useMealLabelPresetStore.setState({
-      presets: ['Завтрак', 'Обед', 'Brunch'],
+      presets: ['Snack', 'Завтрак', 'Brunch', 'Breakfast'],
     })
     render(<ControlledAddMealDialog {...defaultProps} />)
 
     await user.click(screen.getByRole('button', { name: 'Meal name' }))
-    expect(screen.getByRole('option', { name: 'Breakfast' })).toBeInTheDocument()
-    expect(screen.getByRole('option', { name: 'Brunch' })).toBeInTheDocument()
     expect(
-      screen.queryByRole('option', { name: 'Завтрак' }),
-    ).not.toBeInTheDocument()
-    expect(screen.queryByRole('option', { name: 'Обед' })).not.toBeInTheDocument()
+      screen.getAllByRole('option').map((option) => option.textContent?.trim()),
+    ).toEqual(['Snack', 'Завтрак', 'Brunch', 'Breakfast'])
+    expect(screen.queryByRole('option', { name: 'Lunch' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('option', { name: 'Dinner' })).not.toBeInTheDocument()
   })
 
   it('does not auto-focus the time field on open (#487)', () => {
