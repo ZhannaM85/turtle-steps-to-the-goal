@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1051,
+    issue: 1076,
+    date: "2026-10-02T22:24:17.695+03:00",
+    en: "Add meal shows the title and close on one row, repeat and info on the right underneath, and the meal name and time at the same width as Why am I eating?",
+    ru: "В «Добавить приём пищи» заголовок и крестик стоят в одной строке, повтор и подсказка — справа под ней, а название и время такой же ширины, как «Почему я сейчас ем?».",
+  },
+  {
     version: 1050,
     issue: 1075,
     date: "2026-10-02T22:16:55.002+03:00",

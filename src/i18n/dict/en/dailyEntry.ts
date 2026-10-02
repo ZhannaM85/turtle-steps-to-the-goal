@@ -151,6 +151,7 @@ export const dailyEntry: DailyEntryDict = {
     clearTimeLabel: 'Clear time',
     clearFoodSearchLabel: 'Clear search',
     addMealLabel: '+ Add a meal',
+    addMealDialogTitle: 'Add a meal',
     emptyMealsTitle: 'No meals yet',
     emptyMealsDescription: 'Add the first meal for this day when you are ready.',
     expandAddMealLabel: '+ Add another meal',

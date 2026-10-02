@@ -278,6 +278,8 @@ export interface DailyEntryFieldsDict {
     /** #691 — empty-day trigger opening the "add a meal" flyout
      * (`AddMealDialog`); no «another» / «ещё» because nothing is logged yet. */
     addMealLabel: string
+    /** #1076 — visible title of the add/edit meal sheet. */
+    addMealDialogTitle: string
     /** #879 — Day meals empty (EmptyState), no illustration. */
     emptyMealsTitle: string
     emptyMealsDescription: string

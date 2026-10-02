@@ -129,7 +129,7 @@ describe('DailyEntryForm', () => {
         screen.getByRole('button', { name: '+ Add a meal' }),
       )
       expect(
-        screen.getByRole('heading', { name: 'Breakfast' }),
+        screen.getByRole('heading', { name: 'Add a meal' }),
       ).toBeInTheDocument()
 
       await openAddItemFlow(user)
@@ -143,7 +143,7 @@ describe('DailyEntryForm', () => {
         screen.getByRole('button', { name: '+ Add another meal' }),
       )
       expect(
-        screen.getByRole('heading', { name: 'Lunch' }),
+        screen.getByRole('heading', { name: 'Add a meal' }),
       ).toBeInTheDocument()
     })
 

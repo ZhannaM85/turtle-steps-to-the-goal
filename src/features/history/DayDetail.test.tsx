@@ -278,7 +278,7 @@ describe('DayDetail', () => {
       // (no /entry/:date/meal/:mealId route). Exhaustive edit/save
       // coverage lives in MealList.test.tsx / AddMealDialog.test.tsx.
       expect(
-        screen.getByRole('dialog', { name: 'Breakfast' }),
+        screen.getByRole('dialog', { name: 'Add a meal' }),
       ).toBeInTheDocument()
       expect(screen.queryByLabelText('Weight (kg)')).not.toBeInTheDocument()
       expect(onSaved).not.toHaveBeenCalled()

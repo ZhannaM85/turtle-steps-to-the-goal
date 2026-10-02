@@ -160,6 +160,7 @@ export const dailyEntry: DailyEntryDict = {
     clearTimeLabel: 'Очистить время',
     clearFoodSearchLabel: 'Очистить поиск',
     addMealLabel: '+ Добавить приём пищи',
+    addMealDialogTitle: 'Добавить приём пищи',
     emptyMealsTitle: 'Пока нет приёмов пищи',
     emptyMealsDescription: 'Добавьте первый приём за этот день, когда будете готовы.',
     expandAddMealLabel: '+ Добавить ещё приём пищи',

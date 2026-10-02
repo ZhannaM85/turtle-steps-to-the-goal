@@ -225,7 +225,7 @@ describe('EntryRow', () => {
       // (no dedicated edit route). Also confirms "Edit entry" day-level
       // mode never opened.
       expect(
-        screen.getByRole('dialog', { name: 'Breakfast' }),
+        screen.getByRole('dialog', { name: 'Add a meal' }),
       ).toBeInTheDocument()
       expect(screen.queryByLabelText('Weight (kg)')).not.toBeInTheDocument()
       expect(onSaved).not.toHaveBeenCalled()

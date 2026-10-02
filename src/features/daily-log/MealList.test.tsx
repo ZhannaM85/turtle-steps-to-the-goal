@@ -952,7 +952,7 @@ describe('MealList', () => {
 
       await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
 
-      const dialog = screen.getByRole('dialog', { name: 'Breakfast' })
+      const dialog = screen.getByRole('dialog', { name: 'Add a meal' })
       expect(dialog).toBeInTheDocument()
       expect(within(dialog).getByText('This meal so far')).toBeInTheDocument()
       expect(within(dialog).getByText('Oatmeal')).toBeInTheDocument()
@@ -975,7 +975,7 @@ describe('MealList', () => {
       )
 
       await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
-      const dialog = screen.getByRole('dialog', { name: 'Breakfast' })
+      const dialog = screen.getByRole('dialog', { name: 'Add a meal' })
       await user.click(within(dialog).getByRole('button', { name: 'Meal name' }))
       await user.click(within(dialog).getByRole('option', { name: 'Dinner' }))
       expect(within(dialog).getByLabelText('Meal name')).toHaveTextContent('Dinner')
@@ -1002,11 +1002,11 @@ describe('MealList', () => {
       )
 
       await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
-      const dialog = screen.getByRole('dialog', { name: 'Breakfast' })
+      const dialog = screen.getByRole('dialog', { name: 'Add a meal' })
       await user.click(within(dialog).getByRole('button', { name: 'Done' }))
 
       expect(
-        screen.queryByRole('dialog', { name: 'Breakfast' }),
+        screen.queryByRole('dialog', { name: 'Add a meal' }),
       ).not.toBeInTheDocument()
     })
 
@@ -1030,7 +1030,7 @@ describe('MealList', () => {
       )
 
       await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
-      const dialog = screen.getByRole('dialog', { name: 'Breakfast' })
+      const dialog = screen.getByRole('dialog', { name: 'Add a meal' })
       await user.click(
         within(dialog).getByRole('button', { name: 'Edit item' }),
       )
@@ -1073,7 +1073,7 @@ describe('MealList', () => {
       )
 
       await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
-      const dialog = screen.getByRole('dialog', { name: 'Breakfast' })
+      const dialog = screen.getByRole('dialog', { name: 'Add a meal' })
       await user.click(
         within(dialog).getByRole('button', { name: 'Delete item' }),
       )
@@ -1082,14 +1082,14 @@ describe('MealList', () => {
       await user.click(within(confirm).getByRole('button', { name: 'Remove' }))
 
       expect(
-        screen.getByRole('dialog', { name: 'Breakfast' }),
+        screen.getByRole('dialog', { name: 'Add a meal' }),
       ).toBeInTheDocument()
       expect(within(dialog).getByRole('button', { name: 'Done' })).toBeInTheDocument()
 
       await user.click(within(dialog).getByRole('button', { name: 'Done' }))
 
       expect(
-        screen.queryByRole('dialog', { name: 'Breakfast' }),
+        screen.queryByRole('dialog', { name: 'Add a meal' }),
       ).not.toBeInTheDocument()
       expect(
         screen.queryByRole('button', { name: 'Edit meal 1' }),
@@ -1117,7 +1117,7 @@ describe('MealList', () => {
       )
 
       await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
-      const dialog = screen.getByRole('dialog', { name: 'Breakfast' })
+      const dialog = screen.getByRole('dialog', { name: 'Add a meal' })
       await user.click(
         within(dialog).getAllByRole('button', { name: 'Delete item' })[0]!,
       )
@@ -1135,7 +1135,7 @@ describe('MealList', () => {
       await user.click(within(dialog).getByRole('button', { name: 'Yes' }))
 
       expect(
-        screen.queryByRole('dialog', { name: 'Breakfast' }),
+        screen.queryByRole('dialog', { name: 'Add a meal' }),
       ).not.toBeInTheDocument()
       expect(screen.getByText('Oatmeal')).toBeInTheDocument()
       expect(screen.getByText('Banana')).toBeInTheDocument()
@@ -1158,7 +1158,7 @@ describe('MealList', () => {
       )
 
       await user.click(screen.getByRole('button', { name: 'Edit meal 1' }))
-      const dialog = screen.getByRole('dialog', { name: 'Breakfast' })
+      const dialog = screen.getByRole('dialog', { name: 'Add a meal' })
       await user.click(
         within(dialog).getByRole('button', { name: 'Delete meal 1' }),
       )
@@ -1167,7 +1167,7 @@ describe('MealList', () => {
       )
 
       expect(
-        screen.queryByRole('dialog', { name: 'Breakfast' }),
+        screen.queryByRole('dialog', { name: 'Add a meal' }),
       ).not.toBeInTheDocument()
       expect(screen.queryByText(/Breakfast/)).not.toBeInTheDocument()
     })

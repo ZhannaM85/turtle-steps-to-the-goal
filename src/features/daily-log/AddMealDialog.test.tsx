@@ -179,7 +179,7 @@ describe('AddMealDialog (#454)', () => {
   it('shows the meal label and time field', () => {
     render(<ControlledAddMealDialog {...defaultProps} />)
 
-    expect(screen.getByRole('heading', { name: 'Breakfast' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Add a meal' })).toBeInTheDocument()
     expect(screen.getByLabelText('Meal name')).toHaveTextContent('Breakfast')
     expect(screen.queryByRole('textbox', { name: 'Meal name' })).not.toBeInTheDocument()
     expect(screen.queryByText('Meal type')).not.toBeInTheDocument()
@@ -203,7 +203,10 @@ describe('AddMealDialog (#454)', () => {
 
     const row = screen.getByTestId('add-meal-name-row')
     expect(row).toContainElement(mealName)
-    expect(row).toContainElement(screen.getByLabelText('Time'))
+    expect(row).not.toContainElement(screen.getByLabelText('Time'))
+    expect(screen.getByTestId('add-meal-time-row')).toContainElement(
+      screen.getByLabelText('Time'),
+    )
 
     await user.click(mealName)
     expect(screen.getByRole('option', { name: 'Lunch' })).toBeInTheDocument()
@@ -213,7 +216,7 @@ describe('AddMealDialog (#454)', () => {
     await user.click(screen.getByRole('option', { name: 'Lunch' }))
     expect(onMealLabelChange).toHaveBeenCalledWith('Lunch')
     expect(mealName).toHaveTextContent('Lunch')
-    expect(screen.getByRole('heading', { name: 'Lunch' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Add a meal' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Note about lunch' })).toBeInTheDocument()
     expect(screen.queryByRole('textbox', { name: 'Note about lunch' })).not.toBeInTheDocument()
     expect(screen.queryByRole('option', { name: 'Lunch' })).not.toBeInTheDocument()
@@ -299,8 +302,8 @@ describe('AddMealDialog (#454)', () => {
         <ControlledAddMealDialog {...savedMealProps} onDeleteMeal={vi.fn()} />,
       )
 
-      const header = screen.getByRole('heading', { name: 'Breakfast' })
-        .parentElement as HTMLElement
+      const header = screen.getByTestId('add-meal-header')
+      expect(within(header).getByRole('heading', { name: 'Add a meal' })).toBeInTheDocument()
       expect(within(header).getByLabelText('Time')).toBeInTheDocument()
       expect(
         within(header).queryByRole('button', { name: 'Delete meal 1' }),
@@ -929,6 +932,45 @@ describe('AddMealDialog (#454)', () => {
     expect(
       screen.queryByLabelText('Why am I eating?'),
     ).not.toBeInTheDocument()
+  })
+
+  it('stacks the title, repeat toolbar, name, and time above why-eating (#1076)', () => {
+    useEatingReasonTrackingStore.setState({ enabled: true })
+    render(
+      <ControlledAddMealDialog
+        {...defaultProps}
+        previousMeal={{
+          items: [{ id: 'yi1', name: 'Eggs', amountKcal: 150 }],
+        }}
+      />,
+    )
+
+    const title = screen.getByRole('heading', { name: 'Add a meal' })
+    const toolbar = screen.getByTestId('add-meal-repeat-toolbar')
+    const nameRow = screen.getByTestId('add-meal-name-row')
+    const timeRow = screen.getByTestId('add-meal-time-row')
+    const why = screen.getByRole('button', { name: 'Why am I eating?' })
+    const search = screen.getByLabelText('Search foods')
+    const following = Node.DOCUMENT_POSITION_FOLLOWING
+
+    expect(title.compareDocumentPosition(toolbar) & following).toBeTruthy()
+    expect(toolbar.compareDocumentPosition(nameRow) & following).toBeTruthy()
+    expect(nameRow.compareDocumentPosition(timeRow) & following).toBeTruthy()
+    expect(timeRow.compareDocumentPosition(why) & following).toBeTruthy()
+    expect(why.compareDocumentPosition(search) & following).toBeTruthy()
+
+    expect(toolbar).toHaveClass('justify-end')
+    expect(nameRow).toHaveClass('grid', 'grid-cols-2', 'gap-1.5', 'pr-4')
+    expect(timeRow).toHaveClass('grid', 'grid-cols-2', 'gap-1.5', 'pr-4')
+    expect(nameRow.firstElementChild).toContainElement(
+      screen.getByRole('button', { name: 'Meal name' }),
+    )
+    expect(timeRow.firstElementChild).toContainElement(screen.getByLabelText('Time'))
+
+    const whyGrid = why.parentElement?.parentElement?.parentElement
+    expect(whyGrid).toHaveClass('grid', 'grid-cols-2', 'gap-1.5')
+    expect(screen.getByTestId('add-meal-scroll')).not.toContainElement(title)
+    expect(screen.getByTestId('add-meal-scroll')).toContainElement(why)
   })
 
   it('shows the why-eating dropdown above search when tracking is on (#764)', async () => {
@@ -1640,7 +1682,9 @@ describe('AddMealDialog (#454)', () => {
       expect(repeat).not.toHaveAttribute('title')
       expect(repeat).not.toHaveClass('w-full')
       expect(screen.getByTestId('add-meal-header')).toContainElement(repeat)
-      expect(screen.getByTestId('add-meal-name-row')).toContainElement(repeat)
+      expect(screen.getByTestId('add-meal-repeat-toolbar')).toContainElement(repeat)
+      expect(screen.getByTestId('add-meal-repeat-toolbar')).toHaveClass('justify-end')
+      expect(screen.getByTestId('add-meal-name-row')).not.toContainElement(repeat)
       expect(screen.getByTestId('add-meal-scroll')).not.toContainElement(repeat)
       await user.click(repeat)
       await user.click(screen.getByRole('button', { name: 'Add selected' }))
@@ -1790,8 +1834,9 @@ describe('AddMealDialog (#454)', () => {
 
     expect(scroll.contains(header)).toBe(false)
     expect(scroll.contains(close)).toBe(false)
-    expect(screen.getByTestId('add-meal-name-row')).toContainElement(close)
-    expect(screen.getByTestId('add-meal-name-row')).toHaveClass('items-center')
+    expect(screen.getByTestId('add-meal-title-row')).toContainElement(close)
+    expect(screen.getByTestId('add-meal-title-row')).toHaveClass('items-center')
+    expect(screen.getByTestId('add-meal-name-row')).not.toContainElement(close)
     expect(close).toHaveClass('size-11')
     expect(header).toHaveClass('shrink-0')
     expect(scroll.parentElement?.previousElementSibling).toBe(header)
@@ -1831,7 +1876,7 @@ describe('AddMealDialog (#454)', () => {
     expect(screen.getByLabelText('Time').parentElement).toHaveClass('h-12')
     expect(screen.getByLabelText('Time')).toHaveClass(
       'h-full',
-      'w-24',
+      'w-full',
       'appearance-none',
       'flex',
       'items-center',

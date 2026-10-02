@@ -35,7 +35,7 @@ test('logs a meal, then edits its calories via the pencil', async ({ page }) => 
   // on Today throughout.
   await page.getByRole('button', { name: 'Edit meal 1' }).click()
   await expect(page).toHaveURL('/')
-  const editDialog = page.getByRole('dialog', { name: 'Breakfast' })
+  const editDialog = page.getByRole('dialog', { name: 'Add a meal' })
   await expect(editDialog).toBeVisible()
 
   await editDialog.getByRole('button', { name: 'Edit item' }).click()

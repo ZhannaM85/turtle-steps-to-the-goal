@@ -252,8 +252,9 @@ export function AddMealDialog({
             event.preventDefault()
           }}
         >
-          {/* #999 / #1067 — header and its row-aligned Close stay outside
-              the scroll frame so list content cannot scroll under them. */}
+          {/* #999 / #1076 — title, close, repeat toolbar, name, and time
+              stay outside the scroll frame so list content cannot scroll
+              under them. */}
           <AddMealDialogHeader
             mealLabel={mealLabel}
             onMealLabelChange={onMealLabelChange}

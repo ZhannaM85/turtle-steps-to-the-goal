@@ -32,11 +32,12 @@ function renderHeader(
 }
 
 describe('AddMealDialogHeader repeat info (#1003)', () => {
-  it('explains the repeat arrow from an info icon on the name row', async () => {
+  it('explains the repeat arrow from an info icon on the toolbar', async () => {
     const user = userEvent.setup()
     const { onRepeatYesterday } = renderHeader()
 
-    const row = screen.getByTestId('add-meal-name-row')
+    const row = screen.getByTestId('add-meal-repeat-toolbar')
+    expect(row).toHaveClass('justify-end')
     const repeat = within(row).getByRole('button', {
       name: "Repeat yesterday's breakfast?",
     })
@@ -76,6 +77,34 @@ describe('AddMealDialogHeader repeat info (#1003)', () => {
     expect(
       screen.queryByRole('button', { name: /Repeat yesterday/ }),
     ).not.toBeInTheDocument()
+  })
+
+  it('shows the add-meal title and close on one row (#1076)', () => {
+    useLocaleStore.setState({ locale: 'ru' })
+    renderHeader()
+
+    const titleRow = screen.getByTestId('add-meal-title-row')
+    const title = screen.getByRole('heading', { name: 'Добавить приём пищи' })
+    const close = screen.getByRole('button', { name: 'Закрыть' })
+    expect(titleRow).toContainElement(title)
+    expect(titleRow).toContainElement(close)
+    expect(titleRow).toHaveClass('items-center', 'justify-between')
+    expect(screen.getByTestId('add-meal-name-row')).not.toContainElement(close)
+    expect(screen.getByTestId('add-meal-name-row')).toHaveClass(
+      'grid',
+      'grid-cols-2',
+      'gap-1.5',
+      'pr-4',
+    )
+    expect(screen.getByTestId('add-meal-time-row')).toHaveClass(
+      'grid',
+      'grid-cols-2',
+      'gap-1.5',
+      'pr-4',
+    )
+    expect(screen.getByTestId('add-meal-name-row')).not.toContainElement(
+      screen.getByLabelText('Время'),
+    )
   })
 
   it('explains the arrow in plain Russian', async () => {
