@@ -210,6 +210,7 @@ describe('MealItemEditorSheet brand disclosure (#993)', () => {
       'inset-0',
       'overflow-y-auto',
       'overscroll-y-contain',
+      'pr-4',
     )
     expect(scroll.parentElement).toHaveClass(
       'h-0',

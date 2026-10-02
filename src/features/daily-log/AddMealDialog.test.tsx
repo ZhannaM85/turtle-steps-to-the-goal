@@ -1766,6 +1766,7 @@ describe('AddMealDialog (#454)', () => {
       'inset-0',
       'overflow-y-auto',
       'overscroll-y-contain',
+      'pr-4',
     )
     expect(scroll.parentElement).toHaveClass(
       'h-0',

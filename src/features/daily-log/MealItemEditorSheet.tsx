@@ -361,9 +361,10 @@ export function MealItemEditorSheet({
         {/* #1024 — same pin as the meal sheet's Готово (#996): the dialog
             itself must not scroll, or Save rides up with the fields. */}
         <div className="relative h-0 min-h-0 grow basis-0 overflow-hidden">
+          {/* #1072 — same scrollbar gutter as the meal sheet. */}
           <div
             data-testid="meal-item-editor-scroll"
-            className="absolute inset-0 flex flex-col gap-4 overflow-y-auto overscroll-y-contain pt-4 pb-4"
+            className="absolute inset-0 flex flex-col gap-4 overflow-y-auto overscroll-y-contain pt-4 pr-4 pb-4"
           >
           <MealItemFormSection heading={t.dailyEntry.itemNameLabel}>
             <div className="flex items-center gap-2">

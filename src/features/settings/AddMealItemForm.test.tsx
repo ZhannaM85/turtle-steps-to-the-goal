@@ -15,6 +15,7 @@ describe('AddMealItemForm sticky save (#1024)', () => {
       'inset-0',
       'overflow-y-auto',
       'overscroll-y-contain',
+      'pr-4',
     )
     expect(scroll.parentElement).toHaveClass(
       'h-0',

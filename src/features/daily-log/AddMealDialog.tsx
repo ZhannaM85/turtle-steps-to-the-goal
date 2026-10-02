@@ -280,7 +280,10 @@ export function AddMealDialog({
             <div
               data-testid="add-meal-scroll"
               className={cn(
-                'absolute inset-0 overflow-y-auto overscroll-y-contain',
+                // #1072 — the scrollbar was painting over the composition
+                // cards' trash, share, and edit icons. Right padding keeps
+                // the track beside that content.
+                'absolute inset-0 overflow-y-auto overscroll-y-contain pr-4',
                 items.length === 0 &&
                   !showDoneWhenEmpty &&
                   'pb-[calc(env(safe-area-inset-bottom)+1.25rem)]',

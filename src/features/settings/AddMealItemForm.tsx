@@ -257,9 +257,10 @@ export function AddMealItemForm({
         </DialogTitle>
         {/* #1024 — same pin as the meal sheet's Готово: fields scroll, Save stays. */}
         <div className="relative h-0 min-h-0 grow basis-0 overflow-hidden">
+          {/* #1072 — same scrollbar gutter as the meal sheet. */}
           <div
             data-testid="add-meal-item-scroll"
-            className="absolute inset-0 flex flex-col gap-5 overflow-y-auto overscroll-y-contain pt-4 pb-4"
+            className="absolute inset-0 flex flex-col gap-5 overflow-y-auto overscroll-y-contain pt-4 pr-4 pb-4"
           >
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between gap-2">

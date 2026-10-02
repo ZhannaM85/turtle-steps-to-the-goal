@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1047,
+    issue: 1072,
+    date: "2026-10-02T11:34:22.386+03:00",
+    en: "On a meal, the scrollbar sits beside the food cards instead of covering edit, share, and delete.",
+    ru: "У приёма пищи полоса прокрутки стоит рядом с карточками блюд и больше не закрывает правку, отправку и удаление.",
+  },
+  {
     version: 1046,
     issue: 1069,
     date: "2026-10-02T11:29:51.949+03:00",
