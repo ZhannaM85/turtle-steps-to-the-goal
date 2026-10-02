@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1049,
+    issue: 1074,
+    date: "2026-10-02T19:00:53.977+03:00",
+    en: "On Day, pinning water moves that section to the top of the page, and it still scrolls away. Only the calorie and macro line stays stuck.",
+    ru: "На «Дне» закрепление воды переносит этот раздел в начало страницы, и он по-прежнему уходит при прокрутке. На месте остаётся только строка калорий и БЖУ.",
+  },
+  {
     version: 1048,
     issue: 1073,
     date: "2026-10-02T14:02:10.678+03:00",

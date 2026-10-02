@@ -34,12 +34,12 @@ describe('daySectionPinStore (#1022)', () => {
     expect(useDaySectionPinStore.getState().pinned).toEqual(['macros'])
   })
 
-  it('drops a saved water pin so water cannot stick (#1073)', () => {
+  it('keeps a saved water pin in pin order (#1074)', () => {
     localStorage.setItem(
       DAY_SECTION_PIN_STORAGE_KEY,
       JSON.stringify({ state: { pinned: ['water', 'macros'] }, version: 0 }),
     )
     useDaySectionPinStore.persist.rehydrate()
-    expect(useDaySectionPinStore.getState().pinned).toEqual(['macros'])
+    expect(useDaySectionPinStore.getState().pinned).toEqual(['water', 'macros'])
   })
 })

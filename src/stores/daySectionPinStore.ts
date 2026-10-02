@@ -11,6 +11,8 @@ export const DAY_SECTION_PIN_IDS = [
   'dayTotals',
   'meals',
   'plannedMeals',
+  // #1074 — water joins pin order. It does not stick; see WaterLogSection.
+  'water',
   'customMetrics',
   'evening',
   'nightFood',

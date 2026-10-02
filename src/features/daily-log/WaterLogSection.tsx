@@ -6,6 +6,7 @@ import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
 import { Chip } from '@/shared/ui/chip'
 import { SectionAccordion } from '@/shared/ui/section-accordion'
+import { DayPinFrame, DaySectionPinButton } from './DaySectionPin'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Label } from '@/shared/ui/label'
 import { NumberInput } from '@/shared/ui/number-input'
@@ -31,7 +32,9 @@ function normalizeTimeHHMM(value: string): string | undefined {
  * `ConfirmDeleteEntryBar` before removing (same as #855 Day fields).
  * Chip × is still remove — not the field-header cancel rule.
  * #889: confirm sits above the chip grid; the list stays mounted.
- * #1073: no pin. Water stays in document flow, collapsed or expanded.
+ * #1074: the pin sorts water to the top of the Day list with the other
+ * pins. `stick={false}` keeps it in that flow when collapsed or expanded
+ * (#1073) — only КБЖУ stays sticky while scrolling.
  */
 export function WaterLogSection() {
   const state = useDailyEntryFormStateContext()
@@ -86,6 +89,7 @@ export function WaterLogSection() {
 
   return (
     <>
+    <DayPinFrame id="water" stick={false}>
     <SectionAccordion
       id="water-entry-section"
       open={!collapsed}
@@ -94,6 +98,7 @@ export function WaterLogSection() {
       expandLabel={t.dailyEntry.expandWaterLabel}
       collapseLabel={t.dailyEntry.collapseWaterLabel}
       contentClassName="flex flex-col gap-1.5 pt-3"
+      actions={<DaySectionPinButton id="water" />}
     >
             <div className="flex flex-wrap items-center gap-3">
               <Button
@@ -166,6 +171,7 @@ export function WaterLogSection() {
                 </div>
               )}
     </SectionAccordion>
+    </DayPinFrame>
       <Dialog
         open={editingWaterId !== null}
         onOpenChange={(open) => {
