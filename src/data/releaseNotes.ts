@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1046,
+    issue: 1069,
+    date: "2026-10-02T11:29:51.949+03:00",
+    en: "Closing the keyboard on Add meal leaves the food list open so you can keep browsing.",
+    ru: "Если закрыть клавиатуру в «Добавить приём пищи», список еды остаётся открытым, и его можно дальше просматривать.",
+  },
+  {
     version: 1045,
     issue: 1068,
     date: "2026-10-02T11:22:37.481+03:00",

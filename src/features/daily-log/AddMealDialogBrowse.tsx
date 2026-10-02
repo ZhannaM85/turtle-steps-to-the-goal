@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { X } from 'lucide-react'
 import { useLocale, useTranslation } from '@/i18n'
 import { formatKcal } from '@/shared/lib/macroDisplay'
@@ -27,6 +27,11 @@ import type {
 // and stop at 28rem when the keyboard is closed.
 const suggestionPanelClassName =
   'absolute top-full right-0 left-0 z-30 mt-1 flex max-h-[min(28rem,max(35dvh,calc(100dvh-18rem)))] flex-col gap-1 overflow-y-auto overscroll-y-contain rounded-xl bg-popover shadow-md [&_ul]:max-h-none [&_ul]:overflow-visible [&_ul]:bg-popover'
+
+// #1069 — `interactive-widget=resizes-content` shrinks the layout viewport
+// while the keyboard is up. A drop of this size is a keyboard, not the
+// browser chrome, so that tap only hides the keyboard.
+const KEYBOARD_OPEN_DROP_PX = 120
 
 export function AddMealDialogBrowse({
   search,
@@ -78,17 +83,60 @@ export function AddMealDialogBrowse({
   const locale = useLocale()
   const isOnline = useOnlineStatus()
   // #1055 / #1057 — one suggestion panel under the field. Empty focus
-  // shows recents; a typed query shows matches. Blur or Escape hides it.
+  // shows recents; a typed query shows matches.
   // #1056 — the panel is opaque and stacked above the meal note.
+  // #1069 — blurring the field (the mobile keyboard going away) leaves
+  // the panel up. Escape, a picked row, or a tap outside while the
+  // keyboard is already closed hides it.
+  const rootRef = useRef<HTMLDivElement>(null)
+  const viewportAtFocusRef = useRef<number | null>(null)
   const [suggestionOpen, setSuggestionOpen] = useState(false)
+  function rememberOpenViewport() {
+    const height = window.innerHeight
+    const previous = viewportAtFocusRef.current
+    if (previous == null || height > previous) {
+      viewportAtFocusRef.current = height
+    }
+  }
   const showRecentDropdown =
     suggestionOpen && !query && !homemadeOnly && recentItems.length > 0
   const showSearchDropdown = suggestionOpen && Boolean(query)
   const showSuggestionPanel = showRecentDropdown || showSearchDropdown
 
+  useEffect(() => {
+    if (!suggestionOpen) return
+    function keyboardIsOpen() {
+      const baseline = viewportAtFocusRef.current
+      if (baseline == null) return false
+      return window.innerHeight < baseline - KEYBOARD_OPEN_DROP_PX
+    }
+    function onPointerDown(event: PointerEvent) {
+      const root = rootRef.current
+      if (root && event.target instanceof Node && root.contains(event.target)) {
+        return
+      }
+      if (keyboardIsOpen()) return
+      setSuggestionOpen(false)
+    }
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key !== 'Escape') return
+      event.preventDefault()
+      event.stopPropagation()
+      setSuggestionOpen(false)
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    // Window capture runs before the dialog's document listener, so Escape
+    // closes this list and leaves the meal sheet open.
+    window.addEventListener('keydown', onKeyDown, true)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      window.removeEventListener('keydown', onKeyDown, true)
+    }
+  }, [suggestionOpen])
+
   return (
     <>
-      <div className={cn('relative', showSuggestionPanel && 'z-30')}>
+      <div ref={rootRef} className={cn('relative', showSuggestionPanel && 'z-30')}>
         <Input
           type="text"
           aria-label={t.dailyEntry.foodSearchLabel}
@@ -96,10 +144,13 @@ export function AddMealDialogBrowse({
           placeholder={t.dailyEntry.foodSearchPlaceholder}
           value={search}
           onChange={(e) => onChangeSearch(e.target.value)}
-          onFocus={() => setSuggestionOpen(true)}
-          onBlur={() => setSuggestionOpen(false)}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') setSuggestionOpen(false)
+          onPointerDown={() => {
+            rememberOpenViewport()
+            setSuggestionOpen(true)
+          }}
+          onFocus={() => {
+            rememberOpenViewport()
+            setSuggestionOpen(true)
           }}
           // #1066 — the scroll frame clips outward rings at both sides.
           // Paint the focus ring inside the field so every edge stays visible.

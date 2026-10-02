@@ -267,7 +267,7 @@ describe('recent foods dropdown (#1055)', () => {
     expect(screen.getByText('Homemade soup')).toBeInTheDocument()
   })
 
-  it('hides the dropdown when focus leaves the field', async () => {
+  it('hides the dropdown on a tap outside when the keyboard is closed (#1069)', async () => {
     const user = userEvent.setup()
     renderRecents()
 
@@ -276,5 +276,135 @@ describe('recent foods dropdown (#1055)', () => {
 
     await user.click(document.body)
     expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
+  })
+
+  it('keeps Recent open when the field blurs (#1069)', async () => {
+    const user = userEvent.setup()
+    renderRecents()
+    const search = screen.getByLabelText('Search foods')
+    await user.click(search)
+    expect(screen.getByRole('region', { name: 'Recent' })).toBeInTheDocument()
+
+    search.blur()
+    expect(screen.getByRole('region', { name: 'Recent' })).toBeInTheDocument()
+  })
+
+  it('keeps Recent open while a tap dismisses the keyboard, then closes on the next outside tap (#1069)', async () => {
+    const user = userEvent.setup()
+    const original = window.innerHeight
+    renderRecents()
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: 800,
+    })
+    const search = screen.getByLabelText('Search foods')
+    await user.click(search)
+    expect(screen.getByRole('region', { name: 'Recent' })).toBeInTheDocument()
+
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: 420,
+    })
+    await user.click(document.body)
+    expect(screen.getByRole('region', { name: 'Recent' })).toBeInTheDocument()
+
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: 800,
+    })
+    await user.click(document.body)
+    expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
+
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: original,
+    })
+  })
+
+  it('opens Recent again when the field is tapped after Escape (#1069)', async () => {
+    const user = userEvent.setup()
+    renderRecents()
+    const search = screen.getByLabelText('Search foods')
+    await user.click(search)
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
+
+    await user.click(search)
+    expect(screen.getByRole('region', { name: 'Recent' })).toBeInTheDocument()
+  })
+
+  it('closes Recent on Escape (#1069)', async () => {
+    const user = userEvent.setup()
+    renderRecents()
+    await user.click(screen.getByLabelText('Search foods'))
+    expect(screen.getByRole('region', { name: 'Recent' })).toBeInTheDocument()
+
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
+  })
+})
+
+describe('typed food results stay open across keyboard dismissal (#1069)', () => {
+  it('keeps matches open on blur and closes them on a later outside tap', async () => {
+    const user = userEvent.setup()
+    const original = window.innerHeight
+    render(
+      <AddMealDialogBrowse
+        search="soup"
+        query="soup"
+        matches={[soup]}
+        recentItems={[soup]}
+        textFor={(item) =>
+          item.source === 'mealItem' ? item.mealItem.name : ''
+        }
+        isFavorite={() => false}
+        onToggleFavorite={vi.fn()}
+        onPick={vi.fn()}
+        onOpenManualAdd={vi.fn()}
+        onlineHits={[]}
+        onlineSearchStatus="idle"
+        onlineRemoteStatus={null}
+        onRunOnlineSearch={vi.fn()}
+        onPickOnlineHit={vi.fn()}
+        onChangeSearch={vi.fn()}
+        onClearSearch={vi.fn()}
+        homemadeOnly={false}
+        onToggleHomemadeOnly={vi.fn()}
+        mealNoteField={null}
+        showEmptyMealNote={false}
+      />,
+    )
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: 800,
+    })
+    const search = screen.getByLabelText('Search foods')
+    await user.click(search)
+    expect(screen.getByRole('region', { name: 'Search results' })).toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
+
+    search.blur()
+    expect(screen.getByRole('region', { name: 'Search results' })).toBeInTheDocument()
+
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: 420,
+    })
+    await user.click(document.body)
+    expect(screen.getByRole('region', { name: 'Search results' })).toBeInTheDocument()
+
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: 800,
+    })
+    await user.click(document.body)
+    expect(
+      screen.queryByRole('region', { name: 'Search results' }),
+    ).not.toBeInTheDocument()
+
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: original,
+    })
   })
 })
