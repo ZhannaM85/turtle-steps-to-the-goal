@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1052,
+    issue: 1077,
+    date: "2026-10-02T23:13:02.168+03:00",
+    en: "In Add meal, the meal name and the time sit side by side on one row.",
+    ru: "В «Добавить приём пищи» название и время стоят рядом в одной строке.",
+  },
+  {
     version: 1051,
     issue: 1076,
     date: "2026-10-02T22:24:17.695+03:00",

@@ -89,22 +89,21 @@ describe('AddMealDialogHeader repeat info (#1003)', () => {
     expect(titleRow).toContainElement(title)
     expect(titleRow).toContainElement(close)
     expect(titleRow).toHaveClass('items-center', 'justify-between')
-    expect(screen.getByTestId('add-meal-name-row')).not.toContainElement(close)
-    expect(screen.getByTestId('add-meal-name-row')).toHaveClass(
+    const controls = screen.getByTestId('add-meal-name-row')
+    const name = screen.getByRole('button', { name: 'Название приёма пищи' })
+    const time = screen.getByLabelText('Время')
+    expect(controls).not.toContainElement(close)
+    expect(controls).toHaveClass(
       'grid',
       'grid-cols-2',
+      'items-end',
       'gap-1.5',
       'pr-4',
     )
-    expect(screen.getByTestId('add-meal-time-row')).toHaveClass(
-      'grid',
-      'grid-cols-2',
-      'gap-1.5',
-      'pr-4',
-    )
-    expect(screen.getByTestId('add-meal-name-row')).not.toContainElement(
-      screen.getByLabelText('Время'),
-    )
+    expect(controls.children).toHaveLength(2)
+    expect(controls.children[0]).toContainElement(name)
+    expect(controls.children[1]).toContainElement(time)
+    expect(screen.queryByTestId('add-meal-time-row')).not.toBeInTheDocument()
   })
 
   it('explains the arrow in plain Russian', async () => {

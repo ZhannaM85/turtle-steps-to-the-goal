@@ -202,11 +202,12 @@ describe('AddMealDialog (#454)', () => {
     expect(screen.queryByText('Meal type')).not.toBeInTheDocument()
 
     const row = screen.getByTestId('add-meal-name-row')
+    const time = screen.getByLabelText('Time')
     expect(row).toContainElement(mealName)
-    expect(row).not.toContainElement(screen.getByLabelText('Time'))
-    expect(screen.getByTestId('add-meal-time-row')).toContainElement(
-      screen.getByLabelText('Time'),
-    )
+    expect(row).toContainElement(time)
+    expect(row.children).toHaveLength(2)
+    expect(row.children[0]).toContainElement(mealName)
+    expect(row.children[1]).toContainElement(time)
 
     await user.click(mealName)
     expect(screen.getByRole('option', { name: 'Lunch' })).toBeInTheDocument()
@@ -934,7 +935,7 @@ describe('AddMealDialog (#454)', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('stacks the title, repeat toolbar, name, and time above why-eating (#1076)', () => {
+  it('keeps the title and repeat toolbar, with name and time on one row above why-eating (#1077)', () => {
     useEatingReasonTrackingStore.setState({ enabled: true })
     render(
       <ControlledAddMealDialog
@@ -947,25 +948,29 @@ describe('AddMealDialog (#454)', () => {
 
     const title = screen.getByRole('heading', { name: 'Add a meal' })
     const toolbar = screen.getByTestId('add-meal-repeat-toolbar')
-    const nameRow = screen.getByTestId('add-meal-name-row')
-    const timeRow = screen.getByTestId('add-meal-time-row')
+    const nameTime = screen.getByTestId('add-meal-name-row')
+    const mealName = screen.getByRole('button', { name: 'Meal name' })
+    const time = screen.getByLabelText('Time')
     const why = screen.getByRole('button', { name: 'Why am I eating?' })
     const search = screen.getByLabelText('Search foods')
     const following = Node.DOCUMENT_POSITION_FOLLOWING
 
     expect(title.compareDocumentPosition(toolbar) & following).toBeTruthy()
-    expect(toolbar.compareDocumentPosition(nameRow) & following).toBeTruthy()
-    expect(nameRow.compareDocumentPosition(timeRow) & following).toBeTruthy()
-    expect(timeRow.compareDocumentPosition(why) & following).toBeTruthy()
+    expect(toolbar.compareDocumentPosition(nameTime) & following).toBeTruthy()
+    expect(nameTime.compareDocumentPosition(why) & following).toBeTruthy()
     expect(why.compareDocumentPosition(search) & following).toBeTruthy()
 
     expect(toolbar).toHaveClass('justify-end')
-    expect(nameRow).toHaveClass('grid', 'grid-cols-2', 'gap-1.5', 'pr-4')
-    expect(timeRow).toHaveClass('grid', 'grid-cols-2', 'gap-1.5', 'pr-4')
-    expect(nameRow.firstElementChild).toContainElement(
-      screen.getByRole('button', { name: 'Meal name' }),
+    expect(nameTime).toHaveClass(
+      'grid',
+      'grid-cols-2',
+      'items-end',
+      'gap-1.5',
+      'pr-4',
     )
-    expect(timeRow.firstElementChild).toContainElement(screen.getByLabelText('Time'))
+    expect(nameTime.children).toHaveLength(2)
+    expect(nameTime.children[0]).toContainElement(mealName)
+    expect(nameTime.children[1]).toContainElement(time)
 
     const whyGrid = why.parentElement?.parentElement?.parentElement
     expect(whyGrid).toHaveClass('grid', 'grid-cols-2', 'gap-1.5')

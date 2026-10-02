@@ -9,11 +9,12 @@ import { TimeInput } from '@/shared/ui/time-input'
 import { MealTypePicker } from './MealTypePicker'
 
 /**
- * #1076 — one column of the why-eating `grid-cols-2 gap-1.5` row.
- * `pr-4` matches the meal sheet's scroll gutter (#1072) so this column
- * is the same width as «Почему я сейчас ем?».
+ * #1077 — meal name and time share one row, each half of the why-eating
+ * `grid-cols-2 gap-1.5` pair. `items-end` lines the time box up with the
+ * name dropdown. `pr-4` matches the meal sheet's scroll gutter (#1072)
+ * so each column is the same width as «Почему я сейчас ем?».
  */
-const MEAL_CONTROL_ROW = 'grid grid-cols-2 gap-1.5 pr-4'
+const MEAL_CONTROL_ROW = 'grid grid-cols-2 items-end gap-1.5 pr-4'
 
 export function AddMealDialogHeader({
   mealLabel,
@@ -94,8 +95,6 @@ export function AddMealDialogHeader({
             onChange={onMealLabelChange}
           />
         </div>
-      </div>
-      <div data-testid="add-meal-time-row" className={MEAL_CONTROL_ROW}>
         <div className="flex h-12 min-w-0 items-center rounded-lg border border-input bg-transparent pr-1 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 dark:bg-input/30">
           <TimeInput
             compact
