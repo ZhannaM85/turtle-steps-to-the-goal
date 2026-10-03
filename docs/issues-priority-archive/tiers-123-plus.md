@@ -971,6 +971,7 @@ _Closed rows only. Open / pending items stay in the active file._
 | [#1074](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1074) | ✅ Done | Day: restore water pin-to-top (not sticky); sticky remains КБЖУ-only | Confirmed on-device 2026-10-03. Release note v1049. |
 | [#1073](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1073) | ✅ Done | Day: water must not be sticky — only КБЖУ sticks | Confirmed on-device 2026-10-03. Release note v1048. |
 | [#1072](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1072) | ✅ Done | Edit meal: give scrollbar room so it sits right of content | Confirmed on-device 2026-10-03. Release note v1047. |
+| [#1069](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1069) | ✅ Done | Add food: keep dropdown visible when dismissing keyboard | Confirmed on-device 2026-10-03. Release note v1046. |
 
 ---
 
