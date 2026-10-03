@@ -95,7 +95,6 @@ _About and Features list what shipped in Tiers 172–175: optional LDL tags, the
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1065](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1065) | 🔍 Pending validation | Meal note: empty input visible before tapping pencil on another user's device | Root cause: new non-night meals used a bare input; night food and edited meals used NoteEditor. All meal types now use the pencil/save/cancel cycle. 168 affected tests and 4 E2E checks passed; typecheck/lint passed. Release note v1041. Awaiting on-device confirmation. |
 
 ---
 

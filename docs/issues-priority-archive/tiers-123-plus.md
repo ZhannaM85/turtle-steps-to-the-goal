@@ -956,6 +956,7 @@ _Closed rows only. Open / pending items stay in the active file._
 | [#1071](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1071) | ✅ Done | Settings: optional meal notes and reactions, off by default | Confirmed on-device 2026-10-03. Release note v1044. |
 | [#1067](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1067) | ✅ Done | Add meal: align close icon with meal name, time, and refresh row | Confirmed on-device 2026-10-03. Release note v1043. |
 | [#1066](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1066) | ✅ Done | Add food: focused search input borders clipped on left and right | Confirmed on-device 2026-10-03. Release note v1042. |
+| [#1065](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1065) | ✅ Done | Meal note: empty input visible before tapping pencil on another user's device | Confirmed on-device 2026-10-03. Release note v1041. |
 
 ---
 
