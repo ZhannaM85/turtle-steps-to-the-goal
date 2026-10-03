@@ -41,18 +41,21 @@ describe('PastTargetsList', () => {
     render(<PastTargetsList records={[makeRecord()]} onDelete={vi.fn()} />)
 
     expect(screen.getByText('Past targets')).toBeInTheDocument()
-    expect(screen.getByText('Mar 9, 2026 – Mar 15, 2026')).toBeInTheDocument()
+    // #1079 — early reach ends the range on the weigh-in day (Mar 12).
+    expect(screen.getByText('Mar 9, 2026 – Mar 12, 2026')).toBeInTheDocument()
+    expect(
+      screen.queryByText('Mar 9, 2026 – Mar 15, 2026'),
+    ).not.toBeInTheDocument()
     // #527 — positive magnitude (how much to lose), not a leading minus.
     // #586 — formatExactNumber: whole numbers stay "1", not "1.0".
     expect(screen.getByText('1 kg/week')).toBeInTheDocument()
-    // #972: status date is weekEnd (Mar 15), not metOnDate (Mar 12).
-    expect(screen.getByText('Target met on Mar 15, 2026')).toBeInTheDocument()
+    expect(screen.getByText('Target met on Mar 12, 2026')).toBeInTheDocument()
     expect(
-      screen.queryByText('Target met on Mar 12, 2026'),
+      screen.queryByText('Target met on Mar 15, 2026'),
     ).not.toBeInTheDocument()
   })
 
-  it('shows week end as the reached status date when the target was met mid-week (#972)', () => {
+  it('shows the weigh-in day as the reached status date when the target was met mid-week (#1079)', () => {
     useLocaleStore.setState({ locale: 'ru' })
     render(
       <PastTargetsList
@@ -83,9 +86,9 @@ describe('PastTargetsList', () => {
 
     const weekEndLabel = formatLocalizedDate('2026-09-20', 'ru')
     const midWeekLabel = formatLocalizedDate('2026-09-19', 'ru')
-    expect(screen.getByText(`Цель достигнута ${weekEndLabel}`)).toBeInTheDocument()
+    expect(screen.getByText(`Цель достигнута ${midWeekLabel}`)).toBeInTheDocument()
     expect(
-      screen.queryByText(`Цель достигнута ${midWeekLabel}`),
+      screen.queryByText(`Цель достигнута ${weekEndLabel}`),
     ).not.toBeInTheDocument()
     expect(screen.getByText('59,8 → 59,7 кг')).toBeInTheDocument()
   })
@@ -225,6 +228,8 @@ describe('PastTargetsList', () => {
     expect(
       screen.queryByText('Target met on Mar 11, 2026'),
     ).not.toBeInTheDocument()
+    // A regression keeps the planned week; only a real reach shortens it.
+    expect(screen.getByText('Mar 9, 2026 – Mar 15, 2026')).toBeInTheDocument()
   })
 
   it('labels a goal with no computable progress as not enough data', () => {
@@ -291,7 +296,7 @@ describe('PastTargetsList', () => {
       render(<PastTargetsList records={[makeRecord()]} onDelete={onDelete} />)
 
       await user.click(
-        screen.getByRole('button', { name: 'Delete target for Mar 9, 2026 – Mar 15, 2026' }),
+        screen.getByRole('button', { name: 'Delete target for Mar 9, 2026 – Mar 12, 2026' }),
       )
       expect(
         screen.getByText('Delete this target?'),
@@ -309,7 +314,7 @@ describe('PastTargetsList', () => {
       render(<PastTargetsList records={[makeRecord()]} onDelete={onDelete} />)
 
       await user.click(
-        screen.getByRole('button', { name: 'Delete target for Mar 9, 2026 – Mar 15, 2026' }),
+        screen.getByRole('button', { name: 'Delete target for Mar 9, 2026 – Mar 12, 2026' }),
       )
       await user.click(screen.getByRole('button', { name: 'Delete' }))
 

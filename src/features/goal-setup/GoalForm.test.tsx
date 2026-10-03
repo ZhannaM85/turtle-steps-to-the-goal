@@ -1462,6 +1462,56 @@ describe('GoalForm', () => {
       vi.useRealTimers()
     })
 
+    it('starts the next goal on the weigh-in day and closes the previous week there (#1079)', async () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-08-10T12:00:00'))
+      const user = userEvent.setup({ delay: null })
+      const onSubmit = vi.fn()
+      const existingGoal = {
+        id: 'g1',
+        targetWeeklyLossKg: 0.2,
+        weekStart: '2026-08-04',
+        weekEnd: '2026-08-10',
+        createdAt: '2026-08-04T00:00:00.000Z',
+        updatedAt: '2026-08-04T00:00:00.000Z',
+      }
+      renderGoalForm(
+        <GoalForm
+          existingGoal={existingGoal}
+          onSubmit={onSubmit}
+          onDelete={vi.fn()}
+          activeGoalConcluded
+          earlyReachDate="2026-08-09"
+        />,
+      )
+
+      await user.click(
+        screen.getByRole('button', { name: 'Start a new goal' }),
+      )
+
+      expect(screen.getByLabelText('Starts on')).toHaveValue('2026-08-09')
+      expect(screen.getByLabelText('Ends on')).toHaveValue('2026-08-15')
+      expect(
+        screen.queryByText(/This window overlaps a previous goal/),
+      ).not.toBeInTheDocument()
+
+      await user.type(
+        screen.getByLabelText("This week's target (kg to lose)"),
+        '0.2',
+      )
+      await user.click(
+        screen.getByRole('button', { name: 'Set this week’s target' }),
+      )
+
+      expect(onSubmit.mock.calls[0][0].weekStart).toBe('2026-08-09')
+      expect(onSubmit.mock.calls[0][0].id).not.toBe('g1')
+      expect(onSubmit.mock.calls[0][1]).toMatchObject({
+        id: 'g1',
+        weekEnd: '2026-08-09',
+      })
+      vi.useRealTimers()
+    })
+
     it('submits a custom start date and shifts the end default with it', async () => {
       vi.useFakeTimers({ toFake: ['Date'] })
       vi.setSystemTime(new Date('2026-07-24T12:00:00'))

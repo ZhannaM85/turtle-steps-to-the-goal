@@ -41,6 +41,28 @@ describe('useGoalStore', () => {
     expect(useGoalStore.getState().status).toBe('ready')
   })
 
+  it('closes the previous week on an early reach without making it active (#1079)', async () => {
+    const previous = makeGoal({
+      id: 'previous',
+      weekStart: '2026-09-14',
+      weekEnd: '2026-09-20',
+      createdAt: '2026-09-14T00:00:00.000Z',
+    })
+    const next = makeGoal({
+      id: 'next',
+      weekStart: '2026-09-19',
+      weekEnd: '2026-09-25',
+      createdAt: '2026-09-19T00:00:00.000Z',
+    })
+    const closed = { ...previous, weekEnd: '2026-09-19' }
+
+    await useGoalStore.getState().saveGoal(next, closed)
+
+    expect(useGoalStore.getState().goal).toEqual(next)
+    expect(await db.goals.get('previous')).toEqual(closed)
+    expect(await db.goals.get('next')).toEqual(next)
+  })
+
   it('persists a goal and reflects it in state immediately', async () => {
     const goal = makeGoal()
     await useGoalStore.getState().saveGoal(goal)

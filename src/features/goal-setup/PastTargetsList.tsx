@@ -15,7 +15,10 @@ import {
 import { useSectionVisibilityStore, useUnitStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { SectionTitleWithToggle } from '@/shared/ui/section-title-with-toggle'
-import { pastGoalReachedStatusDate } from './pastGoalReachedStatusDate'
+import {
+  pastGoalHistoryWeekEnd,
+  pastGoalReachedStatusDate,
+} from './pastGoalReachedStatusDate'
 
 export interface PastTargetsListProps {
   records: PastGoalRecord[]
@@ -39,8 +42,8 @@ function PastTargetRow({
   // per-row delete.
   const [isConfirming, setIsConfirming] = useState(false)
 
-  // #972: reached status names weekEnd, not the mid-week first-hit day
-  // (metOnDate). #639: this permanent record uses finalTargetMet (the
+  // #1079: reached status names the weigh-in day (metOnDate), not the
+  // planned week end. #639: this permanent record uses finalTargetMet (the
   // window's actual final state), not the sticky targetMet — a target
   // only ever crossed on one noisy mid-week day, then regressed by the
   // time the window ended, should not earn a permanent "met" badge.
@@ -61,10 +64,13 @@ function PastTargetRow({
   // window — approximateEndDate (from goalHistory.ts) derives a
   // display-only range from when the next goal was created instead of
   // showing just a bare single date.
+  const historyWeekEnd = goal.weekStart
+    ? pastGoalHistoryWeekEnd(goal, progress)
+    : null
   const weekRangeLabel = goal.weekStart
     ? t.common.weekRangeLabel(
         format(parseISO(goal.weekStart), 'PP', { locale: dateFnsLocale }),
-        format(parseISO(goal.weekEnd ?? goalWeekEnd(goal.weekStart)), 'PP', {
+        format(parseISO(historyWeekEnd || goalWeekEnd(goal.weekStart)), 'PP', {
           locale: dateFnsLocale,
         }),
       )

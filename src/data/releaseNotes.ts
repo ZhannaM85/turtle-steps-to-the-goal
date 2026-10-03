@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1054,
+    issue: 1079,
+    date: "2026-10-03T13:05:21.691+03:00",
+    en: "A weekly goal reached early now shows the weigh-in day, ends that day, and the next goal starts the same day.",
+    ru: "Если недельная цель достигнута раньше, в истории стоит день взвешивания, эта цель заканчивается в тот день, и следующая начинается в тот же день.",
+  },
+  {
     version: 1053,
     issue: 1078,
     date: "2026-10-02T23:19:51.092+03:00",

@@ -48,6 +48,7 @@ import {
   defaultWeekStartDate,
   effectiveWeeklyPaceKg,
   formValuesToGoal,
+  goalClosedOnEarlyReach,
   goalToFormValues,
   resolveWeightForFreshBaseline,
 } from './goalFormMapping'
@@ -57,8 +58,11 @@ const dailyEntryRepository = new IndexedDbDailyEntryRepository()
 
 /** Empty display values for RHF NumberInputs (#241 / #534) — `undefined`
  * alone does not clear uncontrolled DOM values after reset. */
-function emptyGoalFormValues(priorGoal: Goal | null = null): GoalFormValues {
-  const weekStartDate = defaultWeekStartDate(priorGoal)
+function emptyGoalFormValues(
+  priorGoal: Goal | null = null,
+  reachedOnDate: string | null = null,
+): GoalFormValues {
+  const weekStartDate = defaultWeekStartDate(priorGoal, reachedOnDate)
   return {
     targetWeeklyLoss: '' as unknown as number | undefined,
     dailyCalorieTarget: '' as unknown as number | undefined,
@@ -75,7 +79,8 @@ function emptyGoalFormValues(priorGoal: Goal | null = null): GoalFormValues {
     // uncontrolled-DOM-value bug to work around here since the value
     // always changes on reset). Start defaults via defaultWeekStartDate
     // so a same-day restart after a last-day reach bumps to tomorrow;
-    // end tracks that start + 6.
+    // an earlier weigh-in starts the next goal on that day (#1079).
+    // End tracks that start + 6.
     weekStartDate,
     weekEndDate: goalWeekEnd(weekStartDate),
   }
@@ -91,7 +96,7 @@ function formValuesForGoal(goal: Goal | null, unit: Unit): GoalFormValues {
 
 export interface GoalFormProps {
   existingGoal: Goal | null
-  onSubmit: (goal: Goal) => void | Promise<void>
+  onSubmit: (goal: Goal, closedPrevious?: Goal | null) => void | Promise<void>
   /** #668 — deletes `existingGoal` entirely (not just discards in-progress
    * edits, see requestCancel below). Only ever called with an existing
    * goal present — the read-only view this button lives in doesn't render
@@ -113,6 +118,10 @@ export interface GoalFormProps {
   /** #1019 — sticky mid-window reach (`targetMet`). Same moment as the
    * reached banner and the in-progress celebration. */
   activeGoalReached?: boolean
+  /** #1079 — weigh-in day when the active goal was met before its planned
+   * week end. The next goal starts that day, and the previous week closes
+   * on it. Null for a last-day reach (`#671`). */
+  earlyReachDate?: string | null
   /** #685 — other saved goals (active + past) used for the soft overlap
    * warning. When omitted, falls back to `existingGoal` alone so unit
    * tests that only pass the previous goal still cover the #683 path. */
@@ -133,6 +142,7 @@ export function GoalForm({
   latestWeightKg = null,
   activeGoalConcluded,
   activeGoalReached = false,
+  earlyReachDate = null,
   overlapGoals,
 }: GoalFormProps) {
   const t = useTranslation()
@@ -184,7 +194,7 @@ export function GoalForm({
     // untouched optional fields stay `undefined`. Empty strings are only used
     // in `reset(emptyGoalFormValues())` to clear uncontrolled inputs (#241).
     defaultValues: startNewFromPrompt
-      ? emptyGoalFormValues(existingGoal)
+      ? emptyGoalFormValues(existingGoal, earlyReachDate)
       : goalToFormValues(existingGoal, unit),
   })
 
@@ -467,6 +477,26 @@ export function GoalForm({
   // `formValuesToGoal` behavior to use without re-deriving it.
   const [startingNew, setStartingNew] = useState(startNewFromPrompt)
 
+  // #1079 — entries for the celebration handoff (`/goal?startNew=1`) can
+  // arrive after this form mounts. Move starts-on onto the weigh-in day
+  // while it is still the untouched default.
+  useEffect(() => {
+    if (!startingNew || !earlyReachDate || !existingGoal) return
+    const nextStart = defaultWeekStartDate(existingGoal, earlyReachDate)
+    const untouchedStart = defaultWeekStartDate(existingGoal, null)
+    const currentStart = values.weekStartDate
+    if (currentStart === nextStart) return
+    if (currentStart && currentStart !== untouchedStart) return
+    setValue('weekStartDate', nextStart)
+    setValue('weekEndDate', goalWeekEnd(nextStart))
+  }, [
+    startingNew,
+    earlyReachDate,
+    existingGoal,
+    values.weekStartDate,
+    setValue,
+  ])
+
   // #671/#659 — "ends on" cannot precede the window start this save will
   // use. Prefer the live form start date; when editing in place without a
   // typed override, fall back to the existing goal's weekStart.
@@ -474,7 +504,10 @@ export function GoalForm({
     (typeof values.weekStartDate === 'string' && values.weekStartDate) ||
     (!startingNew && existingGoal?.weekStart
       ? existingGoal.weekStart
-      : defaultWeekStartDate(startingNew ? existingGoal : null))
+      : defaultWeekStartDate(
+          startingNew ? existingGoal : null,
+          startingNew ? earlyReachDate : null,
+        ))
 
   // #683/#685 — draft window vs other saved goals (active + past). Warn
   // only; never blocks pick/save. Edit-in-place excludes the goal being
@@ -482,11 +515,28 @@ export function GoalForm({
   // keeps the previous goal in the check. Orange styling (#685).
   const draftWeekStart =
     (typeof values.weekStartDate === 'string' && values.weekStartDate) ||
-    defaultWeekStartDate(startingNew ? existingGoal : null)
+    defaultWeekStartDate(
+      startingNew ? existingGoal : null,
+      startingNew ? earlyReachDate : null,
+    )
   const draftWeekEnd =
     (typeof values.weekEndDate === 'string' && values.weekEndDate) ||
     goalWeekEnd(draftWeekStart)
-  const overlapCandidates = overlapGoals ?? (existingGoal ? [existingGoal] : [])
+  // #1079 — the goal being replaced ends on the weigh-in day. A next
+  // window that starts on that day (or later) does not keep the old
+  // week's leftover days, so it is not an overlap warning.
+  const overlapCandidates = (
+    overlapGoals ?? (existingGoal ? [existingGoal] : [])
+  ).filter(
+    (candidate) =>
+      !(
+        startingNew &&
+        existingGoal &&
+        earlyReachDate &&
+        candidate.id === existingGoal.id &&
+        draftWeekStart >= earlyReachDate
+      ),
+  )
   const showOverlapWarning = draftWindowOverlapsOthers(
     { weekStart: draftWeekStart, weekEnd: draftWeekEnd },
     overlapCandidates,
@@ -604,7 +654,10 @@ export function GoalForm({
     const weekStartForBaseline =
       (typeof formValues.weekStartDate === 'string' &&
         formValues.weekStartDate) ||
-      defaultWeekStartDate(startingNew ? existingGoal : null)
+      defaultWeekStartDate(
+        startingNew ? existingGoal : null,
+        startingNew ? earlyReachDate : null,
+      )
     if (savingFresh) {
       try {
         const entries = await dailyEntryRepository.getAll()
@@ -617,6 +670,10 @@ export function GoalForm({
         // Snapshot stays undefined; resolveBaselineWeightKg still recovers.
       }
     }
+    const closedPrevious =
+      startingNew && existingGoal
+        ? goalClosedOnEarlyReach(existingGoal, earlyReachDate)
+        : null
     await onSubmit(
       formValuesToGoal(
         formValues,
@@ -624,7 +681,9 @@ export function GoalForm({
         existingGoal,
         startingNew,
         weightForBaseline,
+        startingNew ? earlyReachDate : null,
       ),
+      closedPrevious,
     )
     setJustDeletedGoal(null)
     setJustSaved(true)
@@ -883,7 +942,7 @@ export function GoalForm({
                 onClick={() => {
                   setJustDeletedGoal(null)
                   setStartingNew(true)
-                  reset(emptyGoalFormValues(existingGoal))
+                  reset(emptyGoalFormValues(existingGoal, earlyReachDate))
                   setIsEditing(true)
                 }}
               >

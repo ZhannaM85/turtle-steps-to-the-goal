@@ -2,8 +2,10 @@ import { addDays, format, subDays } from 'date-fns'
 import { describe, expect, it } from 'vitest'
 import { goalWeekEnd, type Goal } from '@/domain/goal'
 import {
+  defaultWeekStartDate,
   effectiveWeeklyPaceKg,
   formValuesToGoal,
+  goalClosedOnEarlyReach,
   goalToFormValues,
 } from './goalFormMapping'
 import type { GoalFormValues } from './goalFormSchema'
@@ -367,6 +369,39 @@ describe('formValuesToGoal', () => {
       expect(goal.id).not.toBe('goal-1')
       expect(goal.weekStart).toBe(today)
       expect(goal.targetWeeklyLossKg).toBe(0.1)
+    })
+
+    it('starts the next goal on the weigh-in day when the previous goal was reached early (#1079)', () => {
+      const today = format(new Date(), 'yyyy-MM-dd')
+      const reachedOn = format(subDays(new Date(), 1), 'yyyy-MM-dd')
+      const weekStart = format(subDays(new Date(), 6), 'yyyy-MM-dd')
+      const existingGoal = makeGoal({
+        id: 'goal-1',
+        weekStart,
+        weekEnd: today,
+      })
+
+      expect(defaultWeekStartDate(existingGoal, reachedOn)).toBe(reachedOn)
+      // Last-day restart without an earlier weigh-in still bumps (#671).
+      expect(defaultWeekStartDate(existingGoal)).toBe(
+        format(addDays(new Date(), 1), 'yyyy-MM-dd'),
+      )
+
+      const goal = formValuesToGoal(
+        { targetWeeklyLoss: 1 },
+        'kg',
+        existingGoal,
+        true,
+        null,
+        reachedOn,
+      )
+      expect(goal.weekStart).toBe(reachedOn)
+      expect(goal.id).not.toBe('goal-1')
+
+      const closed = goalClosedOnEarlyReach(existingGoal, reachedOn)
+      expect(closed?.id).toBe('goal-1')
+      expect(closed?.weekEnd).toBe(reachedOn)
+      expect(goalClosedOnEarlyReach(existingGoal, today)).toBeNull()
     })
 
     it("avoids overlapping the previous goal's window when restarting the same day its weekEnd was reached (#671)", () => {

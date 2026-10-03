@@ -26,6 +26,7 @@ import { GoalForm } from '@/features/goal-setup/GoalForm'
 import {
   defaultWeekStartDate,
   formValuesToGoal,
+  goalClosedOnEarlyReach,
   resolveWeightForFreshBaseline,
 } from '@/features/goal-setup/goalFormMapping'
 
@@ -202,6 +203,36 @@ describe('#689 goal lifecycle HARD LOCK pack', () => {
       expect(
         screen.getByRole('button', { name: 'Start a new goal' }),
       ).toBeDisabled()
+    })
+  })
+
+  describe('8. #1079 early reach ends and restarts on the weigh-in day', () => {
+    it('does not bump past the weigh-in day, and closes the previous week there', () => {
+      const today = format(new Date(), 'yyyy-MM-dd')
+      const reachedOn = format(subDays(new Date(), 1), 'yyyy-MM-dd')
+      const weekStart = format(subDays(new Date(), 6), 'yyyy-MM-dd')
+      const prior = makeGoal({ weekStart, weekEnd: today })
+
+      expect(defaultWeekStartDate(prior, reachedOn)).toBe(reachedOn)
+      expect(defaultWeekStartDate(prior)).toBe(
+        format(addDays(new Date(), 1), 'yyyy-MM-dd'),
+      )
+
+      const closed = goalClosedOnEarlyReach(prior, reachedOn)
+      expect(closed?.weekEnd).toBe(reachedOn)
+      expect(closed?.id).toBe(prior.id)
+      expect(goalClosedOnEarlyReach(prior, today)).toBeNull()
+
+      const next = formValuesToGoal(
+        { targetWeeklyLoss: 0.2 },
+        'kg',
+        prior,
+        true,
+        null,
+        reachedOn,
+      )
+      expect(next.weekStart).toBe(reachedOn)
+      expect(next.id).not.toBe(prior.id)
     })
   })
 

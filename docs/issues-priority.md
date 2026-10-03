@@ -117,3 +117,13 @@ _The food search and Recent list under Add meal grows into the room above the ke
 | [#1076](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1076) | 🔍 Pending validation | Add meal modal: title and close on one row; repeat toolbar; name and time match why-eating width | Title «Добавить приём пищи» and ✕ share the top row. Repeat and info sit right-aligned underneath. Meal name and time each use one column of the same two-column grid as Why am I eating?, including the scroll gutter. Why-eating and search stay below. 901 daily-log tests, typecheck, and lint passed. Release note v1051. Awaiting on-device confirmation. |
 | [#1077](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1077) | 🔍 Pending validation | Add meal modal: meal name and time on one row | Meal name and time share one `grid-cols-2` row, each half as wide as the why-eating pair, with the time box lined up under the name label. Title «Добавить приём пищи» and ✕, and the right-aligned repeat/info toolbar, stay as in #1076. 901 daily-log tests, typecheck, and lint passed. Release note v1052. Awaiting on-device confirmation. |
 | [#1078](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1078) | 🔍 Pending validation | Add meal modal: remove repeat and info icons | The repeat and info icons, and the toolbar row under the title, are gone from add and edit. Title «Добавить приём пищи» and ✕ stay. Meal name and time stay on one row. 897 daily-log tests, typecheck, and lint passed. Release note v1053. Awaiting on-device confirmation. |
+
+---
+
+## Tier 178 — Live feedback (2026-10-03)
+
+_On Цель, a past week that was reached early shows «Цель достигнута» on the weigh-in day. That goal’s range ends that day, and the next goal starts the same day._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1079](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1079) | 🔍 Pending validation | Goal reached date is the weigh-in day; next goal starts that day | Reached status uses the weigh-in day. An early reach ends that goal’s range on that day, and the next goal starts the same day, so the old week’s later days are not left on the previous range. Goal history, form, screen, store, and lifecycle tests passed; typecheck and lint passed. Release note v1054. Awaiting on-device confirmation. |

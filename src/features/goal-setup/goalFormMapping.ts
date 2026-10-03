@@ -10,14 +10,42 @@ import type { GoalFormValues } from './goalFormSchema'
  * Usually today; bumped one day forward when restarting on the exact day
  * the previous goal's own weekEnd was reached, so the two inclusive
  * windows don't share that day (see `freshWeekStart` history in #671).
+ * #1079 — an earlier weigh-in (`reachedOnDate` before that week end)
+ * starts the next goal on the weigh-in day instead of bumping past it.
  */
-export function defaultWeekStartDate(existingGoal: Goal | null = null): string {
+export function defaultWeekStartDate(
+  existingGoal: Goal | null = null,
+  reachedOnDate: string | null = null,
+): string {
   const today = format(new Date(), 'yyyy-MM-dd')
   if (!existingGoal?.weekStart) return today
   const existingWeekEnd =
     existingGoal.weekEnd ?? goalWeekEnd(existingGoal.weekStart)
+  if (reachedOnDate && reachedOnDate < existingWeekEnd) return reachedOnDate
   if (existingWeekEnd !== today) return today
   return format(addDays(parseISO(existingWeekEnd), 1), 'yyyy-MM-dd')
+}
+
+/**
+ * #1079 — close a goal that was reached before its planned week end on
+ * the weigh-in day, so the history range does not keep the leftover
+ * days. Returns null when the stored end is already that day, or the
+ * reach was not early (`#671` last-day restart is unchanged).
+ */
+export function goalClosedOnEarlyReach(
+  existingGoal: Goal,
+  reachedOnDate: string | null,
+): Goal | null {
+  if (!existingGoal.weekStart || !reachedOnDate) return null
+  const plannedEnd =
+    existingGoal.weekEnd ?? goalWeekEnd(existingGoal.weekStart)
+  if (reachedOnDate >= plannedEnd) return null
+  if (existingGoal.weekEnd === reachedOnDate) return null
+  return {
+    ...existingGoal,
+    weekEnd: reachedOnDate,
+    updatedAt: new Date().toISOString(),
+  }
 }
 
 /**
@@ -120,6 +148,7 @@ export function formValuesToGoal(
   // regardless of `unit` — same "unconverted" convention GoalForm's own
   // `latestWeightKg` prop already uses for its TDEE helper.
   latestWeightKg: number | null = null,
+  reachedOnDate: string | null = null,
 ): Goal {
   const toKg = (value: number) => (unit === 'lb' ? lbToKg(value) : value)
   const now = new Date().toISOString()
@@ -164,10 +193,12 @@ export function formValuesToGoal(
     dailyPotassiumTargetMg: values.dailyPotassiumTarget,
     dailyMagnesiumTargetMg: values.dailyMagnesiumTarget,
     dailyWaterTargetMl: values.dailyWaterTarget,
-    // #671 — prefer the form's editable start date (defaults via
-    // `defaultWeekStartDate`, including the same-day-reach bump); fall
-    // back to that helper if the field was cleared.
-    weekStart: values.weekStartDate || defaultWeekStartDate(existingGoal),
+    // #671 / #1079 — prefer the form's editable start date (defaults via
+    // `defaultWeekStartDate`: last-day bump, or the early weigh-in day);
+    // fall back to that helper if the field was cleared.
+    weekStart:
+      values.weekStartDate ||
+      defaultWeekStartDate(existingGoal, reachedOnDate),
     weekEnd: values.weekEndDate || undefined,
     // #676 — frozen once, here, at the moment this record is first
     // created; never touched again (the edit-in-place branch above spreads

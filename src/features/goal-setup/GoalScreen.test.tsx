@@ -494,6 +494,17 @@ describe('GoalScreen', () => {
     expect(
       screen.queryByText(/keep it up through .* to earn your badge/),
     ).not.toBeInTheDocument()
+    // #1079 — concluded early reach ends on the weigh-in day (today-3),
+    // not the planned week end (today-2), on the card and in history.
+    const weekStartLabel = format(addDays(new Date(), -8), 'PP')
+    const reachedLabel = format(addDays(new Date(), -3), 'PP')
+    const plannedEndLabel = format(addDays(new Date(), -2), 'PP')
+    expect(
+      screen.getAllByText(`${weekStartLabel} – ${reachedLabel}`).length,
+    ).toBeGreaterThan(0)
+    expect(
+      screen.queryByText(`${weekStartLabel} – ${plannedEndLabel}`),
+    ).not.toBeInTheDocument()
   })
 
   it('shows a calm missed nudge, not the mid-week reached one, once the window has ended without meeting the target (#639)', async () => {

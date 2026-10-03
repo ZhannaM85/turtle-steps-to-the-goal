@@ -9,7 +9,7 @@ interface GoalStoreState {
   status: 'idle' | 'loading' | 'ready' | 'error'
   error: string | null
   loadActiveGoal: () => Promise<void>
-  saveGoal: (goal: Goal) => Promise<void>
+  saveGoal: (goal: Goal, closedPrevious?: Goal | null) => Promise<void>
   /**
    * #668 / #677 — pops the active goal (stack top). The next-newest
    * remaining record becomes active (`getActiveGoal`); if none remain,
@@ -42,7 +42,12 @@ export const useGoalStore = create<GoalStoreState>((set, get) => ({
       })
     }
   },
-  saveGoal: async (goal) => {
+  saveGoal: async (goal, closedPrevious) => {
+    // #1079 — close the previous week on the weigh-in day before the new
+    // goal becomes active, so a refresh still shows that shorter range.
+    if (closedPrevious && closedPrevious.id !== goal.id) {
+      await goalRepository.saveGoal(closedPrevious)
+    }
     await goalRepository.saveGoal(goal)
     set({ goal, status: 'ready' })
   },

@@ -28,6 +28,10 @@ import {
 } from '@/stores'
 import { GoalForm } from './GoalForm'
 import { PastTargetsList } from './PastTargetsList'
+import {
+  earlyReachedOnDate,
+  pastGoalHistoryWeekEnd,
+} from './pastGoalReachedStatusDate'
 
 export function GoalScreen() {
   const t = useTranslation()
@@ -57,6 +61,16 @@ export function GoalScreen() {
   const activeGoalConcluded = activeGoalProgress
     ? goalWindowConcluded(activeGoalProgress)
     : undefined
+  // #1079 — a concluded early reach ends on the weigh-in day. While the
+  // window is still open the card keeps the planned end (the in-progress
+  // nudge still names that date).
+  const earlyReachDate = earlyReachedOnDate(activeGoalProgress)
+  const activeGoalRangeEnd =
+    goal?.weekStart == null
+      ? null
+      : activeGoalConcluded
+        ? pastGoalHistoryWeekEnd(goal, activeGoalProgress)
+        : (goal.weekEnd ?? goalWeekEnd(goal.weekStart))
   // #639: the mid-week "reached" badge/nudge only while the window is
   // still open — once it ends, goalNudgePhase below (completed/missed)
   // takes over, so the two moments never show contradictory messages
@@ -198,7 +212,11 @@ export function GoalScreen() {
                             locale: dateFnsLocale,
                           }),
                           format(
-                            parseISO(goal.weekEnd ?? goalWeekEnd(goal.weekStart)),
+                            parseISO(
+                              activeGoalRangeEnd ??
+                                goal.weekEnd ??
+                                goalWeekEnd(goal.weekStart),
+                            ),
                             'PP',
                             { locale: dateFnsLocale },
                           ),
@@ -283,6 +301,7 @@ export function GoalScreen() {
             latestWeightKg={latestWeightKg}
             activeGoalConcluded={activeGoalConcluded}
             activeGoalReached={activeGoalProgress?.targetMet === true}
+            earlyReachDate={earlyReachDate}
             overlapGoals={[
               ...(goal ? [goal] : []),
               ...pastTargets.map((record) => record.goal),
