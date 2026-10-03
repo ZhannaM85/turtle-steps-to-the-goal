@@ -113,4 +113,3 @@ _On Цель, a past week that was reached early shows «Цель достигн
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1080](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1080) | 🔍 Pending validation | Morning note: cross dismisses an empty note so the day can have none | × on an empty morning, evening, night-food, or shared day note closes the editor and does not save a blank string. The heading and pencil stay. A saved note still deletes after confirm. 900 daily-log tests, typecheck, and lint passed. Release note v1055. Awaiting on-device confirmation. |

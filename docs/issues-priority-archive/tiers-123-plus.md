@@ -986,3 +986,4 @@ _Closed rows only. Open / pending items stay in the active file._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1079](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1079) | ✅ Done | Goal reached date is the weigh-in day; next goal starts that day | Confirmed on-device 2026-10-03. Release note v1054. |
+| [#1080](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1080) | ✅ Done | Morning note: cross dismisses an empty note so the day can have none | Confirmed on-device 2026-10-03. Release note v1055. |
