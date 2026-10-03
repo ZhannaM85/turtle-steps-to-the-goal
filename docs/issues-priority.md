@@ -109,7 +109,8 @@ _The food search and Recent list under Add meal grows into the room above the ke
 
 ## Tier 178 — Live feedback (2026-10-03)
 
-_On Цель, a past week that was reached early shows «Цель достигнута» on the weigh-in day. That goal’s range ends that day, and the next goal starts the same day. On Day, the cross on an empty morning note closes it so that day can have none; the heading and pencil stay._
+_On Цель, a past week that was reached early shows «Цель достигнута» on the weigh-in day. That goal’s range ends that day, and the next goal starts the same day. On Day, the cross on an empty morning note closes it so that day can have none; the heading and pencil stay. In Add meal, the first tap on «Поиск…» focuses the field and opens the keyboard._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#1082](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1082) | 🔍 Pending validation | Add-meal search: keyboard opens only on the second tap | A short tap focuses the search field before the suggestion list mounts, so the keyboard opens on that first tap. The list still opens with that focus, stays open when the keyboard closes, and a tap on an already-focused field still reopens it after Escape. 85 add-meal search and dialog tests, typecheck, and lint passed. Release note v1056. Awaiting on-device confirmation. |

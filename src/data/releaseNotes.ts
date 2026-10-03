@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1056,
+    issue: 1082,
+    date: "2026-10-03T15:00:21.105+03:00",
+    en: "The first tap on food search in Add meal opens the keyboard.",
+    ru: "Первое нажатие на «Поиск…» при добавлении еды открывает клавиатуру.",
+  },
+  {
     version: 1055,
     issue: 1080,
     date: "2026-10-03T14:32:43.292+03:00",

@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import type { PickableItem } from './addMealDialogHelpers'
@@ -184,6 +184,32 @@ describe('recent foods dropdown (#1055)', () => {
     )
     return { onPick }
   }
+
+  it('focuses the search field on the first tap and opens Recent with that focus (#1082)', async () => {
+    renderRecents()
+    const search = screen.getByLabelText('Search foods')
+
+    fireEvent.pointerDown(search, { button: 0, clientX: 20, clientY: 20 })
+
+    expect(search).not.toHaveFocus()
+    expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
+
+    fireEvent.pointerUp(search, { button: 0, clientX: 20, clientY: 20 })
+
+    expect(search).toHaveFocus()
+    expect(await screen.findByRole('region', { name: 'Recent' })).toBeInTheDocument()
+  })
+
+  it('does not focus the search field when the touch moves (#1082)', () => {
+    renderRecents()
+    const search = screen.getByLabelText('Search foods')
+
+    fireEvent.pointerDown(search, { button: 0, clientX: 10, clientY: 10 })
+    fireEvent.pointerUp(search, { button: 0, clientX: 40, clientY: 10 })
+
+    expect(search).not.toHaveFocus()
+    expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
+  })
 
   it('hides recents until the empty search field is focused', async () => {
     const user = userEvent.setup()

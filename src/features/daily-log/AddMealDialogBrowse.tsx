@@ -90,6 +90,8 @@ export function AddMealDialogBrowse({
   // keyboard is already closed hides it.
   const rootRef = useRef<HTMLDivElement>(null)
   const viewportAtFocusRef = useRef<number | null>(null)
+  // #1082 — a short tap focuses on pointerup. A drag is the sheet scrolling.
+  const tapOriginRef = useRef<{ x: number; y: number } | null>(null)
   const [suggestionOpen, setSuggestionOpen] = useState(false)
   function rememberOpenViewport() {
     const height = window.innerHeight
@@ -144,13 +146,36 @@ export function AddMealDialogBrowse({
           placeholder={t.dailyEntry.foodSearchPlaceholder}
           value={search}
           onChange={(e) => onChangeSearch(e.target.value)}
-          onPointerDown={() => {
+          onPointerDown={(event) => {
+            if (event.button !== 0) return
             rememberOpenViewport()
-            setSuggestionOpen(true)
+            tapOriginRef.current = { x: event.clientX, y: event.clientY }
+            // #1082 — mounting the list here changes the DOM before iOS
+            // focuses the field, so the keyboard waits for a second tap.
+            // A field that is already focused (Escape closed the list)
+            // still opens here, because focus will not fire again.
+            if (document.activeElement === event.currentTarget) {
+              setSuggestionOpen(true)
+            }
+          }}
+          onPointerUp={(event) => {
+            const origin = tapOriginRef.current
+            tapOriginRef.current = null
+            if (event.button !== 0 || !origin) return
+            const dx = event.clientX - origin.x
+            const dy = event.clientY - origin.y
+            if (dx * dx + dy * dy > 100) return
+            const input = event.currentTarget
+            if (document.activeElement !== input) input.focus({ preventScroll: true })
+          }}
+          onPointerCancel={() => {
+            tapOriginRef.current = null
           }}
           onFocus={() => {
             rememberOpenViewport()
-            setSuggestionOpen(true)
+            // After the tap's focus event, so the list mount cannot cancel
+            // the keyboard the focus just requested.
+            queueMicrotask(() => setSuggestionOpen(true))
           }}
           // #1066 — the scroll frame clips outward rings at both sides.
           // Paint the focus ring inside the field so every edge stays visible.
