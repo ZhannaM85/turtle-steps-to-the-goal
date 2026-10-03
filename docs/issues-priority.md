@@ -97,7 +97,6 @@ _About and Features list what shipped in Tiers 172–175: optional LDL tags, the
 |---|--------|-------|-------|
 | [#1065](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1065) | 🔍 Pending validation | Meal note: empty input visible before tapping pencil on another user's device | Root cause: new non-night meals used a bare input; night food and edited meals used NoteEditor. All meal types now use the pencil/save/cancel cycle. 168 affected tests and 4 E2E checks passed; typecheck/lint passed. Release note v1041. Awaiting on-device confirmation. |
 | [#1066](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1066) | 🔍 Pending validation | Add food: focused search input borders clipped on left and right | Focus ring now paints inside the search field instead of beyond the clipping scroll frame. Mobile browser verified; 7 browse tests and typecheck passed. Release note v1042. Awaiting on-device confirmation. |
-| [#1067](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1067) | 🔍 Pending validation | Add meal: align close icon with meal name, time, and refresh row | Close now sits in the centered controls row via DialogClose, with a 44px touch target; shared dialogs keep their default Close. Mobile centers verified equal; 73 affected tests and 4 E2E checks passed; typecheck and source lint passed. Release note v1043. Awaiting on-device confirmation. |
 
 ---
 
