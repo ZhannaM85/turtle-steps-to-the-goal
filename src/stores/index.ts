@@ -77,6 +77,11 @@ export {
 } from './todaySectionsCollapseStore'
 export { useCustomMetricStore } from './customMetricStore'
 export { useCustomMetricNoteDismissalStore } from './customMetricNoteDismissalStore'
+export {
+  dayNoteDismissalKey,
+  useDayNoteDismissalStore,
+  type DayNoteDismissalField,
+} from './dayNoteDismissalStore'
 export { useCustomCorrelationStore } from './customCorrelationStore'
 export { useWeeklyNoteStore } from './weeklyNoteStore'
 export { useSettingsPinStore, settingsPinOrder } from './settingsPinStore'

@@ -128,6 +128,38 @@ describe('DailyEntryForm', () => {
       expect(onSave).not.toHaveBeenCalled()
     })
 
+    it('dismisses an empty night-food reason on × without saving it (#1080)', async () => {
+      const user = userEvent.setup()
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'entry-1',
+            date: '2026-03-01',
+            nightEatingOverride: true,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      await user.type(screen.getByRole('textbox', { name: 'Reason' }), '   ')
+      await user.click(
+        screen.getByRole('button', { name: 'Cancel editing reason' }),
+      )
+
+      expect(onSave).not.toHaveBeenCalled()
+      expect(
+        screen.queryByRole('textbox', { name: 'Reason' }),
+      ).not.toBeInTheDocument()
+      expect(screen.getByText('Reason')).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Edit reason' }),
+      ).toBeInTheDocument()
+    })
+
     it('does not save an empty What helped (#854)', async () => {
       const onSave = vi.fn()
       render(
@@ -207,7 +239,7 @@ describe('DailyEntryForm', () => {
       expect(clear).toHaveAttribute('data-size', 'icon-touch')
     })
 
-    it('clears an unsaved What helped draft without persisting it (#850)', async () => {
+    it('dismisses an unsaved What helped draft without persisting it (#1080)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
       render(
@@ -231,9 +263,13 @@ describe('DailyEntryForm', () => {
       )
 
       expect(onSave).not.toHaveBeenCalled()
-      expect(input).toHaveValue('')
+      expect(screen.queryByText('tea helped')).not.toBeInTheDocument()
       expect(
-        screen.getByRole('textbox', { name: 'What helped?' }),
+        screen.queryByRole('textbox', { name: 'What helped?' }),
+      ).not.toBeInTheDocument()
+      expect(screen.getByText('What helped?')).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Edit what helped' }),
       ).toBeInTheDocument()
     })
 

@@ -7,6 +7,7 @@ import { afterEach, beforeEach, expect, vi } from 'vitest'
 import type { CalorieEntry } from '@/domain/dailyEntry'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import {
+  useDayNoteDismissalStore,
   useDigestionTrackingStore,
   useMealItemStore,
   useMealLabelPresetStore,
@@ -121,6 +122,9 @@ beforeEach(async () => {
   // a leftover add-row draft (now persisted to localStorage) from one test
   // would silently pre-fill the next one's fresh render for the same date.
   localStorage.clear()
+  // #1080 — an in-memory skip survives localStorage.clear(); don't let one
+  // test's × hide the next test's empty editor for the same date.
+  useDayNoteDismissalStore.setState({ dismissed: {} })
   useTodaySectionsCollapseStore.setState({
     sections: { ...DEFAULT_TODAY_SECTIONS },
   })

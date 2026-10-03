@@ -146,22 +146,60 @@ describe('DailyEntryForm', () => {
         expect(screen.getByLabelText('Morning note')).toHaveValue('')
       })
 
-    it('shows a clear × on a brand-new morning note (#850)', async () => {
+    it('dismisses an empty morning note on × and keeps the heading and pencil (#1080)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
-      render(
+      const view = render(
         <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
       )
 
       const input = screen.getByLabelText('Morning note')
-      await user.type(input, 'draft')
+      await user.type(input, '   ')
       await user.click(
         screen.getByRole('button', { name: 'Cancel editing morning note' }),
       )
 
       expect(onSave).not.toHaveBeenCalled()
-      expect(input).toHaveValue('')
-      expect(screen.getByLabelText('Morning note')).toBeInTheDocument()
+      expect(screen.queryByText('   ')).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('textbox', { name: 'Morning note' }),
+      ).not.toBeInTheDocument()
+      expect(screen.getByText('Morning note')).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Edit morning note' }),
+      ).toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: 'Delete morning note' }),
+      ).not.toBeInTheDocument()
+      const block = screen.getByText('Morning note').closest('div')
+        ?.parentElement
+      expect(block?.querySelector('.bg-muted')).toBeNull()
+
+      await user.click(
+        screen.getByRole('button', { name: 'Edit morning note' }),
+      )
+      const reopened = screen.getByLabelText('Morning note')
+      expect(reopened).toHaveValue('')
+      await user.type(reopened, 'draft')
+      await user.click(
+        screen.getByRole('button', { name: 'Cancel editing morning note' }),
+      )
+      expect(onSave).not.toHaveBeenCalled()
+      expect(screen.queryByText('draft')).not.toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Edit morning note' }),
+      ).toBeInTheDocument()
+
+      view.unmount()
+      render(
+        <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={onSave} />,
+      )
+      expect(
+        screen.queryByRole('textbox', { name: 'Morning note' }),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Edit morning note' }),
+      ).toBeInTheDocument()
     })
 
     it('does not save an empty or whitespace-only morning note (#854)', async () => {

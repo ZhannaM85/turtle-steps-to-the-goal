@@ -122,8 +122,9 @@ _The food search and Recent list under Add meal grows into the room above the ke
 
 ## Tier 178 — Live feedback (2026-10-03)
 
-_On Цель, a past week that was reached early shows «Цель достигнута» on the weigh-in day. That goal’s range ends that day, and the next goal starts the same day._
+_On Цель, a past week that was reached early shows «Цель достигнута» on the weigh-in day. That goal’s range ends that day, and the next goal starts the same day. On Day, the cross on an empty morning note closes it so that day can have none; the heading and pencil stay._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1079](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1079) | 🔍 Pending validation | Goal reached date is the weigh-in day; next goal starts that day | Reached status uses the weigh-in day. An early reach ends that goal’s range on that day, and the next goal starts the same day, so the old week’s later days are not left on the previous range. Goal history, form, screen, store, and lifecycle tests passed; typecheck and lint passed. Release note v1054. Awaiting on-device confirmation. |
+| [#1080](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1080) | 🔍 Pending validation | Morning note: cross dismisses an empty note so the day can have none | × on an empty morning, evening, night-food, or shared day note closes the editor and does not save a blank string. The heading and pencil stay. A saved note still deletes after confirm. 900 daily-log tests, typecheck, and lint passed. Release note v1055. Awaiting on-device confirmation. |

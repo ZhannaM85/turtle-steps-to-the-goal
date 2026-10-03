@@ -288,6 +288,7 @@ export function useDailyEntryFormState({
   const sleep = useDailyEntrySleep(fieldApi)
   const notes = useDailyEntryNoteFields({
     ...fieldApi,
+    date,
     persistWithCleared,
     savedNotesRef,
   })

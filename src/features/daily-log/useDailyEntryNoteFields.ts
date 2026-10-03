@@ -1,5 +1,10 @@
-import { useState, type MutableRefObject } from 'react'
+import { useEffect, useRef, useState, type MutableRefObject } from 'react'
 import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
+import {
+  dayNoteDismissalKey,
+  useDayNoteDismissalStore,
+  type DayNoteDismissalField,
+} from '@/stores'
 import { noteSchema, type DailyEntryFormValues } from './dailyEntryFormSchema'
 import type { DailyEntryFormFieldApi } from './dailyEntryFormFieldApi'
 
@@ -10,14 +15,26 @@ export type SavedNoteLikeFields = {
   nightEatingNoWhatHelped: string | undefined
 }
 
-type NoteLikeField =
-  | 'note'
-  | 'morningNote'
-  | 'nightEatingReason'
-  | 'nightEatingNoWhatHelped'
+type NoteLikeField = DayNoteDismissalField
+
+function emptyNoteStartsOpen(
+  alwaysEditable: boolean,
+  date: string,
+  field: NoteLikeField,
+  saved: string | undefined,
+) {
+  if (alwaysEditable) return true
+  if (!isBlankSaveValue(saved)) return false
+  return (
+    useDayNoteDismissalStore.getState().dismissed[
+      dayNoteDismissalKey(date, field)
+    ] !== true
+  )
+}
 
 export function useDailyEntryNoteFields({
   alwaysEditable,
+  date,
   initialValues,
   t,
   getValues,
@@ -29,23 +46,44 @@ export function useDailyEntryNoteFields({
   persistWithCleared,
   savedNotesRef,
 }: DailyEntryFormFieldApi & {
+  date: string
   persistWithCleared: (
     values: DailyEntryFormValues,
     cleared: Partial<DailyEntryFormValues>,
   ) => void
   savedNotesRef: MutableRefObject<SavedNoteLikeFields>
 }) {
-  const [isEditingNote, setIsEditingNote] = useState(
-    alwaysEditable || !initialValues.note,
+  const [isEditingNote, setIsEditingNote] = useState(() =>
+    emptyNoteStartsOpen(alwaysEditable, date, 'note', initialValues.note),
   )
-  const [isEditingMorningNote, setIsEditingMorningNote] = useState(
-    alwaysEditable || !initialValues.morningNote,
+  const [isEditingMorningNote, setIsEditingMorningNote] = useState(() =>
+    emptyNoteStartsOpen(
+      alwaysEditable,
+      date,
+      'morningNote',
+      initialValues.morningNote,
+    ),
   )
   const [isEditingNightEatingReason, setIsEditingNightEatingReason] = useState(
-    alwaysEditable || !initialValues.nightEatingReason,
+    () =>
+      emptyNoteStartsOpen(
+        alwaysEditable,
+        date,
+        'nightEatingReason',
+        initialValues.nightEatingReason,
+      ),
   )
-  const [isEditingNightEatingNoWhatHelped, setIsEditingNightEatingNoWhatHelped] =
-    useState(alwaysEditable || !initialValues.nightEatingNoWhatHelped)
+  const [
+    isEditingNightEatingNoWhatHelped,
+    setIsEditingNightEatingNoWhatHelped,
+  ] = useState(() =>
+    emptyNoteStartsOpen(
+      alwaysEditable,
+      date,
+      'nightEatingNoWhatHelped',
+      initialValues.nightEatingNoWhatHelped,
+    ),
+  )
   const [savedNote, setSavedNote] = useState(initialValues.note)
   const [savedMorningNote, setSavedMorningNote] = useState(
     initialValues.morningNote,
@@ -64,6 +102,48 @@ export function useDailyEntryNoteFields({
     isConfirmingDeleteNightEatingNoWhatHelped,
     setIsConfirmingDeleteNightEatingNoWhatHelped,
   ] = useState(false)
+  const dismissedNotes = useDayNoteDismissalStore((state) => state.dismissed)
+  const dismissedNotesRef = useRef(dismissedNotes)
+
+  // #1080 — close only when this field's skip flips on (hydration or ×).
+  // A later skip of a sibling note must not collapse one the user reopened.
+  useEffect(() => {
+    const previous = dismissedNotesRef.current
+    dismissedNotesRef.current = dismissedNotes
+    if (alwaysEditable) return
+    const fields: Array<{
+      field: NoteLikeField
+      saved: string | undefined
+      close: () => void
+    }> = [
+      { field: 'note', saved: initialValues.note, close: () => setIsEditingNote(false) },
+      {
+        field: 'morningNote',
+        saved: initialValues.morningNote,
+        close: () => setIsEditingMorningNote(false),
+      },
+      {
+        field: 'nightEatingReason',
+        saved: initialValues.nightEatingReason,
+        close: () => setIsEditingNightEatingReason(false),
+      },
+      {
+        field: 'nightEatingNoWhatHelped',
+        saved: initialValues.nightEatingNoWhatHelped,
+        close: () => setIsEditingNightEatingNoWhatHelped(false),
+      },
+    ]
+    for (const item of fields) {
+      const key = dayNoteDismissalKey(date, item.field)
+      if (
+        dismissedNotes[key] === true &&
+        previous[key] !== true &&
+        isBlankSaveValue(item.saved)
+      ) {
+        item.close()
+      }
+    }
+  }, [alwaysEditable, date, dismissedNotes, initialValues])
 
   const showNoteAsDisplay = !alwaysEditable && !isEditingNote
   const showMorningNoteAsDisplay = !alwaysEditable && !isEditingMorningNote
@@ -71,10 +151,10 @@ export function useDailyEntryNoteFields({
     !alwaysEditable && !isEditingNightEatingReason
   const showNightEatingNoWhatHelpedAsDisplay =
     !alwaysEditable && !isEditingNightEatingNoWhatHelped
-  const canDeleteNote = Boolean(savedNote)
-  const canDeleteMorningNote = Boolean(savedMorningNote)
-  const canDeleteNightEatingReason = Boolean(savedNightEatingReason)
-  const canDeleteNightEatingNoWhatHelped = Boolean(
+  const canDeleteNote = !isBlankSaveValue(savedNote)
+  const canDeleteMorningNote = !isBlankSaveValue(savedMorningNote)
+  const canDeleteNightEatingReason = !isBlankSaveValue(savedNightEatingReason)
+  const canDeleteNightEatingNoWhatHelped = !isBlankSaveValue(
     savedNightEatingNoWhatHelped,
   )
 
@@ -104,10 +184,16 @@ export function useDailyEntryNoteFields({
     saved: string | undefined,
     setEditing: (editing: boolean) => void,
   ) {
-    setValue(field, saved)
+    const savedValue = isBlankSaveValue(saved) ? undefined : saved
+    // '' clears a whitespace draft in the form. Persist still drops blanks,
+    // so × does not write an empty string onto the day.
+    setValue(field, savedValue ?? '')
     clearErrors(field)
-    if (alwaysEditable || Boolean(saved)) {
-      setEditing(false)
+    setEditing(false)
+    if (!alwaysEditable && savedValue === undefined) {
+      useDayNoteDismissalStore
+        .getState()
+        .dismiss(dayNoteDismissalKey(date, field))
     }
   }
 
@@ -123,6 +209,9 @@ export function useDailyEntryNoteFields({
     const next = { ...getValues(), [field]: undefined }
     reset(next)
     persistWithCleared(next, { [field]: undefined })
+    useDayNoteDismissalStore
+      .getState()
+      .restore(dayNoteDismissalKey(date, field))
     setEditing(true)
   }
 

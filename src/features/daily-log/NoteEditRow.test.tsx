@@ -222,4 +222,27 @@ describe('NoteEditRow (#850 / #851 / #852 / #854 / #858 / #860)', () => {
     expect(header).not.toHaveTextContent('felt good')
     expect(screen.getByText('felt good')).toBeInTheDocument()
   })
+
+  it('keeps a blank note as the heading and pencil, without an empty box (#1080)', () => {
+    render(
+      <NoteDisplayBlock
+        label="Morning note"
+        text="   "
+        editLabel="Edit morning note"
+        onEdit={() => {}}
+        canDelete={false}
+        deleteLabel="Delete morning note"
+        onDelete={() => {}}
+      />,
+    )
+
+    expect(screen.getByText('Morning note')).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Edit morning note' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Delete morning note' }),
+    ).not.toBeInTheDocument()
+    expect(document.querySelector('.bg-muted')).toBeNull()
+  })
 })

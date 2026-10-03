@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1055,
+    issue: 1080,
+    date: "2026-10-03T14:32:43.292+03:00",
+    en: "On Day, the cross closes an empty morning, evening, or night-food note without saving it, and the heading and pencil stay so you can add one later.",
+    ru: "На дне крестик закрывает пустую утреннюю, вечернюю или ночную заметку и ничего не сохраняет, а заголовок и карандаш остаются, чтобы заметку можно было добавить позже.",
+  },
+  {
     version: 1054,
     issue: 1079,
     date: "2026-10-03T13:05:21.691+03:00",

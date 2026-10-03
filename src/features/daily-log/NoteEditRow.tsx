@@ -90,6 +90,12 @@ export function NoteEditRow({
   )
 }
 
+/** Blank text is not a saved note (#1080): heading + pencil, no empty box. */
+function hasVisibleNoteText(text: ReactNode): boolean {
+  if (typeof text === 'string') return text.trim() !== ''
+  return text != null && text !== false
+}
+
 /** View-mode peer of `NoteEditRow` (#858): pencil + trash on the title row. */
 export function NoteDisplayBlock({
   label,
@@ -122,10 +128,13 @@ export function NoteDisplayBlock({
           />
         }
       />
-      {/* #189: min-h-12, not a fixed h-12 — a long note wraps. */}
-      <div className="flex min-h-12 items-center rounded-lg bg-muted px-3 py-1.5">
-        <span className="text-sm text-foreground">{text}</span>
-      </div>
+      {/* #189: min-h-12, not a fixed h-12 — a long note wraps.
+          #1080: nothing saved stays heading + pencil, not an empty box. */}
+      {hasVisibleNoteText(text) ? (
+        <div className="flex min-h-12 items-center rounded-lg bg-muted px-3 py-1.5">
+          <span className="text-sm text-foreground">{text}</span>
+        </div>
+      ) : null}
     </div>
   )
 }

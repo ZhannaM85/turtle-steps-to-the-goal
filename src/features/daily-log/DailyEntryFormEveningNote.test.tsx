@@ -126,7 +126,7 @@ describe('DailyEntryForm', () => {
     })
 
     describe('leaving edit mode without saving (#437 / #850)', () => {
-      it('shows a clear × on a brand-new note that empties the draft without leaving edit', async () => {
+      it('dismisses a brand-new note on × without saving it (#1080)', async () => {
         const user = userEvent.setup()
         const onSave = vi.fn()
         render(
@@ -140,8 +140,37 @@ describe('DailyEntryForm', () => {
         )
 
         expect(onSave).not.toHaveBeenCalled()
-        expect(input).toHaveValue('')
-        expect(screen.getByLabelText("Day's note")).toBeInTheDocument()
+        expect(screen.queryByText('draft I do not want')).not.toBeInTheDocument()
+        expect(
+          screen.queryByRole('textbox', { name: "Day's note" }),
+        ).not.toBeInTheDocument()
+        expect(screen.getByText("Day's note")).toBeInTheDocument()
+        expect(
+          screen.getByRole('button', { name: 'Edit note' }),
+        ).toBeInTheDocument()
+      })
+
+      it('keeps a reopened morning note open when the evening note is skipped (#1080)', async () => {
+        const user = userEvent.setup()
+        render(
+          <DailyEntryForm date="2026-03-01" existingEntry={null} onSave={vi.fn()} />,
+        )
+
+        await user.click(
+          screen.getByRole('button', { name: 'Cancel editing morning note' }),
+        )
+        await user.click(
+          screen.getByRole('button', { name: 'Edit morning note' }),
+        )
+        await user.type(screen.getByLabelText('Morning note'), 'still writing')
+        await user.click(
+          screen.getByRole('button', { name: 'Cancel editing note' }),
+        )
+
+        expect(screen.getByLabelText('Morning note')).toHaveValue('still writing')
+        expect(
+          screen.queryByRole('textbox', { name: "Day's note" }),
+        ).not.toBeInTheDocument()
       })
 
       it('discards a typed change and reverts to the saved note', async () => {
