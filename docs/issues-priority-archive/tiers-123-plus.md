@@ -967,6 +967,7 @@ _Closed rows only. Open / pending items stay in the active file._
 | [#1077](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1077) | ✅ Done | Add meal modal: meal name and time on one row | Confirmed on-device 2026-10-03. Release note v1052. |
 | [#1076](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1076) | ✅ Done | Add meal modal: title and close on one row; repeat toolbar; name and time match why-eating width | Confirmed on-device 2026-10-03. Release note v1051. |
 | [#1075](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1075) | ✅ Done | Meal name templates: same order in Settings and the meal-name list; drag to reorder | Confirmed on-device 2026-10-03. Release note v1050. |
+| [#1074](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1074) | ✅ Done | Day: restore water pin-to-top (not sticky); sticky remains КБЖУ-only | Confirmed on-device 2026-10-03. Release note v1049. |
 
 ---
 
