@@ -107,7 +107,6 @@ _The food search and Recent list under Add meal grows into the room above the ke
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1068](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1068) | 🔍 Pending validation | Add food: expand search and Recent dropdown height | Panel cap is now `min(28rem, max(35dvh, calc(100dvh - 18rem)))` instead of `min(12rem, 35dvh)`, so the list grows into the room above the keyboard and a short viewport stays within the old 35dvh limit. Internal scrolling unchanged. 7 browse tests, typecheck, and lint passed. Release note v1045. Awaiting on-device confirmation. |
 
 ---
 
