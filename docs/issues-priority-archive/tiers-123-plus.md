@@ -956,6 +956,16 @@ _Closed rows only. Open / pending items stay in the active file._
 
 ---
 
+## Tier 177 — Live feedback (2026-10-02)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1078](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1078) | ✅ Done | Add meal modal: remove repeat and info icons | Confirmed on-device 2026-10-03. Release note v1053. |
+
+---
+
 ## Tier 178 — Live feedback (2026-10-03)
 
 _Closed rows only. Open / pending items stay in the active file._
