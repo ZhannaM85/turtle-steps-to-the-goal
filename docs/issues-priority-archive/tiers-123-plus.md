@@ -964,6 +964,7 @@ _Closed rows only. Open / pending items stay in the active file._
 |---|--------|-------|-------|
 | [#1078](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1078) | ✅ Done | Add meal modal: remove repeat and info icons | Confirmed on-device 2026-10-03. Release note v1053. |
 
+| [#1077](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1077) | ✅ Done | Add meal modal: meal name and time on one row | Confirmed on-device 2026-10-03. Release note v1052. |
 ---
 
 ## Tier 178 — Live feedback (2026-10-03)
