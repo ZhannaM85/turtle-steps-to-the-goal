@@ -122,4 +122,3 @@ _In Add meal, the food search field has «Поиск» above it, in the same sty
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1083](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1083) | 🔍 Pending validation | Add-meal search: add the missing label above the field | The search field shows «Поиск» / Search above it, with the same label style and spacing as the meal name and why-eating. The placeholder is gone, so the field starts empty. First-tap keyboard, the dropdown, and the meal-name / time / why-eating row are unchanged. Add-meal search tests, typecheck, and lint passed. Release note v1057. Awaiting on-device confirmation. |

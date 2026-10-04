@@ -988,3 +988,13 @@ _Closed rows only. Open / pending items stay in the active file._
 | [#1079](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1079) | ✅ Done | Goal reached date is the weigh-in day; next goal starts that day | Confirmed on-device 2026-10-03. Release note v1054. |
 | [#1080](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1080) | ✅ Done | Morning note: cross dismisses an empty note so the day can have none | Confirmed on-device 2026-10-03. Release note v1055. |
 | [#1082](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1082) | ✅ Done | Add-meal search: keyboard opens only on the second tap | Confirmed on-device 2026-10-04. Release note v1056. |
+
+---
+
+## Tier 179 — Live feedback (2026-10-04)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1083](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1083) | ✅ Done | Add-meal search: add the missing label above the field | Confirmed on-device 2026-10-04. Release note v1057. |
