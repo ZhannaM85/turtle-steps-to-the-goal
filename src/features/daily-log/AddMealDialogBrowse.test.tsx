@@ -43,11 +43,52 @@ function renderEmptySearch(onOpenManualAdd = vi.fn()) {
   return onOpenManualAdd
 }
 
+describe('search field label (#1083)', () => {
+  it('shows Search above an empty field and does not repeat it as a placeholder', () => {
+    render(
+      <AddMealDialogBrowse
+        search=""
+        query=""
+        matches={[]}
+        recentItems={[]}
+        textFor={() => ''}
+        isFavorite={() => false}
+        onToggleFavorite={vi.fn()}
+        onPick={vi.fn()}
+        onOpenManualAdd={vi.fn()}
+        onlineHits={[]}
+        onlineSearchStatus="idle"
+        onlineRemoteStatus={null}
+        onRunOnlineSearch={vi.fn()}
+        onPickOnlineHit={vi.fn()}
+        onChangeSearch={vi.fn()}
+        onClearSearch={vi.fn()}
+        homemadeOnly={false}
+        onToggleHomemadeOnly={vi.fn()}
+        mealNoteField={null}
+        showEmptyMealNote={false}
+      />,
+    )
+
+    const search = screen.getByLabelText('Search')
+    const label = screen.getByText('Search')
+    expect(label.tagName).toBe('LABEL')
+    expect(label).toHaveAttribute('for', search.id)
+    expect(label).toHaveClass('text-sm', 'leading-none', 'font-medium')
+    expect(search.parentElement).toHaveClass('gap-1.5')
+    expect(
+      label.compareDocumentPosition(search) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+    expect(search).toHaveValue('')
+    expect(search).not.toHaveAttribute('placeholder')
+  })
+})
+
 describe('empty food search manual add (#991)', () => {
   it('styles Add manually as an outline button and keeps the lead-in as text', async () => {
     const user = userEvent.setup()
     const onOpenManualAdd = renderEmptySearch()
-    await user.click(screen.getByLabelText('Search foods'))
+    await user.click(screen.getByLabelText('Search'))
 
     const results = screen.getByRole('region', { name: 'Search results' })
     expect(results).toHaveClass(
@@ -56,7 +97,7 @@ describe('empty food search manual add (#991)', () => {
       'max-h-[min(28rem,max(35dvh,calc(100dvh-18rem)))]',
       'overflow-y-auto',
     )
-    expect(screen.getByLabelText('Search foods').parentElement).toContainElement(
+    expect(screen.getByLabelText('Search').parentElement).toContainElement(
       results,
     )
     expect(screen.queryByRole('button', { name: 'Homemade' })).not.toBeInTheDocument()
@@ -111,7 +152,7 @@ describe('meal search barcode entry (#998)', () => {
       />,
     )
 
-    const searchField = within(screen.getByLabelText('Search foods').parentElement!)
+    const searchField = within(screen.getByLabelText('Search').parentElement!)
     expect(
       searchField.getByRole('button', { name: 'Clear search' }),
     ).toBeInTheDocument()
@@ -187,7 +228,7 @@ describe('recent foods dropdown (#1055)', () => {
 
   it('focuses the search field on the first tap and opens Recent with that focus (#1082)', async () => {
     renderRecents()
-    const search = screen.getByLabelText('Search foods')
+    const search = screen.getByLabelText('Search')
 
     fireEvent.pointerDown(search, { button: 0, clientX: 20, clientY: 20 })
 
@@ -202,7 +243,7 @@ describe('recent foods dropdown (#1055)', () => {
 
   it('does not focus the search field when the touch moves (#1082)', () => {
     renderRecents()
-    const search = screen.getByLabelText('Search foods')
+    const search = screen.getByLabelText('Search')
 
     fireEvent.pointerDown(search, { button: 0, clientX: 10, clientY: 10 })
     fireEvent.pointerUp(search, { button: 0, clientX: 40, clientY: 10 })
@@ -218,7 +259,7 @@ describe('recent foods dropdown (#1055)', () => {
     expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
     expect(screen.queryByText('Recent')).not.toBeInTheDocument()
 
-    const search = screen.getByLabelText('Search foods')
+    const search = screen.getByLabelText('Search')
     await user.click(search)
 
     const dropdown = screen.getByRole('region', { name: 'Recent' })
@@ -240,7 +281,7 @@ describe('recent foods dropdown (#1055)', () => {
     const user = userEvent.setup()
     const { onPick } = renderRecents()
 
-    await user.click(screen.getByLabelText('Search foods'))
+    await user.click(screen.getByLabelText('Search'))
     await user.click(screen.getByText('Homemade soup'))
 
     expect(onPick).toHaveBeenCalledWith(soup)
@@ -278,7 +319,7 @@ describe('recent foods dropdown (#1055)', () => {
 
     expect(screen.queryByRole('button', { name: 'Homemade' })).not.toBeInTheDocument()
     const note = screen.getByLabelText('Note about night food')
-    const search = screen.getByLabelText('Search foods')
+    const search = screen.getByLabelText('Search')
     expect(search.parentElement).not.toHaveClass('z-30')
 
     await user.click(search)
@@ -297,7 +338,7 @@ describe('recent foods dropdown (#1055)', () => {
     const user = userEvent.setup()
     renderRecents()
 
-    await user.click(screen.getByLabelText('Search foods'))
+    await user.click(screen.getByLabelText('Search'))
     expect(screen.getByRole('region', { name: 'Recent' })).toBeInTheDocument()
 
     await user.click(document.body)
@@ -307,7 +348,7 @@ describe('recent foods dropdown (#1055)', () => {
   it('keeps Recent open when the field blurs (#1069)', async () => {
     const user = userEvent.setup()
     renderRecents()
-    const search = screen.getByLabelText('Search foods')
+    const search = screen.getByLabelText('Search')
     await user.click(search)
     expect(screen.getByRole('region', { name: 'Recent' })).toBeInTheDocument()
 
@@ -323,7 +364,7 @@ describe('recent foods dropdown (#1055)', () => {
       configurable: true,
       value: 800,
     })
-    const search = screen.getByLabelText('Search foods')
+    const search = screen.getByLabelText('Search')
     await user.click(search)
     expect(screen.getByRole('region', { name: 'Recent' })).toBeInTheDocument()
 
@@ -350,7 +391,7 @@ describe('recent foods dropdown (#1055)', () => {
   it('opens Recent again when the field is tapped after Escape (#1069)', async () => {
     const user = userEvent.setup()
     renderRecents()
-    const search = screen.getByLabelText('Search foods')
+    const search = screen.getByLabelText('Search')
     await user.click(search)
     await user.keyboard('{Escape}')
     expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
@@ -362,7 +403,7 @@ describe('recent foods dropdown (#1055)', () => {
   it('closes Recent on Escape (#1069)', async () => {
     const user = userEvent.setup()
     renderRecents()
-    await user.click(screen.getByLabelText('Search foods'))
+    await user.click(screen.getByLabelText('Search'))
     expect(screen.getByRole('region', { name: 'Recent' })).toBeInTheDocument()
 
     await user.keyboard('{Escape}')
@@ -404,7 +445,7 @@ describe('typed food results stay open across keyboard dismissal (#1069)', () =>
       configurable: true,
       value: 800,
     })
-    const search = screen.getByLabelText('Search foods')
+    const search = screen.getByLabelText('Search')
     await user.click(search)
     expect(screen.getByRole('region', { name: 'Search results' })).toBeInTheDocument()
     expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()

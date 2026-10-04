@@ -6,6 +6,7 @@ import { useOnlineStatus } from '@/shared/hooks'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
 import {
   OFF_SEARCH_MIN_CHARS,
   type OnlineFoodHit,
@@ -138,12 +139,22 @@ export function AddMealDialogBrowse({
 
   return (
     <>
-      <div ref={rootRef} className={cn('relative', showSuggestionPanel && 'z-30')}>
+      <div
+        ref={rootRef}
+        className={cn(
+          // #1083 — same label-to-control gap as meal name and why-eating.
+          'relative grid grid-cols-1 gap-1.5',
+          showSuggestionPanel && 'z-30',
+        )}
+      >
+        <Label htmlFor="add-meal-food-search">
+          {t.dailyEntry.addMealSearchFieldLabel}
+        </Label>
         <Input
+          id="add-meal-food-search"
           type="text"
-          aria-label={t.dailyEntry.foodSearchLabel}
+          aria-label={t.dailyEntry.addMealSearchFieldLabel}
           aria-expanded={showSuggestionPanel}
-          placeholder={t.dailyEntry.foodSearchPlaceholder}
           value={search}
           onChange={(e) => onChangeSearch(e.target.value)}
           onPointerDown={(event) => {
@@ -179,7 +190,10 @@ export function AddMealDialogBrowse({
           }}
           // #1066 — the scroll frame clips outward rings at both sides.
           // Paint the focus ring inside the field so every edge stays visible.
-          className={cn('h-12 text-base focus-visible:ring-inset', search !== '' && 'pr-10')}
+          className={cn(
+            'col-start-1 row-start-2 h-12 text-base focus-visible:ring-inset',
+            search !== '' && 'pr-10',
+          )}
         />
         {search !== '' && (
           <Button
@@ -187,7 +201,7 @@ export function AddMealDialogBrowse({
             variant="ghost"
             size="icon-xs"
             aria-label={t.dailyEntry.clearFoodSearchLabel}
-            className="absolute top-1/2 right-1.5 -translate-y-1/2"
+            className="z-10 col-start-1 row-start-2 mr-1.5 self-center justify-self-end"
             onMouseDown={(event) => event.preventDefault()}
             onClick={onClearSearch}
           >

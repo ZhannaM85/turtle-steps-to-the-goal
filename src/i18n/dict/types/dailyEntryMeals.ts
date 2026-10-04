@@ -80,6 +80,8 @@ export interface DailyEntryMealsDict {
      * one-decimal float (`13h 36m` / `13 ч 36 м`). */
     fastingWindowToastMessage: (hours: number, minutes: number) => string
     foodSearchLabel: string
+    /** #1083 — visible label above add-meal search. Not the placeholder. */
+    addMealSearchFieldLabel: string
     /** #1057 — accessible name for the typed-search dropdown under the field. */
     foodSearchResultsLabel: string
     foodSearchPlaceholder: string

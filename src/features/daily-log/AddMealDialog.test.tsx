@@ -394,7 +394,7 @@ describe('AddMealDialog (#454)', () => {
     const user = userEvent.setup()
     render(<ControlledAddMealDialog {...defaultProps} />)
 
-    await user.type(screen.getByLabelText('Search foods'), 'Salmon')
+    await user.type(screen.getByLabelText('Search'), 'Salmon')
     await user.click(await screen.findByText('Salmon'))
     // #645 — picking a curated food opens the same item sheet "create a
     // dish" uses, prefilled with its 100g rate; Save commits it as-is.
@@ -408,7 +408,7 @@ describe('AddMealDialog (#454)', () => {
     const user = userEvent.setup()
     render(<ControlledAddMealDialog {...defaultProps} />)
 
-    await user.type(screen.getByLabelText('Search foods'), 'Salmon')
+    await user.type(screen.getByLabelText('Search'), 'Salmon')
     await user.click(await screen.findByText('Salmon'))
     await user.click(screen.getByRole('button', { name: 'Save' }))
 
@@ -674,7 +674,7 @@ describe('AddMealDialog (#454)', () => {
     const user = userEvent.setup()
     render(<ControlledAddMealDialog {...defaultProps} />)
 
-    const search = screen.getByLabelText('Search foods')
+    const search = screen.getByLabelText('Search')
     expect(
       screen.queryByRole('button', { name: 'Clear search' }),
     ).not.toBeInTheDocument()
@@ -710,7 +710,7 @@ describe('AddMealDialog (#454)', () => {
       />,
     )
 
-    await user.type(screen.getByLabelText('Search foods'), 'Salmon')
+    await user.type(screen.getByLabelText('Search'), 'Salmon')
     await user.click(await screen.findByText('Salmon'))
 
     // #645 — a curated food pick opens in per100g mode (the same "create a
@@ -755,7 +755,7 @@ describe('AddMealDialog (#454)', () => {
       />,
     )
 
-    await user.type(screen.getByLabelText('Search foods'), 'Salmon')
+    await user.type(screen.getByLabelText('Search'), 'Salmon')
     await user.click(await screen.findByText('Salmon'))
 
     const name = screen.getByLabelText('Dish name')
@@ -791,7 +791,7 @@ describe('AddMealDialog (#454)', () => {
       />,
     )
 
-    await user.type(screen.getByLabelText('Search foods'), 'Egg')
+    await user.type(screen.getByLabelText('Search'), 'Egg')
     await user.click(await screen.findByText('Egg'))
 
     expect(screen.getByRole('radio', { name: 'Grams' })).toBeChecked()
@@ -830,7 +830,7 @@ describe('AddMealDialog (#454)', () => {
       />,
     )
 
-    await user.click(screen.getByLabelText('Search foods'))
+    await user.click(screen.getByLabelText('Search'))
     await user.click(await screen.findByText('Cookie'))
 
     // Known lastAmountG → open in per-100g with density as source of truth.
@@ -867,7 +867,7 @@ describe('AddMealDialog (#454)', () => {
     const user = userEvent.setup()
     render(<ControlledAddMealDialog {...defaultProps} />)
 
-    await user.type(screen.getByLabelText('Search foods'), 'Salmon')
+    await user.type(screen.getByLabelText('Search'), 'Salmon')
     await user.click(await screen.findByText('Salmon'))
 
     expect(
@@ -879,13 +879,13 @@ describe('AddMealDialog (#454)', () => {
     const user = userEvent.setup()
     render(<ControlledAddMealDialog {...defaultProps} />)
 
-    await user.type(screen.getByLabelText('Search foods'), 'Salmon')
+    await user.type(screen.getByLabelText('Search'), 'Salmon')
     await user.click(await screen.findByText('Salmon'))
     await user.click(screen.getByRole('button', { name: 'Save' }))
 
     // Dialog is still open and searchable — add a second dish.
-    await user.clear(screen.getByLabelText('Search foods'))
-    await user.type(screen.getByLabelText('Search foods'), 'Chicken breast')
+    await user.clear(screen.getByLabelText('Search'))
+    await user.type(screen.getByLabelText('Search'), 'Chicken breast')
     await user.click(await screen.findByText('Chicken breast'))
     await user.click(screen.getByRole('button', { name: 'Save' }))
 
@@ -944,7 +944,7 @@ describe('AddMealDialog (#454)', () => {
     const mealName = screen.getByRole('button', { name: 'Meal name' })
     const time = screen.getByLabelText('Time')
     const why = screen.getByRole('button', { name: 'Why am I eating?' })
-    const search = screen.getByLabelText('Search foods')
+    const search = screen.getByLabelText('Search')
     const following = Node.DOCUMENT_POSITION_FOLLOWING
 
     expect(screen.queryByTestId('add-meal-repeat-toolbar')).not.toBeInTheDocument()
@@ -969,6 +969,29 @@ describe('AddMealDialog (#454)', () => {
     expect(screen.getByTestId('add-meal-scroll')).toContainElement(why)
   })
 
+  it('labels search like meal name and why-eating, and leaves the field empty (#1083)', () => {
+    useEatingReasonTrackingStore.setState({ enabled: true })
+    render(<ControlledAddMealDialog {...defaultProps} />)
+
+    const mealNameLabel = screen.getByText('Meal name')
+    const whyLabel = screen.getByText('Why am I eating?')
+    const searchLabel = screen.getByText('Search')
+    const search = screen.getByLabelText('Search')
+
+    expect(searchLabel.tagName).toBe('LABEL')
+    expect(searchLabel.className).toBe(mealNameLabel.className)
+    expect(searchLabel.className).toBe(whyLabel.className)
+    expect(search.parentElement).toHaveClass('gap-1.5')
+    expect(mealNameLabel.parentElement).toHaveClass('gap-1.5')
+    expect(whyLabel.parentElement).toHaveClass('gap-1.5')
+    expect(
+      searchLabel.compareDocumentPosition(search) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+    expect(search).toHaveValue('')
+    expect(search).not.toHaveAttribute('placeholder')
+  })
+
   it('shows the why-eating dropdown above search when tracking is on (#764)', async () => {
     const user = userEvent.setup()
     useEatingReasonTrackingStore.setState({ enabled: true })
@@ -977,7 +1000,7 @@ describe('AddMealDialog (#454)', () => {
     const trigger = screen.getByRole('button', { name: 'Why am I eating?' })
     expect(trigger).toBeInTheDocument()
     expect(
-      trigger.compareDocumentPosition(screen.getByLabelText('Search foods')) &
+      trigger.compareDocumentPosition(screen.getByLabelText('Search')) &
         Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy()
 
@@ -1062,7 +1085,7 @@ describe('AddMealDialog (#454)', () => {
 
     const reason = screen.getByRole('button', { name: 'Why am I eating?' })
     const actions = screen.getByRole('button', { name: 'Add…' })
-    const search = screen.getByLabelText('Search foods')
+    const search = screen.getByLabelText('Search')
     const row = reason.closest('.grid')
     expect(row).toHaveClass('grid-cols-2')
     expect(row?.nextElementSibling).toBe(search.parentElement)
@@ -1136,7 +1159,7 @@ describe('AddMealDialog (#454)', () => {
       expect(row).toHaveClass('grid-cols-2')
       expect(row).toContainElement(reason)
       expect(screen.queryByRole('menuitem', { name: 'Add food' })).not.toBeInTheDocument()
-      const search = screen.getByLabelText('Search foods')
+      const search = screen.getByLabelText('Search')
       const note = screen.getByRole('button', { name: 'Note about breakfast' })
       expect(screen.queryByRole('button', { name: 'Homemade' })).not.toBeInTheDocument()
       expect(screen.queryByText('Homemade soup')).not.toBeInTheDocument()
@@ -1209,7 +1232,7 @@ describe('AddMealDialog (#454)', () => {
       const user = userEvent.setup()
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      const search = screen.getByLabelText('Search foods')
+      const search = screen.getByLabelText('Search')
       await user.type(search, 'бутер')
 
       const hit = await screen.findByRole('button', {
@@ -1228,7 +1251,7 @@ describe('AddMealDialog (#454)', () => {
       const user = userEvent.setup()
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      await user.type(screen.getByLabelText('Search foods'), 'Бутер')
+      await user.type(screen.getByLabelText('Search'), 'Бутер')
       await user.click(await screen.findByText('Бутерброд с форелью'))
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
@@ -1249,7 +1272,7 @@ describe('AddMealDialog (#454)', () => {
       expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
       expect(screen.queryByText('Homemade soup')).not.toBeInTheDocument()
 
-      const search = screen.getByLabelText('Search foods')
+      const search = screen.getByLabelText('Search')
       await user.click(search)
       const hit = await screen.findByText('Homemade soup')
       expect(screen.getByRole('region', { name: 'Recent' })).toContainElement(hit)
@@ -1263,7 +1286,7 @@ describe('AddMealDialog (#454)', () => {
       const user = userEvent.setup()
       await useMealItemStore.getState().touch('Homemade soup', { amountKcal: 100 })
       render(<ControlledAddMealDialog {...defaultProps} />)
-      const search = screen.getByLabelText('Search foods')
+      const search = screen.getByLabelText('Search')
       await user.click(search)
       expect(await screen.findByText('Homemade soup')).toBeInTheDocument()
 
@@ -1271,7 +1294,7 @@ describe('AddMealDialog (#454)', () => {
       await user.click(await screen.findByText('Salmon'))
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
-      await user.click(screen.getByLabelText('Search foods'))
+      await user.click(screen.getByLabelText('Search'))
       await waitFor(() => {
         const recentList = screen.getAllByRole('list').find((list) =>
           within(list).queryByText('Homemade soup'),
@@ -1293,7 +1316,7 @@ describe('AddMealDialog (#454)', () => {
       const user = userEvent.setup()
       render(<ControlledAddMealDialog {...defaultProps} />)
 
-      await user.click(screen.getByLabelText('Search foods'))
+      await user.click(screen.getByLabelText('Search'))
       expect(screen.queryByRole('region', { name: 'Recent' })).not.toBeInTheDocument()
     })
   })

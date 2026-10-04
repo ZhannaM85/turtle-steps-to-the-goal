@@ -148,7 +148,7 @@ describe('DailyEntryForm', () => {
           await user.click(
             screen.getByRole('button', { name: '+ Add a meal' }),
           )
-          await user.type(screen.getByLabelText('Search foods'), 'Salmon')
+          await user.type(screen.getByLabelText('Search'), 'Salmon')
           await user.click(screen.getByText('Salmon', { exact: true }))
           await user.click(screen.getByRole('button', { name: 'Save' }))
 
@@ -184,7 +184,7 @@ describe('DailyEntryForm', () => {
           fireEvent.change(screen.getByLabelText('Time'), {
             target: { value: '07:30' },
           })
-          await user.type(screen.getByLabelText('Search foods'), 'Salmon')
+          await user.type(screen.getByLabelText('Search'), 'Salmon')
           await user.click(screen.getByText('Salmon', { exact: true }))
           await user.click(screen.getByRole('button', { name: 'Save' }))
 
@@ -217,7 +217,7 @@ describe('DailyEntryForm', () => {
           await user.click(
             screen.getByRole('button', { name: '+ Add another meal' }),
           )
-          await user.type(screen.getByLabelText('Search foods'), 'Salmon')
+          await user.type(screen.getByLabelText('Search'), 'Salmon')
           await user.click(screen.getByText('Salmon', { exact: true }))
 
           expect(
@@ -243,7 +243,7 @@ describe('DailyEntryForm', () => {
           await user.click(
             screen.getByRole('button', { name: '+ Add a meal' }),
           )
-          await user.type(screen.getByLabelText('Search foods'), 'Salmon')
+          await user.type(screen.getByLabelText('Search'), 'Salmon')
           await user.click(screen.getByText('Salmon', { exact: true }))
           // #645 — a curated food pick opens in per100g mode; 0.5 portions
           // of the 100g rate is 50g.
@@ -271,7 +271,7 @@ describe('DailyEntryForm', () => {
           await user.click(
             screen.getByRole('button', { name: '+ Add a meal' }),
           )
-          await user.type(screen.getByLabelText('Search foods'), 'Salmon')
+          await user.type(screen.getByLabelText('Search'), 'Salmon')
           await user.click(screen.getByText('Salmon', { exact: true }))
           await user.click(
             screen.getByRole('button', { name: 'Bellissimo — Salmon' }),

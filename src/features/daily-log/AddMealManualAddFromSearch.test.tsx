@@ -60,7 +60,7 @@ describe('manual add from empty meal search (#992)', () => {
     const user = userEvent.setup()
     renderDialog()
 
-    await user.type(screen.getByRole('textbox', { name: 'Search foods' }), QUERY)
+    await user.type(screen.getByRole('textbox', { name: 'Search' }), QUERY)
     await user.click(screen.getByRole('button', { name: 'Add manually' }))
 
     const name = await screen.findByRole('combobox', { name: 'Dish name' })
@@ -75,7 +75,7 @@ describe('manual add from empty meal search (#992)', () => {
     const user = userEvent.setup()
     renderDialog()
 
-    await user.type(screen.getByRole('textbox', { name: 'Search foods' }), QUERY)
+    await user.type(screen.getByRole('textbox', { name: 'Search' }), QUERY)
     await user.click(await openAddMealAction(user, 'Add food'))
 
     const name = await screen.findByRole('combobox', { name: 'Dish name' })

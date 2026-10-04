@@ -114,3 +114,13 @@ _On Цель, a past week that was reached early shows «Цель достигн
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1082](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1082) | 🔍 Pending validation | Add-meal search: keyboard opens only on the second tap | A short tap focuses the search field before the suggestion list mounts, so the keyboard opens on that first tap. The list still opens with that focus, stays open when the keyboard closes, and a tap on an already-focused field still reopens it after Escape. 85 add-meal search and dialog tests, typecheck, and lint passed. Release note v1056. Awaiting on-device confirmation. |
+
+---
+
+## Tier 179 — Live feedback (2026-10-04)
+
+_In Add meal, the food search field has «Поиск» above it, in the same style as the meal name and why-eating, and the field itself is empty._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1083](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1083) | 🔍 Pending validation | Add-meal search: add the missing label above the field | The search field shows «Поиск» / Search above it, with the same label style and spacing as the meal name and why-eating. The placeholder is gone, so the field starts empty. First-tap keyboard, the dropdown, and the meal-name / time / why-eating row are unchanged. Add-meal search tests, typecheck, and lint passed. Release note v1057. Awaiting on-device confirmation. |

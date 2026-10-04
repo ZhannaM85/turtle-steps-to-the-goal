@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1057,
+    issue: 1083,
+    date: "2026-10-04T11:03:08.687+03:00",
+    en: "Add meal shows Search above the food field, and that field stays empty until you type.",
+    ru: "В «Добавить приём пищи» над полем стоит «Поиск», и само поле пустое, пока ничего не введено.",
+  },
+  {
     version: 1056,
     issue: 1082,
     date: "2026-10-03T15:00:21.105+03:00",

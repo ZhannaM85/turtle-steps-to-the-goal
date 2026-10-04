@@ -1534,7 +1534,7 @@ describe('MealList', () => {
       )
       await user.clear(screen.getByLabelText('Time'))
       await user.type(screen.getByLabelText('Time'), '08:00')
-      await user.type(screen.getByLabelText('Search foods'), 'Salmon')
+      await user.type(screen.getByLabelText('Search'), 'Salmon')
       await user.click(await screen.findByText('Salmon'))
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
