@@ -693,7 +693,7 @@ describe('AddMealDialog (#454)', () => {
     expect(
       screen.queryByRole('menuitem', { name: 'Scan barcode — Breakfast' }),
     ).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Add…' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'More' })).toBeInTheDocument()
   })
 
   it('lets the user edit kcal/macros on the confirm step before adding (#517)', async () => {
@@ -1084,7 +1084,7 @@ describe('AddMealDialog (#454)', () => {
     render(<ControlledAddMealDialog {...defaultProps} />)
 
     const reason = screen.getByRole('button', { name: 'Why am I eating?' })
-    const actions = screen.getByRole('button', { name: 'Add…' })
+    const actions = screen.getByRole('button', { name: 'More' })
     const search = screen.getByLabelText('Search')
     const row = reason.closest('.grid')
     expect(row).toHaveClass('grid-cols-2')
@@ -1105,14 +1105,14 @@ describe('AddMealDialog (#454)', () => {
     expect(row?.nextElementSibling).toBe(search.parentElement)
 
     await user.click(actions)
-    const menu = screen.getByRole('menu', { name: 'Add…' })
+    const menu = screen.getByRole('menu', { name: 'More' })
     expect(menu).toHaveClass('absolute', 'top-full', 'z-30', 'bg-popover')
     expect(actions.parentElement).toHaveClass('relative', 'z-30')
     expect(row).toContainElement(menu)
     expect(row?.nextElementSibling).toBe(search.parentElement)
 
     await user.click(actions)
-    expect(screen.queryByRole('menu', { name: 'Add…' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('menu', { name: 'More' })).not.toBeInTheDocument()
     expect(row?.nextElementSibling).toBe(search.parentElement)
   })
 
@@ -1154,7 +1154,7 @@ describe('AddMealDialog (#454)', () => {
       render(<ControlledAddMealDialog {...defaultProps} />)
 
       const reason = screen.getByRole('button', { name: 'Why am I eating?' })
-      const actions = screen.getByRole('button', { name: 'Add…' })
+      const actions = screen.getByRole('button', { name: 'More' })
       const row = actions.parentElement?.parentElement
       expect(row).toHaveClass('grid-cols-2')
       expect(row).toContainElement(reason)
@@ -1168,7 +1168,7 @@ describe('AddMealDialog (#454)', () => {
       expect(search.parentElement?.nextElementSibling).toBe(note)
 
       await user.click(actions)
-      const menu = screen.getByRole('menu', { name: 'Add…' })
+      const menu = screen.getByRole('menu', { name: 'More' })
       for (const name of [
         'Add food',
         'Scan barcode — Breakfast',

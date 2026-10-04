@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1058,
+    issue: 1084,
+    date: "2026-10-04T13:49:09.395+03:00",
+    en: "On add meal, the actions menu beside why you are eating is labeled More.",
+    ru: "В «Добавить приём пищи» меню действий рядом с «Почему я сейчас ем?» подписано «Ещё».",
+  },
+  {
     version: 1057,
     issue: 1083,
     date: "2026-10-04T11:03:08.687+03:00",

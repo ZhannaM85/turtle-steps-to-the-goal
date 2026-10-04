@@ -118,7 +118,8 @@ _On Цель, a past week that was reached early shows «Цель достигн
 
 ## Tier 179 — Live feedback (2026-10-04)
 
-_In Add meal, the food search field has «Поиск» above it, in the same style as the meal name and why-eating, and the field itself is empty._
+_In Add meal, the food search field has «Поиск» above it, in the same style as the meal name and why-eating, and the field itself is empty. The actions menu beside why-eating is labeled «Ещё» / More instead of «Добавить…» / Add…._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#1084](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1084) | 🔍 Pending validation | Add-meal dropdown: rename «Добавить...» to «Ещё» | Closed control reads More / «Ещё»; menu items unchanged. Awaiting on-device confirmation |

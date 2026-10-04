@@ -18,7 +18,7 @@ test('logs a meal, then edits its calories via the pencil', async ({ page }) => 
   // #1060 — those cards are one Add… menu; Add food is still that handler.
   // #691 — empty day uses "+ Add a meal" (not "another").
   await page.getByRole('button', { name: '+ Add a meal' }).click()
-  await page.getByRole('button', { name: 'Add…' }).click()
+  await page.getByRole('button', { name: 'More' }).click()
   await page.getByRole('menuitem', { name: 'Add food' }).click()
   await page.getByLabel('kcal/100g').fill('300')
   await page.getByRole('button', { name: 'Save', exact: true }).click()
