@@ -122,4 +122,3 @@ _In Add meal, the food search field has «Поиск» above it, in the same sty
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1084](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1084) | 🔍 Pending validation | Add-meal dropdown: rename «Добавить...» to «Ещё» | Closed control reads More / «Ещё»; menu items unchanged. Awaiting on-device confirmation |

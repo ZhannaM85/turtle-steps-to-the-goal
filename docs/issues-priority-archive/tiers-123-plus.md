@@ -998,3 +998,4 @@ _Closed rows only. Open / pending items stay in the active file._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1083](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1083) | ✅ Done | Add-meal search: add the missing label above the field | Confirmed on-device 2026-10-04. Release note v1057. |
+| [#1084](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1084) | ✅ Done | Add-meal dropdown: rename «Добавить...» to «Ещё» | Confirmed on-device 2026-10-04. Closed control reads More / «Ещё»; menu items unchanged. |
