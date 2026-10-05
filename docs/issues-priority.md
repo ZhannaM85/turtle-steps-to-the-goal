@@ -122,3 +122,13 @@ _In Add meal, the food search field has «Поиск» above it, in the same sty
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+
+---
+
+## Tier 180 — Live feedback (2026-10-05)
+
+_After catalog import from Add meal, offer to add the imported food to that current meal without searching for it again._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1086](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1086) | 📋 Not started | Offer to add imported food to the current meal after catalog import | Screenshot shows «Вишнёвый мусс» imported with «Добавлено: 1, обновлено: 0.» but no action to add it to the meal. Offer an optional add action using the usual portion flow; for multiple imported foods, let the user choose. Logged only; implementation not investigated. |
