@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1059,
+    issue: 1086,
+    date: '2026-10-05T13:50:14+03:00',
+    en: 'After importing foods in Add meal, you can add them to the current meal without searching again.',
+    ru: 'После импорта продуктов при добавлении приёма пищи их можно добавить в текущий приём без повторного поиска.',
+  },
+  {
     version: 1058,
     issue: 1084,
     date: "2026-10-04T13:49:09.395+03:00",

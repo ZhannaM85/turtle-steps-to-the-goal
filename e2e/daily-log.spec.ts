@@ -1,5 +1,36 @@
 import { expect, test } from '@playwright/test'
 
+test('adds an imported food through its portion editor without searching (#1086)', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: '+ Add a meal' }).click()
+  await page.getByRole('button', { name: 'More' }).click()
+  await page.getByRole('menuitem', { name: 'Import JSON' }).click()
+  const importDialog = page.getByRole('dialog', { name: 'Import catalog foods' })
+  await importDialog.getByLabel('Import catalog foods').fill(JSON.stringify([
+    {
+      nameRu: 'Вишнёвый мусс', nameEn: 'Cherry mousse',
+      caloriesPer100g: 58, proteinPer100g: 1.2, fatPer100g: 0.2, carbsPer100g: 13,
+    },
+    {
+      nameRu: 'Другой десерт', nameEn: 'Other dessert',
+      caloriesPer100g: 100, proteinPer100g: 1, fatPer100g: 1, carbsPer100g: 20,
+    },
+  ]))
+  await importDialog.getByRole('button', { name: 'Import foods', exact: true }).click()
+  await importDialog.getByRole('button', { name: 'Add to current meal — Cherry mousse' }).click()
+  const itemSheet = page.getByRole('dialog', { name: 'Add item', exact: true })
+  await expect(itemSheet.getByLabel('Dish name')).toHaveValue('Cherry mousse')
+  await itemSheet.getByLabel('× 100g').fill('2')
+  await itemSheet.getByRole('button', { name: 'Save', exact: true }).click()
+  await expect(importDialog.getByRole('button', { name: 'Add to current meal — Other dessert' })).toBeVisible()
+  await importDialog.getByRole('button', { name: 'Close', exact: true }).click()
+  await page.getByRole('button', { name: 'Done', exact: true }).click()
+  const mealCard = page.getByRole('listitem').filter({ hasText: 'Breakfast' })
+  await expect(mealCard.getByText('Cherry mousse', { exact: false })).toBeVisible()
+  await expect(mealCard.getByText('116 kcal', { exact: false }).first()).toBeVisible()
+  await expect(mealCard.getByText('Other dessert', { exact: false })).toHaveCount(0)
+})
+
 /**
  * Starter E2E coverage (#161) for the app's most-used flow: logging a
  * meal, then editing it via the in-place AddMealDialog overlay (#461 —

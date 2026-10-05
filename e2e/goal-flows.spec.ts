@@ -21,8 +21,9 @@ async function saveWeightOnDate(
   isoDate: string,
   weight: string,
 ): Promise<void> {
-  await page.goto('/')
-  await page.locator('#log-date').fill(isoDate)
+  // Load the requested day before filling: changing Date can replace the
+  // form asynchronously after Playwright has already filled its old input.
+  await page.goto(`/?date=${isoDate}`)
   await page.getByLabel('Weight (kg)').fill(weight)
   await page.getByRole('button', { name: 'Save weight' }).click()
   // Soft unusual-weight confirm if the value looks like a jump vs prior day.

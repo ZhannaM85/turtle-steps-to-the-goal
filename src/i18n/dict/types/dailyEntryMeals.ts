@@ -22,6 +22,8 @@ export interface DailyEntryMealsDict {
     quickActionImportSharedFoodLabel: string
     /** #1054 — same catalog JSON paste as Settings, from Add meal. */
     quickActionImportCatalogLabel: string
+    importedFoodsLabel: string
+    addImportedFoodToMealButton: string
     /** #1060 — trigger for the five add-meal actions, beside why-eating. */
     addMealActionsLabel: string
     mealSoFarLabel: string

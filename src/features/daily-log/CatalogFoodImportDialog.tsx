@@ -1,4 +1,5 @@
 import { useTranslation } from '@/i18n'
+import type { FoodItem } from '@/data/foods'
 import { CatalogFoodImportSection } from '@/features/settings/CatalogFoodImportSection'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 
@@ -6,9 +7,11 @@ import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 export function CatalogFoodImportDialog({
   open,
   onOpenChange,
+  onPickFood,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onPickFood?: (food: FoodItem) => void
 }) {
   const t = useTranslation()
   return (
@@ -17,7 +20,7 @@ export function CatalogFoodImportDialog({
         <DialogTitle className="pr-8">
           {t.settings.catalogFoodImportLabel}
         </DialogTitle>
-        <CatalogFoodImportSection framed={false} />
+        <CatalogFoodImportSection framed={false} onPickFood={onPickFood} />
       </DialogContent>
     </Dialog>
   )

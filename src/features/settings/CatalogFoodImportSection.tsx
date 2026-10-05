@@ -1,10 +1,14 @@
 import { useState } from 'react'
+import { foods, type FoodItem } from '@/data/foods'
 import {
+  canonicalCatalogName,
+  mergeCatalogFoodImports,
+  normalizeCatalogBarcode,
   parseCatalogFoodPaste,
   type CatalogFoodPasteError,
   type CatalogFoodPasteFailure,
 } from '@/domain/catalogFoodImport'
-import { useTranslation, type Dictionary } from '@/i18n'
+import { useLocale, useTranslation, type Dictionary } from '@/i18n'
 import { useCatalogFoodImportStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { Label } from '@/shared/ui/label'
@@ -32,16 +36,21 @@ function failureText(t: Dictionary, failure: CatalogFoodPasteFailure): string {
  * #1054 reuses this form from Add meal (`framed` drops the Settings divider). */
 export function CatalogFoodImportSection({
   framed = true,
+  onPickFood,
 }: {
   framed?: boolean
+  onPickFood?: (food: FoodItem) => void
 } = {}) {
   const t = useTranslation()
+  const locale = useLocale()
   const importFoods = useCatalogFoodImportStore((state) => state.importFoods)
   const [text, setText] = useState('')
   const [lines, setLines] = useState<string[]>([])
   const [busy, setBusy] = useState(false)
+  const [importedFoods, setImportedFoods] = useState<FoodItem[]>([])
 
   async function onImport() {
+    setImportedFoods([])
     const parsed = parseCatalogFoodPaste(text)
     if (!parsed.ok) {
       setLines([pasteErrorText(t, parsed.error)])
@@ -58,6 +67,22 @@ export function CatalogFoodImportSection({
     try {
       const { added, updated } = await importFoods(parsed.foods)
       setLines([t.settings.catalogFoodImportSuccess(added, updated), ...failures])
+      if (onPickFood) {
+        const catalog = mergeCatalogFoodImports(
+          foods,
+          useCatalogFoodImportStore.getState().imports,
+        )
+        const imported = parsed.foods.flatMap((draft) => {
+          const barcode = normalizeCatalogBarcode(draft.barcode)
+          const name = canonicalCatalogName(draft.nameRu, foods)
+          const food =
+            (barcode
+              ? catalog.find((food) => normalizeCatalogBarcode(food.barcode) === barcode)
+              : undefined) ?? catalog.find((food) => food.ru === name)
+          return food ? [food] : []
+        })
+        setImportedFoods([...new Map(imported.map((food) => [food.id, food])).values()])
+      }
     } catch {
       setLines([t.settings.catalogFoodImportSaveFailed])
     } finally {
@@ -86,10 +111,14 @@ export function CatalogFoodImportSection({
         id={fieldId}
         aria-label={framed ? undefined : t.settings.catalogFoodImportLabel}
         value={text}
+        disabled={busy}
         rows={6}
         className="min-h-28 font-mono text-xs"
         placeholder={t.settings.catalogFoodImportPlaceholder}
-        onChange={(event) => setText(event.target.value)}
+        onChange={(event) => {
+          setText(event.target.value)
+          setImportedFoods([])
+        }}
       />
       <Button
         type="button"
@@ -104,6 +133,25 @@ export function CatalogFoodImportSection({
         <div role="status" className="flex flex-col gap-1 text-sm">
           {lines.map((line) => (
             <p key={line}>{line}</p>
+          ))}
+        </div>
+      )}
+      {onPickFood && importedFoods.length > 0 && (
+        <div className="flex flex-col gap-2 border-t border-border pt-3">
+          <p className="text-sm font-medium">{t.dailyEntry.importedFoodsLabel}</p>
+          {importedFoods.map((food) => (
+            <div key={food.id} className="flex flex-col gap-1.5 rounded-lg border border-border p-2">
+              <p className="text-sm">{food[locale]}</p>
+              <Button
+                type="button"
+                size="sm"
+                className="h-auto max-w-full self-start py-2 text-left whitespace-normal"
+                aria-label={`${t.dailyEntry.addImportedFoodToMealButton} — ${food[locale]}`}
+                onClick={() => onPickFood(food)}
+              >
+                {t.dailyEntry.addImportedFoodToMealButton}
+              </Button>
+            </div>
           ))}
         </div>
       )}

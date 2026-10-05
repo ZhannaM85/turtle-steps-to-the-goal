@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { ChefHat, ChevronDown, FileJson, QrCode, ScanBarcode, Utensils } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import type { FoodItem } from '@/data/foods'
 import { useTranslation } from '@/i18n'
 import { cn } from '@/shared/lib/utils'
 import { CatalogFoodImportDialog } from './CatalogFoodImportDialog'
@@ -17,12 +18,14 @@ export function AddMealActionsMenu({
   onOpenBarcode,
   onOpenRecipe,
   onImportSharedFood,
+  onPickImportedFood,
 }: {
   mealLabel: string
   onOpenManualAdd: () => void
   onOpenBarcode: () => void
   onOpenRecipe: () => void
   onImportSharedFood: () => void
+  onPickImportedFood?: (food: FoodItem) => void
 }) {
   const t = useTranslation()
   const rootRef = useRef<HTMLDivElement>(null)
@@ -129,7 +132,11 @@ export function AddMealActionsMenu({
         </div>
       )}
       {catalogImportOpen && (
-        <CatalogFoodImportDialog open onOpenChange={setCatalogImportOpen} />
+        <CatalogFoodImportDialog
+          open
+          onOpenChange={setCatalogImportOpen}
+          onPickFood={onPickImportedFood}
+        />
       )}
     </div>
   )

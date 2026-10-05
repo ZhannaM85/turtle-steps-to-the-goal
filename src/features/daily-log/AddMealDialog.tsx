@@ -295,6 +295,11 @@ export function AddMealDialog({
                       onOpenManualAdd={() => sheet.openManualAdd()}
                       onOpenBarcode={() => setIsBarcodeOpen(true)}
                       onOpenRecipe={() => setIsRecipeOpen(true)}
+                      onPickImportedFood={(food) =>
+                        sheet.openPickedItemSheet({ source: 'food', food }, {
+                          brandOverride: food.brand,
+                        })
+                      }
                       onImportSharedFood={() => {
                         useFoodShareUiStore.getState().setOnImported((results) => {
                           const items = results.flatMap((result) => {
