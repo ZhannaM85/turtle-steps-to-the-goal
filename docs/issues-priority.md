@@ -132,3 +132,13 @@ _After catalog import from Add meal, offer to add the imported food to that curr
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1086](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1086) | 🔍 Pending validation | Offer to add imported food to the current meal after catalog import | Successful Add-meal JSON import lists the saved foods with an optional Add to current meal action. Each pick opens the usual portion editor with its brand/barcode; batch choices stay available after saving or canceling, and the current meal stays intact. Settings import stays catalog-only. Invalid input clears stale choices. Regression coverage includes batch selection, portion scaling, updated foods, and browser add-to-meal flow. Awaiting on-device confirmation. |
+
+---
+
+## Tier 181 — Live feedback (2026-10-06)
+
+_AutoSleep screenshot import reads the deep-sleep duration into total sleep and leaves deep sleep blank._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1087](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1087) | 🔲 Open | AutoSleep screenshot import uses deep sleep as total sleep and leaves deep sleep blank | iPhone screenshots for 6 October show total sleep 8h 6m and circled-z deep sleep 3h 5m. Import proposes total 3h 5m with blank deep sleep, and calculates yesterday's comparison from that wrong total. Expected total 8h 6m and deep 3h 5m. Root cause not yet investigated; logged only. |
