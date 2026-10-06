@@ -999,3 +999,13 @@ _Closed rows only. Open / pending items stay in the active file._
 |---|--------|-------|-------|
 | [#1083](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1083) | ✅ Done | Add-meal search: add the missing label above the field | Confirmed on-device 2026-10-04. Release note v1057. |
 | [#1084](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1084) | ✅ Done | Add-meal dropdown: rename «Добавить...» to «Ещё» | Confirmed on-device 2026-10-04. Closed control reads More / «Ещё»; menu items unchanged. |
+
+---
+
+## Tier 180 — Live feedback (2026-10-05)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1086](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1086) | ✅ Done | Offer to add imported food to the current meal after catalog import | Confirmed on-device 2026-10-06 — imported foods can be added to the current meal without searching again. Release note v1059. |

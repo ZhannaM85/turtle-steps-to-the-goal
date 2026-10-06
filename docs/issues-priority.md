@@ -131,7 +131,6 @@ _After catalog import from Add meal, offer to add the imported food to that curr
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1086](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1086) | 🔍 Pending validation | Offer to add imported food to the current meal after catalog import | Successful Add-meal JSON import lists the saved foods with an optional Add to current meal action. Each pick opens the usual portion editor with its brand/barcode; batch choices stay available after saving or canceling, and the current meal stays intact. Settings import stays catalog-only. Invalid input clears stale choices. Regression coverage includes batch selection, portion scaling, updated foods, and browser add-to-meal flow. Awaiting on-device confirmation. |
 
 ---
 
