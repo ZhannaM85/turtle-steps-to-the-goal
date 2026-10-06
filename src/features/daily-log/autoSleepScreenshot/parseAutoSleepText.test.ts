@@ -38,6 +38,27 @@ HEARTRATE 74
 `
 
 describe('parseAutoSleepText', () => {
+  it.each(['TODAY & 8h6m', '8h6m', ''])('keeps Sleep Bank deep sleep out of the total when Today OCR is %j (#1087)', (today) => {
+    const text = `
+09:15
+MONDAY 5 > TUESDAY 6
+8h 6m G
+Sleep Efficiency: 80%.
+AWAKE LIGHT STILL DEEP
+22:24 - 08:30 & 8:06 / 10:06
+Time Asleep Sleep Rating
+${today}
+8h 6m *& 6h 7m
+SLEEP BANK ®3h5m
+16,9% Credit 65
+`
+    expect(parseAutoSleepText(text, '2026-10-06')).toEqual({
+      sleepHours: 8.1,
+      deepSleepHours: 3.08,
+      date: '2026-10-06',
+    })
+  })
+
   it('reads sleep, deep sleep, and the wake date from an English AutoSleep Today screen (#748)', () => {
     expect(parseAutoSleepText(AUTOSLEEP_TODAY, '2026-08-17')).toEqual({
       sleepHours: 10.55,

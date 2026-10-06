@@ -303,7 +303,9 @@ export function parseAutoSleepText(
   const labeledSleep = kept.find(
     (item) =>
       /(?:^|\b)(?:sleep|asleep|today)(?:\b|$)/i.test(item.line) &&
-      !/deep/i.test(item.line),
+      // Today columns can glue the z-icon duration onto SLEEP BANK.
+      // Bank and rating headings do not identify a total-sleep value (#1087).
+      !/deep|sleep\s*bank|sleep\s*rating/i.test(item.line),
   )
   if (labeledSleep && reading.sleepHours === undefined) {
     reading.sleepHours = labeledSleep.hours

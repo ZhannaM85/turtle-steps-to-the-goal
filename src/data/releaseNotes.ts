@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1060,
+    issue: 1087,
+    date: '2026-10-06T18:31:29+03:00',
+    en: 'AutoSleep screenshot import keeps total sleep and deep sleep in their correct fields when the Today label is missed.',
+    ru: 'Импорт скриншота AutoSleep правильно разделяет общий и глубокий сон, даже если надпись Today не распознана.',
+  },
+  {
     version: 1059,
     issue: 1086,
     date: '2026-10-05T13:50:14+03:00',

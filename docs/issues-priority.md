@@ -141,4 +141,4 @@ _AutoSleep screenshot import reads the deep-sleep duration into total sleep and 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1087](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1087) | 🔲 Open | AutoSleep screenshot import uses deep sleep as total sleep and leaves deep sleep blank | iPhone screenshots for 6 October show total sleep 8h 6m and circled-z deep sleep 3h 5m. Import proposes total 3h 5m with blank deep sleep, and calculates yesterday's comparison from that wrong total. Expected total 8h 6m and deep 3h 5m. Root cause not yet investigated; logged only. |
+| [#1087](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1087) | 🔍 Pending validation | AutoSleep screenshot import uses deep sleep as total sleep and leaves deep sleep blank | Sleep Bank and Sleep Rating headings no longer identify total sleep when OCR misses Today. The 6 October layout now yields total 8h 6m and deep 3h 5m, including missing Today and unlabeled Today variants. Local OCR reads the supplied image correctly; parser and confirmation regression checks cover the fix. Awaiting on-device confirmation. |
