@@ -1009,3 +1009,13 @@ _Closed rows only. Open / pending items stay in the active file._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1086](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1086) | ✅ Done | Offer to add imported food to the current meal after catalog import | Confirmed on-device 2026-10-06 — imported foods can be added to the current meal without searching again. Release note v1059. |
+
+---
+
+## Tier 181 — Live feedback (2026-10-06)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1087](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1087) | ✅ Done | AutoSleep screenshot import uses deep sleep as total sleep and leaves deep sleep blank | Confirmed on-device 2026-10-06 — AutoSleep screenshot import keeps total sleep and deep sleep in their correct fields. Release note v1060. |
