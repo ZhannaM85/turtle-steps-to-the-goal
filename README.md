@@ -14,6 +14,9 @@ correlations to learn what helps over time.
 Local-first — no backend, no accounts, no telemetry, and no AI. All your data
 stays on your own device in the browser's IndexedDB.
 
+Export a backup regularly, especially before clearing browser data or switching
+devices. Local browser storage is not a substitute for a saved backup.
+
 ## What it can do
 
 - Log weight, meals, calories, macros, fiber, water, sleep, steps, mood, notes,
