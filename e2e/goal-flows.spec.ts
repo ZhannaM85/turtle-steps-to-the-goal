@@ -53,8 +53,8 @@ test('creates a goal and keeps the baseline visible on Goal and Today', async ({
 
   await goToGoal(page)
 
-  await page.getByLabel("This week's target (kg to lose)").fill('0.2')
-  await page.getByRole('button', { name: 'Set this week’s target' }).click()
+  await page.getByLabel('Weight-loss pace (kg/week)').fill('0.2')
+  await page.getByRole('button', { name: 'Set goal' }).click()
 
   // Goal card shows the frozen baseline (#676 / #675).
   await expect(page.getByText(/from 58\.65 kg/)).toBeVisible()
@@ -77,10 +77,10 @@ test('Past Targets marks a concluded met window as reached', async ({
 
   await goToGoal(page)
 
-  await page.getByLabel("This week's target (kg to lose)").fill('0.5')
+  await page.getByLabel('Weight-loss pace (kg/week)').fill('0.5')
   await page.getByLabel('Starts on').fill(weekStart)
   await page.getByLabel('Ends on').fill(weekEnd)
-  await page.getByRole('button', { name: 'Set this week’s target' }).click()
+  await page.getByRole('button', { name: 'Set goal' }).click()
 
   await expect(
     page.getByRole('heading', { name: 'Past targets' }),

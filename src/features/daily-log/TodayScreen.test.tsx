@@ -194,7 +194,7 @@ describe('TodayScreen', () => {
     )
   })
 
-  it("shows this week's target once a goal is active", async () => {
+  it('shows the selected-period goal and its weekly pace once a goal is active', async () => {
     await useGoalStore.getState().saveGoal(makeGoal({ targetWeeklyLossKg: 1 }))
 
     render(
@@ -203,7 +203,9 @@ describe('TodayScreen', () => {
       </MemoryRouter>,
     )
 
-    expect(await screen.findByText("Goal for the selected period")).toBeInTheDocument()
+    // The full suite can delay IndexedDB reads beyond Testing Library's
+    // default 1s wait. Wait for the card without changing the assertion.
+    expect(await screen.findByText('Goal for the selected period', {}, { timeout: 5000 })).toBeInTheDocument()
     // #527 — positive magnitude + "to lose" (not a leading minus).
     // #586 — formatExactNumber: whole numbers stay "1", not "1.0".
     expect(screen.getByText('1')).toBeInTheDocument()
