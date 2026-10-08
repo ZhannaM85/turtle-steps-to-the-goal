@@ -1019,3 +1019,13 @@ _Closed rows only. Open / pending items stay in the active file._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1087](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1087) | ✅ Done | AutoSleep screenshot import uses deep sleep as total sleep and leaves deep sleep blank | Confirmed on-device 2026-10-06 — AutoSleep screenshot import keeps total sleep and deep sleep in their correct fields. Release note v1060. |
+
+---
+
+## Tier 182 — Goal wording (2026-10-08)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1089](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1089) | ✅ Done | Use duration-neutral goal wording across Russian and English UI | Confirmed on-device 2026-10-08. Goal copy describes the chosen period and weight-loss pace remains explicitly per week in RU/EN. Release note v1061; deployment follow-up confirmed successful. |
