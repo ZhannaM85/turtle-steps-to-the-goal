@@ -41,7 +41,7 @@ describe('AboutScreen', () => {
     ).toBeInTheDocument()
     expect(
       screen.getByText(
-        /steady weekly progress through small, consistent steps/,
+        /steady progress through small, consistent steps/,
       ),
     ).toBeInTheDocument()
     expect(screen.getByText('Private by design.')).toBeInTheDocument()

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1061,
+    issue: 1089,
+    date: '2026-10-08T09:08:24.429Z',
+    en: 'Goal labels now describe your chosen period, with weight-loss pace shown per week, in both English and Russian.',
+    ru: 'Подписи целей теперь говорят о выбранном периоде, а темп снижения веса указан за неделю — на русском и английском.',
+  },
+  {
     version: 1060,
     issue: 1087,
     date: '2026-10-06T18:31:29+03:00',

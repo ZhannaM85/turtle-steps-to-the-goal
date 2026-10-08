@@ -313,9 +313,9 @@ describe('buildExportWorkbook', () => {
     expect(sheet.getRow(1).values).toEqual([
       undefined,
       'Created',
-      'Weekly target (kg)',
-      'Week start',
-      'Week end',
+      'Weight-loss pace (kg/week)',
+      'Goal start',
+      'Goal end',
       'Baseline (kg)',
       'Calorie target (kcal)',
       'Protein target (g)',

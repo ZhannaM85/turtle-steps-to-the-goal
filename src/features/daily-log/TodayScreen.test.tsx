@@ -203,14 +203,14 @@ describe('TodayScreen', () => {
       </MemoryRouter>,
     )
 
-    expect(await screen.findByText("This week's target")).toBeInTheDocument()
+    expect(await screen.findByText("Goal for the selected period")).toBeInTheDocument()
     // #527 — positive magnitude + "to lose" (not a leading minus).
     // #586 — formatExactNumber: whole numbers stay "1", not "1.0".
     expect(screen.getByText('1')).toBeInTheDocument()
     const card = screen
-      .getByText("This week's target")
+      .getByText("Goal for the selected period")
       .closest('[data-slot="card"]') as HTMLElement
-    expect(within(card).getByText('kg to lose')).toBeInTheDocument()
+    expect(within(card).getByText('kg/week to lose')).toBeInTheDocument()
   })
 
   it('shows a two-decimal weekly pace without rounding to one decimal (#586)', async () => {
@@ -225,7 +225,7 @@ describe('TodayScreen', () => {
     )
 
     const card = (
-      await screen.findByText("This week's target")
+      await screen.findByText("Goal for the selected period")
     ).closest('[data-slot="card"]') as HTMLElement
     expect(within(card).getByText('0.28')).toBeInTheDocument()
     expect(within(card).queryByText('0.3')).not.toBeInTheDocument()
@@ -246,7 +246,7 @@ describe('TodayScreen', () => {
       </MemoryRouter>,
     )
 
-    expect(await screen.findByText("This week's target")).toBeInTheDocument()
+    expect(await screen.findByText("Goal for the selected period")).toBeInTheDocument()
     expect(screen.queryByText(/from .* kg/)).not.toBeInTheDocument()
   })
 
@@ -263,7 +263,7 @@ describe('TodayScreen', () => {
       </MemoryRouter>,
     )
 
-    expect(await screen.findByText("This week's target")).toBeInTheDocument()
+    expect(await screen.findByText("Goal for the selected period")).toBeInTheDocument()
     expect(
       await screen.findByText('from 58.8 kg', { exact: false }),
     ).toBeInTheDocument()
@@ -284,7 +284,7 @@ describe('TodayScreen', () => {
     )
 
     expect(await screen.findByDisplayValue('2019-09-26')).toBeInTheDocument()
-    expect(screen.queryByText("This week's target")).not.toBeInTheDocument()
+    expect(screen.queryByText("Goal for the selected period")).not.toBeInTheDocument()
     expect(screen.queryByText(/Jul 29, 2026/)).not.toBeInTheDocument()
   })
 
@@ -302,7 +302,7 @@ describe('TodayScreen', () => {
       </MemoryRouter>,
     )
 
-    expect(await screen.findByText("This week's target")).toBeInTheDocument()
+    expect(await screen.findByText("Goal for the selected period")).toBeInTheDocument()
     expect(screen.getByText(/Jul 29, 2026/)).toBeInTheDocument()
   })
 
@@ -328,7 +328,7 @@ describe('TodayScreen', () => {
       </MemoryRouter>,
     )
 
-    expect(await screen.findByText("This week's target")).toBeInTheDocument()
+    expect(await screen.findByText("Goal for the selected period")).toBeInTheDocument()
     expect(
       await screen.findByText('from 58.8 kg', { exact: false }),
     ).toBeInTheDocument()
@@ -410,14 +410,14 @@ describe('TodayScreen', () => {
     )
 
     expect(
-      screen.queryByText("You reached this week's target!"),
+      screen.queryByText("You reached your goal!"),
     ).not.toBeInTheDocument()
 
     await user.type(await screen.findByLabelText('Weight (kg)'), '59.8')
     await user.click(screen.getByRole('button', { name: 'Save weight' }))
 
     expect(
-      await screen.findByText("You reached this week's target!"),
+      await screen.findByText("You reached your goal!"),
     ).toBeInTheDocument()
 
     // #235's own persistent complement to the modal above — stays visible
@@ -624,7 +624,7 @@ describe('TodayScreen', () => {
       )
 
       expect(
-        await screen.findByText(/ready to renew/),
+        await screen.findByText(/goal period has ended/),
       ).toBeInTheDocument()
       expect(screen.getByRole('link', { name: 'Review goal' })).toHaveAttribute(
         'href',
@@ -650,8 +650,8 @@ describe('TodayScreen', () => {
         </MemoryRouter>,
       )
 
-      await screen.findByText("This week's target")
-      expect(screen.queryByText(/ready to renew/)).not.toBeInTheDocument()
+      await screen.findByText("Goal for the selected period")
+      expect(screen.queryByText(/goal period has ended/)).not.toBeInTheDocument()
     })
 
     it('keeps showing on later visits if the window is overdue, not just its exact last day', async () => {
@@ -666,7 +666,7 @@ describe('TodayScreen', () => {
         </MemoryRouter>,
       )
 
-      expect(await screen.findByText(/ready to renew/)).toBeInTheDocument()
+      expect(await screen.findByText(/goal period has ended/)).toBeInTheDocument()
     })
 
     it('does not show before the window is complete', async () => {
@@ -681,8 +681,8 @@ describe('TodayScreen', () => {
         </MemoryRouter>,
       )
 
-      await screen.findByText("This week's target")
-      expect(screen.queryByText(/ready to renew/)).not.toBeInTheDocument()
+      await screen.findByText("Goal for the selected period")
+      expect(screen.queryByText(/goal period has ended/)).not.toBeInTheDocument()
     })
 
     it('does not show when there is no goal, even with a stale window', async () => {
@@ -693,7 +693,7 @@ describe('TodayScreen', () => {
       )
 
       await screen.findByText('No goal set yet')
-      expect(screen.queryByText(/ready to renew/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/goal period has ended/)).not.toBeInTheDocument()
     })
   })
 
@@ -1247,7 +1247,7 @@ describe('TodayScreen', () => {
       await screen.findByText('BMI')
       await user.click(screen.getByRole('button', { name: 'Hide stats' }))
 
-      expect(screen.getByText("This week's target")).toBeInTheDocument()
+      expect(screen.getByText("Goal for the selected period")).toBeInTheDocument()
       // #516 — Morning Weight value is its own node (unit is separate).
       expect(screen.getByText('70')).toBeInTheDocument()
     })
@@ -1263,7 +1263,7 @@ describe('TodayScreen', () => {
         </MemoryRouter>,
       )
 
-      await screen.findByText("This week's target")
+      await screen.findByText("Goal for the selected period")
       expect(
         screen.queryByText('Remaining calories'),
       ).not.toBeInTheDocument()
@@ -1402,7 +1402,7 @@ describe('TodayScreen', () => {
         </MemoryRouter>,
       )
 
-      await screen.findByText("This week's target")
+      await screen.findByText("Goal for the selected period")
       expect(
         screen.queryByText('Remaining protein'),
       ).not.toBeInTheDocument()
@@ -1542,7 +1542,7 @@ describe('TodayScreen', () => {
         </MemoryRouter>,
       )
 
-      await screen.findByText("This week's target")
+      await screen.findByText("Goal for the selected period")
       expect(screen.queryByText('Remaining fat')).not.toBeInTheDocument()
       expect(screen.queryByText('Remaining carbs')).not.toBeInTheDocument()
     })
@@ -1708,7 +1708,7 @@ describe('TodayScreen', () => {
         </MemoryRouter>,
       )
 
-      await screen.findByText("This week's target")
+      await screen.findByText("Goal for the selected period")
       expect(screen.queryByText('Remaining water')).not.toBeInTheDocument()
     })
 
@@ -2137,15 +2137,15 @@ describe('TodayScreen', () => {
         </MemoryRouter>,
       )
 
-      await screen.findByText("This week's target")
+      await screen.findByText("Goal for the selected period")
       await user.click(
-        screen.getByRole('button', { name: "Hide This week's target" }),
+        screen.getByRole('button', { name: "Hide Goal for the selected period" }),
       )
       await user.click(
-        screen.getByRole('button', { name: "Show This week's target" }),
+        screen.getByRole('button', { name: "Show Goal for the selected period" }),
       )
 
-      expect(screen.getAllByText("This week's target")).toHaveLength(1)
+      expect(screen.getAllByText("Goal for the selected period")).toHaveLength(1)
     })
   })
 

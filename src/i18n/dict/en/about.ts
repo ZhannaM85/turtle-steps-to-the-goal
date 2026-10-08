@@ -7,7 +7,7 @@ export const about: AboutDict = {
     tracking:
       'Bring meals, macros, hydration, sleep, activity, body measurements, and any custom metrics you choose together in one place. Optional LDL tags stay off until you turn them on in Settings. Explore Features for the full list.',
     philosophy:
-      'Instead of focusing on perfect days, Turtle Steps encourages steady weekly progress through small, consistent steps.',
+      'Instead of focusing on perfect days, Turtle Steps encourages steady progress through small, consistent steps.',
     privacyHeading: 'Private by design.',
     privacy:
       'Everything is stored locally on your device. No accounts. No cloud.',
@@ -85,8 +85,8 @@ export const featuresOverview: FeaturesOverviewDict = {
         items: [
           'Set a weekly weight-loss pace instead of one big target number',
           'Optional daily calorie, protein, fat, and carb targets',
-          "See whether each week's target was reached, and which weigh-ins it was based on",
-          'Start the next weekly goal as soon as this week’s target is reached; the badge still waits until the week ends',
+          "See whether each goal was reached over its chosen period, and which weigh-ins it was based on",
+          'Start the next goal as soon as the current one is reached; the badge still waits until the goal period ends',
         ],
       },
       {

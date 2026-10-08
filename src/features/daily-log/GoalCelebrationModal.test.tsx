@@ -99,7 +99,7 @@ describe('GoalCelebrationModal', () => {
     )
 
     expect(
-      screen.queryByText("You reached this week's target!"),
+      screen.queryByText("You reached your goal!"),
     ).not.toBeInTheDocument()
   })
 
@@ -115,7 +115,7 @@ describe('GoalCelebrationModal', () => {
     )
 
     expect(
-      screen.queryByText("You reached this week's target!"),
+      screen.queryByText("You reached your goal!"),
     ).not.toBeInTheDocument()
   })
 
@@ -129,11 +129,11 @@ describe('GoalCelebrationModal', () => {
     )
 
     expect(
-      await screen.findByText("You reached this week's target!"),
+      await screen.findByText("You reached your goal!"),
     ).toBeInTheDocument()
     // Reframed — no longer claims the goal itself is done mid-week.
     expect(
-      screen.queryByText("You completed your weekly goal!"),
+      screen.queryByText("You completed your goal!"),
     ).not.toBeInTheDocument()
   })
 
@@ -150,7 +150,7 @@ describe('GoalCelebrationModal', () => {
     )
 
     expect(
-      screen.queryByText("You reached this week's target!"),
+      screen.queryByText("You reached your goal!"),
     ).not.toBeInTheDocument()
   })
 
@@ -164,11 +164,11 @@ describe('GoalCelebrationModal', () => {
       </MemoryRouter>,
     )
 
-    await screen.findByText("You reached this week's target!")
+    await screen.findByText("You reached your goal!")
     await user.click(screen.getByRole('button', { name: 'Close' }))
 
     expect(
-      screen.queryByText("You reached this week's target!"),
+      screen.queryByText("You reached your goal!"),
     ).not.toBeInTheDocument()
     expect(
       useGoalCelebrationStore.getState().celebratedInProgressWeekStart,
@@ -193,7 +193,7 @@ describe('GoalCelebrationModal', () => {
 
     await user.click(screen.getByRole('button', { name: 'Close' }))
     expect(
-      screen.queryByText("You reached this week's target!"),
+      screen.queryByText("You reached your goal!"),
     ).not.toBeInTheDocument()
   })
 
@@ -224,7 +224,7 @@ describe('GoalCelebrationModal', () => {
 
     await flushProgress()
     expect(
-      screen.queryByText('You completed your weekly goal!'),
+      screen.queryByText('You completed your goal!'),
     ).not.toBeInTheDocument()
   })
 
@@ -255,15 +255,15 @@ describe('GoalCelebrationModal', () => {
 
     await flushProgress()
     expect(
-      screen.queryByText('You completed your weekly goal!'),
+      screen.queryByText('You completed your goal!'),
     ).not.toBeInTheDocument()
     useDailyEntryStore.getState().noteWeightSaved()
 
     const cta = await screen.findByRole('link', {
-      name: "Set next week's goal",
+      name: "Start a new goal",
     })
     expect(
-      screen.getByText('You completed your weekly goal!'),
+      screen.getByText('You completed your goal!'),
     ).toBeInTheDocument()
     expect(cta).toHaveAttribute('href', '/goal?startNew=1')
   })
@@ -294,10 +294,10 @@ describe('GoalCelebrationModal', () => {
     )
 
     expect(
-      screen.queryByText('You completed your weekly goal!'),
+      screen.queryByText('You completed your goal!'),
     ).not.toBeInTheDocument()
     expect(
-      screen.queryByText("You reached this week's target!"),
+      screen.queryByText("You reached your goal!"),
     ).not.toBeInTheDocument()
   })
 
@@ -321,15 +321,15 @@ describe('GoalCelebrationModal', () => {
 
     await flushProgress()
     expect(
-      screen.queryByText('You completed your weekly goal!'),
+      screen.queryByText('You completed your goal!'),
     ).not.toBeInTheDocument()
     useDailyEntryStore.getState().noteWeightSaved()
 
     const cta = await screen.findByRole('link', {
-      name: "Set next week's goal",
+      name: "Start a new goal",
     })
     expect(
-      screen.getByText('You completed your weekly goal!'),
+      screen.getByText('You completed your goal!'),
     ).toBeInTheDocument()
     expect(cta).toHaveAttribute('href', '/goal?startNew=1')
   })
@@ -353,10 +353,10 @@ describe('GoalCelebrationModal', () => {
     )
 
     expect(
-      screen.queryByText('You completed your weekly goal!'),
+      screen.queryByText('You completed your goal!'),
     ).not.toBeInTheDocument()
     expect(
-      await screen.findByText("You reached this week's target!"),
+      await screen.findByText("You reached your goal!"),
     ).toBeInTheDocument()
   })
 
@@ -383,11 +383,11 @@ describe('GoalCelebrationModal', () => {
 
     await flushProgress()
     expect(
-      screen.queryByText('You completed your weekly goal!'),
+      screen.queryByText('You completed your goal!'),
     ).not.toBeInTheDocument()
     useDailyEntryStore.getState().noteWeightSaved()
     expect(
-      await screen.findByText('You completed your weekly goal!'),
+      await screen.findByText('You completed your goal!'),
     ).toBeInTheDocument()
   })
 
@@ -411,10 +411,10 @@ describe('GoalCelebrationModal', () => {
       </MemoryRouter>,
     )
 
-    await screen.findByText('You completed your weekly goal!')
+    await screen.findByText('You completed your goal!')
     await user.click(screen.getByRole('button', { name: 'Close' }))
     expect(
-      screen.queryByText('You completed your weekly goal!'),
+      screen.queryByText('You completed your goal!'),
     ).not.toBeInTheDocument()
     unmount()
 
@@ -425,7 +425,7 @@ describe('GoalCelebrationModal', () => {
     )
     await flushProgress()
     expect(
-      screen.queryByText('You completed your weekly goal!'),
+      screen.queryByText('You completed your goal!'),
     ).not.toBeInTheDocument()
   })
 
@@ -452,10 +452,10 @@ describe('GoalCelebrationModal', () => {
       </MemoryRouter>,
     )
 
-    await screen.findByText('You completed your weekly goal!')
+    await screen.findByText('You completed your goal!')
     await user.click(screen.getByRole('button', { name: 'Close' }))
     expect(
-      screen.queryByText('You completed your weekly goal!'),
+      screen.queryByText('You completed your goal!'),
     ).not.toBeInTheDocument()
 
     const withoutWeight: DailyEntry = {
@@ -472,7 +472,7 @@ describe('GoalCelebrationModal', () => {
     })
     await waitFor(() => {
       expect(
-        screen.queryByText('You completed your weekly goal!'),
+        screen.queryByText('You completed your goal!'),
       ).not.toBeInTheDocument()
     })
 
@@ -490,7 +490,7 @@ describe('GoalCelebrationModal', () => {
     })
     useDailyEntryStore.getState().noteWeightSaved()
     expect(
-      await screen.findByText('You completed your weekly goal!'),
+      await screen.findByText('You completed your goal!'),
     ).toBeInTheDocument()
   })
 })

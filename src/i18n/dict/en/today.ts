@@ -2,14 +2,14 @@ import type { TodayDict } from '../types/today'
 
 export const today: TodayDict = {
   title: 'Day',
-  description: "Entry for the day's data, this week's target reminder",
-  thisWeeksTarget: "This week's target",
+  description: "Entry for the day's data, current goal reminder",
+  thisWeeksTarget: "Goal for the selected period",
   // #527 — positive magnitude + "to lose" (signed −X from #56 read as a
   // gain, especially in RU with "похудения"). GoalForm targetLabel matches.
-  toLose: (unit) => `${unit} to lose`,
+  toLose: (unit) => `${unit}/week to lose`,
   weeklyTargetFromWeight: (weight) => `from ${weight}`,
   emptyGoalTitle: 'No goal set yet',
-  emptyGoalDescription: 'Set a weekly target to see it here.',
+  emptyGoalDescription: 'Set a goal to see it here.',
   setGoalButton: 'Set a goal',
   dateLabel: 'Date',
   previousDayLabel: 'Previous day',
@@ -17,10 +17,10 @@ export const today: TodayDict = {
   jumpToTodayButton: 'Today',
   dayHasEntriesLabel: 'This day has logged entries',
   goalRenewalReminder:
-    "This week's target is ready to renew — worth checking in on it.",
+    "Your goal period has ended — worth reviewing your goal.",
   reviewGoalLink: 'Review goal',
   targetMetBanner: (weekEndDate) =>
-    `You reached this week's target — keep it up through ${weekEndDate} to earn your badge!`,
+    `You reached your goal — keep it up through ${weekEndDate} to earn your badge!`,
   dailyReminderText: 'No entry yet today — whenever you’re ready.',
   dailyReminderNotificationTitle: 'Turtle Steps',
   dailyReminderNotificationBody:
@@ -121,15 +121,15 @@ export const today: TodayDict = {
   bmrLabel: 'Estimated daily calories (BMR)',
   bmrUnit: 'kcal/day',
   bmrTooltipLabel: 'About estimated daily calories',
-  celebrationTitle: "You reached this week's target!",
+  celebrationTitle: "You reached your goal!",
   celebrationDescription: (weekEndDate) =>
     `Keep it up through ${weekEndDate} to earn your badge.`,
   celebrationCta: 'Start a new goal',
   celebrationCloseLabel: 'Close',
-  celebrationCompleteTitle: 'You completed your weekly goal!',
+  celebrationCompleteTitle: 'You completed your goal!',
   celebrationCompleteDescription:
     'Congratulations! Ready to set the next tiny step?',
-  celebrationCompleteCta: "Set next week's goal",
+  celebrationCompleteCta: "Start a new goal",
   deepSleepDescription: (hours) => `${hours} deep sleep`,
   completeDayButton: 'Complete the day',
   completeDayTitle: 'If days like today became your usual pattern…',

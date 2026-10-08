@@ -46,7 +46,7 @@ describe('GoalForm', () => {
           onDelete={vi.fn()} />)
 
     expect(
-      screen.getByLabelText("This week's target (kg to lose)"),
+      screen.getByLabelText("Weight-loss pace (kg/week)"),
     ).toBeInTheDocument()
   })
 
@@ -57,10 +57,10 @@ describe('GoalForm', () => {
     renderGoalForm(<GoalForm existingGoal={null} onSubmit={onSubmit}
       onDelete={vi.fn()} />)
 
-    const input = screen.getByLabelText("This week's target (lb to lose)")
+    const input = screen.getByLabelText("Weight-loss pace (lb/week)")
     await user.type(input, '2.2')
     await user.click(
-      screen.getByRole('button', { name: 'Set this week’s target' }),
+      screen.getByRole('button', { name: 'Set goal' }),
     )
 
     expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -80,11 +80,11 @@ describe('GoalForm', () => {
     )
 
     await user.type(
-      screen.getByLabelText("This week's target (kg to lose)"),
+      screen.getByLabelText("Weight-loss pace (kg/week)"),
       '1',
     )
     await user.click(
-      screen.getByRole('button', { name: 'Set this week’s target' }),
+      screen.getByRole('button', { name: 'Set goal' }),
     )
 
     expect(onSubmit.mock.calls[0][0].baselineWeightKg).toBe(58.65)
@@ -96,11 +96,11 @@ describe('GoalForm', () => {
           onDelete={vi.fn()} />)
 
     await user.click(
-      screen.getByRole('button', { name: 'Set this week’s target' }),
+      screen.getByRole('button', { name: 'Set goal' }),
     )
 
     expect(
-      await screen.findByText("Enter this week's target, greater than 0"),
+      await screen.findByText("Enter a weight-loss pace greater than 0"),
     ).toBeInTheDocument()
   })
 
@@ -110,7 +110,7 @@ describe('GoalForm', () => {
           onDelete={vi.fn()} />)
 
     await user.type(
-      screen.getByLabelText("This week's target (kg to lose)"),
+      screen.getByLabelText("Weight-loss pace (kg/week)"),
       '1',
     )
 
@@ -129,11 +129,11 @@ describe('GoalForm', () => {
       onDelete={vi.fn()} />)
 
     await user.type(
-      screen.getByLabelText("This week's target (kg to lose)"),
+      screen.getByLabelText("Weight-loss pace (kg/week)"),
       '1',
     )
     await user.click(
-      screen.getByRole('button', { name: 'Set this week’s target' }),
+      screen.getByRole('button', { name: 'Set goal' }),
     )
 
     expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -150,11 +150,11 @@ describe('GoalForm', () => {
       onDelete={vi.fn()} />)
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '1',
       )
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -170,7 +170,7 @@ describe('GoalForm', () => {
       onDelete={vi.fn()} />)
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '1',
       )
       await user.type(
@@ -178,7 +178,7 @@ describe('GoalForm', () => {
         '1800',
       )
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -219,11 +219,11 @@ describe('GoalForm', () => {
       onDelete={vi.fn()} />)
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '1',
       )
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -237,12 +237,12 @@ describe('GoalForm', () => {
       onDelete={vi.fn()} />)
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '1',
       )
       await user.type(screen.getByLabelText('Daily protein target'), '120')
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -281,11 +281,11 @@ describe('GoalForm', () => {
       onDelete={vi.fn()} />)
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '1',
       )
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -299,12 +299,12 @@ describe('GoalForm', () => {
       onDelete={vi.fn()} />)
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '1',
       )
       await user.type(screen.getByLabelText('Daily fat target'), '60')
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -341,11 +341,11 @@ describe('GoalForm', () => {
       onDelete={vi.fn()} />)
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '1',
       )
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -359,12 +359,12 @@ describe('GoalForm', () => {
       onDelete={vi.fn()} />)
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '1',
       )
       await user.type(screen.getByLabelText('Daily carb target'), '200')
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -401,11 +401,11 @@ describe('GoalForm', () => {
       onDelete={vi.fn()} />)
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '1',
       )
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -419,12 +419,12 @@ describe('GoalForm', () => {
       onDelete={vi.fn()} />)
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '1',
       )
       await user.type(screen.getByLabelText('Daily fiber target'), '25')
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -470,7 +470,7 @@ describe('GoalForm', () => {
       )
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '0.1',
       )
       await user.click(
@@ -530,11 +530,11 @@ describe('GoalForm', () => {
       onDelete={vi.fn()} />)
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '1',
       )
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -548,12 +548,12 @@ describe('GoalForm', () => {
       onDelete={vi.fn()} />)
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '1',
       )
       await user.type(screen.getByLabelText('Daily water target'), '2000')
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -649,10 +649,10 @@ describe('GoalForm', () => {
       )
 
       const button = screen.getByRole('button', { name: 'Suggest a target' })
-      const pace = screen.getByLabelText("This week's target (kg to lose)")
+      const pace = screen.getByLabelText("Weight-loss pace (kg/week)")
       expect(button).toBeDisabled()
       expect(
-        screen.getByText(/Enter this week's target first, greater than 0/),
+        screen.getByText(/Enter a weight-loss pace greater than 0 first/),
       ).toBeInTheDocument()
       expect(screen.getByLabelText('Daily calories target')).toHaveValue('')
 
@@ -697,7 +697,7 @@ describe('GoalForm', () => {
       )
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '1',
       )
       await user.click(
@@ -729,7 +729,7 @@ describe('GoalForm', () => {
       )
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '0.1',
       )
       await user.click(
@@ -775,7 +775,7 @@ describe('GoalForm', () => {
       await user.click(recalcButton)
 
       expect(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
       ).toHaveValue('0.5')
       expect(screen.getByLabelText('Daily protein target')).toHaveValue('112')
       expect(screen.getByLabelText('Daily fat target')).toHaveValue('56')
@@ -825,7 +825,7 @@ describe('GoalForm', () => {
       )
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '0.1',
       )
       expect(
@@ -904,10 +904,10 @@ describe('GoalForm', () => {
     await user.click(screen.getByRole('button', { name: 'Edit goal' }))
 
     expect(
-      screen.getByLabelText("This week's target (kg to lose)"),
+      screen.getByLabelText("Weight-loss pace (kg/week)"),
     ).toHaveValue('1')
     expect(
-      screen.getByRole('button', { name: 'Update this week’s target' }),
+      screen.getByRole('button', { name: 'Update goal' }),
     ).toBeInTheDocument()
   })
 
@@ -938,7 +938,7 @@ describe('GoalForm', () => {
 
       await user.click(screen.getByRole('button', { name: 'Edit goal' }))
       const button = screen.getByRole('button', {
-        name: 'Update this week’s target',
+        name: 'Update goal',
       })
       expect(button).toBeEnabled()
 
@@ -970,11 +970,11 @@ describe('GoalForm', () => {
       )
 
       await user.click(screen.getByRole('button', { name: 'Edit goal' }))
-      const input = screen.getByLabelText("This week's target (kg to lose)")
+      const input = screen.getByLabelText("Weight-loss pace (kg/week)")
       await user.clear(input)
       await user.type(input, '1.5')
       await user.click(
-        screen.getByRole('button', { name: 'Update this week’s target' }),
+        screen.getByRole('button', { name: 'Update goal' }),
       )
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -1010,7 +1010,7 @@ describe('GoalForm', () => {
 
       await user.click(screen.getByRole('button', { name: 'Edit goal' }))
       await user.click(
-        screen.getByRole('button', { name: 'Update this week’s target' }),
+        screen.getByRole('button', { name: 'Update goal' }),
       )
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -1048,7 +1048,7 @@ describe('GoalForm', () => {
       // silently disable" precedent #634's PDF section tooltips already
       // established.
       expect(
-        screen.getByText(/Available once this week's target ends, on/),
+        screen.getByText(/You can start a new goal after the current one ends on/),
       ).toBeInTheDocument()
     })
 
@@ -1073,7 +1073,7 @@ describe('GoalForm', () => {
       )
 
       expect(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       ).toBeInTheDocument()
       await user.click(screen.getByRole('button', { name: 'Cancel' }))
       expect(onSubmit).not.toHaveBeenCalled()
@@ -1081,13 +1081,13 @@ describe('GoalForm', () => {
       const startNewButton = screen.getByRole('button', { name: 'Start a new goal' })
       expect(startNewButton).toBeEnabled()
       expect(
-        screen.queryByText(/Available once this week's target ends/),
+        screen.queryByText(/You can start a new goal after the current one ends/),
       ).not.toBeInTheDocument()
       expect(screen.getByText(/Begins a fresh window/)).toBeInTheDocument()
 
       await user.click(startNewButton)
       expect(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       ).toBeInTheDocument()
     })
 
@@ -1174,7 +1174,7 @@ describe('GoalForm', () => {
       )
 
       expect(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       ).toBeInTheDocument()
     })
 
@@ -1205,11 +1205,11 @@ describe('GoalForm', () => {
       await user.click(
         screen.getByRole('button', { name: 'Start a new goal' }),
       )
-      const input = screen.getByLabelText("This week's target (kg to lose)")
+      const input = screen.getByLabelText("Weight-loss pace (kg/week)")
       await user.clear(input)
       await user.type(input, '0.1')
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -1244,11 +1244,11 @@ describe('GoalForm', () => {
       // #534 — Start a new goal clears the form (no longer reuses the live
       // goal's values), so a weekly pace must be entered before Set.
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '0.2',
       )
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -1269,11 +1269,11 @@ describe('GoalForm', () => {
       expect(screen.getByLabelText('Ends on')).toHaveValue('2026-07-30')
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '1',
       )
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
 
       expect(onSubmit.mock.calls[0][0].weekStart).toBe('2026-07-24')
@@ -1288,14 +1288,14 @@ describe('GoalForm', () => {
       onDelete={vi.fn()} />)
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '1',
       )
       fireEvent.change(screen.getByLabelText('Ends on'), {
         target: { value: '2026-08-05' },
       })
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
 
       expect(onSubmit.mock.calls[0][0].weekEnd).toBe('2026-08-05')
@@ -1381,11 +1381,11 @@ describe('GoalForm', () => {
       ).toBeInTheDocument()
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '1',
       )
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
 
       expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -1496,11 +1496,11 @@ describe('GoalForm', () => {
       ).not.toBeInTheDocument()
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '0.2',
       )
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
 
       expect(onSubmit.mock.calls[0][0].weekStart).toBe('2026-08-09')
@@ -1527,11 +1527,11 @@ describe('GoalForm', () => {
       expect(screen.getByLabelText('Ends on')).toHaveValue('2026-08-01')
 
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '1',
       )
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
 
       expect(onSubmit.mock.calls[0][0].weekStart).toBe('2026-07-26')
@@ -1552,18 +1552,18 @@ describe('GoalForm', () => {
       onDelete={vi.fn()} />)
 
     await user.type(
-      screen.getByLabelText("This week's target (kg to lose)"),
+      screen.getByLabelText("Weight-loss pace (kg/week)"),
       '1',
     )
     await user.type(screen.getByLabelText('Daily calories target'), '1800')
     await user.type(screen.getByLabelText('Daily protein target'), '120')
     await user.click(
-      screen.getByRole('button', { name: 'Set this week’s target' }),
+      screen.getByRole('button', { name: 'Set goal' }),
     )
 
     expect(onSubmit).toHaveBeenCalledTimes(1)
     expect(
-      screen.getByLabelText("This week's target (kg to lose)"),
+      screen.getByLabelText("Weight-loss pace (kg/week)"),
     ).toHaveValue('')
     expect(screen.getByLabelText('Daily calories target')).toHaveValue('')
     expect(screen.getByLabelText('Daily protein target')).toHaveValue('')
@@ -1576,11 +1576,11 @@ describe('GoalForm', () => {
       onDelete={vi.fn()} />)
 
     await user.type(
-      screen.getByLabelText("This week's target (kg to lose)"),
+      screen.getByLabelText("Weight-loss pace (kg/week)"),
       '1,5',
     )
     await user.click(
-      screen.getByRole('button', { name: 'Set this week’s target' }),
+      screen.getByRole('button', { name: 'Set goal' }),
     )
 
     expect(onSubmit).toHaveBeenCalledTimes(1)
@@ -1593,19 +1593,19 @@ describe('GoalForm', () => {
     renderGoalForm(<GoalForm existingGoal={null} onSubmit={vi.fn()}
           onDelete={vi.fn()} />)
 
-    const input = screen.getByLabelText("This week's target (kg to lose)")
+    const input = screen.getByLabelText("Weight-loss pace (kg/week)")
     await user.click(
-      screen.getByRole('button', { name: 'Increase weekly target' }),
+      screen.getByRole('button', { name: 'Increase weight-loss pace' }),
     )
     expect(input).toHaveValue('0.1')
 
     await user.click(
-      screen.getByRole('button', { name: 'Increase weekly target' }),
+      screen.getByRole('button', { name: 'Increase weight-loss pace' }),
     )
     expect(input).toHaveValue('0.2')
 
     await user.click(
-      screen.getByRole('button', { name: 'Decrease weekly target' }),
+      screen.getByRole('button', { name: 'Decrease weight-loss pace' }),
     )
     expect(input).toHaveValue('0.1')
   })
@@ -1621,7 +1621,7 @@ describe('GoalForm', () => {
     ).not.toBeInTheDocument()
 
     await user.type(
-      screen.getByLabelText("This week's target (kg to lose)"),
+      screen.getByLabelText("Weight-loss pace (kg/week)"),
       '5',
     )
 
@@ -1631,7 +1631,7 @@ describe('GoalForm', () => {
     expect(screen.getByRole('status')).toHaveTextContent('5,500')
 
     await user.click(
-      screen.getByRole('button', { name: 'Set this week’s target' }),
+      screen.getByRole('button', { name: 'Set goal' }),
     )
     expect(onSubmit).toHaveBeenCalledTimes(1)
     expect(onSubmit.mock.calls[0][0].targetWeeklyLossKg).toBe(5)
@@ -1655,7 +1655,7 @@ describe('GoalForm', () => {
       renderGoalForm(
         <GoalForm existingGoal={null} onSubmit={vi.fn()} onDelete={vi.fn()} />,
       )
-      const save = screen.getByRole('button', { name: 'Set this week’s target' })
+      const save = screen.getByRole('button', { name: 'Set goal' })
       const cancel = screen.getByRole('button', { name: 'Cancel' })
       expect(save).toHaveClass('h-9')
       expect(cancel).toHaveClass('h-8')
@@ -1671,7 +1671,7 @@ describe('GoalForm', () => {
 
       await user.click(screen.getByRole('button', { name: 'Edit goal' }))
       expect(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
       ).toBeInTheDocument()
 
       await user.click(screen.getByRole('button', { name: 'Cancel' }))
@@ -1680,7 +1680,7 @@ describe('GoalForm', () => {
         screen.queryByText('Leave without saving your goal changes?'),
       ).not.toBeInTheDocument()
       expect(
-        screen.queryByLabelText("This week's target (kg to lose)"),
+        screen.queryByLabelText("Weight-loss pace (kg/week)"),
       ).not.toBeInTheDocument()
       expect(screen.getByRole('button', { name: 'Edit goal' })).toBeInTheDocument()
     })
@@ -1694,10 +1694,10 @@ describe('GoalForm', () => {
 
       await user.click(screen.getByRole('button', { name: 'Edit goal' }))
       await user.clear(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
       )
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '2',
       )
 
@@ -1707,7 +1707,7 @@ describe('GoalForm', () => {
         screen.getByText('Leave without saving your goal changes?'),
       ).toBeInTheDocument()
       expect(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
       ).toHaveValue('2')
 
       await user.click(screen.getByRole('button', { name: 'No' }))
@@ -1716,7 +1716,7 @@ describe('GoalForm', () => {
         screen.queryByText('Leave without saving your goal changes?'),
       ).not.toBeInTheDocument()
       expect(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
       ).toHaveValue('2')
     })
 
@@ -1729,17 +1729,17 @@ describe('GoalForm', () => {
 
       await user.click(screen.getByRole('button', { name: 'Edit goal' }))
       await user.clear(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
       )
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '2',
       )
       await user.click(screen.getByRole('button', { name: 'Cancel' }))
       await user.click(screen.getByRole('button', { name: 'Yes' }))
 
       expect(
-        screen.queryByLabelText("This week's target (kg to lose)"),
+        screen.queryByLabelText("Weight-loss pace (kg/week)"),
       ).not.toBeInTheDocument()
       expect(screen.getByRole('button', { name: 'Edit goal' })).toBeInTheDocument()
     })
@@ -1753,10 +1753,10 @@ describe('GoalForm', () => {
 
       await user.click(screen.getByRole('button', { name: 'Edit goal' }))
       await user.clear(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
       )
       await user.type(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
         '2',
       )
 
@@ -1871,7 +1871,7 @@ describe('GoalForm', () => {
 
       expect(screen.getByText('1 kg/week')).toBeInTheDocument()
       expect(
-        screen.queryByLabelText("This week's target (kg to lose)"),
+        screen.queryByLabelText("Weight-loss pace (kg/week)"),
       ).not.toBeInTheDocument()
     })
 
@@ -1896,10 +1896,10 @@ describe('GoalForm', () => {
       await user.click(screen.getByRole('button', { name: 'Edit goal' }))
 
       expect(
-        screen.getByLabelText("This week's target (kg to lose)"),
+        screen.getByLabelText("Weight-loss pace (kg/week)"),
       ).toHaveValue('')
       expect(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       ).toBeInTheDocument()
     })
 

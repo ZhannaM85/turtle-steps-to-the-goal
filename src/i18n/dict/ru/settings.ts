@@ -183,7 +183,7 @@ export const settings: SettingsDict = {
     ldlImpactTrackingLabel: 'Показывать влияние на ЛПНП',
     trackingPresetLabel: 'Пресет макета',
     trackingPresetDescription:
-      'Быстрая отправная точка для дня: «Просто» оставляет вес, приёмы пищи/калории и недельную цель; «Полностью» включает всё. Всё ниже по-прежнему можно настроить вручную.',
+      'Быстрая отправная точка для дня: «Просто» оставляет вес, приёмы пищи/калории и цель; «Полностью» включает всё. Всё ниже по-прежнему можно настроить вручную.',
     trackingPresetSimpleButton: 'Просто',
     trackingPresetFullButton: 'Полностью',
     trackingPresetAppliedLabel: 'Применено',

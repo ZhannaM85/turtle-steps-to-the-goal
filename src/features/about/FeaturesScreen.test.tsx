@@ -65,7 +65,7 @@ describe('FeaturesScreen', () => {
       screen.getByText(/Share the foods you select with one QR code/),
     ).toBeInTheDocument()
     expect(
-      screen.getByText(/Start the next weekly goal/),
+      screen.getByText(/Start the next goal/),
     ).toBeInTheDocument()
     expect(
       screen.getByText(/LDL impact and reason in meal and day exports/),
@@ -125,7 +125,7 @@ describe('FeaturesScreen', () => {
     expect(
       screen.getByText(/одним QR-кодом или одной ссылкой/),
     ).toBeInTheDocument()
-    expect(screen.getByText(/следующую недельную цель/)).toBeInTheDocument()
+    expect(screen.getByText(/Начинайте новую цель/)).toBeInTheDocument()
     expect(
       screen.getByText(/экспорт приёмов пищи и дня/),
     ).toBeInTheDocument()

@@ -181,7 +181,7 @@ export const settings: SettingsDict = {
     ldlImpactTrackingLabel: 'Show LDL impact',
     trackingPresetLabel: 'Layout preset',
     trackingPresetDescription:
-      "Quick starting point for Day: Simple keeps weight, meals/calories, and your weekly target; Full turns everything on. You can still adjust anything below afterward.",
+      "Quick starting point for Day: Simple keeps weight, meals/calories, and your goal; Full turns everything on. You can still adjust anything below afterward.",
     trackingPresetSimpleButton: 'Simple',
     trackingPresetFullButton: 'Full',
     trackingPresetAppliedLabel: 'Applied',

@@ -2,13 +2,13 @@ import type { TodayDict } from '../types/today'
 
 export const today: TodayDict = {
   title: 'День',
-  description: 'Ввод данных за день, напоминание о цели на неделю',
-  thisWeeksTarget: 'Цель на эту неделю',
+  description: 'Ввод данных за день, напоминание о текущей цели',
+  thisWeeksTarget: 'Цель на выбранный период',
   // #527 — positive magnitude + «похудения»; leading minus read as a gain.
-  toLose: (unit) => `${unit} похудения`,
+  toLose: (unit) => `${unit}/неделю снижения веса`,
   weeklyTargetFromWeight: (weight) => `от ${weight}`,
   emptyGoalTitle: 'Цель ещё не задана',
-  emptyGoalDescription: 'Задайте цель на неделю, чтобы увидеть её здесь.',
+  emptyGoalDescription: 'Задайте цель, чтобы увидеть её здесь.',
   setGoalButton: 'Задать цель',
   dateLabel: 'Дата',
   previousDayLabel: 'Предыдущий день',
@@ -16,10 +16,10 @@ export const today: TodayDict = {
   jumpToTodayButton: 'Сегодня',
   dayHasEntriesLabel: 'За этот день есть записи',
   goalRenewalReminder:
-    'Цель на эту неделю пора обновить — стоит заглянуть и проверить.',
+    'Период цели закончился — стоит заглянуть и проверить её.',
   reviewGoalLink: 'Посмотреть цель',
   targetMetBanner: (weekEndDate) =>
-    `Вы достигли цели на эту неделю — держитесь до конца ${weekEndDate}, чтобы получить значок!`,
+    `Вы достигли цели — держитесь до конца ${weekEndDate}, чтобы получить значок!`,
   dailyReminderText: 'Сегодня пока нет записи — когда будете готовы.',
   dailyReminderNotificationTitle: 'Черепашка идёт к цели',
   dailyReminderNotificationBody:
@@ -123,15 +123,15 @@ export const today: TodayDict = {
   bmrLabel: 'Примерная суточная норма калорий (базовый обмен)',
   bmrUnit: 'ккал/день',
   bmrTooltipLabel: 'О примерной суточной норме калорий',
-  celebrationTitle: 'Вы достигли цели на эту неделю!',
+  celebrationTitle: 'Вы достигли цели!',
   celebrationDescription: (weekEndDate) =>
     `Держитесь до конца ${weekEndDate}, чтобы получить значок.`,
   celebrationCta: 'Начать новую цель',
   celebrationCloseLabel: 'Закрыть',
-  celebrationCompleteTitle: 'Вы выполнили недельную цель!',
+  celebrationCompleteTitle: 'Вы выполнили цель!',
   celebrationCompleteDescription:
     'Поздравляем! Готовы поставить следующий маленький шаг?',
-  celebrationCompleteCta: 'Задать цель на следующую неделю',
+  celebrationCompleteCta: 'Начать новую цель',
   deepSleepDescription: (hours) => `${hours} глубокого сна`,
   completeDayButton: 'Завершить день',
   completeDayTitle: 'Если дни как сегодня станут обычными…',

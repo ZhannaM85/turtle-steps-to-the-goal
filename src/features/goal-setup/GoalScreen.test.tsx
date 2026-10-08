@@ -6,6 +6,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { DailyEntry } from '@/domain/dailyEntry'
 import type { Goal } from '@/domain/goal'
+import { getDateFnsLocale, useLocaleStore } from '@/i18n'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useGoalStore, useSectionVisibilityStore } from '@/stores'
 import { GoalScreen } from './GoalScreen'
@@ -58,6 +59,7 @@ async function seedTargetMetWeeks() {
 }
 
 beforeEach(async () => {
+  useLocaleStore.setState({ locale: 'en' })
   await db.goals.clear()
   await db.dailyEntries.clear()
   useGoalStore.setState({ goal: null, status: 'idle', error: null })
@@ -65,6 +67,7 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
+  useLocaleStore.setState({ locale: 'en' })
   await db.goals.clear()
   await db.dailyEntries.clear()
   resetSectionVisibility()
@@ -81,13 +84,33 @@ function resetSectionVisibility() {
 }
 
 describe('GoalScreen', () => {
+  it.each([
+    ['en', 3], ['en', 7], ['en', 14],
+    ['ru', 3], ['ru', 7], ['ru', 14],
+  ] as const)('shows a period label and weekly rate in %s for a %i-day goal (#1089)', async (locale, days) => {
+    useLocaleStore.setState({ locale })
+    const end = addDays(new Date(), days - 1)
+    await useGoalStore.getState().saveGoal(makeGoal({
+      weekEnd: format(end, DATE_FORMAT),
+      targetWeeklyLossKg: 0.1,
+    }))
+    renderGoalScreen()
+    const label = locale === 'ru' ? 'Цель на выбранный период' : 'Goal for the selected period'
+    const card = (await screen.findByText(label)).closest<HTMLElement>('[data-slot="card"]')!
+    expect(within(card).getByText(locale === 'ru' ? 'кг/неделю снижения веса' : 'kg/week to lose')).toBeInTheDocument()
+    expect(screen.getByText(locale === 'ru' ? 'Темп снижения веса' : 'Weight-loss pace')).toBeInTheDocument()
+    const dateLocale = getDateFnsLocale(locale)
+    expect(within(card).getByText(`${format(new Date(), 'PP', { locale: dateLocale })} – ${format(end, 'PP', { locale: dateLocale })}`)).toBeInTheDocument()
+    expect(screen.queryByText(locale === 'ru' ? 'Цель на эту неделю' : "This week's target")).not.toBeInTheDocument()
+  })
+
   it('shows the setup form with no summary when there is no goal yet', async () => {
     renderGoalScreen()
 
     expect(
-      await screen.findByRole('button', { name: 'Set this week’s target' }),
+      await screen.findByRole('button', { name: 'Set goal' }),
     ).toBeInTheDocument()
-    expect(screen.queryByText("This week's target")).not.toBeInTheDocument()
+    expect(screen.queryByText("Goal for the selected period")).not.toBeInTheDocument()
   })
 
   it('shows a read-only summary, then a pre-filled edit form once Edit is tapped (#244)', async () => {
@@ -100,16 +123,16 @@ describe('GoalScreen', () => {
       await screen.findByRole('button', { name: 'Edit goal' }),
     ).toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: 'Update this week’s target' }),
+      screen.queryByRole('button', { name: 'Update goal' }),
     ).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Edit goal' }))
 
     expect(
-      screen.getByRole('button', { name: 'Update this week’s target' }),
+      screen.getByRole('button', { name: 'Update goal' }),
     ).toBeInTheDocument()
     expect(
-      screen.getByLabelText("This week's target (kg to lose)"),
+      screen.getByLabelText("Weight-loss pace (kg/week)"),
     ).toHaveValue('1')
   })
 
@@ -129,7 +152,7 @@ describe('GoalScreen', () => {
     renderGoalScreen()
 
     const card = (
-      await screen.findAllByText("This week's target")
+      await screen.findAllByText("Goal for the selected period")
     )[0].closest('[data-slot="card"]') as HTMLElement
     expect(card).toBeTruthy()
     expect(within(card).queryByText(/from .* kg/)).not.toBeInTheDocument()
@@ -150,7 +173,7 @@ describe('GoalScreen', () => {
     renderGoalScreen()
 
     const card = (
-      await screen.findAllByText("This week's target")
+      await screen.findAllByText("Goal for the selected period")
     )[0].closest('[data-slot="card"]') as HTMLElement
     expect(
       await within(card).findByText('from 61.4 kg', { exact: false }),
@@ -165,7 +188,7 @@ describe('GoalScreen', () => {
     renderGoalScreen()
 
     const card = (
-      await screen.findAllByText("This week's target")
+      await screen.findAllByText("Goal for the selected period")
     )[0].closest('[data-slot="card"]') as HTMLElement
     expect(within(card).getByText('0.28')).toBeInTheDocument()
     expect(within(card).queryByText('0.3')).not.toBeInTheDocument()
@@ -181,7 +204,7 @@ describe('GoalScreen', () => {
     renderGoalScreen()
 
     const card = (
-      await screen.findAllByText("This week's target")
+      await screen.findAllByText("Goal for the selected period")
     )[0].closest('[data-slot="card"]') as HTMLElement
     expect(
       await within(card).findByText('from 58.8 kg', { exact: false }),
@@ -201,7 +224,7 @@ describe('GoalScreen', () => {
     renderGoalScreen()
 
     const card = (
-      await screen.findAllByText("This week's target")
+      await screen.findAllByText("Goal for the selected period")
     )[0].closest('[data-slot="card"]') as HTMLElement
     expect(
       await within(card).findByText('from 58.8 kg', { exact: false }),
@@ -219,12 +242,12 @@ describe('GoalScreen', () => {
     )
 
     const weeklyTargetInput = screen.getByLabelText(
-      "This week's target (kg to lose)",
+      "Weight-loss pace (kg/week)",
     )
     await user.clear(weeklyTargetInput)
     await user.type(weeklyTargetInput, '0.5')
     await user.click(
-      screen.getByRole('button', { name: 'Update this week’s target' }),
+      screen.getByRole('button', { name: 'Update goal' }),
     )
 
     expect(await screen.findByText('0.5')).toBeInTheDocument()
@@ -243,12 +266,12 @@ describe('GoalScreen', () => {
     )
 
     const weeklyTargetInput = screen.getByLabelText(
-      "This week's target (kg to lose)",
+      "Weight-loss pace (kg/week)",
     )
     await user.clear(weeklyTargetInput)
     await user.type(weeklyTargetInput, '0.5')
     await user.click(
-      screen.getByRole('button', { name: 'Update this week’s target' }),
+      screen.getByRole('button', { name: 'Update goal' }),
     )
 
     await screen.findByText('0.5')
@@ -280,12 +303,12 @@ describe('GoalScreen', () => {
     )
 
     const weeklyTargetInput = screen.getByLabelText(
-      "This week's target (kg to lose)",
+      "Weight-loss pace (kg/week)",
     )
     await user.clear(weeklyTargetInput)
     await user.type(weeklyTargetInput, '0.5')
     await user.click(
-      screen.getByRole('button', { name: 'Set this week’s target' }),
+      screen.getByRole('button', { name: 'Set goal' }),
     )
 
     expect(await screen.findByText('Past targets')).toBeInTheDocument()
@@ -487,7 +510,7 @@ describe('GoalScreen', () => {
     ).toBeInTheDocument()
     expect(
       screen.getByText(
-        "You completed this week's goal! Start a new one below whenever you're ready.",
+        "You completed your goal! Start a new one below whenever you're ready.",
       ),
     ).toBeInTheDocument()
     expect(screen.queryByText('Target reached')).not.toBeInTheDocument()
@@ -524,10 +547,10 @@ describe('GoalScreen', () => {
 
     renderGoalScreen()
 
-    expect(await screen.findByText("This week's result")).toBeInTheDocument()
+    expect(await screen.findByText("Period result")).toBeInTheDocument()
     expect(
       screen.getByText(
-        "This week's target wasn't reached — that's okay. Start a new one below whenever you're ready.",
+        "Your goal wasn't reached — that's okay. Start a new one below whenever you're ready.",
       ),
     ).toBeInTheDocument()
     expect(screen.queryByText('Target reached')).not.toBeInTheDocument()
@@ -552,10 +575,10 @@ describe('GoalScreen', () => {
 
     renderGoalScreen()
 
-    expect(await screen.findByText("This week's result")).toBeInTheDocument()
+    expect(await screen.findByText("Period result")).toBeInTheDocument()
     expect(
       screen.getByText(
-        "This week's target wasn't reached — that's okay. Start a new one below whenever you're ready.",
+        "Your goal wasn't reached — that's okay. Start a new one below whenever you're ready.",
       ),
     ).toBeInTheDocument()
     expect(screen.queryByText('Goal completed')).not.toBeInTheDocument()
@@ -610,12 +633,12 @@ describe('GoalScreen', () => {
     await user.click(screen.getByRole('button', { name: 'Start a new goal' }))
 
     const weeklyTargetInput = screen.getByLabelText(
-      "This week's target (kg to lose)",
+      "Weight-loss pace (kg/week)",
     )
     await user.clear(weeklyTargetInput)
     await user.type(weeklyTargetInput, '0.5')
     await user.click(
-      screen.getByRole('button', { name: 'Set this week’s target' }),
+      screen.getByRole('button', { name: 'Set goal' }),
     )
 
     await screen.findByText('0.5')
@@ -632,28 +655,26 @@ describe('GoalScreen', () => {
       await useGoalStore.getState().saveGoal(makeGoal())
 
       renderGoalScreen()
-      // "This week's target" legitimately appears twice — this StatCard's
-      // own label, and GoalForm's separate #244 read-only summary table
-      // (untouched by this toggle) — so every query below is by role
-      // (the hide/show button) or an *All* text query, never a bare
-      // single-match query for that ambiguous text.
+      // The hidden card keeps its title and toggle. The read-only summary
+      // names its kg/week value as Weight-loss pace independently.
       const hideButton = await screen.findByRole('button', {
-        name: "Hide This week's target",
+        name: "Hide Goal for the selected period",
       })
 
       await user.click(hideButton)
 
       // StatCard unit (not the GoalForm summary table's "… kg/week" copy).
-      expect(screen.queryByText('kg to lose')).not.toBeInTheDocument()
+      expect(screen.queryByText('kg/week to lose')).not.toBeInTheDocument()
       expect(
-        screen.getAllByText("This week's target").length,
+        screen.getAllByText("Goal for the selected period").length,
       ).toBeGreaterThan(0)
+      expect(screen.getByText('Weight-loss pace')).toBeInTheDocument()
       const showButton = screen.getByRole('button', {
-        name: "Show This week's target",
+        name: "Show Goal for the selected period",
       })
 
       await user.click(showButton)
-      expect(await screen.findByText('kg to lose')).toBeInTheDocument()
+      expect(await screen.findByText('kg/week to lose')).toBeInTheDocument()
       expect(screen.getByText('1')).toBeInTheDocument()
     })
 
@@ -669,7 +690,7 @@ describe('GoalScreen', () => {
       })
       expect(startNewButton).toBeEnabled()
       expect(
-        screen.queryByText(/Available once this week's target ends/),
+        screen.queryByText(/You can start a new goal after the current one ends/),
       ).not.toBeInTheDocument()
       expect(
         screen.getByText(/keep it up through .* to earn your badge/),
@@ -677,7 +698,7 @@ describe('GoalScreen', () => {
 
       await user.click(startNewButton)
       expect(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       ).toBeInTheDocument()
       await user.click(screen.getByRole('button', { name: 'Cancel' }))
       expect(screen.getByRole('button', { name: 'Start a new goal' })).toBeEnabled()
@@ -693,7 +714,7 @@ describe('GoalScreen', () => {
         await screen.findByText(/keep it up through .* to earn your badge/),
       ).toBeInTheDocument()
       expect(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       ).toBeInTheDocument()
 
       await user.click(screen.getByRole('button', { name: 'Cancel' }))
@@ -741,12 +762,12 @@ describe('GoalScreen', () => {
         await screen.findByRole('button', { name: 'Start a new goal' }),
       )
       const weeklyTargetInput = screen.getByLabelText(
-        "This week's target (kg to lose)",
+        "Weight-loss pace (kg/week)",
       )
       await user.clear(weeklyTargetInput)
       await user.type(weeklyTargetInput, '0.5')
       await user.click(
-        screen.getByRole('button', { name: 'Set this week’s target' }),
+        screen.getByRole('button', { name: 'Set goal' }),
       )
       await screen.findByText('Past targets')
 

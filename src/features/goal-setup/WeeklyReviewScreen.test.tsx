@@ -54,7 +54,7 @@ describe('WeeklyReviewScreen (#602)', () => {
 
     expect(
       await screen.findByText(
-        'Set a weekly target on Goal to see a review here.',
+        'Set a goal on Goal to see a review here.',
       ),
     ).toBeInTheDocument()
   })
@@ -69,7 +69,7 @@ describe('WeeklyReviewScreen (#602)', () => {
 
     expect(
       await screen.findByText(
-        "Still working toward this week's target — no rush.",
+        "Still working toward your goal — no rush.",
       ),
     ).toBeInTheDocument()
   })
@@ -95,7 +95,7 @@ describe('WeeklyReviewScreen (#602)', () => {
     renderScreen()
 
     expect(
-      await screen.findByText("Still working toward this week's target — no rush."),
+      await screen.findByText("Still working toward your goal — no rush."),
     ).toBeInTheDocument()
     expect(screen.queryByText(/Target reached on/)).not.toBeInTheDocument()
   })

@@ -331,8 +331,8 @@ export const exportXlsx: ExportXlsxDict = {
     timeColumn: 'Время',
     reactionColumn: 'Реакция',
     createdColumn: 'Создано',
-    weeklyTargetColumn: 'Цель на неделю (кг)',
-    weekStartColumn: 'Начало недели',
-    weekEndColumn: 'Конец недели',
+    weeklyTargetColumn: 'Темп снижения веса (кг/неделю)',
+    weekStartColumn: 'Начало цели',
+    weekEndColumn: 'Окончание цели',
     baselineWeightColumn: 'Исходный вес (кг)',
   }

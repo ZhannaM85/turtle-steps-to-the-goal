@@ -256,7 +256,7 @@ describe('#689 goal lifecycle HARD LOCK pack', () => {
         screen.getByRole('button', { name: 'Start a new goal' }),
       ).toBeEnabled()
       expect(
-        screen.queryByText(/Available once this week's target ends/),
+        screen.queryByText(/You can start a new goal after the current one ends/),
       ).not.toBeInTheDocument()
     })
   })

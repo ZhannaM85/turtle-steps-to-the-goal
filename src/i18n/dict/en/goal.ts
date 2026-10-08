@@ -2,18 +2,19 @@ import type { GoalDict, WeeklyReviewDict } from '../types/goal'
 
 export const goal: GoalDict = {
     title: 'Goal',
-    description: "This week's target — small steps, renewed week to week",
-    thisWeeksTarget: "This week's target",
-    targetLabel: (unit) => `This week's target (${unit} to lose)`,
-    targetRequired: "Enter this week's target, greater than 0",
+    description: "Small steps toward your goal, at your pace and over your chosen dates.",
+    thisWeeksTarget: "Goal for the selected period",
+    weightLossPaceLabel: 'Weight-loss pace',
+    targetLabel: (unit) => `Weight-loss pace (${unit}/week)`,
+    targetRequired: "Enter a weight-loss pace greater than 0",
     deficitEstimate: (kcal, direction) =>
       `Rough estimate: about ${kcal} kcal/day ${direction}.`,
     deficitCaveat:
       'This is a simple arithmetic estimate (~7700 kcal ≈ 1kg of fat), not medical or nutritional advice.',
     paceCaloriesMismatchHint:
       'Your daily calories and weekly pace don’t match (one looks like loss, the other like maintenance or gain). Use Recalculate from calories or from weekly pace — nothing updates automatically.',
-    decreaseWeeklyTargetLabel: 'Decrease weekly target',
-    increaseWeeklyTargetLabel: 'Increase weekly target',
+    decreaseWeeklyTargetLabel: 'Decrease weight-loss pace',
+    increaseWeeklyTargetLabel: 'Increase weight-loss pace',
     weeklyTargetStepHint: (step, unit) =>
       `Use ± for ${step} ${unit} steps, or type any value.`,
     aggressivePaceWarning: (kcal) =>
@@ -25,7 +26,7 @@ export const goal: GoalDict = {
       'This window overlaps a previous goal. You can still save — just check that the dates are what you meant.',
     weekEndDateLabel: 'Ends on',
     weekEndDateHint:
-      'Defaults to 7 days after the window starts. Change it if your week should end on a different day.',
+      'Choose when your goal ends. The period can be shorter or longer than a week.',
     dailyCalorieTargetLabel: 'Daily calories target',
     dailyCalorieTargetHint: 'Optional — leave blank to skip.',
     dailyProteinTargetLabel: 'Daily protein target',
@@ -56,20 +57,20 @@ export const goal: GoalDict = {
     suggestTargetMissingProfileHint:
       'Log a weight, and set your height, age, sex, and activity level in Settings, to use this.',
     suggestTargetNeedsPaceHint:
-      "Enter this week's target first, greater than 0. Suggest then fills daily calories and macros from that pace.",
+      "Enter a weight-loss pace greater than 0 first. Suggest then fills daily calories and macros from that pace.",
     recalculateFromPaceButton: 'Recalculate from weekly pace',
     recalculateFromCaloriesButton: 'Recalculate from calories',
     recalculateFromFieldCaveat:
       'Rough estimate from your profile — not medical advice. Review before saving.',
-    updateButton: 'Update this week’s target',
-    setButton: 'Set this week’s target',
+    updateButton: 'Update goal',
+    setButton: 'Set goal',
     cancelButton: 'Cancel',
     confirmDiscardEditsLabel: 'Leave without saving your goal changes?',
     startNewGoalButton: 'Start a new goal',
     startNewGoalHint:
       'Begins a fresh window (defaults from today). If it overlaps the previous goal, you’ll see a warning — saving is still allowed.',
     startNewGoalAvailableFromLabel: (weekEndDate) =>
-      `Available once this week's target ends, on ${weekEndDate}.`,
+      `You can start a new goal after the current one ends on ${weekEndDate}.`,
     savedConfirmation: 'Saved',
     currentGoalTitle: 'Current goal',
     notSetLabel: 'Not set',
@@ -77,7 +78,7 @@ export const goal: GoalDict = {
     deleteGoalLabel: 'Delete goal',
     confirmDeleteGoalLabel: "Delete this goal? This can't be undone.",
     pastTargetsTitle: 'Past targets',
-    weekColumnLabel: 'Week',
+    weekColumnLabel: 'Period',
     targetColumnLabel: 'Target',
     statusColumnLabel: 'Status',
     targetPerWeek: (target, unit) => `${target} ${unit}/week`,
@@ -88,14 +89,14 @@ export const goal: GoalDict = {
     previousToCurrentWeightLabel: (previous, current, unit) =>
       `${previous} → ${current} ${unit}`,
     activeGoalReachedNudge: (weekEndDate) =>
-      `You've reached this week's target — keep it up through ${weekEndDate} to earn your badge!`,
+      `You've reached your goal — keep it up through ${weekEndDate} to earn your badge!`,
     activeGoalReachedSectionTitle: 'Target reached',
     goalCompletedNudge:
-      "You completed this week's goal! Start a new one below whenever you're ready.",
+      "You completed your goal! Start a new one below whenever you're ready.",
     goalCompletedSectionTitle: 'Goal completed',
     goalMissedNudge:
-      "This week's target wasn't reached — that's okay. Start a new one below whenever you're ready.",
-    goalMissedSectionTitle: "This week's result",
+      "Your goal wasn't reached — that's okay. Start a new one below whenever you're ready.",
+    goalMissedSectionTitle: "Period result",
     paceCheckLostMessage: (actual, target) =>
       `Recent weeks you lost about ${actual} vs. your ${target} target — consider adjusting the weekly pace.`,
     paceCheckGainedMessage: (actual, target) =>
@@ -111,20 +112,20 @@ export const goal: GoalDict = {
   }
 
 export const weeklyReview: WeeklyReviewDict = {
-    screenTitle: 'Weekly review',
+    screenTitle: 'Goal review',
     screenDescription:
-      'A calm look at this week — no scores, no shame, just where things stand.',
-    viewWeeklyReviewButton: 'Weekly review',
+      'A calm look at your goal period — no scores, no shame, just where things stand.',
+    viewWeeklyReviewButton: 'Goal review',
     backToGoalLabel: '← Goal',
-    noActiveGoalMessage: 'Set a weekly target on Goal to see a review here.',
-    progressSectionLabel: "This week's progress",
+    noActiveGoalMessage: 'Set a goal on Goal to see a review here.',
+    progressSectionLabel: "Progress over the period",
     progressMetLabel: (date) => `Target reached on ${date}.`,
-    progressNotYetLabel: "Still working toward this week's target — no rush.",
+    progressNotYetLabel: "Still working toward your goal — no rush.",
     progressNoBaselineYetMessage:
-      "No weigh-in logged yet for this week's start — progress will show once there is one.",
-    averagesSectionLabel: 'Average this week',
+      "No starting weight yet for this goal — progress will show once there is one.",
+    averagesSectionLabel: 'Period averages',
     averagesSummary: (kcal, protein) => `${kcal} kcal/day, ${protein} protein/day.`,
-    noAveragesYetMessage: 'Nothing logged yet this week.',
+    noAveragesYetMessage: 'Nothing logged yet during this goal period.',
     insightSectionLabel: 'What stood out',
-    adjustPaceButton: "Adjust next week's pace",
+    adjustPaceButton: "Adjust pace",
   }

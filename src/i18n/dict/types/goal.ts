@@ -2,6 +2,7 @@ export interface GoalDict {
     title: string
     description: string
     thisWeeksTarget: string
+    weightLossPaceLabel: string
     targetLabel: (unit: string) => string
     targetRequired: string
     deficitEstimate: (kcal: number, direction: 'deficit' | 'surplus') => string
