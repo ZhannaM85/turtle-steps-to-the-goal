@@ -140,3 +140,13 @@ _AutoSleep screenshot import reads the deep-sleep duration into total sleep and 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+
+---
+
+## Tier 182 — Goal wording (2026-10-08)
+
+_Goals can be shorter or longer than a week. Use duration-neutral goal labels while keeping weight-loss pace explicitly per week._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1089](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1089) | 📋 Not started | Use duration-neutral goal wording across Russian and English UI | Audited Goal cards/forms/past targets, Day/reminders/celebrations, goal review, About/Features, Settings preset description, History heading and Excel goal columns. Propose «Цель на выбранный период» / “Goal for the selected period”; label the kg/week value «Темп снижения веса» / “Weight-loss pace”. Replace weekly renewal/next-week claims with current-goal/end-date wording. Goal review uses goal-window progress/averages, so propose «Обзор цели» / “Goal review”. Preserve genuine weekly rates/calendar summaries and historical release notes. Full key inventory and proposed copy in the issue; logging only, no implementation. |
