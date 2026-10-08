@@ -1247,6 +1247,9 @@ describe('TodayScreen', () => {
       )
 
       await screen.findByText('BMI')
+      // Goal coverage loads independently from the daily entry/BMI. Wait for
+      // the card before checking that collapsing stats leaves it visible.
+      await screen.findByText('Goal for the selected period', {}, { timeout: 5000 })
       await user.click(screen.getByRole('button', { name: 'Hide stats' }))
 
       expect(screen.getByText("Goal for the selected period")).toBeInTheDocument()
