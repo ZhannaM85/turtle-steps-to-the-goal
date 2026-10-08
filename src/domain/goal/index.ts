@@ -28,6 +28,7 @@ export {
   weeklyLossTargetMet,
 } from './weeklyLossTargetMet'
 export { pastGoals, earliestGoalCreatedAt } from './goalHistory'
+export { closeSupersededReachedGoals } from './closeSupersededReachedGoals'
 export type { PastGoalRecord } from './goalHistory'
 export {
   reachedGoalWindows,

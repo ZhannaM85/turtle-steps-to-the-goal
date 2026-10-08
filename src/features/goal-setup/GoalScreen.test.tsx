@@ -84,6 +84,25 @@ function resetSectionVisibility() {
 }
 
 describe('GoalScreen', () => {
+  it('repairs the October 3 achieved goal despite a later October 4 gain (#1090)', async () => {
+    await db.dailyEntries.bulkPut([
+      makeEntry({ date: '2026-09-28', weightKg: 60.15 }),
+      makeEntry({ date: '2026-10-03', weightKg: 60 }),
+      makeEntry({ date: '2026-10-04', weightKg: 60.6 }),
+    ])
+    await db.goals.bulkPut([
+      makeGoal({ id: 'old', weekStart: '2026-09-28', weekEnd: '2026-10-04', targetWeeklyLossKg: 0.1, baselineWeightKg: 60.15, createdAt: '2026-09-28T08:00:00Z' }),
+      makeGoal({ id: 'new', weekStart: '2026-10-03', weekEnd: '2026-10-11', targetWeeklyLossKg: 0.1, baselineWeightKg: 60, createdAt: '2026-10-03T08:00:00Z' }),
+    ])
+    renderGoalScreen()
+    const status = await screen.findByText('Target met on Oct 3, 2026', {}, { timeout: 5000 })
+    const row = status.closest('tr')!
+    expect(within(row).getByText('Sep 28, 2026 – Oct 3, 2026')).toBeInTheDocument()
+    expect(within(row).getByText('60.15 → 60 kg')).toBeInTheDocument()
+    expect(within(row).queryByText('Target not met')).not.toBeInTheDocument()
+    expect(await db.goals.get('old')).toMatchObject({ weekEnd: '2026-10-03', baselineWeightKg: 60.15 })
+  })
+
   it.each([
     ['en', 3], ['en', 7], ['en', 14],
     ['ru', 3], ['ru', 7], ['ru', 14],

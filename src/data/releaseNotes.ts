@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1062,
+    issue: 1090,
+    date: '2026-10-08T10:28:34.107Z',
+    en: 'Starting a new goal after reaching the previous one now preserves its achievement date, including in past goals and backups.',
+    ru: 'При начале новой цели после достижения предыдущей дата достижения сохраняется, в том числе в прошлых целях и резервных копиях.',
+  },
+  {
     version: 1061,
     issue: 1089,
     date: '2026-10-08T09:08:24.429Z',

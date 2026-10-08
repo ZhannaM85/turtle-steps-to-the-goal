@@ -93,6 +93,23 @@ afterEach(async () => {
 })
 
 describe('exportAllData', () => {
+  it('preserves early achievement dates through backup export and import (#1090)', async () => {
+    const previous = makeGoal({ id: 'previous', weekStart: '2026-09-28', weekEnd: '2026-10-04', baselineWeightKg: 60.15, targetWeeklyLossKg: 0.1, createdAt: '2026-09-28T08:00:00Z' })
+    const next = makeGoal({ id: 'next', weekStart: '2026-10-03', weekEnd: '2026-10-11', baselineWeightKg: 60, createdAt: '2026-10-03T08:00:00Z' })
+    await db.goals.bulkPut([previous, next])
+    await db.dailyEntries.bulkPut([
+      makeEntry({ date: '2026-10-03', weightKg: 60 }),
+      makeEntry({ date: '2026-10-04', weightKg: 60.6 }),
+    ])
+    const bundle = parseExportBundle(JSON.parse(JSON.stringify(await exportAllData())))
+    expect(bundle.goals.find((goal) => goal.id === previous.id)?.weekEnd).toBe('2026-10-03')
+    await db.goals.clear()
+    await db.dailyEntries.clear()
+    await importAllData(bundle)
+    expect(await db.goals.get(previous.id)).toMatchObject({ weekEnd: '2026-10-03', baselineWeightKg: 60.15 })
+    expect(await db.goals.get(next.id)).toMatchObject({ weekEnd: '2026-10-11', baselineWeightKg: 60 })
+  })
+
   it('exports an empty bundle when there is no data', async () => {
     const bundle = await exportAllData()
     expect(bundle.goals).toEqual([])

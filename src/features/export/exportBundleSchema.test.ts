@@ -32,6 +32,11 @@ const validBundle = {
 }
 
 describe('exportBundleSchema', () => {
+  it('preserves goal window dates and frozen baseline on parsing a backup (#1090)', () => {
+    const goal = { ...validBundle.goals[0], weekStart: '2026-09-28', weekEnd: '2026-10-03', baselineWeightKg: 60.15 }
+    const parsed = exportBundleSchema.parse({ ...validBundle, goals: [goal] })
+    expect(parsed.goals[0]).toMatchObject({ weekStart: '2026-09-28', weekEnd: '2026-10-03', baselineWeightKg: 60.15 })
+  })
   it('accepts a well-formed bundle', () => {
     expect(exportBundleSchema.safeParse(validBundle).success).toBe(true)
   })
