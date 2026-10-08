@@ -1022,7 +1022,7 @@ _Closed rows only. Open / pending items stay in the active file._
 
 ---
 
-## Tier 182 — Goal wording (2026-10-08)
+## Tier 182 — Goal feedback (2026-10-08)
 
 _Closed rows only. Open / pending items stay in the active file._
 

@@ -143,9 +143,10 @@ _AutoSleep screenshot import reads the deep-sleep duration into total sleep and 
 
 ---
 
-## Tier 182 — Goal wording (2026-10-08)
+## Tier 182 — Goal feedback (2026-10-08)
 
-_Goals can be shorter or longer than a week. Use duration-neutral goal labels while keeping weight-loss pace explicitly per week._
+_Duration-neutral goal wording, and preserving the achievement date when an early-reached goal is followed by a new goal._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#1090](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1090) | 📋 Not started | Preserve an early-reached goal on its achievement date when starting the next goal | User reached the 28 Sept–4 Oct goal on 3 Oct (60 kg; displayed baseline 60.15 kg and pace 0.1 kg/week), then started the next goal that day. Past goals still shows missed, ending 4 Oct, with 60.15 → 60.6 kg. Expected: range ends 3 Oct and «Цель достигнута 3 окт. 2026 г.»; a later weigh-in must not reverse that concluded success. Related #1079 remaining case/regression; root cause not investigated. Cover existing affected records and future saves, preserve #676 baseline hard lock and ordinary final-state rules. Logging only. |
