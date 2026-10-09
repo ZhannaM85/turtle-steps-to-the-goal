@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1064,
+    issue: 1092,
+    date: '2026-10-09T08:49:46Z',
+    en: 'Starting a goal on the day the previous goal ends no longer shows an overlap warning.',
+    ru: 'Если новая цель начинается в день окончания предыдущей, предупреждение о пересечении больше не появляется.',
+  },
+  {
     version: 1063,
     issue: 1091,
     date: '2026-10-09T08:44:20Z',

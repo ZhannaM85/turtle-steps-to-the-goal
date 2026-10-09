@@ -1425,8 +1425,13 @@ describe('GoalForm', () => {
       ).not.toBeInTheDocument()
 
       await user.clear(screen.getByLabelText('Starts on'))
-      await user.type(screen.getByLabelText('Starts on'), '2026-08-08')
+      await user.type(screen.getByLabelText('Starts on'), '2026-08-09')
+      expect(
+        screen.queryByText(/This window overlaps a previous goal/),
+      ).not.toBeInTheDocument()
 
+      await user.clear(screen.getByLabelText('Starts on'))
+      await user.type(screen.getByLabelText('Starts on'), '2026-08-08')
       const warning = screen.getByText(/This window overlaps a previous goal/)
       expect(warning).toBeInTheDocument()
       expect(warning.className).toMatch(/status-warn/)

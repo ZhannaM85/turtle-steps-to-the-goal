@@ -38,7 +38,8 @@ export function goalWindowsOverlap(
 
 /**
  * Soft overlap check for GoalForm (#683/#685) — true when `draft` shares any
- * day with another goal's window. `excludeId` skips the goal being edited
+ * day with another goal's window, except a new start on the previous end
+ * date (#1092). `excludeId` skips the goal being edited
  * in place so a form never warns against itself.
  */
 export function draftWindowOverlapsOthers(
@@ -49,6 +50,7 @@ export function draftWindowOverlapsOthers(
   return others.some(
     (goal) =>
       (excludeId === undefined || goal.id !== excludeId) &&
+      draft.weekStart !== goalWindowRange(goal)?.end &&
       goalWindowsOverlap(draft, goal),
   )
 }

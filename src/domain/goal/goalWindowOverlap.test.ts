@@ -88,6 +88,22 @@ describe('draftWindowOverlapsOthers (#685)', () => {
     ).toBe(true)
   })
 
+  it('allows a same-day handoff, but warns for a start the day before (#1092)', () => {
+    expect(draftWindowOverlapsOthers(
+      { weekStart: '2026-08-09', weekEnd: '2026-08-18' }, [previous],
+    )).toBe(false)
+    expect(draftWindowOverlapsOthers(
+      { weekStart: '2026-08-08', weekEnd: '2026-08-18' }, [previous],
+    )).toBe(true)
+  })
+
+  it('allows a shared end date resolved from the legacy default period (#1092)', () => {
+    expect(draftWindowOverlapsOthers(
+      { weekStart: '2026-08-10', weekEnd: '2026-08-18' },
+      [{ id: 'legacy', weekStart: '2026-08-04' }],
+    )).toBe(false)
+  })
+
   it('does not warn against the goal being edited in place', () => {
     expect(
       draftWindowOverlapsOthers(
