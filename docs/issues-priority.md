@@ -150,3 +150,13 @@ _Duration-neutral goal wording, and preserving the achievement date when an earl
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1090](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1090) | 🔍 Pending validation | Preserve an early-reached goal on its achievement date when starting the next goal | v1062: transactional save/read repair closes the previous goal on its first qualifying weigh-in when the immediate successor starts that day. Existing September 28–October 4 records now end October 3 and show achieved October 3; later weights cannot reverse the concluded result. Backup imports preserve weekEnd. Saved baseline precedence (#676) and ordinary final-state rules remain intact. Verified typecheck, lint (existing warning only), 301 affected tests and all 5 browser tests. Awaiting device confirmation. |
+
+---
+
+## Tier 183 — Goal feedback (2026-10-09)
+
+_Remove the obsolete instruction to wait until the end of the week for a goal badge._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1091](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1091) | 🔲 Open | Goal achieved dialog: remove obsolete wait-until-week-end badge instruction | iPhone screenshot: «Держитесь до конца 11 окт. 2026 г., чтобы получить значок.» is obsolete because a goal can be set and achieved today with the badge available immediately. Remove that instruction and keep EN/RU copy consistent. Root cause not investigated; logged only. |
