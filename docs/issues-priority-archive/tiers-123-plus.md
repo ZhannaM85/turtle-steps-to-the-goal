@@ -1029,3 +1029,4 @@ _Closed rows only. Open / pending items stay in the active file._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1089](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1089) | ✅ Done | Use duration-neutral goal wording across Russian and English UI | Confirmed on-device 2026-10-08. Goal copy describes the chosen period and weight-loss pace remains explicitly per week in RU/EN. Release note v1061; deployment follow-up confirmed successful. |
+| [#1090](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1090) | ✅ Done | Preserve an early-reached goal on its achievement date when starting the next goal | Confirmed on-device 2026-10-09. The early-reached goal remains on its achievement date when the next goal starts that day. Release note v1062. |

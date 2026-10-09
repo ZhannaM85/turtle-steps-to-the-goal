@@ -149,7 +149,6 @@ _Duration-neutral goal wording, and preserving the achievement date when an earl
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1090](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1090) | 🔍 Pending validation | Preserve an early-reached goal on its achievement date when starting the next goal | v1062: transactional save/read repair closes the previous goal on its first qualifying weigh-in when the immediate successor starts that day. Existing September 28–October 4 records now end October 3 and show achieved October 3; later weights cannot reverse the concluded result. Backup imports preserve weekEnd. Saved baseline precedence (#676) and ordinary final-state rules remain intact. Verified typecheck, lint (existing warning only), 301 affected tests and all 5 browser tests. Awaiting device confirmation. |
 
 ---
 
