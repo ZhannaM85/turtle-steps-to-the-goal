@@ -1,5 +1,10 @@
 import { expect, test } from '@playwright/test'
 
+test.beforeEach(async ({ page }) => {
+  // #1093 — keep the expected Breakfast name stable across run times.
+  await page.clock.setFixedTime(new Date(2026, 2, 1, 9, 0, 0))
+})
+
 /**
  * Starter E2E coverage (#161) for the backup round-trip: log data, export
  * it, wipe the local database (via #164's "Clear all data", not a fresh

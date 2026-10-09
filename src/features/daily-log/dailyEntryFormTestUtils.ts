@@ -61,7 +61,9 @@ export function expectMealCard(label: string, kcalText: string) {
   const card = screen
     .getAllByText(label)
     .map((el) => el.closest('li'))
-    .find((li): li is HTMLLIElement => li !== null)
+    .find((li): li is HTMLLIElement =>
+      li !== null && within(li).queryAllByText(kcalText, { exact: false }).length > 0,
+    )
   expect(card).toBeDefined()
   expect(
     within(card as HTMLElement).getAllByText(kcalText, { exact: false }).length,
@@ -142,7 +144,8 @@ beforeEach(async () => {
   // keeps reading as today, matching the pre-#201 always-expanded
   // behavior these tests were written against.
   vi.useFakeTimers({ toFake: ['Date'] })
-  vi.setSystemTime(new Date('2026-03-01T12:00:00.000Z'))
+  // #1093 — freeze local noon so meal suggestions are Lunch in every timezone.
+  vi.setSystemTime(new Date(2026, 2, 1, 12, 0, 0))
 })
 
 afterEach(async () => {

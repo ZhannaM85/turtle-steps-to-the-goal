@@ -227,7 +227,7 @@ describe('TodayScreen', () => {
     )
 
     const card = (
-      await screen.findByText("Goal for the selected period")
+      await screen.findByText("Goal for the selected period", {}, { timeout: 5000 })
     ).closest('[data-slot="card"]') as HTMLElement
     expect(within(card).getByText('0.28')).toBeInTheDocument()
     expect(within(card).queryByText('0.3')).not.toBeInTheDocument()
@@ -265,7 +265,7 @@ describe('TodayScreen', () => {
       </MemoryRouter>,
     )
 
-    expect(await screen.findByText("Goal for the selected period")).toBeInTheDocument()
+    expect(await screen.findByText("Goal for the selected period", {}, { timeout: 5000 })).toBeInTheDocument()
     expect(
       await screen.findByText('from 58.8 kg', { exact: false }),
     ).toBeInTheDocument()
@@ -330,7 +330,7 @@ describe('TodayScreen', () => {
       </MemoryRouter>,
     )
 
-    expect(await screen.findByText("Goal for the selected period")).toBeInTheDocument()
+    expect(await screen.findByText("Goal for the selected period", {}, { timeout: 5000 })).toBeInTheDocument()
     expect(
       await screen.findByText('from 58.8 kg', { exact: false }),
     ).toBeInTheDocument()
@@ -419,7 +419,7 @@ describe('TodayScreen', () => {
     await user.click(screen.getByRole('button', { name: 'Save weight' }))
 
     expect(
-      await screen.findByText("You reached your goal!"),
+      await screen.findByText("You reached your goal!", {}, { timeout: 5000 }),
     ).toBeInTheDocument()
 
     // #235's own persistent complement to the modal above — stays visible

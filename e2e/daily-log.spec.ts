@@ -1,5 +1,10 @@
 import { expect, test } from '@playwright/test'
 
+test.beforeEach(async ({ page }) => {
+  // #1093 — these meal flows expect Breakfast; use a fixed morning clock.
+  await page.clock.setFixedTime(new Date(2026, 2, 1, 9, 0, 0))
+})
+
 test('adds an imported food through its portion editor without searching (#1086)', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: '+ Add a meal' }).click()

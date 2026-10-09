@@ -148,17 +148,16 @@ describe('DailyEntryForm', () => {
       await openAddItemFlow(user)
       await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.click(screen.getByRole('button', { name: 'Save' }))
-      // The existing entry already occupies the Breakfast slot, so this
-      // one becomes Lunch.
+      // #1093 — local noon suggests Lunch regardless of the existing meal.
       expectMealCard('Lunch', '200 kcal')
       // Closing the flyout (#454) ends this meal, so the *next* add starts
-      // a fresh one (Dinner) instead of appending a second item onto Lunch.
+      // a fresh Lunch at the same clock time instead of appending an item.
       await user.click(screen.getByRole('button', { name: 'Done' }))
 
       await openAddItemFlow(user)
       await user.type(screen.getByLabelText('kcal/100g'), '150')
       await user.keyboard('{Enter}')
-      expectMealCard('Dinner', '150 kcal')
+      expectMealCard('Lunch', '150 kcal')
       expect(onSave).toHaveBeenCalledTimes(2)
       // #326 — this form no longer displays a running total of its own
       // (TodayScreen's breakdown card owns that now), so accumulation is
@@ -192,7 +191,7 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('kcal/100g'), '150')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
-      expectMealCard('Breakfast', '150 kcal')
+      expectMealCard('Lunch', '150 kcal')
       expect(screen.queryByText('Thumbs up')).not.toBeInTheDocument()
     })
 

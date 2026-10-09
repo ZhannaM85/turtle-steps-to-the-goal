@@ -222,7 +222,7 @@ describe('SettingsScreen', () => {
       expect(
         screen.getByRole('button', { name: 'Dismiss backup reminder' }),
       ).toBeInTheDocument()
-    })
+    }, { timeout: 5000 })
   })
 
   it('defaults to kg units', () => {

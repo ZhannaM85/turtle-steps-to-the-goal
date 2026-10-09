@@ -161,7 +161,7 @@ describe('DailyEntryForm', () => {
           // this item can later be edited the same per-100g + quantity way
           // a manually-entered one can, at the default 100g quantity.
           expect(entry.items[0].amountG).toBe(100)
-          expectMealCard('Breakfast', '208 kcal')
+          expectMealCard('Lunch', '208 kcal')
         })
 
         // #296: previously always stamped the current clock time,

@@ -137,7 +137,7 @@ describe('DailyEntryForm', () => {
       await user.click(screen.getByRole('button', { name: 'Save' }))
       await user.click(screen.getByRole('button', { name: 'Done' }))
 
-      expectMealCard('Breakfast', '200 kcal')
+      expectMealCard('Lunch', '200 kcal')
 
       await user.click(
         screen.getByRole('button', { name: '+ Add another meal' }),
@@ -168,7 +168,7 @@ describe('DailyEntryForm', () => {
           (c: CalorieEntry) => c.items[0].amountKcal,
         ),
       ).toEqual([200])
-      expectMealCard('Breakfast', '200 kcal')
+      expectMealCard('Lunch', '200 kcal')
       // The sheet closes on save, so the field itself is gone — the reset
       // is verified by reopening the (now-blank) sheet instead.
       await openAddItemFlow(user)
@@ -191,9 +191,9 @@ describe('DailyEntryForm', () => {
       await user.click(
         screen.getByRole('button', { name: '+ Add a meal' }),
       )
-      await user.click(screen.getByRole('button', { name: 'Note about breakfast' }))
+      await user.click(screen.getByRole('button', { name: 'Note about lunch' }))
       await user.type(
-        screen.getByLabelText('Note about breakfast'),
+        screen.getByLabelText('Note about lunch'),
         'Ate chocolates, they were good.',
       )
       await user.click(screen.getByRole('button', { name: 'Save note' }))
@@ -203,7 +203,7 @@ describe('DailyEntryForm', () => {
       await user.click(screen.getByRole('button', { name: 'Save' }))
       await user.click(screen.getByRole('button', { name: 'Done' }))
 
-      expectMealCard('Breakfast', '200 kcal')
+      expectMealCard('Lunch', '200 kcal')
       expect(
         screen.getByText('Ate chocolates, they were good.'),
       ).toBeInTheDocument()
