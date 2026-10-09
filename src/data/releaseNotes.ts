@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1065,
+    issue: 1093,
+    date: '2026-10-09T09:57:19Z',
+    en: 'New meal names are suggested by local time: breakfast, lunch, snack, dinner, or night food.',
+    ru: 'Название нового приёма пищи предлагается по местному времени: завтрак, обед, перекус, ужин или ночная еда.',
+  },
+  {
     version: 1064,
     issue: 1092,
     date: '2026-10-09T08:49:46Z',

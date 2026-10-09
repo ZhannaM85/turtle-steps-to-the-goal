@@ -31,11 +31,11 @@ import {
   type Dictionary,
 } from '@/i18n'
 import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
-import { defaultMealLabel, editableMealLabel, effectiveMealLabel, mealLabelSuggestionsForLocale, nextUnusedMealTemplate, sortCalorieEntriesByLoggedTime } from '@/shared/lib/mealLabel'
+import { defaultMealLabel, editableMealLabel, suggestedMealLabelForTime, sortCalorieEntriesByLoggedTime } from '@/shared/lib/mealLabel'
 import { Button } from '@/shared/ui/button'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { NoticeBar } from '@/shared/ui/notice-bar'
-import { useCopyYesterdayMealsStore, useMealItemStore, useMealLabelPresetStore, useMealSlotDefaultTimesStore, useMealKcalVsYesterdayStore, useSinceLastMealTimerStore } from '@/stores'
+import { useCopyYesterdayMealsStore, useMealItemStore, useMealSlotDefaultTimesStore, useMealKcalVsYesterdayStore, useSinceLastMealTimerStore } from '@/stores'
 import { AddMealDialog } from './AddMealDialog'
 import { CopyDayMealsDialog } from './CopyDayMealsDialog'
 import { SinceLastMealTimer } from './SinceLastMealTimer'
@@ -150,7 +150,6 @@ export function MealList({
   const copyYesterdayMealsEnabled = useCopyYesterdayMealsStore(
     (state) => state.enabled,
   )
-  const mealLabelPresets = useMealLabelPresetStore((state) => state.presets)
   const mealKcalVsYesterdayEnabled = useMealKcalVsYesterdayStore(
     (state) => state.enabled,
   )
@@ -303,33 +302,19 @@ export function MealList({
   const [confirmDiscardAddMeal, setConfirmDiscardAddMeal] = useState(false)
   function openAddMealDialog() {
     setInProgressMealId(null)
-    setNewMealTime(currentTimeHHMM())
+    const time = currentTimeHHMM()
+    setNewMealTime(time)
     setNewMealNote('')
     setNewMealEatingReasons([])
     setNewMealPosition(calorieEntries.length + 1)
-    // #844 / #1075 — next unused template in the stored Settings order
-    // (locale defaults when nothing is stored), starting at this meal's
-    // position, skipping names already logged today. #843 — titles still
-    // come from templates only (never yesterday's free-text). Empty
-    // string when every template is used so `editableMealLabel` does not
-    // fall back to a used positional name.
-    const templates = mealLabelSuggestionsForLocale(t, mealLabelPresets)
-    const usedToday = calorieEntries.map((entry, index) =>
-      effectiveMealLabel(t, index + 1, entry.label),
-    )
-    const nextTemplate = nextUnusedMealTemplate(
-      templates,
-      usedToday,
-      calorieEntries.length,
-    )
+    // #1093 — the current local clock suggests the meal name. The picker
+    // still offers the user's saved templates for a manual choice.
     setNewMealLabel(
-      nextTemplate === undefined
-        ? ''
-        : customMealLabelOrUndefined(
-            nextTemplate,
-            calorieEntries.length + 1,
-            t,
-          ),
+      customMealLabelOrUndefined(
+        suggestedMealLabelForTime(t, time),
+        calorieEntries.length + 1,
+        t,
+      ),
     )
     keepInProgressMealRef.current = false
     setConfirmDiscardAddMeal(false)

@@ -3,6 +3,15 @@ import { getDictionary, type Dictionary, type Locale } from '@/i18n'
 
 const ALL_LOCALES: Locale[] = ['en', 'ru']
 
+/** #1093 — new-meal suggestions use the device's local clock, independent
+ * of meal position or names already logged. Existing meal labels are untouched. */
+export function suggestedMealLabelForTime(t: Dictionary, time: string): string {
+  const hour = Number(time.split(':')[0])
+  if (hour < 5 || hour >= 23) return t.dailyEntry.nightFoodCardTitle
+  const index = hour < 11 ? 0 : hour < 15 ? 1 : hour < 19 ? 3 : 2
+  return t.dailyEntry.defaultMealNamePresets[index]
+}
+
 /**
  * The positional default for a meal group's name (#141) — Breakfast/Lunch/
  * Dinner/Snack for the first 4 meals of a day (the same translated names

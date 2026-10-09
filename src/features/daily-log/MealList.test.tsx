@@ -95,6 +95,26 @@ afterEach(async () => {
  * toast.
  */
 describe('MealList', () => {
+  it.each([
+    [21, 37, 'Dinner', '21:37'],
+    [0, 30, 'Night food', '00:30'],
+    [15, 0, 'Snack', '15:00'],
+  ])('suggests the first meal by local time at %i:%i (#1093)', async (hour, minute, label, time) => {
+    vi.setSystemTime(new Date(2026, 2, 1, hour, minute, 0))
+    const user = userEvent.setup()
+    render(
+      <ControlledMealList calorieEntries={[]} date="2026-03-01" />,
+      { wrapper: MemoryRouter },
+    )
+    await user.click(screen.getByRole('button', { name: '+ Add a meal' }))
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent(label)
+    expect(screen.getByLabelText('Time')).toHaveValue(time)
+    await user.click(screen.getByRole('button', { name: 'Meal name' }))
+    await user.click(screen.getByRole('option', { name: 'Breakfast' }))
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Breakfast')
+    expect(screen.getByLabelText('Time')).toHaveValue(time)
+  })
+
   it('shows the add-meal trigger even with no meals yet', () => {
     render(
       <MealList calorieEntries={[]} date="2026-03-01" onChange={vi.fn()} />,
@@ -193,6 +213,7 @@ describe('MealList', () => {
   })
 
   it('renames Breakfast→Lunch in the add flyout and keeps it on the card (#563)', async () => {
+    vi.setSystemTime(new Date(2026, 2, 1, 9, 0, 0))
     const user = userEvent.setup()
     render(
       <ControlledMealList calorieEntries={[]} date="2026-03-01" />,
@@ -229,7 +250,7 @@ describe('MealList', () => {
       screen.getByRole('button', { name: '+ Add a meal' }),
     )
     const nameField = screen.getByLabelText('Meal name')
-    expect(nameField).toHaveTextContent('Breakfast')
+    expect(nameField).toHaveTextContent('Lunch')
     expect(nameField).toHaveAttribute('aria-haspopup', 'listbox')
     expect(screen.queryByRole('textbox', { name: 'Meal name' })).not.toBeInTheDocument()
     expect(
@@ -278,9 +299,9 @@ describe('MealList', () => {
       screen.getByRole('button', { name: '+ Add another meal' }),
     )
 
-    // #844 — Lunch is already used today, so the next unused template
-    // (Dinner) is the default. Yesterday's free-text «Lunch two» stays off.
-    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Dinner')
+    // #1093 — the current time suggests Lunch, regardless of used names.
+    // Yesterday's free-text «Lunch two» stays off.
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Lunch')
     expect(
       screen.queryByRole('button', { name: "Repeat yesterday's dinner?" }),
     ).not.toBeInTheDocument()
@@ -290,7 +311,7 @@ describe('MealList', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('prefills the next unused template, not yesterday’s same-position template (#843/#844)', async () => {
+  it('prefills the current time suggestion, not yesterday’s same-position template (#1093)', async () => {
     useMealLabelPresetStore.setState({
       presets: ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Night food'],
     })
@@ -332,7 +353,7 @@ describe('MealList', () => {
       screen.getByRole('button', { name: '+ Add another meal' }),
     )
 
-    // Unlabeled first meal displays as Breakfast; next unused is Lunch.
+    // Noon suggests Lunch, even with a different yesterday template.
     expect(screen.getByLabelText('Meal name')).toHaveTextContent('Lunch')
     expect(
       screen.queryByRole('button', { name: "Repeat yesterday's lunch?" }),
@@ -343,7 +364,7 @@ describe('MealList', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('does not default a new meal to a template already used today (#844)', async () => {
+  it('uses the current time suggestion even when that name was used today (#1093)', async () => {
     await db.dailyEntries.put(
       makeDailyEntry({
         date: '2026-02-28',
@@ -384,7 +405,7 @@ describe('MealList', () => {
       screen.getByRole('button', { name: '+ Add another meal' }),
     )
 
-    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Dinner')
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Lunch')
     expect(screen.queryByDisplayValue('Lunch')).not.toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: "Repeat yesterday's dinner?" }),
@@ -394,7 +415,7 @@ describe('MealList', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('uses a Settings template once the built-ins are taken today (#844)', async () => {
+  it('uses the current time even when all templates were used today (#1093)', async () => {
     useMealLabelPresetStore.setState({
       presets: ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Night food'],
     })
@@ -436,7 +457,7 @@ describe('MealList', () => {
       screen.getByRole('button', { name: '+ Add another meal' }),
     )
 
-    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Night food')
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Lunch')
     expect(screen.getByLabelText('Time')).toHaveValue('12:00')
   })
 
@@ -541,7 +562,7 @@ describe('MealList', () => {
       screen.getByRole('button', { name: '+ Add a meal' }),
     )
     expect(screen.queryByRole('textbox', { name: 'Meal name' })).not.toBeInTheDocument()
-    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Breakfast')
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Lunch')
     expect(screen.queryByText('Meal type')).not.toBeInTheDocument()
   })
 

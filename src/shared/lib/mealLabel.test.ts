@@ -11,11 +11,31 @@ import {
   nextUnusedMealTemplate,
   seedAddMealLabelFromPrevious,
   sortCalorieEntriesByLoggedTime,
+  suggestedMealLabelForTime,
 } from './mealLabel'
 
 describe('mealLabel helpers', () => {
   const en = getDictionary('en')
   const ru = getDictionary('ru')
+
+  it.each([
+    ['00:00', 'Night food', 'Ночная еда'],
+    ['04:59', 'Night food', 'Ночная еда'],
+    ['05:00', 'Breakfast', 'Завтрак'],
+    ['10:59', 'Breakfast', 'Завтрак'],
+    ['11:00', 'Lunch', 'Обед'],
+    ['14:59', 'Lunch', 'Обед'],
+    ['15:00', 'Snack', 'Перекус'],
+    ['18:59', 'Snack', 'Перекус'],
+    ['19:00', 'Dinner', 'Ужин'],
+    ['21:37', 'Dinner', 'Ужин'],
+    ['22:59', 'Dinner', 'Ужин'],
+    ['23:00', 'Night food', 'Ночная еда'],
+    ['23:59', 'Night food', 'Ночная еда'],
+  ])('suggests a meal name at %s in both languages (#1093)', (time, english, russian) => {
+    expect(suggestedMealLabelForTime(en, time)).toBe(english)
+    expect(suggestedMealLabelForTime(ru, time)).toBe(russian)
+  })
 
   it('effectiveMealLabel falls back for unset or blank custom labels (#141/#568)', () => {
     expect(effectiveMealLabel(en, 1, undefined)).toBe('Breakfast')
