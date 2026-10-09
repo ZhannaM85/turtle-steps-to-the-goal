@@ -1030,3 +1030,13 @@ _Closed rows only. Open / pending items stay in the active file._
 |---|--------|-------|-------|
 | [#1089](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1089) | ✅ Done | Use duration-neutral goal wording across Russian and English UI | Confirmed on-device 2026-10-08. Goal copy describes the chosen period and weight-loss pace remains explicitly per week in RU/EN. Release note v1061; deployment follow-up confirmed successful. |
 | [#1090](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1090) | ✅ Done | Preserve an early-reached goal on its achievement date when starting the next goal | Confirmed on-device 2026-10-09. The early-reached goal remains on its achievement date when the next goal starts that day. Release note v1062. |
+
+---
+
+## Tier 183 — Goal and meal feedback (2026-10-09)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1092](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1092) | ✅ Done | Goal form: do not warn about overlap for a same-day goal handoff | Confirmed on-device 2026-10-09. Same-day goal handoffs no longer warn; starts before the previous end still warn. Release note v1064. |
