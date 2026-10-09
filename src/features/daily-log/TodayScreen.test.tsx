@@ -428,7 +428,7 @@ describe('TodayScreen', () => {
     // than claiming the target's already fully done.
     await user.click(screen.getByRole('button', { name: /close/i }))
     expect(
-      await screen.findByText(/keep it up through .* to earn your badge/),
+      await screen.findByText(/You reached your goal! You can start a new goal/),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('link', { name: 'Review goal' }),

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1063,
+    issue: 1091,
+    date: '2026-10-09T08:44:20Z',
+    en: 'Goal achievement messages no longer ask you to wait until the end of the week for a badge.',
+    ru: 'Сообщения о достижении цели больше не просят ждать конца недели ради значка.',
+  },
+  {
     version: 1062,
     issue: 1090,
     date: '2026-10-08T10:28:34.107Z',

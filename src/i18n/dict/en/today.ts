@@ -19,8 +19,8 @@ export const today: TodayDict = {
   goalRenewalReminder:
     "Your goal period has ended — worth reviewing your goal.",
   reviewGoalLink: 'Review goal',
-  targetMetBanner: (weekEndDate) =>
-    `You reached your goal — keep it up through ${weekEndDate} to earn your badge!`,
+  targetMetBanner: () =>
+    "You reached your goal! You can start a new goal whenever you’re ready.",
   dailyReminderText: 'No entry yet today — whenever you’re ready.',
   dailyReminderNotificationTitle: 'Turtle Steps',
   dailyReminderNotificationBody:
@@ -122,8 +122,8 @@ export const today: TodayDict = {
   bmrUnit: 'kcal/day',
   bmrTooltipLabel: 'About estimated daily calories',
   celebrationTitle: "You reached your goal!",
-  celebrationDescription: (weekEndDate) =>
-    `Keep it up through ${weekEndDate} to earn your badge.`,
+  celebrationDescription: () =>
+    "You reached your goal! You can start a new goal whenever you’re ready.",
   celebrationCta: 'Start a new goal',
   celebrationCloseLabel: 'Close',
   celebrationCompleteTitle: 'You completed your goal!',

@@ -89,8 +89,8 @@ export const goal: GoalDict = {
     targetNoDataLabel: 'Недостаточно данных',
     previousToCurrentWeightLabel: (previous, current, unit) =>
       `${previous} → ${current} ${unit}`,
-    activeGoalReachedNudge: (weekEndDate) =>
-      `Вы достигли цели — держитесь до конца ${weekEndDate}, чтобы получить значок!`,
+    activeGoalReachedNudge: () =>
+    "Вы достигли цели! Можно начать новую цель, когда будете готовы.",
     activeGoalReachedSectionTitle: 'Цель достигнута',
     goalCompletedNudge:
       'Вы выполнили цель! Начните новую ниже, когда будете готовы.',

@@ -188,7 +188,7 @@ describe('GoalCelebrationModal', () => {
     const cta = await screen.findByRole('link', { name: 'Start a new goal' })
     expect(cta).toHaveAttribute('href', '/goal?startNew=1')
     expect(
-      screen.getByText(/Keep it up through .* to earn your badge/),
+      screen.getByText(/You reached your goal! You can start a new goal/),
     ).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Close' }))

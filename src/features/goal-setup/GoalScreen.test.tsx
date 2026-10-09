@@ -331,8 +331,10 @@ describe('GoalScreen', () => {
     )
 
     expect(await screen.findByText('Past targets')).toBeInTheDocument()
-    expect(screen.getByText('Mar 9, 2026 – Mar 15, 2026')).toBeInTheDocument()
-    expect(await db.goals.count()).toBe(2)
+    await waitFor(async () => expect(await db.goals.count()).toBe(2))
+    await waitFor(() =>
+      expect(screen.getByText('Mar 9, 2026 – Mar 15, 2026')).toBeInTheDocument(),
+    )
   })
 
   it('shows a calm pace-check note after 3 consecutive missed weeks (#610)', async () => {
@@ -502,7 +504,7 @@ describe('GoalScreen', () => {
     ).toBeInTheDocument()
     expect(
       screen.getByText(
-        /keep it up through .* to earn your badge/,
+        /You reached your goal! You can start a new goal/,
       ),
     ).toBeInTheDocument()
   })
@@ -534,7 +536,7 @@ describe('GoalScreen', () => {
     ).toBeInTheDocument()
     expect(screen.queryByText('Target reached')).not.toBeInTheDocument()
     expect(
-      screen.queryByText(/keep it up through .* to earn your badge/),
+      screen.queryByText(/You reached your goal! You can start a new goal/),
     ).not.toBeInTheDocument()
     // #1079 — concluded early reach ends on the weigh-in day (today-3),
     // not the planned week end (today-2), on the card and in history.
@@ -616,7 +618,7 @@ describe('GoalScreen', () => {
     expect(screen.queryByText(/Target met on/)).not.toBeInTheDocument()
     expect(
       screen.queryByText(
-        /keep it up through .* to earn your badge/,
+        /You reached your goal! You can start a new goal/,
       ),
     ).not.toBeInTheDocument()
   })
@@ -703,7 +705,7 @@ describe('GoalScreen', () => {
       await seedTargetMetWeeks()
 
       renderGoalScreen()
-      await screen.findByText(/keep it up through .* to earn your badge/)
+      await screen.findByText(/You reached your goal! You can start a new goal/)
       const startNewButton = screen.getByRole('button', {
         name: 'Start a new goal',
       })
@@ -712,7 +714,7 @@ describe('GoalScreen', () => {
         screen.queryByText(/You can start a new goal after the current one ends/),
       ).not.toBeInTheDocument()
       expect(
-        screen.getByText(/keep it up through .* to earn your badge/),
+        screen.getByText(/You reached your goal! You can start a new goal/),
       ).toBeInTheDocument()
 
       await user.click(startNewButton)
@@ -730,7 +732,7 @@ describe('GoalScreen', () => {
 
       renderGoalScreen('/goal?startNew=1')
       expect(
-        await screen.findByText(/keep it up through .* to earn your badge/),
+        await screen.findByText(/You reached your goal! You can start a new goal/),
       ).toBeInTheDocument()
       expect(
         screen.getByRole('button', { name: 'Set goal' }),
@@ -755,7 +757,7 @@ describe('GoalScreen', () => {
 
       expect(
         screen.queryByText(
-          /keep it up through .* to earn your badge/,
+          /You reached your goal! You can start a new goal/,
         ),
       ).not.toBeInTheDocument()
       expect(screen.getByText(title)).toBeInTheDocument()
@@ -763,7 +765,7 @@ describe('GoalScreen', () => {
       await user.click(screen.getByRole('button', { name: `Show ${title}` }))
       expect(
         screen.getByText(
-          /keep it up through .* to earn your badge/,
+          /You reached your goal! You can start a new goal/,
         ),
       ).toBeInTheDocument()
     })

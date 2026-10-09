@@ -18,8 +18,8 @@ export const today: TodayDict = {
   goalRenewalReminder:
     'Период цели закончился — стоит заглянуть и проверить её.',
   reviewGoalLink: 'Посмотреть цель',
-  targetMetBanner: (weekEndDate) =>
-    `Вы достигли цели — держитесь до конца ${weekEndDate}, чтобы получить значок!`,
+  targetMetBanner: () =>
+    "Вы достигли цели! Можно начать новую цель, когда будете готовы.",
   dailyReminderText: 'Сегодня пока нет записи — когда будете готовы.',
   dailyReminderNotificationTitle: 'Черепашка идёт к цели',
   dailyReminderNotificationBody:
@@ -124,8 +124,8 @@ export const today: TodayDict = {
   bmrUnit: 'ккал/день',
   bmrTooltipLabel: 'О примерной суточной норме калорий',
   celebrationTitle: 'Вы достигли цели!',
-  celebrationDescription: (weekEndDate) =>
-    `Держитесь до конца ${weekEndDate}, чтобы получить значок.`,
+  celebrationDescription: () =>
+    "Вы достигли цели! Можно начать новую цель, когда будете готовы.",
   celebrationCta: 'Начать новую цель',
   celebrationCloseLabel: 'Закрыть',
   celebrationCompleteTitle: 'Вы выполнили цель!',
