@@ -1040,3 +1040,4 @@ _Closed rows only. Open / pending items stay in the active file._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1092](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1092) | ✅ Done | Goal form: do not warn about overlap for a same-day goal handoff | Confirmed on-device 2026-10-09. Same-day goal handoffs no longer warn; starts before the previous end still warn. Release note v1064. |
+| [#1093](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1093) | ✅ Done | Add meal: suggest the meal name based on current local time | Confirmed on-device 2026-10-09. Suggestions follow the agreed breakfast, lunch, snack, dinner, and night-food periods; manual choices remain available. Release note v1065. |
