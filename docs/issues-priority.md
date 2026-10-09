@@ -155,8 +155,9 @@ _Duration-neutral goal wording, and preserving the achievement date when an earl
 
 ## Tier 183 — Goal feedback (2026-10-09)
 
-_Remove the obsolete instruction to wait until the end of the week for a goal badge._
+_Remove the obsolete instruction to wait until the end of the week for a goal badge, and allow a same-day goal handoff without an overlap warning._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1091](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1091) | 🔲 Open | Goal achieved dialog: remove obsolete wait-until-week-end badge instruction | iPhone screenshot: «Держитесь до конца 11 окт. 2026 г., чтобы получить значок.» is obsolete because a goal can be set and achieved today with the badge available immediately. Remove that instruction and keep EN/RU copy consistent. Root cause not investigated; logged only. |
+| [#1092](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1092) | 🔲 Open | Goal form: do not warn about overlap for a same-day goal handoff | Previous goal ended October 9 and the new goal starts October 9, but the form warns about overlap. Equal end/start dates should not warn; a new start before the previous end (e.g. yesterday when the previous goal ended today) should warn. Saving remains allowed. Root cause not investigated; logged only. |
