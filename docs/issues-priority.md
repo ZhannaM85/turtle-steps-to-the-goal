@@ -158,4 +158,3 @@ _Remove the obsolete instruction to wait until the end of the week for a goal ba
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1091](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1091) | 🔍 Pending validation | Goal achieved dialog: remove obsolete wait-until-week-end badge instruction | v1063: removed obsolete badge waiting copy from the dialog, Day banner, and Goal nudge in EN/RU. Typecheck, lint (existing warning only), and 152 affected tests passed. Awaiting device confirmation. |
