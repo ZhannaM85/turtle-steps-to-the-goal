@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1066,
+    issue: 1094,
+    date: '2026-10-12T11:23:23+00:00',
+    en: 'Food search finds names regardless of capitalization or word order.',
+    ru: 'Поиск еды находит названия независимо от регистра и порядка слов.',
+  },
+  {
     version: 1065,
     issue: 1093,
     date: '2026-10-09T09:57:19Z',

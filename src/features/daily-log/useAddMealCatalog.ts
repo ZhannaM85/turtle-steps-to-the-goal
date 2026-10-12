@@ -139,12 +139,15 @@ export function useAddMealCatalog({
   // #1061 — the dropdown shows the full ranked pool and scrolls.
   const recentItems = homemadeOnly ? homemadeItems : recentPool
   const searchableItems = filterToHomemadeDishes(allItems, homemadeOnly)
+  const queryWords = query.split(/\s+/u).filter(Boolean)
   function matchesQuery(item: PickableItem): boolean {
-    if (textFor(item).toLowerCase().includes(query)) return true
+    const name = textFor(item).toLowerCase()
+    if (queryWords.every((word) => name.includes(word))) return true
     // #1015 — the paste identity is the Russian name. Search it (and the
     // English name) even when the UI language shows the other one.
     if (item.source !== 'food') return false
-    return `${item.food.ru} ${item.food.en}`.toLowerCase().includes(query)
+    const names = [item.food.ru, item.food.en].map((name) => name.toLowerCase())
+    return queryWords.every((word) => names.some((name) => name.includes(word)))
   }
 
   const dedupedMatches = query

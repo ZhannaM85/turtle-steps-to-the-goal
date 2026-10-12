@@ -224,3 +224,24 @@ describe('imported catalog foods in meal search (#1015)', () => {
     })
   })
 })
+
+describe('food search words (#1094)', () => {
+  it.each(['strawberry cake', 'Strawberry cake', 'STRAWBERRY CAKE', 'cake strawberry', '  cake   strawberry  ', 'straw cake'])('matches all words for %s', (query) => {
+    useMealItemStore.setState({ items: ['Strawberry cake', 'Cake with strawberry', 'Strawberry', 'Cake'].map((name, index) => ({ ...cutlets, id: String(index), name })), status: 'ready' })
+    const { result } = search('en', query)
+    const names = result.current.matches
+      .filter((item) => item.source === 'mealItem')
+      .map((item) => item.mealItem.name)
+    expect(names).toHaveLength(2)
+    expect(names).toEqual(expect.arrayContaining(['Strawberry cake', 'Cake with strawberry']))
+  })
+
+  it('matches reordered words in both imported catalog languages', async () => {
+    useMealItemStore.setState({ items: [], status: 'ready' })
+    await useCatalogFoodImportStore.getState().importFoods([draft])
+    for (const [locale, query] of [['ru', 'AVOCADO TEST'], ['en', 'авокадо тестовый']] as const) {
+      const { result } = search(locale, query)
+      expect(result.current.matches.some((item) => item.source === 'food' && item.food.en === 'Test avocado')).toBe(true)
+    }
+  })
+})
