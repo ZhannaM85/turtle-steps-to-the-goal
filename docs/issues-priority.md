@@ -158,3 +158,13 @@ _Remove the obsolete instruction to wait until the end of the week for a goal ba
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+
+---
+
+## Tier 184 — Search feedback (2026-10-12)
+
+_Food search should find names regardless of capitalization or query-word order._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1094](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1094) | 🔲 Open | Food search: match words in any order and ignore capitalization | Query `strawberry cake` should find both `Strawberry cake` and `Cake with strawberry`. Normalize capitalization and require all query words regardless of order; root cause not yet investigated. Filed only, implementation queued. |
