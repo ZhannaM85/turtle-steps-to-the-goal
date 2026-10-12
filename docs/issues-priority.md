@@ -167,4 +167,3 @@ _Food search should find names regardless of capitalization or query-word order.
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1094](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1094) | 🔍 Pending validation | Food search: match words in any order and ignore capitalization | Query `strawberry cake` should find both `Strawberry cake` and `Cake with strawberry`. Local meal search requires every query word independently, including Russian/English catalog names; casing and partial-word matching are preserved. Regression checks cover reordered words, whitespace, and single-word false positives. Awaiting on-device confirmation. |
