@@ -95,6 +95,36 @@ afterEach(async () => {
  * toast.
  */
 describe('MealList', () => {
+  it('refreshes the automatic name before and after adding food when time changes (#1095)', async () => {
+    vi.setSystemTime(new Date(2026, 2, 1, 6, 0, 0))
+    const user = userEvent.setup()
+    render(<ControlledMealList calorieEntries={[]} date="2026-03-01" />, { wrapper: MemoryRouter })
+    await user.click(screen.getByRole('button', { name: '+ Add a meal' }))
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Breakfast')
+    fireEvent.change(screen.getByLabelText('Time'), { target: { value: '14:20' } })
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Lunch')
+    await user.click(await openAddMealAction(user, 'Add food'))
+    await user.type(screen.getByLabelText('Dish name'), 'Soup')
+    await user.type(screen.getByLabelText('kcal/100g'), '150')
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+    fireEvent.change(screen.getByLabelText('Time'), { target: { value: '20:00' } })
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Dinner')
+    fireEvent.change(screen.getByLabelText('Time'), { target: { value: '' } })
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Dinner')
+    await user.click(screen.getByRole('button', { name: 'Done' }))
+    expect(screen.getByText('Dinner')).toBeInTheDocument()
+  })
+
+  it('preserves an explicitly picked name when time changes (#1095)', async () => {
+    const user = userEvent.setup()
+    render(<ControlledMealList calorieEntries={[]} date="2026-03-01" />, { wrapper: MemoryRouter })
+    await user.click(screen.getByRole('button', { name: '+ Add a meal' }))
+    await user.click(screen.getByRole('button', { name: 'Meal name' }))
+    await user.click(screen.getByRole('option', { name: 'Breakfast' }))
+    fireEvent.change(screen.getByLabelText('Time'), { target: { value: '14:20' } })
+    expect(screen.getByLabelText('Meal name')).toHaveTextContent('Breakfast')
+  })
+
   it.each([
     [21, 37, 'Dinner', '21:37'],
     [0, 30, 'Night food', '00:30'],

@@ -176,4 +176,4 @@ _Changing the selected meal time should refresh the automatically suggested meal
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1095](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1095) | 🔲 Open | Refresh suggested meal name when selected meal time changes | At about 06:00, Breakfast / Завтрак is correctly suggested. Changing the time to 14:20 leaves Breakfast selected; refresh the automatic suggestion using the selected time. User screenshot confirms the mismatch. Root cause not investigated; logged only. |
+| [#1095](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1095) | 🔍 Pending validation | Refresh suggested meal name when selected meal time changes | New-meal time changes refresh the automatic name before and after food is added. Explicitly picked names are preserved; clearing time keeps the name. Regression coverage includes 06:00 → 14:20 and persistence after adding food. Awaiting on-device confirmation. |

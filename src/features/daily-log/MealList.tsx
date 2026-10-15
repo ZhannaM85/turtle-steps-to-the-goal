@@ -295,12 +295,14 @@ export function MealList({
     undefined,
   )
   const [newMealPosition, setNewMealPosition] = useState(1)
+  const newMealNameIsAutomatic = useRef(true)
   // #491 — Done sets this so closing the dialog keeps the in-progress
   // meal; X / escape / overlay leave it false and we discard (#494 asks
   // first when that discard would drop foods already added this session).
   const keepInProgressMealRef = useRef(false)
   const [confirmDiscardAddMeal, setConfirmDiscardAddMeal] = useState(false)
   function openAddMealDialog() {
+    newMealNameIsAutomatic.current = true
     setInProgressMealId(null)
     const time = currentTimeHHMM()
     setNewMealTime(time)
@@ -673,11 +675,16 @@ export function MealList({
   // the actually-saved CalorieEntry.
   function updateNewMealTime(value: string) {
     setNewMealTime(value)
+    const refreshLabel = value !== '' && newMealNameIsAutomatic.current
+    const label = refreshLabel
+      ? customMealLabelOrUndefined(suggestedMealLabelForTime(t, value), newMealPosition, t)
+      : newMealLabel
+    if (refreshLabel) setNewMealLabel(label)
     if (!inProgressMealId) return
     setCalorieEntries(
       calorieEntries.map((entry) =>
         entry.id === inProgressMealId
-          ? { ...entry, timeEaten: value || undefined }
+          ? { ...entry, timeEaten: value || undefined, ...(refreshLabel ? { label } : {}) }
           : entry,
       ),
     )
@@ -708,6 +715,7 @@ export function MealList({
 
   // #563 — same before/after-first-item write-through as time/note.
   function updateNewMealLabel(value: string) {
+    newMealNameIsAutomatic.current = false
     const custom = customMealLabelOrUndefined(value, newMealPosition, t)
     setNewMealLabel(custom)
     if (!inProgressMealId) return

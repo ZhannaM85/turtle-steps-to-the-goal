@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1067,
+    issue: 1095,
+    date: '2026-10-15T05:06:08Z',
+    en: 'Changing a new meal’s time updates its suggested name unless you have chosen a name yourself.',
+    ru: 'При изменении времени нового приёма пищи предложенное название обновляется, если вы не выбрали его сами.',
+  },
+  {
     version: 1066,
     issue: 1094,
     date: '2026-10-12T11:23:23+00:00',
