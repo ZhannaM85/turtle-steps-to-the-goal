@@ -167,3 +167,13 @@ _Food search should find names regardless of capitalization or query-word order.
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+
+---
+
+## Tier 185 — Meal feedback (2026-10-15)
+
+_Changing the selected meal time should refresh the automatically suggested meal name._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1095](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1095) | 🔲 Open | Refresh suggested meal name when selected meal time changes | At about 06:00, Breakfast / Завтрак is correctly suggested. Changing the time to 14:20 leaves Breakfast selected; refresh the automatic suggestion using the selected time. User screenshot confirms the mismatch. Root cause not investigated; logged only. |
