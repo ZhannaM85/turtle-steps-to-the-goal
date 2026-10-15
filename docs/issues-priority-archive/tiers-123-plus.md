@@ -1052,3 +1052,13 @@ _Closed rows only. Open / pending items stay in the active file._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1094](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1094) | ✅ Done | Food search: match words in any order and ignore capitalization | Confirmed on-device 2026-10-12. All query words match independently of order and capitalization; Russian/English names and partial-word search are preserved. Release note v1066. |
+
+---
+
+## Tier 185 — Meal feedback (2026-10-15)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1095](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1095) | ✅ Done | Refresh suggested meal name when selected meal time changes | Confirmed on-device 2026-10-15 — changing the selected meal time refreshes the suggested name. Explicitly chosen names are preserved. Release note v1067. |

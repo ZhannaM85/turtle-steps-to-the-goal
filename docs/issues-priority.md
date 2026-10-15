@@ -176,4 +176,3 @@ _Changing the selected meal time should refresh the automatically suggested meal
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1095](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1095) | 🔍 Pending validation | Refresh suggested meal name when selected meal time changes | New-meal time changes refresh the automatic name before and after food is added. Explicitly picked names are preserved; clearing time keeps the name. Regression coverage includes 06:00 → 14:20 and persistence after adding food. Awaiting on-device confirmation. |
