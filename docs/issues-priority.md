@@ -28,7 +28,18 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 📋 Not started | Epic — Apple Health integration (blocked on mobile app + HealthKit bridge) | HealthKit has no public/cloud API at all — data is on-device only, readable exclusively by a native iOS app (or hybrid app with a HealthKit plugin/entitlement) the user has granted permission to. Genuinely blocked until the mobile app exists; can't be built sooner by any workaround. |
+| [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 🛠 Partial | Epic — Apple Health integration | Unblocked: Capacitor iOS + TestFlight exist. Scope narrowed (2026-10-17): **weight + sleep** first (#1098); **period → onPeriod** next (#1099). Not steps/water/background sync in v1. Manual XML import remains #366. |
+
+---
+
+## Tier 186 — Apple HealthKit live sync (2026-10-17)
+
+_Live HealthKit sync from the native iOS shell (Settings), after App Store / TestFlight path landed. Weight + sleep first; period as a follow-up. Does not wait on #315 App Review._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1098](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1098) | 📋 Not started | iOS HealthKit: weight + sleep sync (Settings) | Mirror Android HC Settings Sync: 7-day window, overwrite on Sync, wake-day sleep attribution. |
+| [#1099](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1099) | 📋 Not started | iOS HealthKit: period / menstrual flow → onPeriod | After #1098; sensitive HealthKit category. |
 
 ---
 
