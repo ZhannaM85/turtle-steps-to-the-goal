@@ -1062,3 +1062,13 @@ _Closed rows only. Open / pending items stay in the active file._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1095](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1095) | ✅ Done | Refresh suggested meal name when selected meal time changes | Confirmed on-device 2026-10-15 — changing the selected meal time refreshes the suggested name. Explicitly chosen names are preserved. Release note v1067. |
+
+---
+
+## Tier 186 — Dependency security (2026-10-17)
+
+_Allow Dependabot to update `sharp` to the non-vulnerable release._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1097](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1097) | ✅ Done | Unblock Dependabot security updates for sharp | Updated the sharp override and lockfile to 0.35.5 in commit 4b6afaf90; the GitHub Pages deployment succeeded in run 39049006895. |

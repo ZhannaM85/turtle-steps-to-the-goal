@@ -176,13 +176,3 @@ _Changing the selected meal time should refresh the automatically suggested meal
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-
----
-
-## Tier 186 — Dependency security (2026-10-17)
-
-_Allow Dependabot to update `sharp` to the non-vulnerable release._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#1097](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1097) | 🔲 Open | Unblock Dependabot security updates for sharp | The root direct dependency and override pin `sharp` to 0.35.4; Dependabot needs 0.35.5 to satisfy the security advisory. |
