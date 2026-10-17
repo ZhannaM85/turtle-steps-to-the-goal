@@ -51,8 +51,11 @@ export function AppleHealthSyncSection() {
   async function handleSync() {
     setState({ phase: 'syncing' })
     try {
+      // Always request Cycle access so it appears in Health → Turtle Steps
+      // (usage string mentions period). Only import onPeriod when Cycle
+      // tracking is enabled in Settings.
       const permission = await requestAppleHealthPermissions({
-        includePeriod: cycleTrackingEnabled,
+        includePeriod: true,
       })
       if (!permission.granted) {
         setState({ phase: 'permissionDenied' })

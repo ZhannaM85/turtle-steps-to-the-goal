@@ -38,7 +38,11 @@ export async function getAppleHealthAvailability(): Promise<
 }
 
 export async function requestAppleHealthPermissions(options?: {
-  /** #1099 — also request menstrual-flow when Cycle tracking is on. */
+  /**
+   * #1099 — request menstrual-flow read. Default true so Cycle appears under
+   * Health → Turtle Steps (matches NSHealthShareUsageDescription). Importing
+   * period days into the diary still gates on Cycle tracking in Settings.
+   */
   includePeriod?: boolean
 }): Promise<{
   granted: boolean
@@ -46,6 +50,7 @@ export async function requestAppleHealthPermissions(options?: {
   sleepGranted: boolean
   periodGranted: boolean
 }> {
+  const includePeriod = options?.includePeriod !== false
   const status = await Health.requestAuthorization({
     read: ['weight', 'sleep'],
   })
@@ -59,7 +64,7 @@ export async function requestAppleHealthPermissions(options?: {
   const sleepOk = sleepGranted || !readDenied.includes('sleep')
 
   let periodOk = false
-  if (options?.includePeriod) {
+  if (includePeriod) {
     try {
       const period = await AppleHealthPeriod.requestAuthorization()
       periodOk = period.granted
