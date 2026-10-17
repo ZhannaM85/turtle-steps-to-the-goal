@@ -19,6 +19,7 @@ export const SETTINGS_CARD_KEYS = [
   'entryComparison',
   'localTransfer',
   'healthConnect',
+  'appleHealth',
   'dashboardCharts',
   'trendCharts',
   'mealItems',

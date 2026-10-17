@@ -18,11 +18,12 @@ export function SettingsCardsCollapseControl() {
   const cards = useSettingsCardsCollapseStore((state) => state.cards)
   const collapseAll = useSettingsCardsCollapseStore((state) => state.collapseAll)
   const expandAll = useSettingsCardsCollapseStore((state) => state.expandAll)
-  const keys: SettingsCardKey[] = SETTINGS_CARD_KEYS.filter(
-    (key) =>
-      key !== 'about' &&
-      (key !== 'healthConnect' || Capacitor.getPlatform() === 'android'),
-  )
+  const keys: SettingsCardKey[] = SETTINGS_CARD_KEYS.filter((key) => {
+    if (key === 'about') return false
+    if (key === 'healthConnect') return Capacitor.getPlatform() === 'android'
+    if (key === 'appleHealth') return Capacitor.getPlatform() === 'ios'
+    return true
+  })
   const anyExpanded = anySettingsCardExpanded(cards, keys)
 
   return (

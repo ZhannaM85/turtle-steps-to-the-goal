@@ -32,6 +32,9 @@ export interface PrivacyPolicyDict {
      * review expects health-data access spelled out explicitly. */
     healthConnectPrivacyHeading: string
     healthConnectPrivacyBody: string
+    /** #1098 — App Store / HealthKit permission disclosure (mirror #656). */
+    appleHealthPrivacyHeading: string
+    appleHealthPrivacyBody: string
     storageHeading: string
     storageBody: string
     sharingHeading: string

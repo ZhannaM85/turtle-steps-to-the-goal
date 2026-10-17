@@ -44,6 +44,9 @@ function SettingsScreenContent() {
     if (key === 'healthConnect' && Capacitor.getPlatform() !== 'android') {
       return false
     }
+    if (key === 'appleHealth' && Capacitor.getPlatform() !== 'ios') {
+      return false
+    }
     return settingsCardVisible(key, query)
   })
   const currentVersion = releaseNotes[0]?.version

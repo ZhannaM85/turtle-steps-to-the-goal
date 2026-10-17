@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1068,
+    issue: 1098,
+    date: '2026-10-17T20:30:00Z',
+    en: 'On iPhone, Settings can sync weight and sleep from Apple Health for the last several days.',
+    ru: 'На iPhone в настройках можно синхронизировать вес и сон из Apple Health за несколько последних дней.',
+  },
+  {
     version: 1067,
     issue: 1095,
     date: '2026-10-15T05:06:08Z',

@@ -33,6 +33,7 @@ export const SETTINGS_CARD_GROUPS: Record<
     'sinceLastMealTimer',
     'entryComparison',
     'healthConnect',
+    'appleHealth',
   ],
   appearance: [
     'units',

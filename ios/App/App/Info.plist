@@ -51,6 +51,11 @@
 	     prompts on App Store Connect uploads (exempt encryption). -->
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<!-- #1098 — Apple Health (HealthKit) read access for Settings Sync. -->
+	<key>NSHealthShareUsageDescription</key>
+	<string>Turtle Steps reads weight and sleep from Apple Health to fill your daily diary when you tap Sync.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Turtle Steps does not write to Apple Health; this key is required by iOS when HealthKit is enabled.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

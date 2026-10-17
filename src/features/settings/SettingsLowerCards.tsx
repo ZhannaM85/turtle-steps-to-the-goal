@@ -20,6 +20,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { ClearAllDataSection } from './ClearAllDataSection'
 import { DashboardChartsVisibilitySection } from './DashboardChartsVisibilitySection'
 import { DeleteRangeSection } from './DeleteRangeSection'
+import { AppleHealthSyncSection } from './AppleHealthSyncSection'
 import { HealthConnectSyncSection } from './HealthConnectSyncSection'
 import { MealItemsSection } from './MealItemsSection'
 import { MealLabelPresetsSection } from './MealLabelPresetsSection'
@@ -226,6 +227,17 @@ export function SettingsLowerCards() {
           </CardHeader>
           <CardContent>
             <HealthConnectSyncSection />
+          </CardContent>
+        </SettingsPinnableCard>
+      )}
+
+      {Capacitor.getPlatform() === 'ios' && (
+        <SettingsPinnableCard pinId="appleHealth">
+          <CardHeader>
+            <CardTitle>{t.settings.appleHealthSyncLabel}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <AppleHealthSyncSection />
           </CardContent>
         </SettingsPinnableCard>
       )}

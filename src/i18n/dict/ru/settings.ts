@@ -318,6 +318,22 @@ export const settings: SettingsDict = {
       'В Health Connect нет веса, шагов или сна за последние 7 дней.',
     healthConnectSyncErrorMessage:
       'Не удалось синхронизировать с Health Connect. Попробуйте ещё раз.',
+    appleHealthSyncLabel: 'Apple Health',
+    appleHealthSyncDescription:
+      'Синхронизировать вес и сон из Apple Health за сегодня и несколько прошлых дней. Каждая синхронизация подтягивает последние значения за день и обновляет приложение (можно нажать снова после изменений в Здоровье).',
+    appleHealthSyncButton: 'Синхронизировать из Apple Health',
+    appleHealthSyncingButton: 'Синхронизация…',
+    appleHealthUnavailableMessage: 'Apple Health недоступен на этом устройстве.',
+    appleHealthPermissionDeniedMessage:
+      'Доступ к данным Apple Health не предоставлен. Включите его в Настройки → Здоровье → Доступ к данным.',
+    appleHealthSyncSuccessMessage: (dayCount, todayWeight) =>
+      todayWeight === undefined
+        ? `Синхронизировано дней: ${dayCount}.`
+        : `Синхронизировано дней: ${dayCount}; сегодня ${todayWeight}.`,
+    appleHealthSyncNoDataMessage:
+      'В Apple Health нет веса или сна за последние 7 дней.',
+    appleHealthSyncErrorMessage:
+      'Не удалось синхронизировать с Apple Health. Попробуйте ещё раз.',
     dashboardChartsLabel: 'Графики на панели',
     dashboardChartsDescription:
       'Все встроенные разделы панели. Выключите, чтобы скрыть на панели; включите снова здесь или значком глаза на карточке. Пользовательские корреляции — в «Свои метрики».',

@@ -117,6 +117,12 @@ function sectionLabels(card: SettingsCardKey, dict: Dictionary): string[] {
         s.healthConnectSyncDescription,
         s.healthConnectSyncButton,
       ]
+    case 'appleHealth':
+      return [
+        s.appleHealthSyncLabel,
+        s.appleHealthSyncDescription,
+        s.appleHealthSyncButton,
+      ]
     case 'dashboardCharts':
       return [s.dashboardChartsLabel, s.dashboardChartsDescription]
     case 'trendCharts':

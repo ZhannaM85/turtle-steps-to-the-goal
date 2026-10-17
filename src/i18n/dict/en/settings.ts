@@ -316,6 +316,22 @@ export const settings: SettingsDict = {
     healthConnectSyncNoDataMessage:
       'No weight, steps, or sleep in Health Connect for the last 7 days.',
     healthConnectSyncErrorMessage: 'Couldn’t sync from Health Connect. Try again.',
+    appleHealthSyncLabel: 'Apple Health',
+    appleHealthSyncDescription:
+      'Sync weight and sleep from Apple Health for today and the last several days. Each Sync pulls the latest values per day and updates this app (safe to tap again after Health changes).',
+    appleHealthSyncButton: 'Sync from Apple Health',
+    appleHealthSyncingButton: 'Syncing…',
+    appleHealthUnavailableMessage:
+      'Apple Health isn’t available on this device.',
+    appleHealthPermissionDeniedMessage:
+      'Permission to read Apple Health data was denied. You can enable it in Settings → Health → Data Access.',
+    appleHealthSyncSuccessMessage: (dayCount, todayWeight) =>
+      todayWeight === undefined
+        ? `Synced ${dayCount} day${dayCount === 1 ? '' : 's'}.`
+        : `Synced ${dayCount} day${dayCount === 1 ? '' : 's'}; today ${todayWeight}.`,
+    appleHealthSyncNoDataMessage:
+      'No weight or sleep in Apple Health for the last 7 days.',
+    appleHealthSyncErrorMessage: 'Couldn’t sync from Apple Health. Try again.',
     dashboardChartsLabel: 'Dashboard graphs',
     dashboardChartsDescription:
       'Every built-in Dashboard section. Turn one off to hide it on the Dashboard; turn it back on here or with the eye icon on the card. Custom correlations are managed under Custom metrics.',

@@ -13,10 +13,11 @@ import { useSettingsSearchQuery } from './settingsSearchContext'
 import { settingsGroupVisible } from './settingsSearch'
 
 function visibleGroupKeys(group: SettingsGroupId): SettingsCardKey[] {
-  return SETTINGS_CARD_GROUPS[group].filter(
-    (key) =>
-      key !== 'healthConnect' || Capacitor.getPlatform() === 'android',
-  )
+  return SETTINGS_CARD_GROUPS[group].filter((key) => {
+    if (key === 'healthConnect') return Capacitor.getPlatform() === 'android'
+    if (key === 'appleHealth') return Capacitor.getPlatform() === 'ios'
+    return true
+  })
 }
 
 /** #877 — named Settings group heading + per-group collapse (44px target). */

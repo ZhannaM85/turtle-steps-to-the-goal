@@ -23,10 +23,13 @@ export const privacyPolicy: PrivacyPolicyDict = {
     lastUpdatedLabel: (date) => `Last updated: ${date}`,
     collectionHeading: 'What we collect',
     collectionBody:
-      "Turtle Steps doesn't collect any data automatically. Everything you see in the app was entered by you, or explicitly pulled in at your request — weight, calories, meals, sleep, activity, cycle, notes, and any other field you choose to fill in, plus anything you choose to sync from Health Connect (see below) or import from a backup file.",
+      "Turtle Steps doesn't collect any data automatically. Everything you see in the app was entered by you, or explicitly pulled in at your request — weight, calories, meals, sleep, activity, cycle, notes, and any other field you choose to fill in, plus anything you choose to sync from Health Connect or Apple Health (see below) or import from a backup file.",
     healthConnectPrivacyHeading: 'Health Connect (Android)',
     healthConnectPrivacyBody:
       "On Android, tapping \"Sync from Health Connect\" in Settings reads recent weight, step totals, and sleep sessions (today plus the last several days) from Health Connect, Android's on-device health data store — nothing is read automatically, and nothing is ever written back to Health Connect. This only happens when you tap that button, requires your explicit permission grant, and only ever reads weight, steps, and sleep. Synced values are stored locally the same as any other entry — see \"Where your data lives\" below.",
+    appleHealthPrivacyHeading: 'Apple Health (iOS)',
+    appleHealthPrivacyBody:
+      "On iOS, tapping \"Sync from Apple Health\" in Settings reads recent weight and sleep (today plus the last several days) from Apple Health via HealthKit — nothing is read automatically, and nothing is ever written back to Apple Health. This only happens when you tap that button, requires your explicit permission grant, and only ever reads weight and sleep. Synced values are stored locally the same as any other entry — see \"Where your data lives\" below.",
     storageHeading: 'Where your data lives',
     storageBody:
       "All data is stored locally on your own device, in your browser's or app's own storage. There is no account, no server, and no cloud sync — Turtle Steps never sees your data.",

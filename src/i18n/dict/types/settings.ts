@@ -349,6 +349,16 @@ export interface SettingsDict {
     healthConnectSyncSuccessMessage: (dayCount: number, todayWeight?: string) => string
     healthConnectSyncNoDataMessage: string
     healthConnectSyncErrorMessage: string
+    /** #1098 — iOS-only Apple Health (HealthKit) Settings Sync. */
+    appleHealthSyncLabel: string
+    appleHealthSyncDescription: string
+    appleHealthSyncButton: string
+    appleHealthSyncingButton: string
+    appleHealthUnavailableMessage: string
+    appleHealthPermissionDeniedMessage: string
+    appleHealthSyncSuccessMessage: (dayCount: number, todayWeight?: string) => string
+    appleHealthSyncNoDataMessage: string
+    appleHealthSyncErrorMessage: string
     /** #709 — catalog of every built-in Dashboard section (show/hide). */
     dashboardChartsLabel: string
     dashboardChartsDescription: string
