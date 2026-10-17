@@ -263,6 +263,10 @@ export interface DailyEntryMealsDict {
     ) => string
     entryComparisonVs30DaysAgo: (arrow: string, amount: string) => string
     entryComparisonInfoLabel: string
+    /** #1100 — ⓘ a11y when only Apple Health provenance is shown. */
+    appleHealthSyncedInfoLabel: string
+    appleHealthSyncedWeightHint: string
+    appleHealthSyncedSleepHint: string
     onPeriodLabel: string
     /** Opt-in digestion tracking's per-day toggle, on both Today and in
      * DayDetail.tsx — tracks the problem (constipation), not the normal

@@ -165,9 +165,11 @@ export interface EntryFieldComparisonInfoProps {
   day30Value: number | undefined
   unit: EntryComparisonUnit
   className?: string
+  /** #1100 — extra tip lines (e.g. synced from Apple Health). */
+  extraLines?: string[]
 }
 
-/** Post-save ⓘ next to a field label (#664). */
+/** Post-save ⓘ next to a field label (#664 / #1100). */
 export function EntryFieldComparisonInfo({
   field,
   currentValue,
@@ -175,12 +177,13 @@ export function EntryFieldComparisonInfo({
   day30Value,
   unit,
   className,
+  extraLines = [],
 }: EntryFieldComparisonInfoProps) {
   const enabled = useEntryComparisonStore((state) => state.enabled)
   const t = useTranslation()
   const locale = useLocale()
 
-  if (!enabled || currentValue === undefined) return null
+  if (currentValue === undefined) return null
 
   const unitLabels = {
     kg: t.dailyEntry.kgUnit,
@@ -191,7 +194,7 @@ export function EntryFieldComparisonInfo({
 
   const lines: string[] = []
 
-  if (prior !== null) {
+  if (enabled && prior !== null) {
     const priorLine = buildComparisonLine({
       current: currentValue,
       baseline: prior.value,
@@ -208,7 +211,7 @@ export function EntryFieldComparisonInfo({
     if (priorLine) lines.push(priorLine.text)
   }
 
-  if (day30Value !== undefined) {
+  if (enabled && day30Value !== undefined) {
     const day30Line = buildComparisonLine({
       current: currentValue,
       baseline: day30Value,
@@ -222,12 +225,20 @@ export function EntryFieldComparisonInfo({
     if (day30Line) lines.push(day30Line.text)
   }
 
+  for (const line of extraLines) {
+    if (line.trim()) lines.push(line.trim())
+  }
+
   if (lines.length === 0) return null
 
   return (
     <InfoTooltip
       text={lines.join('\n')}
-      label={t.dailyEntry.entryComparisonInfoLabel}
+      label={
+        extraLines.length > 0 && !enabled
+          ? t.dailyEntry.appleHealthSyncedInfoLabel
+          : t.dailyEntry.entryComparisonInfoLabel
+      }
       className={cn('align-middle', className)}
     />
   )

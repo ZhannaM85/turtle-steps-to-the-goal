@@ -71,6 +71,11 @@ export function DailyEntryFormMorningSleepField() {
                           prior={comparison.prior('sleepHours')}
                           day30Value={comparison.day30Value('sleepHours')}
                           unit="hours"
+                          extraLines={
+                            state.sleepFromAppleHealth
+                              ? [t.dailyEntry.appleHealthSyncedSleepHint]
+                              : undefined
+                          }
                         />
                       </>
                     }

@@ -38,12 +38,37 @@ export function formValuesToEntry(
   values: DailyEntryFormValues,
   date: string,
   identity: { id: string; createdAt: string },
-  existing?: Pick<DailyEntry, 'nightEatingNoThoughts'> | null,
+  existing?: Pick<
+    DailyEntry,
+    | 'nightEatingNoThoughts'
+    | 'weightKg'
+    | 'sleepHours'
+    | 'deepSleepHours'
+    | 'weightFromAppleHealth'
+    | 'sleepFromAppleHealth'
+  > | null,
 ): DailyEntry {
+  // #1100 — keep Apple Health provenance only while the synced value is
+  // unchanged; any edit/delete clears the flag.
+  const weightFromAppleHealth =
+    values.weightKg !== undefined &&
+    values.weightKg === existing?.weightKg &&
+    existing.weightFromAppleHealth === true
+      ? true
+      : undefined
+  const sleepFromAppleHealth =
+    values.sleepHours !== undefined &&
+    values.sleepHours === existing?.sleepHours &&
+    values.deepSleepHours === existing?.deepSleepHours &&
+    existing.sleepFromAppleHealth === true
+      ? true
+      : undefined
+
   return {
     id: identity.id,
     date,
     weightKg: values.weightKg,
+    weightFromAppleHealth,
     calorieEntries: values.calorieEntries,
     dayTotals: values.dayTotals,
     note: values.note,
@@ -51,6 +76,7 @@ export function formValuesToEntry(
     emotion: values.emotion,
     sleepHours: values.sleepHours,
     deepSleepHours: values.deepSleepHours,
+    sleepFromAppleHealth,
     steps: values.steps,
     onPeriod: values.onPeriod,
     hadConstipation: values.hadConstipation,

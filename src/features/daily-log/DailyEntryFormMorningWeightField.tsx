@@ -66,6 +66,11 @@ export function DailyEntryFormMorningWeightField() {
                         prior={comparison.prior('weightKg')}
                         day30Value={comparison.day30Value('weightKg')}
                         unit="kg"
+                        extraLines={
+                          state.weightFromAppleHealth
+                            ? [t.dailyEntry.appleHealthSyncedWeightHint]
+                            : undefined
+                        }
                       />
                     </>
                   }

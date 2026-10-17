@@ -173,6 +173,9 @@ export interface DailyEntry {
   id: string
   date: string // ISO date, one entry per date
   weightKg?: number
+  /** #1100 — true when Settings Sync from Apple Health last wrote `weightKg`.
+   * Cleared when the user edits or deletes weight on the Day screen. */
+  weightFromAppleHealth?: boolean
   calorieEntries?: CalorieEntry[]
   /** #549 — day-level kcal/macros without meal items; summed with meals. */
   dayTotals?: DayTotals
@@ -187,6 +190,9 @@ export interface DailyEntry {
    * wearable might report deep sleep before total for the same day). */
   sleepHours?: number
   deepSleepHours?: number
+  /** #1100 — true when Settings Sync from Apple Health last wrote sleep.
+   * Cleared when the user edits or deletes sleep on the Day screen. */
+  sleepFromAppleHealth?: boolean
   /** Step count (#60) — optional, independent of everything else. */
   steps?: number
   /** Opt-in menstrual cycle tracking (#61) — only ever set when the user

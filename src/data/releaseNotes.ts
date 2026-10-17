@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1071,
+    issue: 1100,
+    date: '2026-10-18T00:40:00Z',
+    en: 'Day info tips can note when weight or sleep was synced from Apple Health.',
+    ru: 'Подсказки на экране дня могут отмечать, что вес или сон синхронизированы из Apple Health.',
+  },
+  {
     version: 1070,
     issue: 1099,
     date: '2026-10-18T00:30:00Z',

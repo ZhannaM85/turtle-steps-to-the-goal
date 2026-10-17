@@ -49,7 +49,7 @@ _After live Sync worked on-device: show that weight/sleep came from Apple Health
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1100](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1100) | 📋 Not started | Day: indicate weight/sleep synced from Apple Health | Persist provenance from Settings Sync; surface in sleep/weight info tooltips. |
+| [#1100](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1100) | 🔍 Pending validation | Day: indicate weight/sleep synced from Apple Health | weightFromAppleHealth / sleepFromAppleHealth + Day ⓘ tip; cleared on edit/delete. |
 
 ---
 

@@ -100,4 +100,21 @@ describe('EntryFieldComparison (#664)', () => {
       screen.getByRole('button', { name: /Comparison with previous days/i }),
     ).toBeInTheDocument()
   })
+
+  it('shows Apple Health provenance even when comparison is off (#1100)', () => {
+    useEntryComparisonStore.setState({ enabled: false })
+    render(
+      <EntryFieldComparisonInfo
+        field="weightKg"
+        currentValue={69}
+        prior={null}
+        day30Value={undefined}
+        unit="kg"
+        extraLines={['Synced from Apple Health']}
+      />,
+    )
+    expect(
+      screen.getByRole('button', { name: /About this value/i }),
+    ).toBeInTheDocument()
+  })
 })

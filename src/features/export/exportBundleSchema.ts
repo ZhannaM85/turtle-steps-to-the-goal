@@ -120,6 +120,8 @@ const dailyEntrySchema = z.object({
   id: z.string(),
   date: z.string(),
   weightKg: z.number().optional(),
+  // #1100 — Apple Health Settings Sync provenance; purely additive.
+  weightFromAppleHealth: z.boolean().optional(),
   calorieEntries: z.array(calorieEntrySchema).optional(),
   // #549 — day-level kcal/macros without meal items; additive with meals.
   // #582 — optional fiberG, same additive shape (no version bump).
@@ -140,6 +142,8 @@ const dailyEntrySchema = z.object({
   // as macros above.
   sleepHours: z.number().optional(),
   deepSleepHours: z.number().optional(),
+  // #1100 — Apple Health Settings Sync provenance; purely additive.
+  sleepFromAppleHealth: z.boolean().optional(),
   // Steps (#60) — same reasoning, purely additive/optional.
   steps: z.number().optional(),
   // Opt-in cycle tracking (#61) — the logged value travels with a backup

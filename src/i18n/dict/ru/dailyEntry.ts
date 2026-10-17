@@ -384,6 +384,9 @@ export const dailyEntry: DailyEntryDict = {
     entryComparisonVs30DaysAgo: (arrow, amount) =>
       `${arrow} ${amount} к 30 дням назад`,
     entryComparisonInfoLabel: 'Сравнение с предыдущими днями',
+    appleHealthSyncedInfoLabel: 'Об этом значении',
+    appleHealthSyncedWeightHint: 'Синхронизировано из Apple Health',
+    appleHealthSyncedSleepHint: 'Синхронизировано из Apple Health',
     onPeriodLabel: 'Менструация',
     hadConstipationLabel: 'Запор',
     hadConstipationNoOption: 'Нет',

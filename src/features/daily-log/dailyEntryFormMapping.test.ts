@@ -143,6 +143,24 @@ describe('formValuesToEntry', () => {
     expect(entryToFormValues(entry).nightEatingNoWhatHelped).toBe('tea helped')
   })
 
+  it('keeps Apple Health weight provenance only while the value is unchanged (#1100)', () => {
+    const entry = formValuesToEntry(
+      { weightKg: 66.5 },
+      '2026-10-17',
+      { id: 'entry-1', createdAt: '2026-10-17T00:00:00.000Z' },
+      { weightKg: 66.5, weightFromAppleHealth: true },
+    )
+    expect(entry.weightFromAppleHealth).toBe(true)
+
+    const edited = formValuesToEntry(
+      { weightKg: 66.8 },
+      '2026-10-17',
+      { id: 'entry-1', createdAt: '2026-10-17T00:00:00.000Z' },
+      { weightKg: 66.5, weightFromAppleHealth: true },
+    )
+    expect(edited.weightFromAppleHealth).toBeUndefined()
+  })
+
   it('preserves historical thoughts under the old key and does not migrate them (#842)', () => {
     const entry = formValuesToEntry(
       {
