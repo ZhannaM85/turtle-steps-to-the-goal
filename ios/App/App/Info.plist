@@ -47,6 +47,10 @@
 	     description exists. -->
 	<key>NSCameraUsageDescription</key>
 	<string>Camera access is used to scan food barcodes.</string>
+	<!-- #315 — HTTPS-only / OS encryption; skips repeated export-compliance
+	     prompts on App Store Connect uploads (exempt encryption). -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
