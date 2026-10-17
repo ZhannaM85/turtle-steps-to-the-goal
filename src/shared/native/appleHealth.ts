@@ -8,6 +8,7 @@ import {
   type AppleHealthDayReading,
 } from '@/features/settings/appleHealthAggregate'
 import { HEALTH_CONNECT_RECENT_DAYS } from '@/features/settings/applyHealthConnectWeight'
+import { AppleHealthPeriod } from '@/shared/native/appleHealthPeriod'
 
 export type { AppleHealthDayReading }
 
@@ -36,10 +37,14 @@ export async function getAppleHealthAvailability(): Promise<
   }
 }
 
-export async function requestAppleHealthPermissions(): Promise<{
+export async function requestAppleHealthPermissions(options?: {
+  /** #1099 — also request menstrual-flow when Cycle tracking is on. */
+  includePeriod?: boolean
+}): Promise<{
   granted: boolean
   weightGranted: boolean
   sleepGranted: boolean
+  periodGranted: boolean
 }> {
   const status = await Health.requestAuthorization({
     read: ['weight', 'sleep'],
@@ -52,15 +57,28 @@ export async function requestAppleHealthPermissions(): Promise<{
   // neither listed” as ok to attempt a read (HealthKit privacy).
   const weightOk = weightGranted || !readDenied.includes('weight')
   const sleepOk = sleepGranted || !readDenied.includes('sleep')
+
+  let periodOk = false
+  if (options?.includePeriod) {
+    try {
+      const period = await AppleHealthPeriod.requestAuthorization()
+      periodOk = period.granted
+    } catch {
+      periodOk = false
+    }
+  }
+
   return {
-    granted: weightOk || sleepOk,
+    granted: weightOk || sleepOk || periodOk,
     weightGranted: weightOk,
     sleepGranted: sleepOk,
+    periodGranted: periodOk,
   }
 }
 
 export async function syncRecentAppleHealth(options?: {
   days?: number
+  includePeriod?: boolean
 }): Promise<AppleHealthDayReading[]> {
   const days = Math.max(1, options?.days ?? HEALTH_CONNECT_RECENT_DAYS)
   const end = new Date()
@@ -69,7 +87,7 @@ export async function syncRecentAppleHealth(options?: {
   const sleepStart = startOfDay(subDays(end, days))
   const endIso = healthKitIso(end)
 
-  const [weightResult, sleepResult] = await Promise.all([
+  const [weightResult, sleepResult, periodDates] = await Promise.all([
     Health.readSamples({
       dataType: 'weight',
       startDate: healthKitIso(weightStart),
@@ -84,6 +102,11 @@ export async function syncRecentAppleHealth(options?: {
       limit: 5000,
       ascending: true,
     }),
+    options?.includePeriod
+      ? AppleHealthPeriod.syncRecentPeriodDays({ days })
+          .then((r) => r.dates ?? [])
+          .catch(() => [] as string[])
+      : Promise.resolve([] as string[]),
   ])
 
   const weights = aggregateWeightByDay(
@@ -102,7 +125,8 @@ export async function syncRecentAppleHealth(options?: {
   )
 
   const rangeStartKey = format(weightStart, 'yyyy-MM-dd')
-  return mergeAppleHealthDayReadings(weights, sleep).filter(
+  const periodInRange = periodDates.filter((date) => date >= rangeStartKey)
+  return mergeAppleHealthDayReadings(weights, sleep, periodInRange).filter(
     (row) => row.date >= rangeStartKey,
   )
 }

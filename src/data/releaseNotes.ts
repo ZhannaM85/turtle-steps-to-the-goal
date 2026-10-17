@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1070,
+    issue: 1099,
+    date: '2026-10-18T00:30:00Z',
+    en: 'When Cycle tracking is on, Sync from Apple Health can also mark period days.',
+    ru: 'Если включено отслеживание цикла, синхронизация с Apple Health может также отмечать дни периода.',
+  },
+  {
     version: 1069,
     issue: 1098,
     date: '2026-10-17T21:10:00Z',

@@ -711,9 +711,9 @@ Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/us
 
 ## iOS Apple Health (HealthKit) Settings Sync (#1098, 2026-10-17)
 
-**Decision:** live HealthKit sync on iOS mirrors Android Health Connect Settings Sync — explicit Sync tap, last 7 local days, `overwrite` via `applyHealthConnectDayReadings`. Data types in v1: **weight + sleep** only (wake-day sleep attribution, Capgo duration in minutes). Period → `onPeriod` is #1099. Not steps/water/background delivery in v1. Manual XML import stays #366 (`features/export/appleHealth/`).
+**Decision:** live HealthKit sync on iOS mirrors Android Health Connect Settings Sync — explicit Sync tap, last 7 local days, `overwrite` via `applyHealthConnectDayReadings`. Data types: **weight + sleep** (wake-day sleep attribution, Capgo duration in minutes); **period → `onPeriod`** (#1099) when Cycle tracking is enabled (Capgo has no menstrual type — `AppleHealthPeriodPlugin.swift`). Not steps/water/background delivery in v1. Manual XML import stays #366 (`features/export/appleHealth/`).
 
-**Stack:** `@capgo/capacitor-health` + `src/shared/native/appleHealth.ts` + `appleHealthAggregate.ts` + `AppleHealthSyncSection` (iOS-only Settings card). Entitlements/plist: `com.apple.developer.healthkit`, `NSHealthShareUsageDescription` / `NSHealthUpdateUsageDescription`.
+**Stack:** `@capgo/capacitor-health` + `AppleHealthPeriod` plugin + `src/shared/native/appleHealth.ts` + `appleHealthAggregate.ts` + `AppleHealthSyncSection` (iOS-only Settings card). Entitlements/plist: `com.apple.developer.healthkit`, `NSHealthShareUsageDescription` / `NSHealthUpdateUsageDescription`.
 
 ---
 

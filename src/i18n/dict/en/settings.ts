@@ -319,6 +319,8 @@ export const settings: SettingsDict = {
     appleHealthSyncLabel: 'Apple Health',
     appleHealthSyncDescription:
       'Sync weight and sleep from Apple Health for today and the last several days. Each Sync pulls the latest values per day and updates this app (safe to tap again after Health changes).',
+    appleHealthSyncDescriptionWithPeriod:
+      'Sync weight, sleep, and period days from Apple Health for today and the last several days. Each Sync pulls the latest values per day and updates this app (safe to tap again after Health changes).',
     appleHealthSyncButton: 'Sync from Apple Health',
     appleHealthSyncingButton: 'Syncing…',
     appleHealthUnavailableMessage:

@@ -10,6 +10,8 @@ export type HealthConnectDayReading = {
   steps?: number
   sleepHours?: number
   deepSleepHours?: number
+  /** #1099 — Apple Health menstrual flow → DailyEntry.onPeriod. */
+  onPeriod?: boolean
 }
 
 /** @deprecated Prefer HealthConnectDayReading — kept for call-site clarity. */
@@ -55,6 +57,7 @@ export function applyHealthConnectDayReadings(
     if (reading.deepSleepHours !== undefined) {
       patch.deepSleepHours = reading.deepSleepHours
     }
+    if (reading.onPeriod !== undefined) patch.onPeriod = reading.onPeriod
     if (Object.keys(patch).length === 0) continue
     const prior = patches.get(reading.date) ?? {}
     patches.set(reading.date, { ...prior, ...patch })

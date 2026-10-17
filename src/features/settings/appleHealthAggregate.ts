@@ -20,6 +20,8 @@ export type AppleHealthDayReading = {
   weightKg?: number
   sleepHours?: number
   deepSleepHours?: number
+  /** #1099 — true when HealthKit had a non-None menstrual flow that day. */
+  onPeriod?: boolean
 }
 
 /** Sleep stages that count toward total sleep hours (excludes in-bed / awake). */
@@ -83,6 +85,7 @@ export function aggregateSleepByWakeDay(
 export function mergeAppleHealthDayReadings(
   weights: { date: string; weightKg: number }[],
   sleep: { date: string; sleepHours: number; deepSleepHours?: number }[],
+  periodDates: string[] = [],
 ): AppleHealthDayReading[] {
   const byDate = new Map<string, AppleHealthDayReading>()
   for (const { date, weightKg } of weights) {
@@ -95,6 +98,9 @@ export function mergeAppleHealthDayReadings(
       sleepHours,
       ...(deepSleepHours !== undefined ? { deepSleepHours } : {}),
     })
+  }
+  for (const date of periodDates) {
+    byDate.set(date, { ...byDate.get(date), date, onPeriod: true })
   }
   return [...byDate.values()]
 }

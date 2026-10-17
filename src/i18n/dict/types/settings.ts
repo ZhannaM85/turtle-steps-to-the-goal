@@ -352,6 +352,8 @@ export interface SettingsDict {
     /** #1098 — iOS-only Apple Health (HealthKit) Settings Sync. */
     appleHealthSyncLabel: string
     appleHealthSyncDescription: string
+    /** #1099 — when Cycle tracking is on in Settings. */
+    appleHealthSyncDescriptionWithPeriod: string
     appleHealthSyncButton: string
     appleHealthSyncingButton: string
     appleHealthUnavailableMessage: string

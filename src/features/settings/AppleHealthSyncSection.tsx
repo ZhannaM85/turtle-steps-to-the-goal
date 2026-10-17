@@ -9,7 +9,7 @@ import {
   syncRecentAppleHealth,
 } from '@/shared/native/appleHealth'
 import { Button } from '@/shared/ui/button'
-import { useUnitStore } from '@/stores'
+import { useCycleTrackingStore, useUnitStore } from '@/stores'
 import {
   applyHealthConnectDayReadings,
   HEALTH_CONNECT_RECENT_DAYS,
@@ -26,13 +26,15 @@ type SyncState =
   | { phase: 'success'; summary: string }
 
 /**
- * #1098 — iOS-only Apple Health (HealthKit) Settings Sync. Same overwrite /
- * recent-window policy as Android Health Connect (#656/#658/#694).
+ * #1098 / #1099 — iOS-only Apple Health (HealthKit) Settings Sync. Same
+ * overwrite / recent-window policy as Android Health Connect
+ * (#656/#658/#694). Period → onPeriod when Cycle tracking is enabled.
  */
 export function AppleHealthSyncSection() {
   const t = useTranslation()
   const locale = useLocale()
   const unit = useUnitStore((state) => state.unit)
+  const cycleTrackingEnabled = useCycleTrackingStore((state) => state.enabled)
   const [state, setState] = useState<SyncState>({ phase: 'checking' })
 
   useEffect(() => {
@@ -49,7 +51,9 @@ export function AppleHealthSyncSection() {
   async function handleSync() {
     setState({ phase: 'syncing' })
     try {
-      const permission = await requestAppleHealthPermissions()
+      const permission = await requestAppleHealthPermissions({
+        includePeriod: cycleTrackingEnabled,
+      })
       if (!permission.granted) {
         setState({ phase: 'permissionDenied' })
         return
@@ -57,6 +61,7 @@ export function AppleHealthSyncSection() {
 
       const readings = await syncRecentAppleHealth({
         days: HEALTH_CONNECT_RECENT_DAYS,
+        includePeriod: cycleTrackingEnabled,
       })
       if (readings.length === 0) {
         setState({ phase: 'noData' })
@@ -110,7 +115,9 @@ export function AppleHealthSyncSection() {
   return (
     <div className="flex flex-col gap-2">
       <p className="text-sm text-muted-foreground">
-        {t.settings.appleHealthSyncDescription}
+        {cycleTrackingEnabled
+          ? t.settings.appleHealthSyncDescriptionWithPeriod
+          : t.settings.appleHealthSyncDescription}
       </p>
       <Button
         type="button"

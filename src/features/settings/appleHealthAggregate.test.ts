@@ -61,4 +61,19 @@ describe('mergeAppleHealthDayReadings', () => {
       },
     ])
   })
+
+  it('marks period days from HealthKit menstrual flow (#1099)', () => {
+    expect(
+      mergeAppleHealthDayReadings(
+        [{ date: '2026-10-17', weightKg: 66.5 }],
+        [],
+        ['2026-10-16', '2026-10-17'],
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ date: '2026-10-17', weightKg: 66.5, onPeriod: true }),
+        expect.objectContaining({ date: '2026-10-16', onPeriod: true }),
+      ]),
+    )
+  })
 })

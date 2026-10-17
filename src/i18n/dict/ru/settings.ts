@@ -321,6 +321,8 @@ export const settings: SettingsDict = {
     appleHealthSyncLabel: 'Apple Health',
     appleHealthSyncDescription:
       'Синхронизировать вес и сон из Apple Health за сегодня и несколько прошлых дней. Каждая синхронизация подтягивает последние значения за день и обновляет приложение (можно нажать снова после изменений в Здоровье).',
+    appleHealthSyncDescriptionWithPeriod:
+      'Синхронизировать вес, сон и дни цикла из Apple Health за сегодня и несколько прошлых дней. Каждая синхронизация подтягивает последние значения за день и обновляет приложение (можно нажать снова после изменений в Здоровье).',
     appleHealthSyncButton: 'Синхронизировать из Apple Health',
     appleHealthSyncingButton: 'Синхронизация…',
     appleHealthUnavailableMessage: 'Apple Health недоступен на этом устройстве.',
