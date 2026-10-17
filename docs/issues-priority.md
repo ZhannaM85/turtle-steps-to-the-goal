@@ -18,7 +18,6 @@ _The next big initiative, at the user's request: ship this PWA as installable na
 | [#316](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/316) | 🔲 Open | Android: Google Play Console enrollment + app signing setup | Account/business step, not code. $25 one-time fee, upload keystore, Play App Signing |
 | [#317](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/317) | 🛠 Partial | Android: Play Store listing content + internal/closed testing track | English/Russian listing copy, privacy wording and screenshot/release checklist drafted in [play-store-listing.md](./play-store-listing.md) (2026-10-11). Owner review, assets, Data Safety and signed testing-track upload/device confirmation remain. Depends on #305, #311, #312, #316 |
 | [#318](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/318) | 🔲 Open | Android: promote to production + submit for Play Store review | Depends on #317 |
-| [#314](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/314) | 🔲 Open | iOS: code signing + first TestFlight beta build | Depends on #305, #313 |
 | [#315](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/315) | 🔲 Open | iOS: App Store listing content and submit for review | Depends on #311, #312, #314 |
 
 ---
