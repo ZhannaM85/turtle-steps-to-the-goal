@@ -196,23 +196,38 @@ honestly; do not claim medical treatment.
 
 ## Screenshot checklist
 
-Capture from the **TestFlight** build (not only the PWA), with fictional demo
-data. Prefer light theme and the same sample dates across the set. App Store
-Connect shows the exact required sizes for the current year — typically at
-least one large iPhone display size; add iPad if you keep iPad support
-(`TARGETED_DEVICE_FAMILY` includes iPad).
+Ready-made **English** demo screenshots (same seed as the Features/README
+shots) are in [`docs/app-store-screenshots/`](./app-store-screenshots/):
 
-Suggested frames (en and ru separately if both localizations ship):
+| Folder | App Store Connect tab | Size |
+|--------|----------------------|------|
+| `iphone/` | iPhone with Dynamic Island (medium display) | 1179 × 2556 |
+| `ipad/` | iPad 13" display | 2048 × 2732 |
 
-- [ ] Day: weight + calories/macros with readable sample entries
-- [ ] Add meal / food search
-- [ ] Dashboard trends
-- [ ] History
-- [ ] Settings (backup/export or What to track)
-- [ ] No personal real-world private records; no medical claims in captions
+Files (upload in this order; `01` first):
 
-Optional: reuse ideas from `public/screenshots/` / `scripts/capture-screenshots.mjs`
-as composition references only.
+1. `01-day.png` — Day overview  
+2. `02-day-meals.png` — Meals  
+3. `03-dashboard.png` — Dashboard trends  
+4. `04-history.png` — History  
+5. `05-export.png` — Settings → Export  
+
+Regenerate after UI changes:
+
+```
+node scripts/capture-app-store-screenshots.mjs
+```
+
+(Needs Playwright Chromium: `npx playwright install chromium`.)
+
+These are web/PWA captures at App Store pixel sizes with fictional demo data —
+not TestFlight device photos. Acceptable for first submission; replace later
+with native shellshots if review asks.
+
+- [ ] Upload `iphone/*.png` to the Dynamic Island (medium) tab  
+- [ ] Upload `ipad/*.png` to the iPad 13" tab  
+- [ ] Skip Watch / iPhone Duo unless Connect marks them required  
+- [ ] Optional later: Russian-locale set (re-run script with `locale: 'ru-RU'`)
 
 ## App Review notes (optional text box)
 
