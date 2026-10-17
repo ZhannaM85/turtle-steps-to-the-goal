@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1069,
+    issue: 1098,
+    date: '2026-10-17T21:10:00Z',
+    en: 'Apple Health sync on iPhone no longer fails when reading weight and sleep.',
+    ru: 'Синхронизация с Apple Health на iPhone больше не завершается ошибкой при чтении веса и сна.',
+  },
+  {
     version: 1068,
     issue: 1098,
     date: '2026-10-17T20:30:00Z',

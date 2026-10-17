@@ -21,7 +21,8 @@ type SyncState =
   | { phase: 'checking' }
   | { phase: 'unavailable' }
   | { phase: 'ready' | 'syncing' }
-  | { phase: 'permissionDenied' | 'noData' | 'error' }
+  | { phase: 'permissionDenied' | 'noData' }
+  | { phase: 'error'; detail?: string }
   | { phase: 'success'; summary: string }
 
 /**
@@ -85,8 +86,12 @@ export function AppleHealthSyncSection() {
         phase: 'success',
         summary: t.settings.appleHealthSyncSuccessMessage(dayCount, todayText),
       })
-    } catch {
-      setState({ phase: 'error' })
+    } catch (err) {
+      const detail =
+        err instanceof Error && err.message.trim()
+          ? err.message.trim()
+          : undefined
+      setState({ phase: 'error', detail })
     }
   }
 
@@ -132,6 +137,7 @@ export function AppleHealthSyncSection() {
       {state.phase === 'error' && (
         <p className="text-sm text-destructive">
           {t.settings.appleHealthSyncErrorMessage}
+          {state.detail ? ` (${state.detail})` : null}
         </p>
       )}
       {state.phase === 'success' && (
