@@ -39,7 +39,7 @@ _Live HealthKit sync from the native iOS shell (Settings), after App Store / Tes
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1098](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1098) | 🔍 Pending validation | iOS HealthKit: weight + sleep sync (Settings) | Capgo HealthKit Settings Sync (weight+sleep, 7-day overwrite). On-device Sync works (build 3); still awaiting explicit close confirm. |
-| [#1099](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1099) | 🔍 Pending validation | iOS HealthKit: period / menstrual flow → onPeriod | Sync always requests Cycle access (Health list); diary import still only when Cycle tracking on. |
+| [#1099](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1099) | 🔍 Pending validation | iOS HealthKit: period / menstrual flow → onPeriod | Period plugin must be registered in App bridge (not only Capgo packageClassList); then Cycle appears under Health access. |
 
 ---
 

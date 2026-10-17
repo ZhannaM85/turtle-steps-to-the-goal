@@ -713,7 +713,7 @@ Vitest + jsdom + `fake-indexeddb` + React Testing Library + `@testing-library/us
 
 **Decision:** live HealthKit sync on iOS mirrors Android Health Connect Settings Sync — explicit Sync tap, last 7 local days, `overwrite` via `applyHealthConnectDayReadings`. Data types: **weight + sleep** (wake-day sleep attribution, Capgo duration in minutes); **period → `onPeriod`** (#1099) when Cycle tracking is enabled (Capgo has no menstrual type — `AppleHealthPeriodPlugin.swift`). Not steps/water/background delivery in v1. Manual XML import stays #366 (`features/export/appleHealth/`).
 
-**Stack:** `@capgo/capacitor-health` + `AppleHealthPeriod` plugin + `src/shared/native/appleHealth.ts` + `appleHealthAggregate.ts` + `AppleHealthSyncSection` (iOS-only Settings card). Entitlements/plist: `com.apple.developer.healthkit`, `NSHealthShareUsageDescription` / `NSHealthUpdateUsageDescription`.
+**Stack:** `@capgo/capacitor-health` + `AppleHealthPeriod` plugin + `src/shared/native/appleHealth.ts` + `appleHealthAggregate.ts` + `AppleHealthSyncSection` (iOS-only Settings card). Entitlements/plist: `com.apple.developer.healthkit`, `NSHealthShareUsageDescription` / `NSHealthUpdateUsageDescription`. **#1099 registration:** `AppleHealthPeriodPlugin` lives in the App target (not CapApp-SPM), so `cap sync` never puts it in `packageClassList` — `TurtleStepsBridgeViewController` registers it in `capacitorDidLoad`. Sync always requests Cycle read; diary apply still only when Cycle tracking is on.
 
 ---
 
