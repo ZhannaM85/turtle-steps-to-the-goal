@@ -43,9 +43,11 @@ export const noteSchema = z.string().max(500).optional()
 // like Weight (#669). A single field may still be left unset.
 export const sleepHoursSchema = z.number().positive().max(24).optional()
 export const deepSleepHoursSchema = z.number().positive().max(24).optional()
-// Steps (#60) — optional, independent of everything else. Capped at 20,000
-// (#68), a realistic daily ceiling rather than the original 100,000.
-export const stepsSchema = z.number().min(0).max(20000).optional()
+// Steps (#60) — optional, independent of everything else.
+// #68 lowered the ceiling to 20,000; #1107 raises it again so Apple Health
+// Sync (and long walking days) are not silently dropped by sanitize
+// (`persistWithAppleHealth` → `stepsSchema` → fall back to empty).
+export const stepsSchema = z.number().min(0).max(100_000).optional()
 // Opt-in cycle tracking (#61) — only ever rendered/settable when the
 // Settings toggle is on, but the schema itself doesn't need to know that.
 export const onPeriodSchema = z.boolean().optional()

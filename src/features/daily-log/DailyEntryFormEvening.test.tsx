@@ -48,7 +48,7 @@ describe('DailyEntryForm', () => {
       expect(onSave).not.toHaveBeenCalled()
     })
 
-    it('rejects a value above the 20,000/day ceiling and does not save (#68)', async () => {
+    it('rejects a value above the 100,000/day ceiling and does not save (#68 / #1107)', async () => {
       const user = userEvent.setup()
       const onSave = vi.fn()
       render(
@@ -59,11 +59,31 @@ describe('DailyEntryForm', () => {
         />,
       )
 
-      await user.type(screen.getByLabelText('Steps'), '25000')
+      await user.type(screen.getByLabelText('Steps'), '100001')
       await user.click(screen.getByRole('button', { name: 'Save steps' }))
 
       expect(await screen.findByText(/Invalid value/)).toBeInTheDocument()
       expect(onSave).not.toHaveBeenCalled()
+    })
+
+    it('persists Health-synced step totals above the old 20,000 ceiling (#1107)', async () => {
+      const onSave = vi.fn()
+      render(
+        <DailyEntryForm
+          date="2026-03-01"
+          existingEntry={{
+            id: 'e1',
+            date: '2026-03-01',
+            steps: 28500,
+            stepsFromAppleHealth: true,
+            createdAt: now,
+            updatedAt: now,
+          }}
+          onSave={onSave}
+        />,
+      )
+
+      expect(screen.getByText('28,500')).toBeInTheDocument()
     })
 
     it('shows an existing step count as read-only text with a pencil, editable via a Save button', async () => {

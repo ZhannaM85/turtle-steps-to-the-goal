@@ -81,13 +81,21 @@ export function useDailyEntryStepsAndMeasurements({
     setSavedSteps(undefined)
   }
 
-  /** #1105 — fill empty steps from Apple Health and mark provenance. */
+  /** #1105 / #1107 — fill empty steps from Apple Health and mark provenance. */
   function applyAppleHealthSteps(steps: number) {
-    setValue('steps', steps, { shouldDirty: true })
+    const result = stepsSchema.safeParse(steps)
+    if (!result.success || isBlankSaveValue(result.data)) {
+      setError('steps', { message: t.dailyEntry.invalidValueMessage })
+      return
+    }
+    setValue('steps', result.data, { shouldDirty: true })
     clearErrors('steps')
     setIsEditingSteps(false)
-    setSavedSteps(steps)
-    persistWithAppleHealth({ ...getValues(), steps }, { stepsFromAppleHealth: true })
+    setSavedSteps(result.data)
+    persistWithAppleHealth(
+      { ...getValues(), steps: result.data },
+      { stepsFromAppleHealth: true },
+    )
   }
 
   function saveBodyMeasurements() {

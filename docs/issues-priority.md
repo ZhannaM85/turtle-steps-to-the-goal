@@ -50,7 +50,7 @@ _Export share sheet; Settings search collapse; Apple Health steps + Day per-fiel
 | [#1104](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1104) | 🔍 Pending validation | iOS HealthKit: steps sync on Settings Sync | Capgo `steps` on Settings Sync; `stepsFromAppleHealth` provenance; Info.plist + copy mention steps. |
 | [#1105](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1105) | 🔍 Pending validation | iOS Day: sync empty weight/sleep/steps from Health | HeartPulse control on empty Day fields (iOS native only); single-field Capgo read + provenance. |
 | [#1106](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1106) | ⬜ Open | iOS HealthKit: synced steps ≠ Apple Health day total | Build 10: Health 13 967 vs diary 28 500 for 2026-10-18; likely undeduplicated sample sum. |
-| [#1107](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1107) | ⬜ Open | iOS Day: Health steps sync does not persist | Sync fills Steps then value gone after navigate away/back; likely applyAppleHealthSteps persist path. |
+| [#1107](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1107) | 🔍 Pending validation | iOS Day: Health steps sync does not persist | Root cause: stepsSchema max 20k silently dropped Health totals (e.g. 28 500) on sanitize; raised to 100k. |
 
 ---
 

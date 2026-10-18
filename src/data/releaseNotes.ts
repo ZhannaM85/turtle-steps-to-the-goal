@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1078,
+    issue: 1107,
+    date: '2026-10-18T18:05:00Z',
+    en: 'Steps synced from Apple Health stay saved when you leave the Day screen (higher daily step limit).',
+    ru: 'Шаги из Apple Health сохраняются после ухода с экрана Дня (повышен дневной лимит шагов).',
+  },
+  {
     version: 1077,
     issue: 1105,
     date: '2026-10-18T16:00:00Z',
