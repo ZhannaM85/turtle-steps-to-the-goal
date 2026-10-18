@@ -47,7 +47,6 @@ _Native export share sheet / export-fail regression; Settings search vs card col
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1103](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1103) | 🔍 Pending validation | Settings: collapse chevron dead while search active | Search no longer force-expands cards; chevron/header toggle respected. |
 
 ---
 
