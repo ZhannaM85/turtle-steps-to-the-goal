@@ -43,11 +43,12 @@ _Live HealthKit sync from the native iOS shell (Settings), after App Store / Tes
 
 ## Tier 187 — Live feedback (2026-10-18)
 
-_Apple Health sync provenance on Day; native export missing save/share sheet vs PWA._
+_Native export share sheet (#1101) and export-fail regression after that change (#1102)._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1101](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1101) | 🔍 Pending validation | Native: Export backup save/share location (like PWA) | Native Cache + Share sheet for backup and other file exports; web/PWA unchanged. |
+| [#1101](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1101) | 🔍 Pending validation | Native: Export backup save/share location (like PWA) | Shipped build 7; blocked on device by #1102 until export works again. |
+| [#1102](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1102) | ⬜ Open | Regression: native Export backup fails after #1101 | Build 7: «Не удалось выполнить экспорт» — no share sheet; PWA still OK. |
 
 ---
 
