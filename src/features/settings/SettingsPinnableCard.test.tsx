@@ -1,5 +1,7 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it } from 'vitest'
+import type { ReactElement } from 'react'
 import { useLocaleStore } from '@/i18n'
 import {
   useSettingsCardsCollapseStore,
@@ -7,6 +9,17 @@ import {
 } from '@/stores'
 import { CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { SettingsPinnableCard } from './SettingsPinnableCard'
+import { SettingsSearchContext } from './settingsSearchContext'
+
+function renderWithSearch(ui: ReactElement, query = '') {
+  return render(
+    <SettingsSearchContext.Provider
+      value={{ query, setQuery: () => {} }}
+    >
+      {ui}
+    </SettingsSearchContext.Provider>,
+  )
+}
 
 describe('SettingsPinnableCard (#873)', () => {
   beforeEach(() => {
@@ -110,4 +123,31 @@ describe('SettingsPinnableCard (#873)', () => {
     ).not.toBeInTheDocument()
     expect(screen.getByText('about')).toBeInTheDocument()
   })
+
+  it('collapses a matching card while Settings search is active (#1103)', async () => {
+    const user = userEvent.setup()
+    const { container } = renderWithSearch(
+      <SettingsPinnableCard pinId="export">
+        <CardHeader>
+          <CardTitle>Export</CardTitle>
+        </CardHeader>
+        <CardContent>backup body</CardContent>
+      </SettingsPinnableCard>,
+      'Export',
+    )
+
+    expect(screen.getByText('backup body')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Collapse' }))
+
+    expect(
+      useSettingsCardsCollapseStore.getState().cards.export,
+    ).toBe(true)
+    expect(container.querySelector('[data-slot="settings-panel"]')).toHaveClass(
+      '[&_[data-slot=card-content]]:hidden',
+    )
+    expect(
+      screen.getByRole('button', { name: 'Expand' }),
+    ).toHaveAttribute('aria-expanded', 'false')
+  })
 })
+

@@ -10,10 +10,7 @@ import { Button } from '@/shared/ui/button'
 import { CollapseChevronButton } from '@/shared/ui/collapse-chevron'
 import { cn } from '@/shared/lib/utils'
 import { useSettingsSearchQuery } from './settingsSearchContext'
-import {
-  settingsCardVisible,
-  settingsSearchQueryActive,
-} from './settingsSearch'
+import { settingsCardVisible } from './settingsSearch'
 
 /** #820 pin + #826 header collapse.
  * About uses pinnable={false} and collapsible={false} (#966).
@@ -43,9 +40,10 @@ export function SettingsPinnableCard({
     (state) => state.setCollapsed,
   )
   const query = useSettingsSearchQuery()
-  const searching = settingsSearchQueryActive(query)
   const isPinned = pinned.includes(pinId)
-  const expanded = !collapsible || searching || !collapsed
+  // #1103 — search filters which cards show; it must not force-expand and
+  // ignore the collapse chevron / header toggle.
+  const expanded = !collapsible || !collapsed
   const hideBody = !expanded
   if (!settingsCardVisible(pinId, query)) return null
   const headerPadClass =
@@ -95,7 +93,7 @@ export function SettingsPinnableCard({
             <CollapseChevronButton
               expanded={expanded}
               aria-label={
-                collapsed && !searching
+                collapsed
                   ? t.settings.expandCardLabel
                   : t.settings.collapseCardLabel
               }

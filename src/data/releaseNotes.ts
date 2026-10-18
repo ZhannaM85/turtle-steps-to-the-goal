@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1074,
+    issue: 1103,
+    date: '2026-10-18T09:00:00Z',
+    en: 'On Settings, the card collapse control works again while you are searching.',
+    ru: 'В настройках кнопка сворачивания карточки снова работает во время поиска.',
+  },
+  {
     version: 1073,
     issue: 1102,
     date: '2026-10-18T08:55:00Z',
