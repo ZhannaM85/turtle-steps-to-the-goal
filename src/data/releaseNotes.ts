@@ -26,9 +26,16 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1079,
+    issue: 1106,
+    date: '2026-10-18T18:04:01Z',
+    en: 'Steps from Apple Health now match the daily total shown in the Health app.',
+    ru: 'Шаги из Apple Health теперь совпадают с дневным итогом в приложении «Здоровье».',
+  },
+  {
     version: 1078,
     issue: 1107,
-    date: '2026-10-18T18:05:00Z',
+    date: '2026-10-18T18:02:46Z',
     en: 'Steps synced from Apple Health stay saved when you leave the Day screen (higher daily step limit).',
     ru: 'Шаги из Apple Health сохраняются после ухода с экрана Дня (повышен дневной лимит шагов).',
   },

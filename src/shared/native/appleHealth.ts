@@ -1,10 +1,10 @@
 import { Capacitor } from '@capacitor/core'
 import { Health } from '@capgo/capacitor-health'
-import { endOfDay, format, parseISO, startOfDay, subDays } from 'date-fns'
+import { addDays, endOfDay, format, parseISO, startOfDay, subDays } from 'date-fns'
 import {
   aggregateSleepByWakeDay,
-  aggregateStepsByDay,
   aggregateWeightByDay,
+  mapAggregatedStepBuckets,
   mergeAppleHealthDayReadings,
   type AppleHealthDayReading,
 } from '@/features/settings/appleHealthAggregate'
@@ -107,6 +107,10 @@ export async function syncRecentAppleHealth(options?: {
   const endIso = healthKitIso(end)
   const windowStartIso = healthKitIso(weightStart)
 
+  // Capgo endDate is exclusive. Prefer queryAggregated for steps (#1106) —
+  // HealthKit statistics match the Health app day total (source dedupe).
+  const stepsEndExclusive = addDays(startOfDay(end), 1)
+
   const [weightResult, sleepResult, stepsResult, periodDates] =
     await Promise.all([
       Health.readSamples({
@@ -123,12 +127,12 @@ export async function syncRecentAppleHealth(options?: {
         limit: 5000,
         ascending: true,
       }),
-      Health.readSamples({
+      Health.queryAggregated({
         dataType: 'steps',
         startDate: windowStartIso,
-        endDate: endIso,
-        limit: 5000,
-        ascending: true,
+        endDate: healthKitIso(stepsEndExclusive),
+        bucket: 'day',
+        aggregation: 'sum',
       }),
       options?.includePeriod
         ? AppleHealthPeriod.syncRecentPeriodDays({ days })
@@ -151,7 +155,7 @@ export async function syncRecentAppleHealth(options?: {
       sleepState: s.sleepState,
     })),
   )
-  const steps = aggregateStepsByDay(
+  const steps = mapAggregatedStepBuckets(
     (stepsResult.samples ?? []).map((s) => ({
       startDate: s.startDate,
       value: s.value,
@@ -210,14 +214,15 @@ export async function syncAppleHealthDayField(
   }
 
   if (field === 'steps') {
-    const result = await Health.readSamples({
+    // Exclusive end = start of next local day (#1106 Capgo contract).
+    const result = await Health.queryAggregated({
       dataType: 'steps',
       startDate: healthKitIso(day),
-      endDate: dayEndIso,
-      limit: 2000,
-      ascending: true,
+      endDate: healthKitIso(addDays(day, 1)),
+      bucket: 'day',
+      aggregation: 'sum',
     })
-    const steps = aggregateStepsByDay(
+    const steps = mapAggregatedStepBuckets(
       (result.samples ?? []).map((s) => ({
         startDate: s.startDate,
         value: s.value,

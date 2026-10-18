@@ -3,6 +3,7 @@ import {
   aggregateSleepByWakeDay,
   aggregateStepsByDay,
   aggregateWeightByDay,
+  mapAggregatedStepBuckets,
   mergeAppleHealthDayReadings,
 } from './appleHealthAggregate'
 
@@ -46,20 +47,54 @@ describe('aggregateSleepByWakeDay', () => {
   })
 })
 
-describe('aggregateStepsByDay (#1104)', () => {
-  it('sums step samples onto the local start day', () => {
+describe('aggregateStepsByDay (#1104 / #1106)', () => {
+  it('sums samples from the same source onto the local start day', () => {
     const rows = aggregateStepsByDay([
-      { startDate: '2026-10-17T08:00:00.000Z', value: 3000 },
-      { startDate: '2026-10-17T14:00:00.000Z', value: 2500.4 },
-      { startDate: '2026-10-16T12:00:00.000Z', value: 1000 },
+      {
+        startDate: '2026-10-17T08:00:00.000Z',
+        value: 3000,
+        sourceId: 'watch',
+      },
+      {
+        startDate: '2026-10-17T14:00:00.000Z',
+        value: 2500.4,
+        sourceId: 'watch',
+      },
+      {
+        startDate: '2026-10-16T12:00:00.000Z',
+        value: 1000,
+        sourceId: 'watch',
+      },
     ])
-    expect(rows).toEqual(
-      expect.arrayContaining([
-        { date: expect.any(String), steps: 5500 },
-        { date: expect.any(String), steps: 1000 },
-      ]),
-    )
     expect(rows.find((r) => r.steps === 5500)).toBeDefined()
+    expect(rows.find((r) => r.steps === 1000)).toBeDefined()
+  })
+
+  it('keeps the dominant source per day instead of summing phone + watch (#1106)', () => {
+    const rows = aggregateStepsByDay([
+      {
+        startDate: '2026-10-18T08:00:00.000Z',
+        value: 13967,
+        sourceId: 'com.apple.health.watch',
+      },
+      {
+        startDate: '2026-10-18T08:00:00.000Z',
+        value: 14533,
+        sourceId: 'com.apple.health.phone',
+      },
+    ])
+    expect(rows).toHaveLength(1)
+    expect(rows[0]!.steps).toBe(14533)
+  })
+})
+
+describe('mapAggregatedStepBuckets (#1106)', () => {
+  it('maps Capgo day buckets onto local dates', () => {
+    expect(
+      mapAggregatedStepBuckets([
+        { startDate: '2026-10-18T00:00:00.000Z', value: 13967.2 },
+      ]),
+    ).toEqual([{ date: expect.any(String), steps: 13967 }])
   })
 })
 

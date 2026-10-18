@@ -29,6 +29,9 @@ export type AppleHealthDayReading = {
 export type AppleHealthStepsSample = {
   startDate: string
   value: number
+  /** Capgo / HealthKit source — used for dominant-source pick (#1106 / #385). */
+  sourceName?: string
+  sourceId?: string
 }
 
 /** Sleep stages that count toward total sleep hours (excludes in-bed / awake). */
@@ -90,20 +93,45 @@ export function aggregateSleepByWakeDay(
 }
 
 /**
- * #1104 — sum step-count samples onto the sample's local start day
- * (matches Android Health Connect #657).
+ * #1104 / #1106 — map Capgo `queryAggregated` day buckets (HealthKit
+ * cumulativeSum with OS dedupe) onto local calendar dates.
+ */
+export function mapAggregatedStepBuckets(
+  samples: { startDate: string; value: number }[],
+): { date: string; steps: number }[] {
+  return samples
+    .map((sample) => ({
+      date: localDateKey(sample.startDate),
+      steps: Math.round(sample.value),
+    }))
+    .filter((row) => Number.isFinite(row.steps) && row.steps > 0)
+}
+
+/**
+ * Fallback when only raw samples are available: sum per source per local
+ * day, then keep the **dominant** (highest) source — same as XML import #385.
+ * Do not sum across phone + watch (that double-counts vs Apple Health UI).
  */
 export function aggregateStepsByDay(
   samples: AppleHealthStepsSample[],
 ): { date: string; steps: number }[] {
-  const byDay = new Map<string, number>()
+  const byDay = new Map<string, Map<string, number>>()
   for (const sample of samples) {
     if (!Number.isFinite(sample.value) || sample.value <= 0) continue
     const date = localDateKey(sample.startDate)
-    byDay.set(date, (byDay.get(date) ?? 0) + sample.value)
+    const source = sample.sourceId ?? sample.sourceName ?? '__unknown__'
+    const sources = byDay.get(date) ?? new Map<string, number>()
+    sources.set(source, (sources.get(source) ?? 0) + sample.value)
+    byDay.set(date, sources)
   }
   return [...byDay.entries()]
-    .map(([date, total]) => ({ date, steps: Math.round(total) }))
+    .map(([date, sources]) => {
+      let max = 0
+      for (const total of sources.values()) {
+        if (total > max) max = total
+      }
+      return { date, steps: Math.round(max) }
+    })
     .filter((row) => row.steps > 0)
 }
 
