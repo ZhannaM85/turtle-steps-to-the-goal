@@ -43,12 +43,13 @@ _Live HealthKit sync from the native iOS shell (Settings), after App Store / Tes
 
 ## Tier 187 — Live feedback (2026-10-18)
 
-_Export share sheet; Settings search collapse; Apple Health steps + Day per-field sync._
+_Export share sheet; Settings search collapse; Apple Health steps + Day per-field sync; steps total mismatch._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1104](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1104) | 🔍 Pending validation | iOS HealthKit: steps sync on Settings Sync | Capgo `steps` on Settings Sync; `stepsFromAppleHealth` provenance; Info.plist + copy mention steps. |
 | [#1105](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1105) | 🔍 Pending validation | iOS Day: sync empty weight/sleep/steps from Health | HeartPulse control on empty Day fields (iOS native only); single-field Capgo read + provenance. |
+| [#1106](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1106) | ⬜ Open | iOS HealthKit: synced steps ≠ Apple Health day total | Build 10: Health 13 967 vs diary 28 500 for 2026-10-18; likely undeduplicated sample sum. |
 
 ---
 
