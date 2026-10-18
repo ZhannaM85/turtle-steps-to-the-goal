@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1073,
+    issue: 1102,
+    date: '2026-10-18T08:55:00Z',
+    en: 'Exporting a backup on the iPhone app works again for large diaries and opens the share sheet to choose where to save.',
+    ru: 'Экспорт резервной копии в приложении для iPhone снова работает для больших дневников и открывает меню «Поделиться», чтобы выбрать, куда сохранить файл.',
+  },
+  {
     version: 1072,
     issue: 1101,
     date: '2026-10-18T07:20:00Z',

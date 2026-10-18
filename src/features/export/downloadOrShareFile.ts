@@ -1,10 +1,14 @@
 /**
- * #1101 — web/PWA keeps `<a download>`; Capacitor WKWebView/Android WebView
- * does not surface a save-location UI for that path, so native writes the
- * blob to Cache and opens the system share sheet (Save to Files, etc.).
+ * #1101 / #1102 — web/PWA keeps `<a download>`; Capacitor WKWebView does not
+ * surface a save-location UI for that path, so native writes to Cache and
+ * opens the system share sheet.
+ *
+ * #1102: text/JSON must use UTF-8 write (large backups fail as base64 on
+ * device). Binary (xlsx/pdf) stays base64. Share uses `url` from
+ * `Filesystem.getUri` (more reliable on iOS than `files` alone).
  */
 import { Capacitor } from '@capacitor/core'
-import { Directory, Filesystem } from '@capacitor/filesystem'
+import { Directory, Encoding, Filesystem } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
 
 export class ShareCancelledError extends Error {
@@ -42,6 +46,17 @@ function isShareCancelError(err: unknown): boolean {
   return /cancel/i.test(message)
 }
 
+function isTextExport(blob: Blob, fileName: string): boolean {
+  if (
+    blob.type.startsWith('text/') ||
+    blob.type === 'application/json' ||
+    blob.type === 'application/csv'
+  ) {
+    return true
+  }
+  return /\.(json|md|csv|txt)$/i.test(fileName)
+}
+
 function downloadInBrowser(blob: Blob, fileName: string): void {
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
@@ -51,26 +66,58 @@ function downloadInBrowser(blob: Blob, fileName: string): void {
   URL.revokeObjectURL(url)
 }
 
-async function shareViaNativeSheet(blob: Blob, fileName: string): Promise<void> {
-  const data = await blobToBase64(blob)
+async function writeNativeShareFile(
+  blob: Blob,
+  fileName: string,
+): Promise<string> {
   const path = `exports/${fileName}`
-  const written = await Filesystem.writeFile({
+  if (isTextExport(blob, fileName)) {
+    await Filesystem.writeFile({
+      path,
+      data: await blob.text(),
+      directory: Directory.Cache,
+      encoding: Encoding.UTF8,
+      recursive: true,
+    })
+  } else {
+    await Filesystem.writeFile({
+      path,
+      data: await blobToBase64(blob),
+      directory: Directory.Cache,
+      recursive: true,
+    })
+  }
+  const { uri } = await Filesystem.getUri({
     path,
-    data,
     directory: Directory.Cache,
-    recursive: true,
   })
+  return uri
+}
+
+async function shareViaNativeSheet(blob: Blob, fileName: string): Promise<void> {
+  const uri = await writeNativeShareFile(blob, fileName)
   try {
     await Share.share({
       title: fileName,
-      files: [written.uri],
+      url: uri,
       dialogTitle: fileName,
     })
   } catch (err) {
     if (isShareCancelError(err)) {
       throw new ShareCancelledError()
     }
-    throw err
+    try {
+      await Share.share({
+        title: fileName,
+        files: [uri],
+        dialogTitle: fileName,
+      })
+    } catch (err2) {
+      if (isShareCancelError(err2)) {
+        throw new ShareCancelledError()
+      }
+      throw err2
+    }
   }
 }
 

@@ -48,7 +48,7 @@ _Native export share sheet / export-fail regression; Settings search vs card col
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1101](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1101) | 🔍 Pending validation | Native: Export backup save/share location (like PWA) | Shipped build 7; blocked on device by #1102 until export works again. |
-| [#1102](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1102) | ⬜ Open | Regression: native Export backup fails after #1101 | Build 7: «Не удалось выполнить экспорт» — no share sheet; PWA still OK. |
+| [#1102](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1102) | 🔍 Pending validation | Regression: native Export backup fails after #1101 | UTF-8 Cache write + Share.url (build 8); confirm large backup share sheet on device. |
 | [#1103](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1103) | ⬜ Open | Settings: collapse chevron dead while search active | Pre-existing; card ▲ does nothing when search (e.g. Экспорт) is applied. |
 
 ---
