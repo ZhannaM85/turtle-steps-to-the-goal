@@ -1085,3 +1085,4 @@ _Closed rows only. Open / pending items stay in the active file._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1100](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1100) | ✅ Done | Day: indicate weight/sleep synced from Apple Health | Confirmed on-device 2026-10-18. The Day screen identifies synced weight and sleep; indicators clear on edit or delete. |
+| [#1102](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1102) | ✅ Done | Regression: native Export backup fails after #1101 | Confirmed on-device 2026-10-18 (TestFlight build 9 / v1075). |
