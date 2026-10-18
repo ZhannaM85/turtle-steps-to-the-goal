@@ -214,6 +214,7 @@ by stripping every interior blank line back out).
 | 175 | 2026-09-25 | Prompted | While starting #993, ran `git status && git branch -vv && git log -5 --oneline` and later `ls node_modules/radix-ui 2>/dev/null; ls /tmp/cursor/async-install/install-user.status 2>/dev/null; ls package.json` — `&&` / `;` chaining and a redirect, even though each program alone is fine | CLAUDE.md "⚠️ Shell safety" / AGENT_WORKFLOW.md "compound shell shapes trigger permission prompts" |
 | 176 | 2026-09-26 | Prompted | At the start of #1008, ran `ls -la /workspace && ls -la /workspace/.cursor/rules && ls /workspace/docs` — `&&` chaining of three listings that should have been separate calls | CLAUDE.md "⚠️ Shell safety" / AGENT_WORKFLOW.md "compound shell shapes trigger permission prompts" |
 | 177 | 2026-10-08 | Instruction miss | Shipped #1089 goal label changes after unit tests without updating or running the goal browser flows. The copy-update script scanned only `.test.ts(x)`, missing `.spec.ts`; deployment failed on two stale goal selectors. Updated those selectors and ran the browser suite before the follow-up push. | AGENT_WORKFLOW.md per-issue checklist: run E2E when primary UI entry points change; affected consumers include browser tests |
+| 178 | 2026-10-18 | Instruction miss | Shipped #1104/#1105 (iOS HealthKit steps Sync + Day empty-field Health sync) with git push / Pages only, then told the user they were pending on-device validation. No TestFlight archive/upload → no TestFlight email; user could not validate native-only work on the phone. | Not yet documented → added AGENT_WORKFLOW.md "TestFlight after native iOS" + `.cursor/rules/testflight-after-native-ios.mdc` (Pages ≠ TestFlight) |
 
 ## Related standing fixes made because of this log
 
@@ -235,3 +236,8 @@ by stripping every interior blank line back out).
 - After row 172 (2026-08-11): same hardening for `gh issue edit` /
   `gh issue edit --body-file` (create-only wording left a gap when updating
   issue title/body after a sandbox spawn failure).
+- After row 178 (2026-10-18): native-iOS-only issues must get a TestFlight
+  build (bump `CURRENT_PROJECT_VERSION`, `npm run build`, `npx cap sync ios`,
+  archive/upload) in the same session as push — not Pages alone. See
+  AGENT_WORKFLOW.md "TestFlight after native iOS" and
+  `.cursor/rules/testflight-after-native-ios.mdc`.

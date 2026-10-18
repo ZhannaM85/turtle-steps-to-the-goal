@@ -189,6 +189,34 @@ user points out.
    pause in #4 above. (2026-08-09, #659: explicit user instruction,
    generalized into a standing rule here.)
 
+## TestFlight after native iOS (Pages ≠ phone)
+
+**2026-10-18 / #1104+#1105:** git push + green Pages is **not** a TestFlight
+release. Capacitor embeds `dist/` in the IPA; HealthKit / Info.plist / native
+plugins / `Capacitor.isNativePlatform()`-only UI never reach the phone until
+a new build is archived and uploaded to App Store Connect.
+
+When shipping **native-iOS-only** work (anything under `ios/`, HealthKit /
+Apple Health / Capgo Health / native plugins, or Day/Settings controls gated
+to iOS Capacitor), **in the same session as the implementation push** unless
+the user explicitly defers:
+
+1. Bump `CURRENT_PROJECT_VERSION` in `ios/App/App.xcodeproj/project.pbxproj`
+   (integer build number; do not reuse).
+2. `npm run build` (plain `/` base — **not** the Pages `--base=…` build).
+3. `npx cap sync ios`.
+4. Archive + upload to App Store Connect (CLI `xcodebuild` or Xcode Organizer —
+   use whatever already works on this Mac).
+5. Tell the user the **new build number** and that TestFlight processing may
+   take minutes (email / app update).
+
+Do **not** leave “TestFlight if needed” as an unchecked todo after push, or
+ask them to validate iOS-only HealthKit UI on the PWA. Local always-apply
+rule: `.cursor/rules/testflight-after-native-ios.mdc` (`.cursor/` is
+gitignored — this section is the checked-in copy).
+
+Web/docs-only issues: skip.
+
 ## Release notes vs. implementation notes
 
 `src/data/releaseNotes.ts` entries are **end-user-facing** copy shown in
