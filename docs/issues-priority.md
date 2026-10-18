@@ -43,13 +43,14 @@ _Live HealthKit sync from the native iOS shell (Settings), after App Store / Tes
 
 ---
 
-## Tier 187 — Apple Health sync provenance UI (2026-10-18)
+## Tier 187 — Live feedback (2026-10-18)
 
-_After live Sync worked on-device: show that weight/sleep came from Apple Health (Day ⓘ tooltips)._
+_Apple Health sync provenance on Day; native export missing save/share sheet vs PWA._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1100](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1100) | 🔍 Pending validation | Day: indicate weight/sleep synced from Apple Health | weightFromAppleHealth / sleepFromAppleHealth + Day ⓘ tip; cleared on edit/delete. |
+| [#1101](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1101) | ⬜ Open | Native: Export backup save/share location (like PWA) | Capacitor `<a download>` shows success but no Files/share UI; PWA Safari does. |
 
 ---
 
