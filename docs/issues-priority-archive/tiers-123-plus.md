@@ -1075,3 +1075,13 @@ _Allow Dependabot to update `sharp` to the non-vulnerable release; ship live Hea
 | [#1097](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1097) | ✅ Done | Unblock Dependabot security updates for sharp | Updated the sharp override and lockfile to 0.35.5 in commit 4b6afaf90; the GitHub Pages deployment succeeded in run 39049006895. |
 | [#1098](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1098) | ✅ Done | iOS HealthKit: weight + sleep sync (Settings) | Confirmed on-device 2026-10-18. HealthKit weight and sleep sync works in Settings (build 3). |
 | [#1099](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1099) | ✅ Done | iOS HealthKit: period / menstrual flow → onPeriod | Confirmed on-device 2026-10-18. HealthKit period sync and the Cycle control under Health access work as expected. |
+
+---
+
+## Tier 187 — Live feedback (2026-10-18)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1100](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1100) | ✅ Done | Day: indicate weight/sleep synced from Apple Health | Confirmed on-device 2026-10-18. The Day screen identifies synced weight and sleep; indicators clear on edit or delete. |
