@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { openPdfPreview } from './sharePdfFile'
 
+vi.mock('@capacitor/core', () => ({
+  Capacitor: {
+    isNativePlatform: () => false,
+  },
+}))
+
 function pdfBlob(): Blob {
   return new Blob(['%PDF-1.4 mock'], { type: 'application/pdf' })
 }
@@ -23,12 +29,12 @@ describe('sharePdfFile (#961)', () => {
     vi.restoreAllMocks()
   })
 
-  it('opens the PDF in the browser viewer before the user chooses Share or Save', () => {
+  it('opens the PDF in the browser viewer before the user chooses Share or Save', async () => {
     const { createObjectURL, click } = stubDownload()
     const anchor = document.createElement('a')
     const createElement = vi.spyOn(document, 'createElement').mockReturnValue(anchor)
 
-    openPdfPreview(pdfBlob())
+    await openPdfPreview(pdfBlob())
 
     expect(createObjectURL).toHaveBeenCalledTimes(1)
     expect(createObjectURL).toHaveBeenCalledWith(expect.any(Blob))
@@ -38,11 +44,11 @@ describe('sharePdfFile (#961)', () => {
     expect(createElement).toHaveBeenCalledWith('a')
   })
 
-  it('keeps the preview URL alive long enough for the iOS viewer', () => {
+  it('keeps the preview URL alive long enough for the iOS viewer', async () => {
     vi.useFakeTimers()
     stubDownload()
 
-    openPdfPreview(pdfBlob())
+    await openPdfPreview(pdfBlob())
     expect(URL.revokeObjectURL).not.toHaveBeenCalled()
 
     vi.advanceTimersByTime(60_000)

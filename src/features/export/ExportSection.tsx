@@ -26,6 +26,10 @@ import {
 import { EncryptedBackupExportDialog } from './EncryptedBackupExportDialog'
 import { EncryptedBackupImportDialog } from './EncryptedBackupImportDialog'
 import {
+  downloadOrShareFile,
+  ShareCancelledError,
+} from './downloadOrShareFile'
+import {
   exportAllData,
   importAllData,
   InvalidBackupFileError,
@@ -100,19 +104,19 @@ export function ExportSection() {
       const bundle = await exportAllData()
       const json = JSON.stringify(bundle, null, 2)
       const blob = new Blob([json], { type: 'application/json' })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `turtle-steps-backup-${format(new Date(), 'yyyy-MM-dd')}.json`
-      link.click()
-      URL.revokeObjectURL(url)
+      const fileName = `turtle-steps-backup-${format(new Date(), 'yyyy-MM-dd')}.json`
+      await downloadOrShareFile(blob, fileName)
       recordBackupExport()
       setStatus({
         kind: 'exported',
         goals: bundle.goals.length,
         entries: bundle.dailyEntries.length,
       })
-    } catch {
+    } catch (err) {
+      if (err instanceof ShareCancelledError) {
+        setStatus({ kind: 'idle' })
+        return
+      }
       setStatus({
         kind: 'error',
         section: 'jsonBackup',
@@ -130,16 +134,16 @@ export function ExportSection() {
       const blob = new Blob([JSON.stringify(envelope)], {
         type: 'application/json',
       })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `turtle-steps-backup-${format(new Date(), 'yyyy-MM-dd')}.encrypted.json`
-      link.click()
-      URL.revokeObjectURL(url)
+      const fileName = `turtle-steps-backup-${format(new Date(), 'yyyy-MM-dd')}.encrypted.json`
+      await downloadOrShareFile(blob, fileName)
       recordBackupExport()
       setIsEncryptedExportDialogOpen(false)
       setStatus({ kind: 'exportedEncrypted' })
-    } catch {
+    } catch (err) {
+      if (err instanceof ShareCancelledError) {
+        setStatus({ kind: 'idle' })
+        return
+      }
       setStatus({
         kind: 'error',
         section: 'encryptedBackup',

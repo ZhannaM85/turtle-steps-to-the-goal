@@ -50,7 +50,7 @@ _Apple Health sync provenance on Day; native export missing save/share sheet vs 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1100](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1100) | 🔍 Pending validation | Day: indicate weight/sleep synced from Apple Health | weightFromAppleHealth / sleepFromAppleHealth + Day ⓘ tip; cleared on edit/delete. |
-| [#1101](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1101) | ⬜ Open | Native: Export backup save/share location (like PWA) | Capacitor `<a download>` shows success but no Files/share UI; PWA Safari does. |
+| [#1101](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1101) | 🔍 Pending validation | Native: Export backup save/share location (like PWA) | Native Cache + Share sheet for backup and other file exports; web/PWA unchanged. |
 
 ---
 

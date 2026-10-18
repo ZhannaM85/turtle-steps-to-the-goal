@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1072,
+    issue: 1101,
+    date: '2026-10-18T07:20:00Z',
+    en: 'On the iPhone and Android apps, exporting a backup opens the system share sheet so you can choose where to save the file.',
+    ru: 'В приложениях для iPhone и Android при экспорте резервной копии открывается системное меню «Поделиться», чтобы выбрать, куда сохранить файл.',
+  },
+  {
     version: 1071,
     issue: 1100,
     date: '2026-10-18T00:40:00Z',

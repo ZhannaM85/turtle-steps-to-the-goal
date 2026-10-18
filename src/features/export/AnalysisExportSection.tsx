@@ -18,6 +18,10 @@ import {
   InfoTooltip,
 } from '@/shared/ui/info-tooltip'
 import { currentAnalysisExportTracking } from './analysisExportTracking'
+import {
+  downloadOrShareFile,
+  ShareCancelledError,
+} from './downloadOrShareFile'
 import { exportAllData } from './exportActions'
 import { buildDailyLogCsv, CSV_BOM } from './exportCsv'
 import {
@@ -85,18 +89,18 @@ export function AnalysisExportSection({ children }: { children?: ReactNode }) {
       const rangedBundle = { ...bundle, dailyEntries, customMetricEntries }
       const json = JSON.stringify(rangedBundle, null, 2)
       const blob = new Blob([json], { type: 'application/json' })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `${resolveExportFileStem(fileStem, periodStart, periodEnd)}.json`
-      link.click()
-      URL.revokeObjectURL(url)
+      const fileName = `${resolveExportFileStem(fileStem, periodStart, periodEnd)}.json`
+      await downloadOrShareFile(blob, fileName)
       setStatus({
         kind: 'exportedRangedBackup',
         goals: rangedBundle.goals.length,
         entries: dailyEntries.length,
       })
-    } catch {
+    } catch (err) {
+      if (err instanceof ShareCancelledError) {
+        setStatus({ kind: 'idle' })
+        return
+      }
       setStatus({
         kind: 'error',
         section: 'rangedBackup',
@@ -132,18 +136,18 @@ export function AnalysisExportSection({ children }: { children?: ReactNode }) {
       const blob = new Blob([buffer], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `${resolveExportFileStem(fileStem, periodStart, periodEnd)}.xlsx`
-      link.click()
-      URL.revokeObjectURL(url)
+      const fileName = `${resolveExportFileStem(fileStem, periodStart, periodEnd)}.xlsx`
+      await downloadOrShareFile(blob, fileName)
       setStatus({
         kind: 'exportedExcel',
         goals: bundle.goals.length,
         entries: dailyEntries.length,
       })
-    } catch {
+    } catch (err) {
+      if (err instanceof ShareCancelledError) {
+        setStatus({ kind: 'idle' })
+        return
+      }
       setStatus({
         kind: 'error',
         section: 'excel',
@@ -170,14 +174,14 @@ export function AnalysisExportSection({ children }: { children?: ReactNode }) {
         goals: bundle.goals,
       })
       const blob = new Blob([CSV_BOM, csv], { type: 'text/csv' })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `${resolveExportFileStem(fileStem, periodStart, periodEnd)}.csv`
-      link.click()
-      URL.revokeObjectURL(url)
+      const fileName = `${resolveExportFileStem(fileStem, periodStart, periodEnd)}.csv`
+      await downloadOrShareFile(blob, fileName)
       setStatus({ kind: 'exportedCsv', entries: dailyEntries.length })
-    } catch {
+    } catch (err) {
+      if (err instanceof ShareCancelledError) {
+        setStatus({ kind: 'idle' })
+        return
+      }
       setStatus({
         kind: 'error',
         section: 'csv',
@@ -204,17 +208,17 @@ export function AnalysisExportSection({ children }: { children?: ReactNode }) {
         goals: bundle.goals,
       })
       const blob = new Blob([markdown], { type: 'text/markdown' })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `${resolveExportFileStem(fileStem, periodStart, periodEnd)}.md`
-      link.click()
-      URL.revokeObjectURL(url)
+      const fileName = `${resolveExportFileStem(fileStem, periodStart, periodEnd)}.md`
+      await downloadOrShareFile(blob, fileName)
       setStatus({
         kind: 'exportedMarkdown',
         entries: dailyEntries.length,
       })
-    } catch {
+    } catch (err) {
+      if (err instanceof ShareCancelledError) {
+        setStatus({ kind: 'idle' })
+        return
+      }
       setStatus({
         kind: 'error',
         section: 'markdown',

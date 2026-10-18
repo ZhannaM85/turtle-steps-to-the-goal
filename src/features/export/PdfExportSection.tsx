@@ -45,6 +45,7 @@ import type { DailyLogPdfInput } from './exportPdfDailyLog'
 import { PdfSectionsDialog } from './PdfSectionsDialog'
 import { sectionErrorMessage } from './exportSectionStatus'
 import { SectionStatus } from './SectionStatus'
+import { ShareCancelledError } from './downloadOrShareFile'
 import { openPdfPreview } from './sharePdfFile'
 
 type Status =
@@ -223,10 +224,17 @@ export function PdfExportSection() {
         pdfCustomMetricSummaries,
         dailyLog,
       )
-      openPdfPreview(blob)
+      await openPdfPreview(
+        blob,
+        `turtle-steps-summary-${format(new Date(), 'yyyy-MM-dd')}.pdf`,
+      )
       setPdfSectionsDialogOpen(false)
       setStatus({ kind: 'exportedPdf' })
-    } catch {
+    } catch (err) {
+      if (err instanceof ShareCancelledError) {
+        setStatus({ kind: 'idle' })
+        return
+      }
       setStatus({
         kind: 'error',
         section: 'pdf',
