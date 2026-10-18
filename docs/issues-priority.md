@@ -47,7 +47,6 @@ _Native export share sheet / export-fail regression; Settings search vs card col
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1101](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1101) | 🔍 Pending validation | Native: Export backup save/share location (like PWA) | Export share path works on build 9 / v1075 (#1102 closed); awaiting explicit #1101 close. |
 | [#1103](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1103) | 🔍 Pending validation | Settings: collapse chevron dead while search active | Search no longer force-expands cards; chevron/header toggle respected. |
 
 ---
