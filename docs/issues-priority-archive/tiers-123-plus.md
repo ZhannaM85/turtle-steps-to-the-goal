@@ -1066,10 +1066,11 @@ _Closed rows only. Open / pending items stay in the active file._
 
 ---
 
-## Tier 186 — Dependency security (2026-10-17)
+## Tier 186 — Dependency security and Apple HealthKit live sync (2026-10-17)
 
-_Allow Dependabot to update `sharp` to the non-vulnerable release._
+_Allow Dependabot to update `sharp` to the non-vulnerable release; ship live HealthKit sync from the native iOS shell._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1097](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1097) | ✅ Done | Unblock Dependabot security updates for sharp | Updated the sharp override and lockfile to 0.35.5 in commit 4b6afaf90; the GitHub Pages deployment succeeded in run 39049006895. |
+| [#1098](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1098) | ✅ Done | iOS HealthKit: weight + sleep sync (Settings) | Confirmed on-device 2026-10-18. HealthKit weight and sleep sync works in Settings (build 3). |
