@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core'
 import { Health } from '@capgo/capacitor-health'
-import { format, startOfDay, subDays } from 'date-fns'
+import { endOfDay, format, parseISO, startOfDay, subDays } from 'date-fns'
 import {
   aggregateSleepByWakeDay,
   aggregateStepsByDay,
@@ -12,6 +12,15 @@ import { HEALTH_CONNECT_RECENT_DAYS } from '@/features/settings/applyHealthConne
 import { AppleHealthPeriod } from '@/shared/native/appleHealthPeriod'
 
 export type { AppleHealthDayReading }
+
+export type AppleHealthSyncField = 'weight' | 'sleep' | 'steps'
+
+/** #1105 — Day empty-field control: native iOS only (not web/PWA/Android). */
+export function isAppleHealthDayFieldSyncAvailable(): boolean {
+  return (
+    Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios'
+  )
+}
 
 /**
  * Capgo HealthKit uses `ISO8601DateFormatter` with `.withFractionalSeconds`,
@@ -157,4 +166,82 @@ export async function syncRecentAppleHealth(options?: {
     steps,
     periodDates: periodInRange,
   }).filter((row) => row.date >= rangeStartKey)
+}
+
+/** #1105 — request read for a single Day-field sync. */
+export async function requestAppleHealthFieldPermission(
+  field: AppleHealthSyncField,
+): Promise<boolean> {
+  const status = await Health.requestAuthorization({
+    read: [field],
+  })
+  const readAuthorized = status.readAuthorized ?? []
+  const readDenied = status.readDenied ?? []
+  return readAuthorized.includes(field) || !readDenied.includes(field)
+}
+
+/**
+ * #1105 — read one HealthKit metric for a single local calendar day.
+ * Returns null when there is no sample for that field/day.
+ */
+export async function syncAppleHealthDayField(
+  date: string,
+  field: AppleHealthSyncField,
+): Promise<AppleHealthDayReading | null> {
+  const day = startOfDay(parseISO(date))
+  const dayEnd = endOfDay(day)
+  const dayEndIso = healthKitIso(dayEnd)
+
+  if (field === 'weight') {
+    const result = await Health.readSamples({
+      dataType: 'weight',
+      startDate: healthKitIso(day),
+      endDate: dayEndIso,
+      limit: 50,
+      ascending: false,
+    })
+    const weights = aggregateWeightByDay(
+      (result.samples ?? []).map((s) => ({
+        startDate: s.startDate,
+        value: s.value,
+      })),
+    ).filter((row) => row.date === date)
+    return mergeAppleHealthDayReadings({ weights })[0] ?? null
+  }
+
+  if (field === 'steps') {
+    const result = await Health.readSamples({
+      dataType: 'steps',
+      startDate: healthKitIso(day),
+      endDate: dayEndIso,
+      limit: 2000,
+      ascending: true,
+    })
+    const steps = aggregateStepsByDay(
+      (result.samples ?? []).map((s) => ({
+        startDate: s.startDate,
+        value: s.value,
+      })),
+    ).filter((row) => row.date === date)
+    return mergeAppleHealthDayReadings({ steps })[0] ?? null
+  }
+
+  // Sleep: overnight samples ending on `date` may start the previous evening.
+  const sleepStart = startOfDay(subDays(day, 1))
+  const result = await Health.readSamples({
+    dataType: 'sleep',
+    startDate: healthKitIso(sleepStart),
+    endDate: dayEndIso,
+    limit: 2000,
+    ascending: true,
+  })
+  const sleep = aggregateSleepByWakeDay(
+    (result.samples ?? []).map((s) => ({
+      startDate: s.startDate,
+      endDate: s.endDate,
+      value: s.value,
+      sleepState: s.sleepState,
+    })),
+  ).filter((row) => row.date === date)
+  return mergeAppleHealthDayReadings({ sleep })[0] ?? null
 }

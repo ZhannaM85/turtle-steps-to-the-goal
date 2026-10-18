@@ -7,6 +7,7 @@ import {
   EntryFieldComparisonInfo,
   EntryFieldComparisonLive,
 } from './EntryFieldComparison'
+import { AppleHealthDayFieldSyncButton } from './AppleHealthDayFieldSyncButton'
 import {
   DayFieldEditActions,
   DayFieldHeader,
@@ -124,6 +125,17 @@ export function DailyEntryFormMorningSleepField() {
                     label={t.dailyEntry.sleepLabel}
                     actions={
                       <>
+                        <AppleHealthDayFieldSyncButton
+                          field="sleep"
+                          date={state.date}
+                          empty={!state.canDeleteSleep}
+                          onApplied={(reading) => {
+                            state.applyAppleHealthSleep({
+                              sleepHours: reading.sleepHours,
+                              deepSleepHours: reading.deepSleepHours,
+                            })
+                          }}
+                        />
                         <AutoSleepScreenshotFillControl
                           asOfDate={state.date}
                           onConfirm={state.applySleepPatch}

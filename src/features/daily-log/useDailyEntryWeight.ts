@@ -19,6 +19,7 @@ export function useDailyEntryWeight({
   setError,
   clearErrors,
   persist,
+  persistWithAppleHealth,
   previousDayEntry,
 }: DailyEntryFormFieldApi & { previousDayEntry: DailyEntry | null }) {
   const [isEditingWeight, setIsEditingWeight] = useState(
@@ -88,6 +89,19 @@ export function useDailyEntryWeight({
     setHasSavedWeight(false)
   }
 
+  /** #1105 — fill empty weight from Apple Health and mark provenance. */
+  function applyAppleHealthWeight(weightKg: number) {
+    setValue('weightKg', weightKg, { shouldDirty: true })
+    clearErrors('weightKg')
+    setPendingUnusualWeight(null)
+    setIsEditingWeight(false)
+    setHasSavedWeight(true)
+    persistWithAppleHealth(
+      { ...getValues(), weightKg },
+      { weightFromAppleHealth: true },
+    )
+  }
+
   return {
     showWeightAsDisplay,
     isEditingWeight,
@@ -102,5 +116,6 @@ export function useDailyEntryWeight({
     requestDeleteWeight,
     confirmDeleteWeight,
     cancelDeleteWeight,
+    applyAppleHealthWeight,
   }
 }

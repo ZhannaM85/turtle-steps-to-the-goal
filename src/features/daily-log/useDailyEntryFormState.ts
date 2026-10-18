@@ -270,6 +270,52 @@ export function useDailyEntryFormState({
     )
   }
 
+  /** #1105 — Day-field Health sync: write values + provenance in one save. */
+  function persistWithAppleHealth(
+    values: DailyEntryFormValues,
+    flags: {
+      weightFromAppleHealth?: boolean
+      sleepFromAppleHealth?: boolean
+      stepsFromAppleHealth?: boolean
+    },
+  ) {
+    const sanitized = sanitizeDailyEntryFormValues(
+      values,
+      initialValues,
+      savedNotesRef.current,
+    )
+    const entry = formValuesToEntry(sanitized, date, entryIdentity, {
+      ...existingEntry,
+      ...(flags.weightFromAppleHealth
+        ? {
+            weightKg: sanitized.weightKg,
+            weightFromAppleHealth: true,
+          }
+        : {}),
+      ...(flags.sleepFromAppleHealth
+        ? {
+            sleepHours: sanitized.sleepHours,
+            deepSleepHours: sanitized.deepSleepHours,
+            sleepFromAppleHealth: true,
+          }
+        : {}),
+      ...(flags.stepsFromAppleHealth
+        ? {
+            steps: sanitized.steps,
+            stepsFromAppleHealth: true,
+          }
+        : {}),
+    })
+    onSave({
+      ...entry,
+      ...(flags.weightFromAppleHealth
+        ? { weightFromAppleHealth: true }
+        : {}),
+      ...(flags.sleepFromAppleHealth ? { sleepFromAppleHealth: true } : {}),
+      ...(flags.stepsFromAppleHealth ? { stepsFromAppleHealth: true } : {}),
+    })
+  }
+
   const fieldApi = {
     alwaysEditable,
     initialValues,
@@ -280,6 +326,7 @@ export function useDailyEntryFormState({
     setError,
     clearErrors,
     persist,
+    persistWithAppleHealth,
   }
   const weight = useDailyEntryWeight({
     ...fieldApi,

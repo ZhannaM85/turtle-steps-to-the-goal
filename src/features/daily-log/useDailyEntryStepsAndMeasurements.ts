@@ -17,6 +17,7 @@ export function useDailyEntryStepsAndMeasurements({
   setError,
   clearErrors,
   persist,
+  persistWithAppleHealth,
 }: DailyEntryFormFieldApi) {
   const [isConfirmingDeleteSteps, setIsConfirmingDeleteSteps] = useState(false)
   const [savedSteps, setSavedSteps] = useState(initialValues.steps)
@@ -78,6 +79,15 @@ export function useDailyEntryStepsAndMeasurements({
     clearErrors('steps')
     setIsEditingSteps(true)
     setSavedSteps(undefined)
+  }
+
+  /** #1105 — fill empty steps from Apple Health and mark provenance. */
+  function applyAppleHealthSteps(steps: number) {
+    setValue('steps', steps, { shouldDirty: true })
+    clearErrors('steps')
+    setIsEditingSteps(false)
+    setSavedSteps(steps)
+    persistWithAppleHealth({ ...getValues(), steps }, { stepsFromAppleHealth: true })
   }
 
   function saveBodyMeasurements() {
@@ -146,6 +156,7 @@ export function useDailyEntryStepsAndMeasurements({
     requestDeleteSteps,
     confirmDeleteSteps,
     cancelDeleteSteps,
+    applyAppleHealthSteps,
     showBodyMeasurementsAsDisplay,
     setIsEditingBodyMeasurements,
     saveBodyMeasurements,

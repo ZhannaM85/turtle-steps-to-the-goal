@@ -28,7 +28,7 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 🛠 Partial | Epic — Apple Health integration | #1098/#1099 validated. Steps Sync (#1104) pending validation. Next: Day empty-field Health sync (#1105). Not water/background. Manual XML remains #366. |
+| [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 🛠 Partial | Epic — Apple Health integration | #1098/#1099 validated. #1104/#1105 pending validation. Not water/background. Manual XML remains #366. |
 
 ---
 
@@ -48,7 +48,7 @@ _Export share sheet; Settings search collapse; Apple Health steps + Day per-fiel
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1104](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1104) | 🔍 Pending validation | iOS HealthKit: steps sync on Settings Sync | Capgo `steps` on Settings Sync; `stepsFromAppleHealth` provenance; Info.plist + copy mention steps. |
-| [#1105](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1105) | ⬜ Open | iOS Day: sync empty weight/sleep/steps from Health | Native-only control beside empty fields; avoid trademark Apple logo asset. |
+| [#1105](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1105) | 🔍 Pending validation | iOS Day: sync empty weight/sleep/steps from Health | HeartPulse control on empty Day fields (iOS native only); single-field Capgo read + provenance. |
 
 ---
 

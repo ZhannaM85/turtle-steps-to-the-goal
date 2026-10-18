@@ -380,6 +380,13 @@ export const dailyEntry: DailyEntryDict = {
     appleHealthSyncedWeightHint: 'Synced from Apple Health',
     appleHealthSyncedSleepHint: 'Synced from Apple Health',
     appleHealthSyncedStepsHint: 'Synced from Apple Health',
+    appleHealthSyncWeightLabel: 'Sync weight from Apple Health',
+    appleHealthSyncSleepLabel: 'Sync sleep from Apple Health',
+    appleHealthSyncStepsLabel: 'Sync steps from Apple Health',
+    appleHealthFieldSyncDeniedMessage:
+      'Apple Health access denied. Enable it in Settings → Health → Data Access.',
+    appleHealthFieldSyncNoDataMessage: 'No Apple Health data for this day.',
+    appleHealthFieldSyncErrorMessage: 'Couldn’t sync from Apple Health.',
     onPeriodLabel: 'On period',
     hadConstipationLabel: 'Constipation',
     hadConstipationNoOption: 'No',

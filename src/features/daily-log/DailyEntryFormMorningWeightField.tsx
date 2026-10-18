@@ -6,6 +6,7 @@ import {
   EntryFieldComparisonInfo,
   EntryFieldComparisonLive,
 } from './EntryFieldComparison'
+import { AppleHealthDayFieldSyncButton } from './AppleHealthDayFieldSyncButton'
 import {
   DayFieldEditActions,
   DayFieldHeader,
@@ -103,16 +104,27 @@ export function DailyEntryFormMorningWeightField() {
                 <DayFieldHeader
                   label={t.dailyEntry.weightLabel}
                   actions={
-                    <DayFieldEditActions
-                      saveLabel={t.dailyEntry.saveWeightLabel}
-                      onSave={state.saveWeight}
-                      cancelLabel={t.dailyEntry.cancelEditWeightLabel}
-                      onCancel={state.cancelEditWeight}
-                      showCancel={state.canCancelWeightEdit}
-                      deleteLabel={t.dailyEntry.deleteWeightLabel}
-                      onDelete={state.requestDeleteWeight}
-                      showDelete={state.canDeleteWeight}
-                    />
+                    <>
+                      <AppleHealthDayFieldSyncButton
+                        field="weight"
+                        date={state.date}
+                        empty={!state.canDeleteWeight}
+                        onApplied={(reading) => {
+                          if (reading.weightKg === undefined) return
+                          state.applyAppleHealthWeight(reading.weightKg)
+                        }}
+                      />
+                      <DayFieldEditActions
+                        saveLabel={t.dailyEntry.saveWeightLabel}
+                        onSave={state.saveWeight}
+                        cancelLabel={t.dailyEntry.cancelEditWeightLabel}
+                        onCancel={state.cancelEditWeight}
+                        showCancel={state.canCancelWeightEdit}
+                        deleteLabel={t.dailyEntry.deleteWeightLabel}
+                        onDelete={state.requestDeleteWeight}
+                        showDelete={state.canDeleteWeight}
+                      />
+                    </>
                   }
                 />
                 <Input

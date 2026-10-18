@@ -20,6 +20,7 @@ export function useDailyEntrySleep({
   setError,
   clearErrors,
   persist,
+  persistWithAppleHealth,
 }: DailyEntryFormFieldApi) {
   const [hasSavedSleep, setHasSavedSleep] = useState(
     initialValues.sleepHours !== undefined ||
@@ -124,6 +125,37 @@ export function useDailyEntrySleep({
     )
   }
 
+  /** #1105 — fill empty sleep from Apple Health and mark provenance. */
+  function applyAppleHealthSleep(patch: {
+    sleepHours?: number
+    deepSleepHours?: number
+  }) {
+    const sleepHoursValue = patch.sleepHours
+    const deepSleepHoursValue = patch.deepSleepHours
+    const sleepParts = splitHoursMinutes(sleepHoursValue)
+    const deepParts = splitHoursMinutes(deepSleepHoursValue)
+    setSleepHoursPart(sleepParts.hours)
+    setSleepMinutesPart(sleepParts.minutes)
+    setDeepSleepHoursPart(deepParts.hours)
+    setDeepSleepMinutesPart(deepParts.minutes)
+    clearErrors('sleepHours')
+    clearErrors('deepSleepHours')
+    setValue('sleepHours', sleepHoursValue, { shouldDirty: true })
+    setValue('deepSleepHours', deepSleepHoursValue, { shouldDirty: true })
+    setIsEditingSleep(false)
+    setHasSavedSleep(
+      sleepHoursValue !== undefined || deepSleepHoursValue !== undefined,
+    )
+    persistWithAppleHealth(
+      {
+        ...getValues(),
+        sleepHours: sleepHoursValue,
+        deepSleepHours: deepSleepHoursValue,
+      },
+      { sleepFromAppleHealth: true },
+    )
+  }
+
   function cancelEditSleep() {
     setValue('sleepHours', initialValues.sleepHours)
     setValue('deepSleepHours', initialValues.deepSleepHours)
@@ -176,6 +208,7 @@ export function useDailyEntrySleep({
     setDeepSleepMinutesPart,
     saveSleep,
     applySleepPatch,
+    applyAppleHealthSleep,
     canCancelSleepEdit,
     cancelEditSleep,
     isConfirmingDeleteSleep,

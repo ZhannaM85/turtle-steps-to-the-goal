@@ -19,4 +19,13 @@ export type DailyEntryFormFieldApi = {
   setError: UseFormSetError<DailyEntryFormValues>
   clearErrors: UseFormClearErrors<DailyEntryFormValues>
   persist: (values: DailyEntryFormValues) => void
+  /** #1105 — persist after Day-field Apple Health sync with provenance flags. */
+  persistWithAppleHealth: (
+    values: DailyEntryFormValues,
+    flags: {
+      weightFromAppleHealth?: boolean
+      sleepFromAppleHealth?: boolean
+      stepsFromAppleHealth?: boolean
+    },
+  ) => void
 }

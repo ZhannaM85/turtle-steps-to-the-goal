@@ -26,9 +26,16 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1077,
+    issue: 1105,
+    date: '2026-10-18T16:00:00Z',
+    en: 'On iPhone, empty Day weight, sleep, or steps can sync that field alone from Apple Health.',
+    ru: 'На iPhone пустые поля веса, сна или шагов на экране Дня можно отдельно синхронизировать из Apple Health.',
+  },
+  {
     version: 1076,
     issue: 1104,
-    date: '2026-10-18T15:50:00Z',
+    date: '2026-10-18T15:49:01Z',
     en: 'On iPhone, Settings → Apple Health Sync also pulls step counts for recent days.',
     ru: 'На iPhone синхронизация Apple Health в настройках также подтягивает шаги за последние дни.',
   },

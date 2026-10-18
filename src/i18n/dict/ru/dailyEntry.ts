@@ -388,6 +388,13 @@ export const dailyEntry: DailyEntryDict = {
     appleHealthSyncedWeightHint: 'Синхронизировано из Apple Health',
     appleHealthSyncedSleepHint: 'Синхронизировано из Apple Health',
     appleHealthSyncedStepsHint: 'Синхронизировано из Apple Health',
+    appleHealthSyncWeightLabel: 'Синхронизировать вес из Apple Health',
+    appleHealthSyncSleepLabel: 'Синхронизировать сон из Apple Health',
+    appleHealthSyncStepsLabel: 'Синхронизировать шаги из Apple Health',
+    appleHealthFieldSyncDeniedMessage:
+      'Доступ к Apple Health не предоставлен. Включите в Настройки → Здоровье → Доступ к данным.',
+    appleHealthFieldSyncNoDataMessage: 'В Apple Health нет данных за этот день.',
+    appleHealthFieldSyncErrorMessage: 'Не удалось синхронизировать из Apple Health.',
     onPeriodLabel: 'Менструация',
     hadConstipationLabel: 'Запор',
     hadConstipationNoOption: 'Нет',

@@ -1,4 +1,5 @@
 import { Moon } from 'lucide-react'
+import { AppleHealthDayFieldSyncButton } from './AppleHealthDayFieldSyncButton'
 import { formatNumber } from '@/i18n'
 import { DAY_EMOTIONS } from '@/shared/lib/emotionIcons'
 import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
@@ -119,17 +120,28 @@ export function DailyEntryFormBottom() {
                   <DayFieldHeader
                     label={t.dailyEntry.stepsLabel}
                     actions={
-                      <DayFieldEditActions
-                        saveLabel={t.dailyEntry.saveStepsLabel}
-                        onSave={state.saveSteps}
-                        saveDisabled={isBlankSaveValue(state.steps)}
-                        cancelLabel={t.dailyEntry.cancelEditStepsLabel}
-                        onCancel={state.cancelEditSteps}
-                        showCancel={state.canCancelStepsEdit}
-                        deleteLabel={t.dailyEntry.deleteStepsLabel}
-                        onDelete={state.requestDeleteSteps}
-                        showDelete={state.canDeleteSteps}
-                      />
+                      <>
+                        <AppleHealthDayFieldSyncButton
+                          field="steps"
+                          date={state.date}
+                          empty={!state.canDeleteSteps}
+                          onApplied={(reading) => {
+                            if (reading.steps === undefined) return
+                            state.applyAppleHealthSteps(reading.steps)
+                          }}
+                        />
+                        <DayFieldEditActions
+                          saveLabel={t.dailyEntry.saveStepsLabel}
+                          onSave={state.saveSteps}
+                          saveDisabled={isBlankSaveValue(state.steps)}
+                          cancelLabel={t.dailyEntry.cancelEditStepsLabel}
+                          onCancel={state.cancelEditSteps}
+                          showCancel={state.canCancelStepsEdit}
+                          deleteLabel={t.dailyEntry.deleteStepsLabel}
+                          onDelete={state.requestDeleteSteps}
+                          showDelete={state.canDeleteSteps}
+                        />
+                      </>
                     }
                   />
                   <Input
