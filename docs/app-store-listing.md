@@ -239,6 +239,31 @@ Privacy policy: https://zhannam85.github.io/turtle-steps-to-the-goal/privacy
 Test account: not required.
 ```
 
+### App Review reply missing / “no Reply button” (debug)
+
+When App Review asks for Information Needed (e.g. Guideline 2.1), reply from
+**App Review → submission → Reply to App Review** (attach screen recording
+there). Also paste the same answers into **version → App Review Information →
+Notes**.
+
+If **Reply to App Review** is missing, **View** only loops version ↔ submission,
+or passkey keeps offering the wrong email — check the **signed-in Apple ID
+first** (2026-10-18):
+
+1. **Wrong Apple ID (most common here).** The button only appears for
+   **Account Holder / Admin / App Manager** on the team that owns the app.
+   Turtle Steps is under **`zhannatravelzzz@gmail.com`**. Signing in as
+   `zhanna.myshkovskaya@gmail.com` (or any other ID) can show the rejection
+   message but **no Reply control**. Sign out → sign in with the team Apple ID.
+   Passkey often re-offers the last saved key: **Cancel**, use password / a
+   private window, or type the correct Apple ID instead of accepting the
+   suggested passkey.
+2. Stay on the **iOS Submission** page; scroll under **Messages** (Reply sits
+   below the full Guideline text). Do not use **App Previews and Screenshots**
+   for the review video — that tab is listing media only.
+3. Confirm role under **Users and Access** if the correct Apple ID still has
+   no Reply.
+
 ## Remaining work for #315 (owner + App Store Connect)
 
 - [ ] Paste Name / Subtitle / Description / Keywords / What’s New (en + ru)
