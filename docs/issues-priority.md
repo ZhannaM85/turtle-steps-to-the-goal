@@ -28,7 +28,7 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 🛠 Partial | Epic — Apple Health integration | #1098 and #1099 validated on-device. Not steps/water/background sync in v1. Manual XML import remains #366. |
+| [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 🛠 Partial | Epic — Apple Health integration | #1098/#1099 validated. Next: steps Sync (#1104), Day empty-field Health sync (#1105). Not water/background. Manual XML remains #366. |
 
 ---
 
@@ -43,10 +43,12 @@ _Live HealthKit sync from the native iOS shell (Settings), after App Store / Tes
 
 ## Tier 187 — Live feedback (2026-10-18)
 
-_Native export share sheet / export-fail regression; Settings search vs card collapse._
+_Export share sheet; Settings search collapse; Apple Health steps + Day per-field sync._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
+| [#1104](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1104) | ⬜ Open | iOS HealthKit: steps sync on Settings Sync | Child of #334; Capgo `steps` + same 7-day overwrite as weight/sleep. |
+| [#1105](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1105) | ⬜ Open | iOS Day: sync empty weight/sleep/steps from Health | Native-only control beside empty fields; avoid trademark Apple logo asset. |
 
 ---
 
