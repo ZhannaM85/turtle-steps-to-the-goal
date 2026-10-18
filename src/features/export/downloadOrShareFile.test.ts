@@ -6,6 +6,7 @@ import {
 
 const isNativePlatform = vi.fn(() => false)
 const writeFile = vi.fn()
+const appendFile = vi.fn()
 const getUri = vi.fn()
 const share = vi.fn()
 
@@ -20,6 +21,7 @@ vi.mock('@capacitor/filesystem', () => ({
   Encoding: { UTF8: 'utf8' },
   Filesystem: {
     writeFile: (...args: unknown[]) => writeFile(...args),
+    appendFile: (...args: unknown[]) => appendFile(...args),
     getUri: (...args: unknown[]) => getUri(...args),
   },
 }))
@@ -34,11 +36,20 @@ describe('downloadOrShareFile (#1101 / #1102)', () => {
   beforeEach(() => {
     isNativePlatform.mockReturnValue(false)
     writeFile.mockReset()
+    appendFile.mockReset()
     getUri.mockReset()
     share.mockReset()
     URL.createObjectURL = vi.fn(() => 'blob:mock')
     URL.revokeObjectURL = vi.fn()
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+    Object.defineProperty(navigator, 'share', {
+      value: undefined,
+      configurable: true,
+    })
+    Object.defineProperty(navigator, 'canShare', {
+      value: undefined,
+      configurable: true,
+    })
   })
 
   it('uses <a download> on web/PWA', async () => {
@@ -53,16 +64,46 @@ describe('downloadOrShareFile (#1101 / #1102)', () => {
     expect(share).not.toHaveBeenCalled()
   })
 
-  it('writes JSON as UTF-8 Cache file and Share.share({ url }) on native (#1102)', async () => {
+  it('prefers navigator.share with a File on native when available', async () => {
+    isNativePlatform.mockReturnValue(true)
+    const shareNav = vi.fn().mockResolvedValue(undefined)
+    const canShare = vi.fn().mockReturnValue(true)
+    Object.defineProperty(navigator, 'share', {
+      value: shareNav,
+      configurable: true,
+    })
+    Object.defineProperty(navigator, 'canShare', {
+      value: canShare,
+      configurable: true,
+    })
+
+    await downloadOrShareFile(
+      new Blob(['{"ok":true}'], { type: 'application/json' }),
+      'backup.json',
+    )
+
+    expect(canShare).toHaveBeenCalled()
+    expect(shareNav).toHaveBeenCalledWith(
+      expect.objectContaining({
+        files: [expect.any(File)],
+      }),
+    )
+    expect(writeFile).not.toHaveBeenCalled()
+    expect(share).not.toHaveBeenCalled()
+  })
+
+  it('writes JSON via Cache + Share.files when Web Share is unavailable (#1102)', async () => {
     isNativePlatform.mockReturnValue(true)
     writeFile.mockResolvedValue({})
     getUri.mockResolvedValue({ uri: 'file:///cache/exports/backup.json' })
     share.mockResolvedValue({
       activityType: 'com.apple.DocumentManagerUICore.SaveToFiles',
     })
-    const blob = new Blob(['{"ok":true}'], { type: 'application/json' })
 
-    await downloadOrShareFile(blob, 'backup.json')
+    await downloadOrShareFile(
+      new Blob(['{"ok":true}'], { type: 'application/json' }),
+      'backup.json',
+    )
 
     expect(writeFile).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -73,39 +114,34 @@ describe('downloadOrShareFile (#1101 / #1102)', () => {
         recursive: true,
       }),
     )
-    expect(getUri).toHaveBeenCalledWith(
-      expect.objectContaining({
-        path: 'exports/backup.json',
-        directory: 'CACHE',
-      }),
-    )
     expect(share).toHaveBeenCalledWith(
       expect.objectContaining({
-        url: 'file:///cache/exports/backup.json',
+        files: ['file:///cache/exports/backup.json'],
         title: 'backup.json',
       }),
     )
   })
 
-  it('writes binary exports as base64 without UTF-8 encoding', async () => {
+  it('appends UTF-8 chunks for large text backups', async () => {
     isNativePlatform.mockReturnValue(true)
     writeFile.mockResolvedValue({})
-    getUri.mockResolvedValue({ uri: 'file:///cache/exports/a.xlsx' })
+    appendFile.mockResolvedValue({})
+    getUri.mockResolvedValue({ uri: 'file:///cache/exports/big.json' })
     share.mockResolvedValue({})
-    const bytes = new Uint8Array([0x50, 0x4b, 0x03, 0x04])
-    const blob = new Blob([bytes], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    })
+    const text = 'a'.repeat(300_000)
 
-    await downloadOrShareFile(blob, 'a.xlsx')
+    await downloadOrShareFile(
+      new Blob([text], { type: 'application/json' }),
+      'big.json',
+    )
 
-    const writeArg = writeFile.mock.calls[0]?.[0] as {
-      data: string
-      encoding?: string
-    }
-    expect(writeArg.encoding).toBeUndefined()
-    expect(typeof writeArg.data).toBe('string')
-    expect(writeArg.data.length).toBeGreaterThan(0)
+    expect(writeFile).toHaveBeenCalledTimes(1)
+    expect(appendFile).toHaveBeenCalled()
+    const appended = appendFile.mock.calls.reduce(
+      (n, [arg]) => n + String((arg as { data: string }).data).length,
+      0,
+    )
+    expect(appended + 256 * 1024).toBe(text.length)
   })
 
   it('maps share dismiss to ShareCancelledError', async () => {
@@ -120,26 +156,5 @@ describe('downloadOrShareFile (#1101 / #1102)', () => {
         'backup.json',
       ),
     ).rejects.toBeInstanceOf(ShareCancelledError)
-  })
-
-  it('retries with files[] when Share.url fails for a non-cancel reason', async () => {
-    isNativePlatform.mockReturnValue(true)
-    writeFile.mockResolvedValue({})
-    getUri.mockResolvedValue({ uri: 'file:///cache/exports/backup.json' })
-    share
-      .mockRejectedValueOnce(new Error('url not supported'))
-      .mockResolvedValueOnce({})
-
-    await downloadOrShareFile(
-      new Blob(['{"ok":true}'], { type: 'application/json' }),
-      'backup.json',
-    )
-
-    expect(share).toHaveBeenCalledTimes(2)
-    expect(share.mock.calls[1]?.[0]).toEqual(
-      expect.objectContaining({
-        files: ['file:///cache/exports/backup.json'],
-      }),
-    )
   })
 })

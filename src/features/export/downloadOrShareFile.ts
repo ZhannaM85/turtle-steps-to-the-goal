@@ -1,15 +1,17 @@
 /**
- * #1101 / #1102 — web/PWA keeps `<a download>`; Capacitor WKWebView does not
- * surface a save-location UI for that path, so native writes to Cache and
- * opens the system share sheet.
+ * #1101 / #1102 — web/PWA keeps `<a download>`; Capacitor needs a real share
+ * sheet. Large JSON backups must not cross the bridge as one base64 blob.
  *
- * #1102: text/JSON must use UTF-8 write (large backups fail as base64 on
- * device). Binary (xlsx/pdf) stays base64. Share uses `url` from
- * `Filesystem.getUri` (more reliable on iOS than `files` alone).
+ * Order on native:
+ * 1) Web Share API with a `File` (no Filesystem bridge payload)
+ * 2) Chunked UTF-8 write to Cache + `@capacitor/share` `files: [uri]`
  */
 import { Capacitor } from '@capacitor/core'
 import { Directory, Encoding, Filesystem } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
+
+/** Keep bridge messages small on device (#1102). */
+const TEXT_CHUNK_CHARS = 256 * 1024
 
 export class ShareCancelledError extends Error {
   constructor() {
@@ -66,19 +68,57 @@ function downloadInBrowser(blob: Blob, fileName: string): void {
   URL.revokeObjectURL(url)
 }
 
+async function shareViaWebShareApi(
+  blob: Blob,
+  fileName: string,
+): Promise<boolean> {
+  if (typeof navigator.share !== 'function') return false
+  const file = new File([blob], fileName, {
+    type: blob.type || 'application/octet-stream',
+  })
+  const payload = { files: [file] as File[] }
+  if (
+    typeof navigator.canShare === 'function' &&
+    !navigator.canShare(payload)
+  ) {
+    return false
+  }
+  try {
+    await navigator.share(payload)
+    return true
+  } catch (err) {
+    if (isShareCancelError(err)) {
+      throw new ShareCancelledError()
+    }
+    return false
+  }
+}
+
+async function writeTextChunked(path: string, text: string): Promise<void> {
+  await Filesystem.writeFile({
+    path,
+    data: text.slice(0, TEXT_CHUNK_CHARS),
+    directory: Directory.Cache,
+    encoding: Encoding.UTF8,
+    recursive: true,
+  })
+  for (let i = TEXT_CHUNK_CHARS; i < text.length; i += TEXT_CHUNK_CHARS) {
+    await Filesystem.appendFile({
+      path,
+      data: text.slice(i, i + TEXT_CHUNK_CHARS),
+      directory: Directory.Cache,
+      encoding: Encoding.UTF8,
+    })
+  }
+}
+
 async function writeNativeShareFile(
   blob: Blob,
   fileName: string,
 ): Promise<string> {
   const path = `exports/${fileName}`
   if (isTextExport(blob, fileName)) {
-    await Filesystem.writeFile({
-      path,
-      data: await blob.text(),
-      directory: Directory.Cache,
-      encoding: Encoding.UTF8,
-      recursive: true,
-    })
+    await writeTextChunked(path, await blob.text())
   } else {
     await Filesystem.writeFile({
       path,
@@ -94,12 +134,16 @@ async function writeNativeShareFile(
   return uri
 }
 
-async function shareViaNativeSheet(blob: Blob, fileName: string): Promise<void> {
+async function shareViaCapacitorShare(
+  blob: Blob,
+  fileName: string,
+): Promise<void> {
   const uri = await writeNativeShareFile(blob, fileName)
   try {
+    // Prefer `files` for local paths (iOS UIActivity file item).
     await Share.share({
       title: fileName,
-      url: uri,
+      files: [uri],
       dialogTitle: fileName,
     })
   } catch (err) {
@@ -109,7 +153,7 @@ async function shareViaNativeSheet(blob: Blob, fileName: string): Promise<void> 
     try {
       await Share.share({
         title: fileName,
-        files: [uri],
+        url: uri,
         dialogTitle: fileName,
       })
     } catch (err2) {
@@ -118,6 +162,18 @@ async function shareViaNativeSheet(blob: Blob, fileName: string): Promise<void> 
       }
       throw err2
     }
+  }
+}
+
+async function shareViaNativeSheet(blob: Blob, fileName: string): Promise<void> {
+  if (await shareViaWebShareApi(blob, fileName)) return
+  try {
+    await shareViaCapacitorShare(blob, fileName)
+  } catch (err) {
+    if (isShareCancelError(err)) {
+      throw new ShareCancelledError()
+    }
+    throw err
   }
 }
 

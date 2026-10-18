@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { format } from 'date-fns'
+import { Capacitor } from '@capacitor/core'
 import { useTranslation } from '@/i18n'
 import {
   useFoodOverrideStore,
@@ -117,10 +118,15 @@ export function ExportSection() {
         setStatus({ kind: 'idle' })
         return
       }
+      // #1102 — surface native plugin errors while validating the share path.
+      const detail =
+        Capacitor.isNativePlatform() && err instanceof Error && err.message
+          ? ` (${err.message})`
+          : ''
       setStatus({
         kind: 'error',
         section: 'jsonBackup',
-        message: t.export.exportFailed,
+        message: `${t.export.exportFailed}${detail}`,
       })
     }
   }
