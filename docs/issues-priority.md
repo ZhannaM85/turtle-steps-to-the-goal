@@ -28,7 +28,7 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 🛠 Partial | Epic — Apple Health integration | #1098 validated on-device; next: period → onPeriod (#1099, pending validation). Not steps/water/background sync in v1. Manual XML import remains #366. |
+| [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 🛠 Partial | Epic — Apple Health integration | #1098 and #1099 validated on-device. Not steps/water/background sync in v1. Manual XML import remains #366. |
 
 ---
 
@@ -38,7 +38,6 @@ _Live HealthKit sync from the native iOS shell (Settings), after App Store / Tes
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1099](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1099) | 🔍 Pending validation | iOS HealthKit: period / menstrual flow → onPeriod | Period plugin must be registered in App bridge (not only Capgo packageClassList); then Cycle appears under Health access. |
 
 ---
 
