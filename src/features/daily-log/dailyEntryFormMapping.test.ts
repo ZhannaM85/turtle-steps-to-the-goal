@@ -161,6 +161,24 @@ describe('formValuesToEntry', () => {
     expect(edited.weightFromAppleHealth).toBeUndefined()
   })
 
+  it('keeps Apple Health steps provenance only while the value is unchanged (#1104)', () => {
+    const entry = formValuesToEntry(
+      { steps: 8400 },
+      '2026-10-17',
+      { id: 'entry-1', createdAt: '2026-10-17T00:00:00.000Z' },
+      { steps: 8400, stepsFromAppleHealth: true },
+    )
+    expect(entry.stepsFromAppleHealth).toBe(true)
+
+    const edited = formValuesToEntry(
+      { steps: 9000 },
+      '2026-10-17',
+      { id: 'entry-1', createdAt: '2026-10-17T00:00:00.000Z' },
+      { steps: 8400, stepsFromAppleHealth: true },
+    )
+    expect(edited.stepsFromAppleHealth).toBeUndefined()
+  })
+
   it('preserves historical thoughts under the old key and does not migrate them (#842)', () => {
     const entry = formValuesToEntry(
       {

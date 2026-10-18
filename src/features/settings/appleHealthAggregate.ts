@@ -20,8 +20,15 @@ export type AppleHealthDayReading = {
   weightKg?: number
   sleepHours?: number
   deepSleepHours?: number
+  /** #1104 — daily step total from HealthKit. */
+  steps?: number
   /** #1099 — true when HealthKit had a non-None menstrual flow that day. */
   onPeriod?: boolean
+}
+
+export type AppleHealthStepsSample = {
+  startDate: string
+  value: number
 }
 
 /** Sleep stages that count toward total sleep hours (excludes in-bed / awake). */
@@ -82,16 +89,35 @@ export function aggregateSleepByWakeDay(
   })
 }
 
-export function mergeAppleHealthDayReadings(
-  weights: { date: string; weightKg: number }[],
-  sleep: { date: string; sleepHours: number; deepSleepHours?: number }[],
-  periodDates: string[] = [],
-): AppleHealthDayReading[] {
+/**
+ * #1104 — sum step-count samples onto the sample's local start day
+ * (matches Android Health Connect #657).
+ */
+export function aggregateStepsByDay(
+  samples: AppleHealthStepsSample[],
+): { date: string; steps: number }[] {
+  const byDay = new Map<string, number>()
+  for (const sample of samples) {
+    if (!Number.isFinite(sample.value) || sample.value <= 0) continue
+    const date = localDateKey(sample.startDate)
+    byDay.set(date, (byDay.get(date) ?? 0) + sample.value)
+  }
+  return [...byDay.entries()]
+    .map(([date, total]) => ({ date, steps: Math.round(total) }))
+    .filter((row) => row.steps > 0)
+}
+
+export function mergeAppleHealthDayReadings(parts: {
+  weights?: { date: string; weightKg: number }[]
+  sleep?: { date: string; sleepHours: number; deepSleepHours?: number }[]
+  steps?: { date: string; steps: number }[]
+  periodDates?: string[]
+}): AppleHealthDayReading[] {
   const byDate = new Map<string, AppleHealthDayReading>()
-  for (const { date, weightKg } of weights) {
+  for (const { date, weightKg } of parts.weights ?? []) {
     byDate.set(date, { ...byDate.get(date), date, weightKg })
   }
-  for (const { date, sleepHours, deepSleepHours } of sleep) {
+  for (const { date, sleepHours, deepSleepHours } of parts.sleep ?? []) {
     byDate.set(date, {
       ...byDate.get(date),
       date,
@@ -99,7 +125,10 @@ export function mergeAppleHealthDayReadings(
       ...(deepSleepHours !== undefined ? { deepSleepHours } : {}),
     })
   }
-  for (const date of periodDates) {
+  for (const { date, steps } of parts.steps ?? []) {
+    byDate.set(date, { ...byDate.get(date), date, steps })
+  }
+  for (const date of parts.periodDates ?? []) {
     byDate.set(date, { ...byDate.get(date), date, onPeriod: true })
   }
   return [...byDate.values()]

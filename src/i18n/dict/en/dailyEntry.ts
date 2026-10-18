@@ -379,6 +379,7 @@ export const dailyEntry: DailyEntryDict = {
     appleHealthSyncedInfoLabel: 'About this value',
     appleHealthSyncedWeightHint: 'Synced from Apple Health',
     appleHealthSyncedSleepHint: 'Synced from Apple Health',
+    appleHealthSyncedStepsHint: 'Synced from Apple Health',
     onPeriodLabel: 'On period',
     hadConstipationLabel: 'Constipation',
     hadConstipationNoOption: 'No',

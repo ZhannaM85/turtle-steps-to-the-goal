@@ -77,7 +77,7 @@ export function AppleHealthSyncSection() {
         'yyyy-MM-dd',
       )
       const existing = await dailyEntryRepository.getRange(rangeStart, today)
-      // #1100 — mark weight/sleep written by this Sync for Day ⓘ tooltips.
+      // #1100 / #1104 — mark weight/sleep/steps written by this Sync for Day ⓘ.
       const toUpsert = applyHealthConnectDayReadings(readings, existing).map(
         (entry) => {
           const reading = readings.find((row) => row.date === entry.date)
@@ -89,6 +89,9 @@ export function AppleHealthSyncSection() {
               : {}),
             ...(reading.sleepHours !== undefined
               ? { sleepFromAppleHealth: true }
+              : {}),
+            ...(reading.steps !== undefined
+              ? { stepsFromAppleHealth: true }
               : {}),
           }
         },

@@ -46,10 +46,12 @@ export function formValuesToEntry(
     | 'deepSleepHours'
     | 'weightFromAppleHealth'
     | 'sleepFromAppleHealth'
+    | 'steps'
+    | 'stepsFromAppleHealth'
   > | null,
 ): DailyEntry {
-  // #1100 — keep Apple Health provenance only while the synced value is
-  // unchanged; any edit/delete clears the flag.
+  // #1100 / #1104 — keep Apple Health provenance only while the synced value
+  // is unchanged; any edit/delete clears the flag.
   const weightFromAppleHealth =
     values.weightKg !== undefined &&
     values.weightKg === existing?.weightKg &&
@@ -61,6 +63,12 @@ export function formValuesToEntry(
     values.sleepHours === existing?.sleepHours &&
     values.deepSleepHours === existing?.deepSleepHours &&
     existing.sleepFromAppleHealth === true
+      ? true
+      : undefined
+  const stepsFromAppleHealth =
+    values.steps !== undefined &&
+    values.steps === existing?.steps &&
+    existing.stepsFromAppleHealth === true
       ? true
       : undefined
 
@@ -78,6 +86,7 @@ export function formValuesToEntry(
     deepSleepHours: values.deepSleepHours,
     sleepFromAppleHealth,
     steps: values.steps,
+    stepsFromAppleHealth,
     onPeriod: values.onPeriod,
     hadConstipation: values.hadConstipation,
     hadAlcohol: values.hadAlcohol,

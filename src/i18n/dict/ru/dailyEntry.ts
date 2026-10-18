@@ -387,6 +387,7 @@ export const dailyEntry: DailyEntryDict = {
     appleHealthSyncedInfoLabel: 'Об этом значении',
     appleHealthSyncedWeightHint: 'Синхронизировано из Apple Health',
     appleHealthSyncedSleepHint: 'Синхронизировано из Apple Health',
+    appleHealthSyncedStepsHint: 'Синхронизировано из Apple Health',
     onPeriodLabel: 'Менструация',
     hadConstipationLabel: 'Запор',
     hadConstipationNoOption: 'Нет',

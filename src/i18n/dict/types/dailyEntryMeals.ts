@@ -267,6 +267,7 @@ export interface DailyEntryMealsDict {
     appleHealthSyncedInfoLabel: string
     appleHealthSyncedWeightHint: string
     appleHealthSyncedSleepHint: string
+    appleHealthSyncedStepsHint: string
     onPeriodLabel: string
     /** Opt-in digestion tracking's per-day toggle, on both Today and in
      * DayDetail.tsx — tracks the problem (constipation), not the normal

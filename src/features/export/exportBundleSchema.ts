@@ -146,6 +146,8 @@ const dailyEntrySchema = z.object({
   sleepFromAppleHealth: z.boolean().optional(),
   // Steps (#60) — same reasoning, purely additive/optional.
   steps: z.number().optional(),
+  // #1104 — Apple Health Settings Sync provenance; purely additive.
+  stepsFromAppleHealth: z.boolean().optional(),
   // Opt-in cycle tracking (#61) — the logged value travels with a backup
   // like any other field; only the Settings on/off toggle is local-only.
   onPeriod: z.boolean().optional(),

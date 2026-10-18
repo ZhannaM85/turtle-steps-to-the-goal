@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   aggregateSleepByWakeDay,
+  aggregateStepsByDay,
   aggregateWeightByDay,
   mergeAppleHealthDayReadings,
 } from './appleHealthAggregate'
@@ -45,30 +46,48 @@ describe('aggregateSleepByWakeDay', () => {
   })
 })
 
+describe('aggregateStepsByDay (#1104)', () => {
+  it('sums step samples onto the local start day', () => {
+    const rows = aggregateStepsByDay([
+      { startDate: '2026-10-17T08:00:00.000Z', value: 3000 },
+      { startDate: '2026-10-17T14:00:00.000Z', value: 2500.4 },
+      { startDate: '2026-10-16T12:00:00.000Z', value: 1000 },
+    ])
+    expect(rows).toEqual(
+      expect.arrayContaining([
+        { date: expect.any(String), steps: 5500 },
+        { date: expect.any(String), steps: 1000 },
+      ]),
+    )
+    expect(rows.find((r) => r.steps === 5500)).toBeDefined()
+  })
+})
+
 describe('mergeAppleHealthDayReadings', () => {
-  it('merges weight and sleep on the same date', () => {
+  it('merges weight, sleep, and steps on the same date', () => {
     expect(
-      mergeAppleHealthDayReadings(
-        [{ date: '2026-10-17', weightKg: 66.5 }],
-        [{ date: '2026-10-17', sleepHours: 7.5, deepSleepHours: 2 }],
-      ),
+      mergeAppleHealthDayReadings({
+        weights: [{ date: '2026-10-17', weightKg: 66.5 }],
+        sleep: [{ date: '2026-10-17', sleepHours: 7.5, deepSleepHours: 2 }],
+        steps: [{ date: '2026-10-17', steps: 8400 }],
+      }),
     ).toEqual([
       {
         date: '2026-10-17',
         weightKg: 66.5,
         sleepHours: 7.5,
         deepSleepHours: 2,
+        steps: 8400,
       },
     ])
   })
 
   it('marks period days from HealthKit menstrual flow (#1099)', () => {
     expect(
-      mergeAppleHealthDayReadings(
-        [{ date: '2026-10-17', weightKg: 66.5 }],
-        [],
-        ['2026-10-16', '2026-10-17'],
-      ),
+      mergeAppleHealthDayReadings({
+        weights: [{ date: '2026-10-17', weightKg: 66.5 }],
+        periodDates: ['2026-10-16', '2026-10-17'],
+      }),
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ date: '2026-10-17', weightKg: 66.5, onPeriod: true }),

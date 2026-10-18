@@ -347,6 +347,7 @@ export function useDailyEntryFormState({
     deepSleepHours,
     sleepFromAppleHealth: existingEntry?.sleepFromAppleHealth === true,
     ...sleep,
+    stepsFromAppleHealth: existingEntry?.stepsFromAppleHealth === true,
     dayTotalCalories,
     consumedProteinG,
     consumedFatG,

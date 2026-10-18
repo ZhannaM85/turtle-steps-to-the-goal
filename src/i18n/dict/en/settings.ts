@@ -318,9 +318,9 @@ export const settings: SettingsDict = {
     healthConnectSyncErrorMessage: 'Couldn’t sync from Health Connect. Try again.',
     appleHealthSyncLabel: 'Apple Health',
     appleHealthSyncDescription:
-      'Sync weight and sleep from Apple Health for today and the last several days. Each Sync pulls the latest values per day and updates this app (safe to tap again after Health changes).',
+      'Sync weight, sleep, and steps from Apple Health for today and the last several days. Each Sync pulls the latest values per day and updates this app (safe to tap again after Health changes).',
     appleHealthSyncDescriptionWithPeriod:
-      'Sync weight, sleep, and period days from Apple Health for today and the last several days. Each Sync pulls the latest values per day and updates this app (safe to tap again after Health changes).',
+      'Sync weight, sleep, steps, and period days from Apple Health for today and the last several days. Each Sync pulls the latest values per day and updates this app (safe to tap again after Health changes).',
     appleHealthSyncButton: 'Sync from Apple Health',
     appleHealthSyncingButton: 'Syncing…',
     appleHealthUnavailableMessage:
@@ -332,7 +332,7 @@ export const settings: SettingsDict = {
         ? `Synced ${dayCount} day${dayCount === 1 ? '' : 's'}.`
         : `Synced ${dayCount} day${dayCount === 1 ? '' : 's'}; today ${todayWeight}.`,
     appleHealthSyncNoDataMessage:
-      'No weight or sleep in Apple Health for the last 7 days.',
+      'No weight, sleep, or steps in Apple Health for the last 7 days.',
     appleHealthSyncErrorMessage: 'Couldn’t sync from Apple Health. Try again.',
     dashboardChartsLabel: 'Dashboard graphs',
     dashboardChartsDescription:

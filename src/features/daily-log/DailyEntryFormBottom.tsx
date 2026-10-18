@@ -88,6 +88,11 @@ export function DailyEntryFormBottom() {
                           prior={comparison.prior('steps')}
                           day30Value={comparison.day30Value('steps')}
                           unit="none"
+                          extraLines={
+                            state.stepsFromAppleHealth
+                              ? [t.dailyEntry.appleHealthSyncedStepsHint]
+                              : undefined
+                          }
                         />
                       </>
                     }

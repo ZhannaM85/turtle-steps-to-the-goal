@@ -195,6 +195,9 @@ export interface DailyEntry {
   sleepFromAppleHealth?: boolean
   /** Step count (#60) — optional, independent of everything else. */
   steps?: number
+  /** #1104 — true when Settings Sync from Apple Health last wrote `steps`.
+   * Cleared when the user edits or deletes steps on the Day screen. */
+  stepsFromAppleHealth?: boolean
   /** Opt-in menstrual cycle tracking (#61) — only ever set when the user
    * has turned the feature on in Settings (`useCycleTrackingStore`); the
    * toggle itself is a local UI preference, not exported with backups, but

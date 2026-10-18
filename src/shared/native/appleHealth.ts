@@ -3,6 +3,7 @@ import { Health } from '@capgo/capacitor-health'
 import { format, startOfDay, subDays } from 'date-fns'
 import {
   aggregateSleepByWakeDay,
+  aggregateStepsByDay,
   aggregateWeightByDay,
   mergeAppleHealthDayReadings,
   type AppleHealthDayReading,
@@ -48,20 +49,23 @@ export async function requestAppleHealthPermissions(options?: {
   granted: boolean
   weightGranted: boolean
   sleepGranted: boolean
+  stepsGranted: boolean
   periodGranted: boolean
 }> {
   const includePeriod = options?.includePeriod !== false
   const status = await Health.requestAuthorization({
-    read: ['weight', 'sleep'],
+    read: ['weight', 'sleep', 'steps'],
   })
   const readAuthorized = status.readAuthorized ?? []
   const readDenied = status.readDenied ?? []
   const weightGranted = readAuthorized.includes('weight')
   const sleepGranted = readAuthorized.includes('sleep')
+  const stepsGranted = readAuthorized.includes('steps')
   // iOS often omits denied reads from `readDenied`; treat “authorized or
   // neither listed” as ok to attempt a read (HealthKit privacy).
   const weightOk = weightGranted || !readDenied.includes('weight')
   const sleepOk = sleepGranted || !readDenied.includes('sleep')
+  const stepsOk = stepsGranted || !readDenied.includes('steps')
 
   let periodOk = false
   if (includePeriod) {
@@ -74,9 +78,10 @@ export async function requestAppleHealthPermissions(options?: {
   }
 
   return {
-    granted: weightOk || sleepOk || periodOk,
+    granted: weightOk || sleepOk || stepsOk || periodOk,
     weightGranted: weightOk,
     sleepGranted: sleepOk,
+    stepsGranted: stepsOk,
     periodGranted: periodOk,
   }
 }
@@ -91,28 +96,37 @@ export async function syncRecentAppleHealth(options?: {
   // Overnight sleep that ends on `weightStart` began the previous evening.
   const sleepStart = startOfDay(subDays(end, days))
   const endIso = healthKitIso(end)
+  const windowStartIso = healthKitIso(weightStart)
 
-  const [weightResult, sleepResult, periodDates] = await Promise.all([
-    Health.readSamples({
-      dataType: 'weight',
-      startDate: healthKitIso(weightStart),
-      endDate: endIso,
-      limit: 1000,
-      ascending: false,
-    }),
-    Health.readSamples({
-      dataType: 'sleep',
-      startDate: healthKitIso(sleepStart),
-      endDate: endIso,
-      limit: 5000,
-      ascending: true,
-    }),
-    options?.includePeriod
-      ? AppleHealthPeriod.syncRecentPeriodDays({ days })
-          .then((r) => r.dates ?? [])
-          .catch(() => [] as string[])
-      : Promise.resolve([] as string[]),
-  ])
+  const [weightResult, sleepResult, stepsResult, periodDates] =
+    await Promise.all([
+      Health.readSamples({
+        dataType: 'weight',
+        startDate: windowStartIso,
+        endDate: endIso,
+        limit: 1000,
+        ascending: false,
+      }),
+      Health.readSamples({
+        dataType: 'sleep',
+        startDate: healthKitIso(sleepStart),
+        endDate: endIso,
+        limit: 5000,
+        ascending: true,
+      }),
+      Health.readSamples({
+        dataType: 'steps',
+        startDate: windowStartIso,
+        endDate: endIso,
+        limit: 5000,
+        ascending: true,
+      }),
+      options?.includePeriod
+        ? AppleHealthPeriod.syncRecentPeriodDays({ days })
+            .then((r) => r.dates ?? [])
+            .catch(() => [] as string[])
+        : Promise.resolve([] as string[]),
+    ])
 
   const weights = aggregateWeightByDay(
     (weightResult.samples ?? []).map((s) => ({
@@ -128,10 +142,19 @@ export async function syncRecentAppleHealth(options?: {
       sleepState: s.sleepState,
     })),
   )
+  const steps = aggregateStepsByDay(
+    (stepsResult.samples ?? []).map((s) => ({
+      startDate: s.startDate,
+      value: s.value,
+    })),
+  )
 
   const rangeStartKey = format(weightStart, 'yyyy-MM-dd')
   const periodInRange = periodDates.filter((date) => date >= rangeStartKey)
-  return mergeAppleHealthDayReadings(weights, sleep, periodInRange).filter(
-    (row) => row.date >= rangeStartKey,
-  )
+  return mergeAppleHealthDayReadings({
+    weights,
+    sleep,
+    steps,
+    periodDates: periodInRange,
+  }).filter((row) => row.date >= rangeStartKey)
 }
