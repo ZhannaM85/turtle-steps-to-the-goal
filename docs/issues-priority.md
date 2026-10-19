@@ -47,7 +47,6 @@ _Export share sheet; Settings search collapse; Apple Health steps + Day per-fiel
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1104](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1104) | 🔍 Pending validation | iOS HealthKit: steps sync on Settings Sync | Capgo `steps` on Settings Sync; `stepsFromAppleHealth` provenance; Info.plist + copy mention steps. |
 
 ---
 
