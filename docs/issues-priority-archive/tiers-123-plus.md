@@ -1088,3 +1088,4 @@ _Closed rows only. Open / pending items stay in the active file._
 | [#1102](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1102) | ✅ Done | Regression: native Export backup fails after #1101 | Confirmed on-device 2026-10-18 (TestFlight build 9 / v1075). |
 | [#1101](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1101) | ✅ Done | Native: Export backup save/share location (like PWA) | Confirmed on-device 2026-10-18 — export opens share/save sheet. |
 | [#1103](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1103) | ✅ Done | Settings: collapse chevron dead while search active | Confirmed on-device 2026-10-18 — collapse works while search is applied. |
+| [#1107](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1107) | ✅ Done | iOS Day: Health steps sync does not persist | Confirmed on-device 2026-10-19 — synced steps persist after leaving and returning to the day; raised the accepted steps maximum to 100k. |
