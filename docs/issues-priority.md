@@ -56,7 +56,7 @@ _Daily reminder notification should skip days that already have a log. Day КБ�
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1108](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1108) | 🔍 Pending validation | iOS: daily reminder fires even when today is already logged | One-shot next fire; skip today when DailyEntry exists; reschedule on save/resume. |
-| [#1109](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1109) | 🔍 Pending validation | Day: КБЖУ strip must not auto-pin/collapse on scroll | Removed scroll auto-collapse (#1036/#1038); pin collapses macros into sticky compact line. |
+| [#1109](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1109) | 🔍 Pending validation | Day: КБЖУ strip must not auto-pin/collapse on scroll | Removed scroll auto-collapse; pin collapses macros. TestFlight build 13. Standing rule: any `src/` ship → bump + TestFlight. |
 
 ---
 

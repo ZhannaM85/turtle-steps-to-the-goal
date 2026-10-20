@@ -189,33 +189,38 @@ user points out.
    pause in #4 above. (2026-08-09, #659: explicit user instruction,
    generalized into a standing rule here.)
 
-## TestFlight after native iOS (Pages ≠ phone)
+## TestFlight after every bundled app ship (Pages ≠ phone)
 
 **2026-10-18 / #1104+#1105:** git push + green Pages is **not** a TestFlight
-release. Capacitor embeds `dist/` in the IPA; HealthKit / Info.plist / native
-plugins / `Capacitor.isNativePlatform()`-only UI never reach the phone until
-a new build is archived and uploaded to App Store Connect.
+release. **2026-10-20 / #1109:** same for ordinary web UI — Capacitor embeds
+`dist/` in the IPA, so Day/Settings/`src/` fixes also never reach TestFlight
+users until a new build is archived and uploaded to App Store Connect.
 
-When shipping **native-iOS-only** work (anything under `ios/`, HealthKit /
-Apple Health / Capgo Health / native plugins, or Day/Settings controls gated
-to iOS Capacitor), **in the same session as the implementation push** unless
-the user explicitly defers:
+When shipping **anything the iOS shell runs** — any `src/` product change
+that lands in `dist/`, **or** native work under `ios/` / HealthKit / Capgo
+Health / native plugins / `Capacitor.isNativePlatform()`-only UI — **in the
+same session as the implementation push** unless the user explicitly defers:
 
 1. Bump `CURRENT_PROJECT_VERSION` in `ios/App/App.xcodeproj/project.pbxproj`
-   (integer build number; do not reuse).
+   (integer build number; do not reuse — last shipped was **12**, next **13**).
 2. `npm run build` (plain `/` base — **not** the Pages `--base=…` build).
 3. `npx cap sync ios`.
-4. Archive + upload to App Store Connect (CLI `xcodebuild` or Xcode Organizer —
-   use whatever already works on this Mac).
-5. Tell the user the **new build number** and that TestFlight processing may
+4. Archive + upload to App Store Connect (CLI `xcodebuild` archive, then
+   `-exportArchive` with `ios/ExportOptions.plist` set to `destination`
+   `upload`, or Xcode Organizer — use whatever already works on this Mac).
+   Restore `destination` to `export` afterward if you flipped it.
+5. Commit/push the build-number bump under the same `#N:` issue.
+6. Tell the user the **new build number** and that TestFlight processing may
    take minutes (email / app update).
 
-Do **not** leave “TestFlight if needed” as an unchecked todo after push, or
-ask them to validate iOS-only HealthKit UI on the PWA. Local always-apply
+Do **not** leave “TestFlight if needed” as an unchecked todo after a `src/`
+push, skip because “it was only web,” or ask them to validate the Capacitor
+app on the PWA alone when they use TestFlight day-to-day. Local always-apply
 rule: `.cursor/rules/testflight-after-native-ios.mdc` (`.cursor/` is
 gitignored — this section is the checked-in copy).
 
-Web/docs-only issues: skip.
+Docs-only / priority-queue-only / no `src/` and no `ios/` product change:
+skip.
 
 ## Release notes vs. implementation notes
 
