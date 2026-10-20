@@ -51,11 +51,12 @@ _Export share sheet; Settings search collapse; Apple Health steps + Day per-fiel
 
 ## Tier 188 — Live feedback (2026-10-20)
 
-_Daily reminder notification should skip days that already have a log._
+_Daily reminder notification should skip days that already have a log. Day КБЖУ / remaining-calories must not auto-pin or auto-collapse on scroll._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1108](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1108) | 🔍 Pending validation | iOS: daily reminder fires even when today is already logged | One-shot next fire; skip today when DailyEntry exists; reschedule on save/resume. |
+| [#1109](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1109) | ⬜ Open | Day: КБЖУ strip must not auto-pin/collapse on scroll | Collapse + pin only when user taps the pin icon; scroll-past alone must leave the section expanded and unpinned. |
 
 ---
 
