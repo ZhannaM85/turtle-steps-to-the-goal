@@ -49,6 +49,16 @@ _Export share sheet; Settings search collapse; Apple Health steps + Day per-fiel
 
 ---
 
+## Tier 188 — Live feedback (2026-10-20)
+
+_Daily reminder notification should skip days that already have a log._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1108](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1108) | ⬜ Open | iOS: daily reminder fires even when today is already logged | Native LocalNotifications at reminderTime; skip/cancel when any log exists for today. |
+
+---
+
 ## Tier 163 — Live feedback (2026-09-15)
 
 _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack (#905) + diary follow-ups; sticky page tops._
