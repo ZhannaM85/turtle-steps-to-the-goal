@@ -275,6 +275,7 @@ export function DaySectionPinButton({ id }: { id: DaySectionPinId }) {
   const t = useTranslation()
   const pinned = useDaySectionPinStore((state) => state.pinned.includes(id))
   const toggle = useDaySectionPinStore((state) => state.toggle)
+  const setCollapsed = useTodaySectionsCollapseStore((state) => state.setCollapsed)
   if (!api) return null
   return (
     <Button
@@ -286,7 +287,11 @@ export function DaySectionPinButton({ id }: { id: DaySectionPinId }) {
       aria-pressed={pinned}
       onClick={(event) => {
         event.stopPropagation()
+        const willPin = !pinned
         toggle(id)
+        // #1109 — pin is what collapses Day КБЖУ into the sticky compact
+        // line; scroll must not. Unpin leaves open/closed as the user left it.
+        if (id === 'macros' && willPin) setCollapsed('macros', true)
       }}
     >
       <Pin className={pinned ? 'fill-current' : undefined} aria-hidden />

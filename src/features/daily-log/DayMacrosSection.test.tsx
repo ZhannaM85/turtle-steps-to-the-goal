@@ -6,7 +6,6 @@ import type { DailyEntryFormState } from './useDailyEntryFormState'
 import { DailyEntryFormStateContext } from './dailyEntryFormStateContextValue'
 import { DayKcalStrip } from './DayKcalStrip'
 import { DayMacrosSection } from './DayMacrosSection'
-import { MACROS_AUTO_COLLAPSE_HYSTERESIS_PX } from './macrosAutoCollapse'
 import {
   DayKcalStripSlot,
   DayPinDock,
@@ -235,36 +234,11 @@ describe('Day КБЖУ collapse (#1029)', () => {
     expect(document.querySelector('[data-slot="day-kcal-strip"]')).toBeNull()
   })
 
-  it('collapses expanded КБЖУ after a downward scroll past the sticky chrome (#1036)', () => {
+  it('does not collapse expanded КБЖУ on scroll alone (#1109)', () => {
     useTodaySectionsCollapseStore.setState({
       sections: { ...DEFAULT_TODAY_SECTIONS, macros: false },
     })
-    useDaySectionPinStore.setState({ pinned: ['macros'] })
-    const tops = { section: 160 }
-    const chromeBottom = 80
-    const spy = vi
-      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
-      .mockImplementation(function (this: HTMLElement) {
-        const box = (top: number, bottom: number): DOMRect =>
-          ({
-            x: 0,
-            y: top,
-            top,
-            left: 0,
-            right: 100,
-            bottom,
-            width: 100,
-            height: bottom - top,
-            toJSON() {
-              return {}
-            },
-          }) as DOMRect
-        if (this.getAttribute('data-slot') === 'day-intro') return box(0, chromeBottom)
-        if (this.getAttribute('data-day-section') === 'macros') {
-          return box(tops.section, tops.section + 420)
-        }
-        return box(0, 0)
-      })
+    useDaySectionPinStore.setState({ pinned: [] })
     const main = document.createElement('div')
     main.id = 'main-content'
     document.body.appendChild(main)
@@ -280,90 +254,54 @@ describe('Day КБЖУ collapse (#1029)', () => {
     try {
       render(<Harness />, { container: main })
       expect(screen.getByText('Consumed')).toBeInTheDocument()
+      expect(useTodaySectionsCollapseStore.getState().sections.macros).toBe(false)
 
-      tops.section = chromeBottom - 8
-      scrollTop = 30
+      scrollTop = 240
       act(() => {
         main.dispatchEvent(new Event('scroll'))
       })
       expect(useTodaySectionsCollapseStore.getState().sections.macros).toBe(false)
       expect(screen.getByText('Consumed')).toBeInTheDocument()
-
-      tops.section = chromeBottom - MACROS_AUTO_COLLAPSE_HYSTERESIS_PX - 4
-      scrollTop = 90
-      act(() => {
-        main.dispatchEvent(new Event('scroll'))
-      })
-      expect(useTodaySectionsCollapseStore.getState().sections.macros).toBe(true)
-      expect(summary()).toBeTruthy()
+      expect(summary()).toBeNull()
       expect(
         document.querySelector('[data-day-section="macros"]')?.getAttribute(
           'data-day-pin-sticky',
         ),
-      ).toBe('true')
-      expect(screen.queryByText('Consumed')).toBeNull()
-
-      tops.section = chromeBottom
-      scrollTop = 70
-      act(() => {
-        main.dispatchEvent(new Event('scroll'))
-      })
-      expect(useTodaySectionsCollapseStore.getState().sections.macros).toBe(true)
-
-      tops.section = chromeBottom + MACROS_AUTO_COLLAPSE_HYSTERESIS_PX - 1
-      scrollTop = 40
-      act(() => {
-        main.dispatchEvent(new Event('scroll'))
-      })
-      expect(useTodaySectionsCollapseStore.getState().sections.macros).toBe(true)
-      expect(summary()).toBeTruthy()
-
-      tops.section = chromeBottom + MACROS_AUTO_COLLAPSE_HYSTERESIS_PX
-      scrollTop = 0
-      act(() => {
-        main.dispatchEvent(new Event('scroll'))
-      })
-      expect(useTodaySectionsCollapseStore.getState().sections.macros).toBe(false)
-      expect(summary()).toBeNull()
-      expect(screen.getByText('Consumed')).toBeInTheDocument()
+      ).toBe('false')
     } finally {
       cleanup()
-      spy.mockRestore()
       main.remove()
     }
   })
 
-  it('keeps a chevron collapse closed when the header scrolls back (#1038)', async () => {
+  it('collapses КБЖУ when the user pins it (#1109)', async () => {
+    useTodaySectionsCollapseStore.setState({
+      sections: { ...DEFAULT_TODAY_SECTIONS, macros: false },
+    })
+    useDaySectionPinStore.setState({ pinned: [] })
+    const user = userEvent.setup()
+    render(<Harness />)
+
+    expect(screen.getByText('Consumed')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Pin to top' }))
+
+    expect(useDaySectionPinStore.getState().pinned).toContain('macros')
+    expect(useTodaySectionsCollapseStore.getState().sections.macros).toBe(true)
+    expect(summary()).toBeTruthy()
+    expect(screen.queryByText('Consumed')).toBeNull()
+    expect(
+      document.querySelector('[data-day-section="macros"]')?.getAttribute(
+        'data-day-pin-sticky',
+      ),
+    ).toBe('true')
+  })
+
+  it('keeps a chevron collapse closed when the header scrolls (#1109)', async () => {
     useTodaySectionsCollapseStore.setState({
       sections: { ...DEFAULT_TODAY_SECTIONS, macros: false },
     })
     useDaySectionPinStore.setState({ pinned: ['macros'] })
     const user = userEvent.setup()
-    const tops = { section: 200 }
-    const chromeBottom = 80
-    const spy = vi
-      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
-      .mockImplementation(function (this: HTMLElement) {
-        const box = (top: number, bottom: number): DOMRect =>
-          ({
-            x: 0,
-            y: top,
-            top,
-            left: 0,
-            right: 100,
-            bottom,
-            width: 100,
-            height: bottom - top,
-            toJSON() {
-              return {}
-            },
-          }) as DOMRect
-        if (this.getAttribute('data-slot') === 'day-intro') return box(0, chromeBottom)
-        if (this.getAttribute('data-day-section') === 'macros') {
-          return box(tops.section, tops.section + 80)
-        }
-        return box(0, 0)
-      })
     const main = document.createElement('div')
     main.id = 'main-content'
     document.body.appendChild(main)
@@ -381,7 +319,6 @@ describe('Day КБЖУ collapse (#1029)', () => {
       await user.click(screen.getByRole('button', { name: /Hide calories & macros/ }))
       expect(useTodaySectionsCollapseStore.getState().sections.macros).toBe(true)
 
-      tops.section = chromeBottom + MACROS_AUTO_COLLAPSE_HYSTERESIS_PX + 24
       scrollTop = 48
       act(() => {
         main.dispatchEvent(new Event('scroll'))
@@ -395,7 +332,6 @@ describe('Day КБЖУ collapse (#1029)', () => {
       expect(screen.queryByText('Consumed')).toBeNull()
     } finally {
       cleanup()
-      spy.mockRestore()
       main.remove()
     }
   })

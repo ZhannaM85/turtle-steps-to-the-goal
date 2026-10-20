@@ -5,7 +5,6 @@ import { useTodaySectionsCollapseStore } from '@/stores'
 import { DayPinFrame, DaySectionPinButton } from './DaySectionPin'
 import { DayMacrosCompactSummary } from './DayMacrosCompactSummary'
 import { formatDayKcalStrip } from './dayKcalStripModel'
-import { useMacrosAutoCollapse } from './macrosAutoCollapse'
 import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
 
 /**
@@ -13,10 +12,10 @@ import { useDailyEntryFormStateContext } from './useDailyEntryFormStateContext'
  * eaten/goal line as the sticky strip (#1034). A pin keeps this section
  * first in the Day list. #1049 — a pinned row stays sticky when expanded
  * too, with a higher z-index, so opening the stripe paints the cards over
- * the content below instead of scrolling the page (#1048). #1036 — a
- * downward scroll collapses the expanded cards (including while sticky).
- * #1038 — scrolling back up opens that automatic collapse once the row
- * has left the stick line; a chevron close stays closed.
+ * the content below instead of scrolling the page (#1048).
+ * #1109 — scroll alone must not collapse or stick this block; collapse
+ * for the sticky compact line happens when the user pins (#DaySectionPin
+ * macros pin → collapse). Chevron still opens/closes by hand.
  * #1039 — `pt-3` on this card when expanded. #1046 dropped it while
  * collapsed. #1050 drops it while expanded too, and drops the content
  * `pt-3`, so the title and the first card sit where the collapsed
@@ -37,7 +36,6 @@ export function DayMacrosSection() {
   const hasSummary = Boolean(
     state.dayMacrosSummary || state.dayRemainingMacrosSummary,
   )
-  useMacrosAutoCollapse(macrosCollapsed, hasSummary)
 
   if (!hasSummary) return null
 

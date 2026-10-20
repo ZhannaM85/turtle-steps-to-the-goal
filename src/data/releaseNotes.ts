@@ -26,9 +26,16 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1081,
+    issue: 1109,
+    date: '2026-10-20T13:15:11Z',
+    en: 'On Day, calories and macros stay open while you scroll; they collapse to the compact sticky line only when you pin that section.',
+    ru: 'На экране «День» калории и макросы остаются раскрытыми при прокрутке; компактная закреплённая строка появляется только если вы закрепите этот блок булавкой.',
+  },
+  {
     version: 1080,
     issue: 1108,
-    date: '2026-10-20T09:05:00Z',
+    date: '2026-10-20T09:05:49Z',
     en: 'The daily reminder notification no longer appears on days you already logged.',
     ru: 'Ежедневное напоминание больше не приходит в дни, когда вы уже внесли запись.',
   },
