@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1080,
+    issue: 1108,
+    date: '2026-10-20T09:05:00Z',
+    en: 'The daily reminder notification no longer appears on days you already logged.',
+    ru: 'Ежедневное напоминание больше не приходит в дни, когда вы уже внесли запись.',
+  },
+  {
     version: 1079,
     issue: 1106,
     date: '2026-10-18T18:04:01Z',

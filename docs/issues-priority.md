@@ -55,7 +55,7 @@ _Daily reminder notification should skip days that already have a log._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1108](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1108) | ⬜ Open | iOS: daily reminder fires even when today is already logged | Native LocalNotifications at reminderTime; skip/cancel when any log exists for today. |
+| [#1108](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1108) | 🔍 Pending validation | iOS: daily reminder fires even when today is already logged | One-shot next fire; skip today when DailyEntry exists; reschedule on save/resume. |
 
 ---
 

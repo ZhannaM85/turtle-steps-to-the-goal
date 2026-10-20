@@ -8,9 +8,10 @@ import { createJSONStorage, persist } from 'zustand/middleware'
  * real OS push notification was possible without a backend to schedule
  * one from. **#605**: now that a native shell exists (#305+),
  * `shared/native/dailyReminderNotification.ts` also schedules a real
- * local notification at `reminderTime` on native platforms; the in-app
- * banner is unchanged and still the only surface on web/PWA. Still kept
- * deliberately quiet — no streaks/badges (#14/#20/#29).
+ * local notification at `reminderTime` on native platforms (#1108: only
+ * for days with no `DailyEntry` yet, matching the in-app banner). The
+ * in-app banner is unchanged and still the only surface on web/PWA.
+ * Still kept deliberately quiet — no streaks/badges (#14/#20/#29).
  */
 interface DailyReminderStoreState {
   enabled: boolean
