@@ -1092,3 +1092,13 @@ _Closed rows only. Open / pending items stay in the active file._
 | [#1106](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1106) | ✅ Done | iOS HealthKit: synced steps total does not match Apple Health day total | Confirmed on-device 2026-10-19 — the synced steps total now matches Apple Health's day total. |
 | [#1105](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1105) | ✅ Done | iOS Day: sync empty weight/sleep/steps from Health | Confirmed on-device 2026-10-19 — empty Day fields sync the selected weight, sleep, or steps value from Apple Health. |
 | [#1104](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1104) | ✅ Done | iOS HealthKit: steps sync on Settings Sync | Confirmed on-device 2026-10-19 — Settings Sync imports the Apple Health steps total and records its provenance. |
+
+---
+
+## Tier 188 — Live feedback (2026-10-20)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1109](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1109) | ✅ Done | Day: КБЖУ strip must not auto-pin/collapse on scroll | Confirmed on-device 2026-10-21. Scroll no longer auto-collapses the КБЖУ strip; pinning still collapses macros. |
