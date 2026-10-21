@@ -23,7 +23,7 @@ describe('aggregateSleepByWakeDay', () => {
   it('sums asleep stages onto the wake (end) day and tracks deep separately', () => {
     const rows = aggregateSleepByWakeDay([
       {
-        startDate: '2026-10-16T22:00:00.000Z',
+        startDate: '2026-10-17T00:00:00.000Z',
         endDate: '2026-10-17T02:00:00.000Z',
         value: 120,
         sleepState: 'light',
@@ -44,6 +44,53 @@ describe('aggregateSleepByWakeDay', () => {
     expect(rows).toHaveLength(1)
     expect(rows[0]!.sleepHours).toBe(5)
     expect(rows[0]!.deepSleepHours).toBe(3)
+  })
+
+  it('counts overlapping Watch stages and another app asleep block once (#1110)', () => {
+    // 20–21 Oct: Watch stages 7h 4m (including 45m deep) sit inside an
+    // 8h 54m asleep interval. Summing both was 15h 58m.
+    const rows = aggregateSleepByWakeDay([
+      {
+        startDate: '2026-10-21T00:45:00.000Z',
+        endDate: '2026-10-21T09:39:00.000Z',
+        value: 534,
+        sleepState: 'asleep',
+      },
+      {
+        startDate: '2026-10-21T00:45:00.000Z',
+        endDate: '2026-10-21T07:04:00.000Z',
+        value: 379,
+        sleepState: 'light',
+      },
+      {
+        startDate: '2026-10-21T07:04:00.000Z',
+        endDate: '2026-10-21T07:49:00.000Z',
+        value: 45,
+        sleepState: 'deep',
+      },
+    ])
+    expect(rows).toHaveLength(1)
+    expect(rows[0]!.sleepHours).toBe(8.9)
+    expect(rows[0]!.deepSleepHours).toBe(0.75)
+  })
+
+  it('still adds a nap that does not overlap the night', () => {
+    const rows = aggregateSleepByWakeDay([
+      {
+        startDate: '2026-10-21T01:00:00.000Z',
+        endDate: '2026-10-21T02:00:00.000Z',
+        value: 60,
+        sleepState: 'asleep',
+      },
+      {
+        startDate: '2026-10-21T12:00:00.000Z',
+        endDate: '2026-10-21T13:30:00.000Z',
+        value: 90,
+        sleepState: 'asleep',
+      },
+    ])
+    expect(rows).toHaveLength(1)
+    expect(rows[0]!.sleepHours).toBe(2.5)
   })
 })
 

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1082,
+    issue: 1110,
+    date: '2026-10-21T08:49:20Z',
+    en: 'Sleep synced from Apple Health no longer counts the same night twice when more than one app recorded it.',
+    ru: 'Сон из Apple Health больше не считается дважды за одну ночь, если её записали несколько приложений.',
+  },
+  {
     version: 1081,
     issue: 1109,
     date: '2026-10-20T13:15:11Z',

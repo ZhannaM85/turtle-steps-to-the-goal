@@ -63,7 +63,7 @@ _Apple Health sleep imported onto Day for 21 Oct 2026 does not match the night (
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1110](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1110) | 🔲 Open | Apple Health sleep on Day does not match the 20–21 Oct night | 7ч 4м and 15ч 58м vs AutoSleep 8h 54m (00:45–09:44); deep stayed 45m. 7h 4m + 8h 54m = 15h 58m. A Health export of that night’s samples would help. |
+| [#1110](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1110) | 🔍 Pending validation | Apple Health sleep on Day does not match the 20–21 Oct night | Overlapping asleep intervals count once. A 7h 4m stage block inside an 8h 54m asleep interval stays 8h 54m; deep sleep stays 45m. |
 
 ---
 

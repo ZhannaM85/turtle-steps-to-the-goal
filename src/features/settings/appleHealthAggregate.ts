@@ -62,24 +62,64 @@ export function aggregateWeightByDay(
   return [...byDay.entries()].map(([date, weightKg]) => ({ date, weightKg }))
 }
 
+type SleepInterval = { start: number; end: number }
+
+/** Union of clock intervals so Watch stages and another app's asleep
+ * block for the same night are not added together (#1110). */
+function mergeSleepIntervals(intervals: SleepInterval[]): SleepInterval[] {
+  const sorted = [...intervals].sort(
+    (a, b) => a.start - b.start || a.end - b.end,
+  )
+  const merged: SleepInterval[] = []
+  for (const interval of sorted) {
+    const last = merged[merged.length - 1]
+    if (last && interval.start <= last.end) {
+      last.end = Math.max(last.end, interval.end)
+    } else {
+      merged.push({ start: interval.start, end: interval.end })
+    }
+  }
+  return merged
+}
+
 /**
- * Sleep attributed to the **wake-up** local day (sample `endDate`), matching
- * Android Health Connect (#658). Capgo reports duration in **minutes**.
+ * Sleep attributed to the **wake-up** local day (interval end), matching
+ * Android Health Connect (#658). Overlapping asleep samples — a second
+ * source, or a coarse asleep block plus stages — count once (#1110).
+ * Capgo reports duration in **minutes**; the clock span is what gets merged.
  */
 export function aggregateSleepByWakeDay(
   samples: AppleHealthSleepSample[],
 ): { date: string; sleepHours: number; deepSleepHours?: number }[] {
-  const byDay = new Map<string, { sleepMin: number; deepMin: number }>()
+  const sleepIntervals: SleepInterval[] = []
+  const deepIntervals: SleepInterval[] = []
   for (const sample of samples) {
     const state = (sample.sleepState ?? 'asleep').toLowerCase()
     if (!ASLEEP_STATES.has(state)) continue
     if (!Number.isFinite(sample.value) || sample.value <= 0) continue
-    const date = localDateKey(sample.endDate)
-    const prev = byDay.get(date) ?? { sleepMin: 0, deepMin: 0 }
-    prev.sleepMin += sample.value
-    if (state === 'deep') prev.deepMin += sample.value
-    byDay.set(date, prev)
+    const start = new Date(sample.startDate).getTime()
+    const end = new Date(sample.endDate).getTime()
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) continue
+    const interval = { start, end }
+    sleepIntervals.push(interval)
+    if (state === 'deep') deepIntervals.push(interval)
   }
+
+  const byDay = new Map<string, { sleepMin: number; deepMin: number }>()
+  const addMerged = (
+    intervals: SleepInterval[],
+    field: 'sleepMin' | 'deepMin',
+  ) => {
+    for (const interval of mergeSleepIntervals(intervals)) {
+      const date = localDateKey(new Date(interval.end).toISOString())
+      const prev = byDay.get(date) ?? { sleepMin: 0, deepMin: 0 }
+      prev[field] += (interval.end - interval.start) / 60_000
+      byDay.set(date, prev)
+    }
+  }
+  addMerged(sleepIntervals, 'sleepMin')
+  addMerged(deepIntervals, 'deepMin')
+
   return [...byDay.entries()].map(([date, { sleepMin, deepMin }]) => {
     const sleepHours = Math.round((sleepMin / 60) * 100) / 100
     const deepSleepHours =
