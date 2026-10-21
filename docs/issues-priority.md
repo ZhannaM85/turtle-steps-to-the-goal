@@ -27,7 +27,6 @@ _User asked about pulling data from Apple Health and Zepp Life. Researched via W
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#334](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/334) | 🛠 Partial | Epic — Apple Health integration | #1098/#1099 validated. #1104/#1105 pending validation. Not water/background. Manual XML remains #366. |
 
 ---
 
