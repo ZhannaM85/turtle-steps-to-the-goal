@@ -1102,3 +1102,4 @@ _Closed rows only. Open / pending items stay in the active file._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1109](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1109) | ✅ Done | Day: КБЖУ strip must not auto-pin/collapse on scroll | Confirmed on-device 2026-10-21. Scroll no longer auto-collapses the КБЖУ strip; pinning still collapses macros. |
+| [#1108](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1108) | ✅ Done | iOS: daily reminder fires even when today is already logged | Confirmed on-device 2026-10-21. The reminder skips today when that day already has a log. |
