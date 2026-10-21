@@ -60,6 +60,16 @@ _Daily reminder notification should skip days that already have a log. Day КБ�
 
 ---
 
+## Tier 189 — Live feedback (2026-10-21)
+
+_Apple Health sleep imported onto Day for 21 Oct 2026 does not match the night (7h 4m and 15h 58m vs AutoSleep 8h 54m)._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1110](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1110) | 🔲 Open | Apple Health sleep on Day does not match the 20–21 Oct night | 7ч 4м and 15ч 58м vs AutoSleep 8h 54m (00:45–09:44); deep stayed 45m. 7h 4m + 8h 54m = 15h 58m. A Health export of that night’s samples would help. |
+
+---
+
 ## Tier 163 — Live feedback (2026-09-15)
 
 _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack (#905) + diary follow-ups; sticky page tops._
