@@ -66,6 +66,16 @@ _Apple Health sleep imported onto Day for 21 Oct 2026 does not match the night (
 
 ---
 
+## Tier 190 — Dishes last eaten (2026-10-22)
+
+_Settings → Dishes can be sorted by when the food was last eaten, and each row shows that diary day, so a search for something like cookies answers when it was last eaten._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1111](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1111) | 🔲 Open | Settings dishes: sort by last eaten and show that date | No last-eaten date is stored on the dish. `createdAt` is date added; `updatedAt` also moves on rename, favorite, barcode, brand, and servings. `lastAmountKcal` is the last portion with no date. Derive the diary day from day logs by food name (no id link; a rename does not rewrite old logs). Two sort options, newest and oldest first; foods never logged show no date and sort last. Settings list only. |
+
+---
+
 ## Tier 163 — Live feedback (2026-09-15)
 
 _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack (#905) + diary follow-ups; sticky page tops._
