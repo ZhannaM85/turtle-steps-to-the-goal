@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1083,
+    issue: 1111,
+    date: '2026-10-22T17:37:50Z',
+    en: 'In Settings, the food list can be sorted by when you last ate each food, and each food shows that date.',
+    ru: 'В настройках список блюд можно отсортировать по тому, когда вы ели их в последний раз, и у каждого блюда видна эта дата.',
+  },
+  {
     version: 1082,
     issue: 1110,
     date: '2026-10-21T08:49:20Z',

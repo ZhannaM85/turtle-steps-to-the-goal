@@ -12,20 +12,17 @@ import {
   type MealLibraryPropagationPatch,
 } from '@/domain/mealItem'
 import { IndexedDbDailyEntryRepository } from '@/infrastructure/persistence/indexeddb'
-import {
-  isMealLibrarySort,
-  sortMealLibraryItems,
-} from '@/shared/lib/sortMealLibraryItems'
+import { sortMealLibraryItems } from '@/shared/lib/sortMealLibraryItems'
 import { useMealItemStore, useMealLibrarySortStore } from '@/stores'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
-import { Label } from '@/shared/ui/label'
-import { Select } from '@/shared/ui/select'
 import { ShareFoodDialog, useFoodShareUiStore } from '@/features/food-share'
 import { AddMealItemForm } from './AddMealItemForm'
 import { MealItemRow } from './MealItemRow'
+import { MealLibrarySortField } from './MealLibrarySortField'
 import { mealItemMatchesSearch } from './mealItemsSectionShared'
+import { useLastEatenDays } from './useLastEatenDays'
 
 const dailyEntryRepositoryForBackfill = new IndexedDbDailyEntryRepository()
 
@@ -70,6 +67,7 @@ export function MealItemsSection() {
     count: number
   } | null>(null)
   const [propagateBusy, setPropagateBusy] = useState(false)
+  const { lastEatenByName, refreshLastEatenDays } = useLastEatenDays()
 
   useEffect(() => {
     loadItems()
@@ -129,6 +127,7 @@ export function MealItemsSection() {
           dailyEntryRepositoryForBackfill.upsert(entry),
         ),
       )
+      await refreshLastEatenDays()
       setBackfillMessage(
         t.settings.mealLibraryPropagateDoneMessage(result.updatedItemCount),
       )
@@ -183,7 +182,14 @@ export function MealItemsSection() {
   const filteredItems = query
     ? items.filter((item) => mealItemMatchesSearch(item, search))
     : items
-  const visibleItems = sortMealLibraryItems(filteredItems, sort, locale)
+  const visibleItems = sortMealLibraryItems(
+    filteredItems.map((item) => ({
+      ...item,
+      lastEatenOn: lastEatenByName.get(normalizeMealLibraryName(item.name)),
+    })),
+    sort,
+    locale,
+  )
   // #786 — hide the leftover-food banner as soon as that row is gone (do
   // not wait for an effect). Search is cleared in confirm-delete below.
   const shownMovedOffer =
@@ -253,32 +259,7 @@ export function MealItemsSection() {
                 )
               : t.settings.mealItemsCount(items.length)}
           </p>
-          {/* #684 — sort near count/search; preference persisted in localStorage. */}
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="meal-library-sort">
-              {t.settings.mealItemsSortLabel}
-            </Label>
-            <Select
-              id="meal-library-sort"
-              aria-label={t.settings.mealItemsSortLabel}
-              value={sort}
-              onChange={(e) => {
-                const next = e.target.value
-                if (isMealLibrarySort(next)) setSort(next)
-              }}
-            >
-              <option value="title-asc">{t.settings.mealItemsSortTitleAsc}</option>
-              <option value="title-desc">
-                {t.settings.mealItemsSortTitleDesc}
-              </option>
-              <option value="added-newest">
-                {t.settings.mealItemsSortAddedNewest}
-              </option>
-              <option value="added-oldest">
-                {t.settings.mealItemsSortAddedOldest}
-              </option>
-            </Select>
-          </div>
+          <MealLibrarySortField sort={sort} onSort={setSort} />
           <div className="relative">
             <Input
               type="text"
@@ -358,6 +339,7 @@ export function MealItemsSection() {
               onToggleFavorite={toggleFavorite}
               onSaveServings={setServings}
               onShare={setShareItem}
+              lastEatenOn={item.lastEatenOn}
             />
           ))}
         </ul>

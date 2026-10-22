@@ -36,6 +36,9 @@ export const settings: SettingsDict = {
     mealItemsSortTitleDesc: 'Title Z→A',
     mealItemsSortAddedNewest: 'Date added (newest first)',
     mealItemsSortAddedOldest: 'Date added (oldest first)',
+    mealItemsSortEatenNewest: 'Last eaten (newest first)',
+    mealItemsSortEatenOldest: 'Last eaten (oldest first)',
+    mealItemLastEaten: (date) => `Last eaten ${date}`,
     mealLibraryBackfillDescription:
       'If you imported meals (or have years of history), you can copy unique dish names into this library so Find food can reuse them. You can remove only those copied items later — day history stays intact.',
     mealLibraryBackfillButton: 'Add foods from meal history',

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Check, Pencil, Share2, Star, Trash2 } from 'lucide-react'
-import { formatNumber, useLocale, useTranslation } from '@/i18n'
+import { formatLocalizedDate, formatNumber, useLocale, useTranslation } from '@/i18n'
 import {
   cholesterolChoice,
   cholesterolForFoodRecord,
@@ -42,6 +42,7 @@ export function MealItemRow({
   onToggleFavorite,
   onSaveServings,
   onShare,
+  lastEatenOn,
 }: {
   item: MealItem
   onRename: (id: string, name: string) => void | Promise<void>
@@ -71,9 +72,16 @@ export function MealItemRow({
   onToggleFavorite: (id: string) => void
   onSaveServings: (id: string, servings: MealItemServing[]) => void
   onShare: (item: MealItem) => void
+  /** Diary day YYYY-MM-DD this food was last logged (#1111). Omitted when never logged. */
+  lastEatenOn?: string
 }) {
   const t = useTranslation()
   const locale = useLocale()
+  const lastEatenLabel = (() => {
+    if (!lastEatenOn) return null
+    const formatted = formatLocalizedDate(lastEatenOn, locale)
+    return formatted ? t.settings.mealItemLastEaten(formatted) : null
+  })()
   const [value, setValue] = useState(item.name)
   const [isEditingNutrition, setIsEditingNutrition] = useState(false)
   const [kcal100, setKcal100] = useState('')
@@ -706,6 +714,11 @@ export function MealItemRow({
               <Trash2 aria-hidden="true" />
             </Button>
           </div>
+          {lastEatenLabel && (
+            <span className="pl-1 text-xs text-muted-foreground">
+              {lastEatenLabel}
+            </span>
+          )}
           {item.lastAmountKcal !== undefined && (
             <span className="pl-1 text-xs text-muted-foreground">
               {formatNumber(item.lastAmountKcal, locale, 0)}{' '}

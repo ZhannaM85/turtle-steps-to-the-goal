@@ -37,6 +37,9 @@ export const settings: SettingsDict = {
     mealItemsSortTitleDesc: 'Название Я→А',
     mealItemsSortAddedNewest: 'Дата добавления (сначала новые)',
     mealItemsSortAddedOldest: 'Дата добавления (сначала старые)',
+    mealItemsSortEatenNewest: 'Последний раз (сначала недавние)',
+    mealItemsSortEatenOldest: 'Последний раз (сначала давние)',
+    mealItemLastEaten: (date) => `Последний раз ${date}`,
     mealLibraryBackfillDescription:
       'Если вы импортировали приёмы пищи (или у вас многолетняя история), можно скопировать уникальные названия блюд в эту библиотеку — тогда их найдёт поиск. Позже можно удалить только эти скопированные позиции — история дней не затронется.',
     mealLibraryBackfillButton: 'Добавить блюда из истории',

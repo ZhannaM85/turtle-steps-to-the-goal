@@ -42,6 +42,10 @@ export interface SettingsDict {
     mealItemsSortTitleDesc: string
     mealItemsSortAddedNewest: string
     mealItemsSortAddedOldest: string
+    /** #1111 — diary day the food was last logged, newest or oldest first. */
+    mealItemsSortEatenNewest: string
+    mealItemsSortEatenOldest: string
+    mealItemLastEaten: (date: string) => string
     /** #541 — opt-in backfill from day meal history into the personal library. */
     mealLibraryBackfillDescription: string
     mealLibraryBackfillButton: string

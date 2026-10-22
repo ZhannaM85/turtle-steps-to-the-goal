@@ -2,6 +2,7 @@ import 'fake-indexeddb/auto'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { formatLocalizedDate } from '@/i18n'
 import { db } from '@/infrastructure/persistence/indexeddb'
 import { useMealItemStore, useMealLibrarySortStore } from '@/stores'
 import { MealItemsSection } from './MealItemsSection'
@@ -27,6 +28,7 @@ function mockScanning(barcode: string) {
 
 beforeEach(async () => {
   await db.mealItems.clear()
+  await db.dailyEntries.clear()
   useMealItemStore.setState({ items: [], status: 'idle', error: null })
   useMealLibrarySortStore.setState({ sort: 'title-asc' })
   localStorage.removeItem('turtle-steps-meal-library-sort')
@@ -34,6 +36,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await db.mealItems.clear()
+  await db.dailyEntries.clear()
   localStorage.removeItem('turtle-steps-meal-library-sort')
 })
 
@@ -128,6 +131,87 @@ describe('MealItemsSection', () => {
       'added-oldest',
     )
     positions = orderOf('Salad', 'Apple', 'Pizza')
+    expect(positions[0]).toBeLessThan(positions[1])
+    expect(positions[1]).toBeLessThan(positions[2])
+  })
+
+  it('sorts by last eaten and shows that diary day (#1111)', async () => {
+    const now = '2026-08-10T12:00:00.000Z'
+    await db.mealItems.bulkPut([
+      {
+        id: 'salad',
+        name: 'Salad',
+        createdAt: '2026-08-01T00:00:00.000Z',
+        updatedAt: '2026-08-01T00:00:00.000Z',
+      },
+      {
+        id: 'pizza',
+        name: 'Pizza',
+        createdAt: '2026-08-10T00:00:00.000Z',
+        updatedAt: '2026-08-10T00:00:00.000Z',
+      },
+      {
+        id: 'apple',
+        name: 'Apple',
+        createdAt: '2026-08-05T00:00:00.000Z',
+        updatedAt: '2026-08-05T00:00:00.000Z',
+      },
+    ])
+    await db.dailyEntries.bulkPut([
+      {
+        id: 'day-salad',
+        date: '2026-07-01',
+        createdAt: now,
+        updatedAt: now,
+        calorieEntries: [
+          {
+            id: 'meal-salad',
+            createdAt: now,
+            items: [{ id: 'food-salad', name: '  SALAD ', amountKcal: 80 }],
+          },
+        ],
+      },
+      {
+        id: 'day-pizza',
+        date: '2026-08-20',
+        createdAt: now,
+        updatedAt: now,
+        calorieEntries: [
+          {
+            id: 'meal-pizza',
+            createdAt: now,
+            items: [{ id: 'food-pizza', name: 'pizza', amountKcal: 400 }],
+          },
+        ],
+      },
+    ])
+    await useMealItemStore.getState().loadItems()
+    const user = userEvent.setup()
+    render(<MealItemsSection />)
+
+    expect(
+      await screen.findByText(
+        `Last eaten ${formatLocalizedDate('2026-08-20', 'en')}`,
+      ),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(`Last eaten ${formatLocalizedDate('2026-07-01', 'en')}`),
+    ).toBeInTheDocument()
+
+    const list = screen.getByRole('list')
+    expect(within(list).getAllByText(/Last eaten/).length).toBe(2)
+    const orderOf = (...labels: string[]) => {
+      const text = list.textContent ?? ''
+      return labels.map((label) => text.indexOf(label))
+    }
+
+    await user.selectOptions(screen.getByLabelText('Sort by'), 'eaten-newest')
+    let positions = orderOf('Pizza', 'Salad', 'Apple')
+    expect(positions[0]).toBeLessThan(positions[1])
+    expect(positions[1]).toBeLessThan(positions[2])
+
+    await user.selectOptions(screen.getByLabelText('Sort by'), 'eaten-oldest')
+    positions = orderOf('Salad', 'Pizza', 'Apple')
     expect(positions[0]).toBeLessThan(positions[1])
     expect(positions[1]).toBeLessThan(positions[2])
   })

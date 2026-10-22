@@ -35,4 +35,18 @@ describe('sortMealLibraryItems (#684)', () => {
       ),
     ).toEqual(['Salad', 'Apple', 'Pizza'])
   })
+
+  it('sorts by last eaten, with never-eaten foods last (#1111)', () => {
+    const eaten = [
+      { name: 'Salad', createdAt: '2026-08-01T00:00:00.000Z', lastEatenOn: '2026-07-01' },
+      { name: 'Pizza', createdAt: '2026-08-10T00:00:00.000Z', lastEatenOn: '2026-08-20' },
+      { name: 'Apple', createdAt: '2026-08-05T00:00:00.000Z' },
+    ]
+    expect(
+      sortMealLibraryItems(eaten, 'eaten-newest', 'en').map((item) => item.name),
+    ).toEqual(['Pizza', 'Salad', 'Apple'])
+    expect(
+      sortMealLibraryItems(eaten, 'eaten-oldest', 'en').map((item) => item.name),
+    ).toEqual(['Salad', 'Pizza', 'Apple'])
+  })
 })

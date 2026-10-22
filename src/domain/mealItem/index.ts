@@ -10,6 +10,7 @@ export type {
   MealLibraryBackfillCandidate,
   MealLibraryBackfillPlan,
 } from './mealLibraryBackfill'
+export { latestEatenDayByNormalizedName } from './latestEatenDay'
 export {
   countMealLibraryNameMatches,
   propagateMealLibraryEdit,

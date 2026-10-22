@@ -72,7 +72,7 @@ _Settings → Dishes can be sorted by when the food was last eaten, and each row
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1111](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1111) | 🔲 Open | Settings dishes: sort by last eaten and show that date | No last-eaten date is stored on the dish. `createdAt` is date added; `updatedAt` also moves on rename, favorite, barcode, brand, and servings. `lastAmountKcal` is the last portion with no date. Derive the diary day from day logs by food name (no id link; a rename does not rewrite old logs). Two sort options, newest and oldest first; foods never logged show no date and sort last. Settings list only. |
+| [#1111](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1111) | 🔍 Pending validation | Settings dishes: sort by last eaten and show that date | Derived from day logs by food name (not `updatedAt`). Two sort options; never-logged foods show no date and sort last. Settings list only. |
 
 ---
 
