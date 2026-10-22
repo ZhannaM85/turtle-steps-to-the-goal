@@ -400,6 +400,8 @@ _AutoSleep Today deep sleep (z-icon vs star), Zepp goals screenshot body composi
 
 _Day page weekly-goal completed modal; barcode scanner focus; complete-week celebration re-offer; manual barcode on saved foods._
 
+| [#1110](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1110) | ✅ Done | Apple Health sleep on Day does not match the 20–21 Oct night | Confirmed on-device 2026-10-22 — overlapping asleep intervals count once; a 7h 4m stage block inside an 8h 54m interval stays 8h 54m, with deep sleep at 45m. TestFlight build 14. |
+
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#776](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/776) | ✅ Done | Day: weekly-goal completed modal shows on Sunday before weight is logged | Closed 2026-08-30 without end-of-week on-device check (this week's complete modal was already dismissed before Sunday's weigh-in). Will reopen if it still appears before last-day weight next Sunday. |
