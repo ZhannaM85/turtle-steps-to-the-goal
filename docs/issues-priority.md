@@ -72,7 +72,6 @@ _Settings → Dishes can be sorted by when the food was last eaten, and each row
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1111](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1111) | 🔍 Pending validation | Settings dishes: sort by last eaten and show that date | Derived from day logs by food name (not `updatedAt`). Two sort options; never-logged foods show no date and sort last. Settings list only. |
 
 ---
 
