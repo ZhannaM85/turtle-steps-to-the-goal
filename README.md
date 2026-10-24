@@ -32,8 +32,16 @@ devices. Local browser storage is not a substitute for a saved backup.
   export backups, Excel, CSV, or Markdown. (No live Android Health Connect
   sync from Zepp Life — that path was tried and closed as not planned; see
   `docs/ARCHITECTURE.md` → “Android Health Connect — not planned”.)
+- On iOS, sync Apple Health steps, sleep, and eligible empty Day fields from
+  Settings. Overlapping sleep records count once, and synced step totals match
+  Apple Health's daily aggregate.
 - Use the installable PWA in English or Russian, with light/dark mode and
   several color themes.
+
+Recent improvements include reminders that skip days you've already logged,
+and a Day nutrition summary that stays expanded while you scroll unless you
+pin it. In Settings, saved foods show when you last ate them and can be sorted
+by that date.
 
 ## Screenshots
 
