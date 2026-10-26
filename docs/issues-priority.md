@@ -81,7 +81,7 @@ _Clear every open Dependabot alert by bumping the locked packages to patched rel
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1113](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1113) | 🔲 Open | Clear open Dependabot security alerts | zod, dompurify (via jspdf), vite, vitest, undici, fast-uri, serialize-javascript, brace-expansion. Lockfile bumps only |
+| [#1113](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1113) | 🔍 Pending validation | Clear open Dependabot security alerts | Lockfile now resolves patched zod 4.6.7, dompurify 3.4.17, vite 8.1.6, vitest 5.0.5, undici 7.30.1, fast-uri 3.1.9, serialize-javascript 7.1.4, brace-expansion 1.1.21/2.1.7/5.0.12, body-parser 2.4.x, ip-address 10.7.5, pbkdf2 3.1.7, and shadcn 4.22.1 (drops nested zod 3). `npm audit` reports 0 vulnerabilities. Confirm the Dependabot security tab is empty after GitHub rescans |
 
 ---
 

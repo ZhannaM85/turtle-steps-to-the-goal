@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1084,
+    issue: 1113,
+    date: '2026-10-26T19:21:41Z',
+    en: 'The app now uses updated copies of its libraries that include published security fixes.',
+    ru: 'Приложение теперь использует обновлённые версии своих библиотек с опубликованными исправлениями безопасности.',
+  },
+  {
     version: 1083,
     issue: 1111,
     date: '2026-10-22T17:37:50Z',
