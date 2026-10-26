@@ -75,16 +75,6 @@ _Settings → Dishes can be sorted by when the food was last eaten, and each row
 
 ---
 
-## Tier 191 — Dependabot security alerts (2026-10-26)
-
-_Clear every open Dependabot alert by bumping the locked packages to patched releases already allowed by their parent ranges._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#1113](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1113) | 🔍 Pending validation | Clear open Dependabot security alerts | Lockfile now resolves patched zod 4.6.7, dompurify 3.4.17, vite 8.1.6, vitest 5.0.5, undici 7.30.1, fast-uri 3.1.9, serialize-javascript 7.1.4, brace-expansion 1.1.21/2.1.7/5.0.12, body-parser 2.4.x, ip-address 10.7.5, pbkdf2 3.1.7, and shadcn 4.22.1 (drops nested zod 3). `npm audit` reports 0 vulnerabilities. Confirm the Dependabot security tab is empty after GitHub rescans |
-
----
-
 ## Tier 163 — Live feedback (2026-09-15)
 
 _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack (#905) + diary follow-ups; sticky page tops._

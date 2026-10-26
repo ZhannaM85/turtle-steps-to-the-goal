@@ -1114,3 +1114,13 @@ _Closed rows only. Open / pending items stay in the active file._
 |---|--------|-------|-------|
 | [#1111](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1111) | ✅ Done | Settings dishes: sort by last eaten and show that date | Confirmed on-device 2026-10-23. Last-eaten sorting and matching diary dates work in Settings. |
 
+---
+
+## Tier 191 — Dependabot security alerts (2026-10-26)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1113](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1113) | ✅ Done | Clear open Dependabot security alerts | Confirmed 2026-10-26. Lockfile bumps cleared the open Dependabot alerts. |
+
