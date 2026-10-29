@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1085,
+    issue: 1114,
+    date: '2026-10-29T08:41:14Z',
+    en: 'On iPhone Safari and the home-screen app, the header title sits lower so it stays sharp.',
+    ru: 'В Safari и в приложении с домашнего экрана iPhone название в шапке стоит ниже, чтобы оно оставалось чётким.',
+  },
+  {
     version: 1084,
     issue: 1113,
     date: '2026-10-26T19:21:41Z',

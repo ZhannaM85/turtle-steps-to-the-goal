@@ -675,6 +675,14 @@ html body[data-scroll-locked] {
   line-height: normal;
 }
 
+/* #1114: iOS Safari and the home-screen PWA report safe-area-inset-top as 0,
+   so the title sat 12px from the top, inside the status-bar frost. 40px
+   (2.5rem) is sharp. The class is added only when the native app is not
+   running, so the iOS app keeps the safe-area padding above. */
+.ios-web-header {
+  padding-top: max(2.5rem, calc(env(safe-area-inset-top, 0px) + 0.75rem));
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

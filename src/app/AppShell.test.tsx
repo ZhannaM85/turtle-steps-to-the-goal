@@ -255,6 +255,32 @@ describe('AppShell flex column pins the tab bar (#970)', () => {
   })
 })
 
+describe('iOS web header clears the top frost (#1114)', () => {
+  const originalUserAgent = navigator.userAgent
+
+  afterEach(() => {
+    Object.defineProperty(navigator, 'userAgent', {
+      configurable: true,
+      value: originalUserAgent,
+    })
+  })
+
+  it('does not add the extra offset on desktop or in the default test browser', () => {
+    renderShellWithInput()
+    expect(document.querySelector('.ios-web-header')).toBeNull()
+  })
+
+  it('lowers the header on iPhone Safari and the home-screen PWA', () => {
+    Object.defineProperty(navigator, 'userAgent', {
+      configurable: true,
+      value:
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1',
+    })
+    renderShellWithInput()
+    expect(document.querySelector('.ios-web-header')).toBeTruthy()
+  })
+})
+
 describe('status-bar header scrolls the active screen to the top (#979)', () => {
   afterEach(() => {
     vi.restoreAllMocks()

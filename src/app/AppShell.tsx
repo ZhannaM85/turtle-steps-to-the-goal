@@ -13,6 +13,7 @@ import { DaySnippetImportHost } from '@/features/local-transfer/DaySnippetImport
 import { useTranslation, type Dictionary } from '@/i18n'
 import { scrollAppToTop } from '@/shared/lib/appScroll'
 import { cn } from '@/shared/lib/utils'
+import { isIosWebShell } from '@/shared/native/iosWebHeader'
 import { AppUpdateBanner } from './AppUpdateBanner'
 import { OfflineBanner } from './OfflineBanner'
 import { PullToRefreshIndicator } from './PullToRefreshIndicator'
@@ -86,8 +87,15 @@ export function AppShell() {
         {/* #308: the native shell's status bar now overlays the WebView
          * (Android 15+ enforces edge-to-edge, can't opt out) — without this
          * top safe-area padding, the status bar's clock/icons drew directly
-         * on top of the app name text instead of above it. */}
-        <div className="pointer-events-none relative z-10 mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-3">
+         * on top of the app name text instead of above it.
+         * #1114: `ios-web-header` is only iPhone/iPad Safari and the
+         * home-screen PWA. The native app keeps this padding as-is. */}
+        <div
+          className={cn(
+            'pointer-events-none relative z-10 mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-3',
+            isIosWebShell() && 'ios-web-header',
+          )}
+        >
           <span className="text-sm font-semibold text-foreground">
             {t.nav.appName}
           </span>
