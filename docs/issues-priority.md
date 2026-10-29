@@ -75,6 +75,16 @@ _Settings → Dishes can be sorted by when the food was last eaten, and each row
 
 ---
 
+## Tier 192 — iPhone web header blur (2026-10-29)
+
+_Safari and the home-screen PWA show a blurred header title. The native iOS app stays sharp and must not change. Same frost as My Money #321._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1114](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1114) | 🔲 Open | iPhone Safari and PWA: header title looks blurred | Web and PWA only. Native iOS header stays unchanged. Same frost as [my-money #321](https://github.com/ZhannaM85/my-money/issues/321), where 40px of web header padding made the title sharp. |
+
+---
+
 ## Tier 163 — Live feedback (2026-09-15)
 
 _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack (#905) + diary follow-ups; sticky page tops._
