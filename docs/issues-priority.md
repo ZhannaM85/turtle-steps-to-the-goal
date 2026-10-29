@@ -81,7 +81,6 @@ _Safari and the home-screen PWA show a blurred header title. The native iOS app 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1114](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1114) | 🔍 Pending validation | iPhone Safari and PWA: header title looks blurred | iOS Safari and the home-screen PWA use at least 40px of header padding so the title sits below the top frost. The native iOS app keeps its existing safe-area padding. Same frost as [my-money #321](https://github.com/ZhannaM85/my-money/issues/321). |
 
 ---
 

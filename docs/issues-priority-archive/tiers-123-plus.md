@@ -1124,3 +1124,13 @@ _Closed rows only. Open / pending items stay in the active file._
 |---|--------|-------|-------|
 | [#1113](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1113) | ✅ Done | Clear open Dependabot security alerts | Confirmed 2026-10-26. Lockfile bumps cleared the open Dependabot alerts. |
 
+---
+
+## Tier 192 — iPhone web header blur (2026-10-29)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1114](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1114) | ✅ Done | iPhone Safari and PWA: header title looks blurred | Confirmed on-device 2026-10-29. The header title is sharp in Safari and the home-screen PWA. The native iOS app header was left unchanged. |
+
