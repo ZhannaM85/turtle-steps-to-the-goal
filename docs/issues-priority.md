@@ -84,6 +84,16 @@ _Safari and the home-screen PWA show a blurred header title. The native iOS app 
 
 ---
 
+## Tier 193 — Why I’m doing this (2026-10-31)
+
+_On Day, an opt-in section under the weekly target holds several reasons for losing weight. It stays collapsed until opened. Saved reasons are cards you can edit, reorder, and delete after confirmation. Off until What to track is turned on. Not on the Goal page, and a new goal does not clear them._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1115](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1115) | 🔲 Open | Day: optional Why I am doing this cards under the weekly target | Collapsed under the weekly target. Pencil edits the whole stack: save, cancel, drag to reorder, delete after confirmation. Settings → What to track, off by default. Backup keeps the list. |
+
+---
+
 ## Tier 163 — Live feedback (2026-09-15)
 
 _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack (#905) + diary follow-ups; sticky page tops._
