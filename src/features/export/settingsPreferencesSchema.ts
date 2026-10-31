@@ -42,6 +42,7 @@ export const settingsPreferencesSchema = z
         autoSleepScreenshot: z.boolean().optional(),
         mealNotes: z.boolean().optional(),
         mealReactions: z.boolean().optional(),
+        whyDoingThis: z.boolean().optional(),
       })
       .optional(),
     dailyReminder: z.boolean().optional(),
@@ -63,6 +64,9 @@ export const settingsPreferencesSchema = z
       })
       .optional(),
     mealLabelPresets: z.array(z.string()).optional(),
+    whyDoingThisCards: z
+      .array(z.object({ id: z.string().min(1), text: z.string() }))
+      .optional(),
     customEatingReasons: z.array(z.string()).optional(),
     builtinEatingReasonLabels: z
       .object({

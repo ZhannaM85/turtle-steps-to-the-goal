@@ -34,6 +34,7 @@ const SIMPLE_TRACKED_FIELDS: Record<TrackedField, boolean> = {
   fiber: false,
   zeppScreenshot: true,
   autoSleepScreenshot: true,
+  whyDoingThis: false,
 }
 
 /** The app's own out-of-the-box defaults (`trackedFieldsStore.ts`'s
@@ -56,6 +57,7 @@ const FULL_TRACKED_FIELDS: Record<TrackedField, boolean> = {
   fiber: true,
   zeppScreenshot: true,
   autoSleepScreenshot: true,
+  whyDoingThis: false,
 }
 
 /** Today's own stat-card sections tied to the fields above — hidden

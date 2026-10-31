@@ -773,6 +773,7 @@ describe('SettingsScreen', () => {
           autoSleepScreenshot: true,
           mealNotes: false,
           mealReactions: false,
+          whyDoingThis: false,
         },
       })
       renderSettings()
@@ -797,11 +798,31 @@ describe('SettingsScreen', () => {
           autoSleepScreenshot: true,
           mealNotes: false,
           mealReactions: false,
+          whyDoingThis: false,
         },
       })
       renderSettings()
 
       expect(trackedSwitch('Morning note', 'Morning')).not.toBeChecked()
+    })
+
+    it('lists Why I am doing this in Other and leaves it off (#1115)', async () => {
+      const user = userEvent.setup()
+      useTrackedFieldsStore.setState((state) => ({
+        tracked: { ...state.tracked, whyDoingThis: false },
+      }))
+      renderSettings()
+
+      const toggle = trackedSwitch("Why I'm doing this", 'Other')
+      expect(toggle).not.toBeChecked()
+      expect(
+        screen.getByText(
+          'Reasons you can open on the Day page when you feel like stopping.',
+        ),
+      ).toBeInTheDocument()
+
+      await user.click(toggle)
+      expect(useTrackedFieldsStore.getState().tracked.whyDoingThis).toBe(true)
     })
 
     it('defaults Fiber on and can turn it off (#582)', async () => {

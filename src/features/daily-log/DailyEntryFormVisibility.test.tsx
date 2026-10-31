@@ -40,6 +40,7 @@ describe('DailyEntryForm', () => {
           autoSleepScreenshot: true,
           mealNotes: false,
           mealReactions: false,
+          whyDoingThis: false,
         },
       })
       render(

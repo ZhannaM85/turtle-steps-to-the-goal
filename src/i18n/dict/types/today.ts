@@ -11,6 +11,18 @@ export interface TodayDict {
    * most recently logged one — those can be different days) as context
    * for what it'd apply against. */
   weeklyTargetFromWeight: (weight: string) => string
+  /** #1115 — opt-in reasons under the weekly target, same list every date. */
+  whyDoingThisTitle: string
+  whyDoingThisEditLabel: string
+  whyDoingThisSaveLabel: string
+  whyDoingThisCancelLabel: string
+  whyDoingThisExpandLabel: string
+  whyDoingThisCollapseLabel: string
+  whyDoingThisAddLabel: string
+  whyDoingThisCardLabel: (n: number) => string
+  whyDoingThisDeleteLabel: (n: number) => string
+  whyDoingThisConfirmDeleteLabel: string
+  whyDoingThisReorderLabel: (n: number) => string
   emptyGoalTitle: string
   emptyGoalDescription: string
   setGoalButton: string

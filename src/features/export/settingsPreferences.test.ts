@@ -1,4 +1,5 @@
 import { useTrackedFieldsStore } from "@/stores/trackedFieldsStore"
+import { useWhyDoingThisStore } from "@/stores/whyDoingThisStore"
 import { describe, expect, it } from 'vitest'
 import {
   applyPortableDayToggles,
@@ -101,5 +102,43 @@ describe('portable Day toggles (#861)', () => {
     if (!parsed.success) return
     expect(parsed.data).not.toHaveProperty('dayStartTime')
     expect(parsed.data.unit).toBe('kg')
+  })
+})
+
+describe('why doing this cards (#1115)', () => {
+  it('replaces the list only when the backup contains it', () => {
+    useWhyDoingThisStore.setState({
+      cards: [{ id: 'keep', text: 'Feel better' }],
+    })
+
+    applySettingsPreferences(
+      settingsPreferencesSchema.parse({ unit: 'kg' }),
+    )
+    expect(useWhyDoingThisStore.getState().cards).toEqual([
+      { id: 'keep', text: 'Feel better' },
+    ])
+
+    applySettingsPreferences(
+      settingsPreferencesSchema.parse({
+        whyDoingThisCards: [{ id: 'next', text: '  Health  ' }],
+      }),
+    )
+    expect(useWhyDoingThisStore.getState().cards).toEqual([
+      { id: 'next', text: 'Health' },
+    ])
+
+    applySettingsPreferences(
+      settingsPreferencesSchema.parse({ whyDoingThisCards: [] }),
+    )
+    expect(useWhyDoingThisStore.getState().cards).toEqual([])
+  })
+
+  it('includes the list on a fresh settings backup', () => {
+    useWhyDoingThisStore.setState({
+      cards: [{ id: 'a', text: 'Health' }],
+    })
+    expect(collectSettingsPreferences().whyDoingThisCards).toEqual([
+      { id: 'a', text: 'Health' },
+    ])
   })
 })

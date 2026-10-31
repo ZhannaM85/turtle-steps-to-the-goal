@@ -122,6 +122,7 @@ export function SettingsTrackedFieldsSection() {
     'copyYesterdayMeals',
     'mealKcalVsYesterday',
     'ldlImpact',
+    'whyDoingThis',
   ]
 
   function isFieldTracked(key: UnifiedTrackedKey): boolean {
@@ -248,6 +249,11 @@ export function SettingsTrackedFieldsSection() {
         return {
           label: t.settings.ldlImpactTrackingLabel,
           description: t.settings.trackedFieldHintLdlImpact,
+        }
+      case 'whyDoingThis':
+        return {
+          label: t.settings.whyDoingThisTrackingLabel,
+          description: t.settings.trackedFieldHintWhyDoingThis,
         }
       case 'eatingReason':
         return {

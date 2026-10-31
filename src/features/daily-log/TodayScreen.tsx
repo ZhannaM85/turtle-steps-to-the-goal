@@ -40,6 +40,7 @@ import { TodayDateNav } from './TodayDateNav'
 import { TodayInsightBanners } from './TodayInsightBanners'
 import { TodayStatsSection } from './TodayStatsSection'
 import { TodayWeeklyTarget } from './TodayWeeklyTarget'
+import { WhyDoingThisSection } from './WhyDoingThisSection'
 import { shiftDate } from './todayScreenUtils'
 import { useTodayDayStats } from './useTodayDayStats'
 
@@ -250,6 +251,7 @@ export function TodayScreen() {
         displayUnit={stats.displayUnit}
         toDisplay={stats.toDisplay}
       />
+      <WhyDoingThisSection />
       {entryStatus === 'loading' || entryStatus === 'idle' ? (
         <p
           className="text-sm text-muted-foreground"

@@ -2,6 +2,7 @@ import { useLocaleStore } from '@/i18n'
 import {
   useDailyReminderStore,
   useMealLabelPresetStore,
+  useWhyDoingThisStore,
   useEatingReasonTrackingStore,
   useMealSlotDefaultTimesStore,
   useMicronutrientTrackingStore,
@@ -50,6 +51,10 @@ export function collectSettingsPreferences(): ExportSettingsPreferences {
       activityLevel: profile.activityLevel,
     },
     mealLabelPresets: [...useMealLabelPresetStore.getState().presets],
+    whyDoingThisCards: useWhyDoingThisStore.getState().cards.map((card) => ({
+      id: card.id,
+      text: card.text,
+    })),
     customEatingReasons: [
       ...useEatingReasonTrackingStore.getState().customReasons,
     ],
@@ -123,6 +128,13 @@ export function applySettingsPreferences(
   if (settings.mealLabelPresets) {
     useMealLabelPresetStore.setState({
       presets: [...settings.mealLabelPresets],
+    })
+  }
+  if (settings.whyDoingThisCards) {
+    useWhyDoingThisStore.setState({
+      cards: settings.whyDoingThisCards
+        .map((card) => ({ id: card.id, text: card.text.trim() }))
+        .filter((card) => card.text !== ''),
     })
   }
   if (settings.customEatingReasons || settings.builtinEatingReasonLabels) {

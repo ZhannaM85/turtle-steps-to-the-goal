@@ -37,6 +37,11 @@ export type { WeekStart } from './weekStartStore'
 export { useFoodOverrideStore } from './foodOverrideStore'
 export { useCatalogFoodImportStore } from './catalogFoodImportStore'
 export { useMealLabelPresetStore } from './mealLabelPresetStore'
+export {
+  useWhyDoingThisStore,
+  reorderWhyDoingThisDraft,
+  type WhyDoingThisCard,
+} from './whyDoingThisStore'
 export { useDailyReminderStore } from './dailyReminderStore'
 export { useCustomChartSelectionStore } from './customChartSelectionStore'
 export type { ChartSeriesType } from './customChartSelectionStore'

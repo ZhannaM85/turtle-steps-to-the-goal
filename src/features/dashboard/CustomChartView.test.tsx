@@ -65,6 +65,7 @@ beforeEach(() => {
       autoSleepScreenshot: true,
       mealNotes: false,
       mealReactions: false,
+      whyDoingThis: false,
     },
   })
   useCustomMetricStore.setState({ metrics: [], entries: [] })

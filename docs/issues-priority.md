@@ -90,7 +90,7 @@ _On Day, an opt-in section under the weekly target holds several reasons for los
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1115](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1115) | 🔲 Open | Day: optional Why I am doing this cards under the weekly target | Collapsed under the weekly target. Pencil edits the whole stack: save, cancel, drag to reorder, delete after confirmation. Settings → What to track, off by default. Backup keeps the list. |
+| [#1115](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1115) | 🔍 Pending validation | Day: optional Why I am doing this cards under the weekly target | Collapsed under the weekly target. Pencil edits the whole stack: save, cancel, drag to reorder, delete after confirmation. Settings → What to track → Other, off by default. Saved cards stay when the switch is off and travel on the settings backup. Not a Day pin. |
 
 ---
 

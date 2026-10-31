@@ -182,6 +182,7 @@ export const settings: SettingsDict = {
     copyYesterdayMealsTrackingLabel: "Copy yesterday's meals",
     mealKcalVsYesterdayTrackingLabel: 'Meal kcal vs yesterday',
     ldlImpactTrackingLabel: 'Show LDL impact',
+    whyDoingThisTrackingLabel: "Why I'm doing this",
     trackingPresetLabel: 'Layout preset',
     trackingPresetDescription:
       "Quick starting point for Day: Simple keeps weight, meals/calories, and your goal; Full turns everything on. You can still adjust anything below afterward.",
@@ -229,6 +230,8 @@ export const settings: SettingsDict = {
       'On each meal card, an up/down arrow for calories versus the latest earlier meal with the same name (green if less, red if more).',
     trackedFieldHintLdlImpact:
       'A compact note on each Day food. Qualitative guidance, not a medical score.',
+    trackedFieldHintWhyDoingThis:
+      'Reasons you can open on the Day page when you feel like stopping.',
     catalogFoodImportLabel: 'Import catalog foods',
     catalogFoodImportDescription:
       'Paste one food or a list. Calories and macros are per 100 g. A barcode updates that same product; otherwise the Russian name does. Brand is kept. LDL notes on matching diary foods update. Calories and macros on past meals stay as logged.',

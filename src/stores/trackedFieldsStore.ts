@@ -27,10 +27,14 @@ export type TrackedField =
   | 'autoSleepScreenshot'
   | 'mealNotes'
   | 'mealReactions'
+  | 'whyDoingThis'
 
 const DEFAULT_TRACKED: Record<TrackedField, boolean> = {
   mealNotes: false,
   mealReactions: false,
+  // #1115 — reasons under the weekly target. Off until turned on; the
+  // saved cards stay when the switch is off.
+  whyDoingThis: false,
   sleep: true,
   steps: true,
   bodyMeasurements: true,

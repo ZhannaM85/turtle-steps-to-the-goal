@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1086,
+    issue: 1115,
+    date: '2026-10-31T11:53:31Z',
+    en: 'On the Day page you can open a few reasons you are losing weight, after turning that section on in Settings.',
+    ru: 'На экране «День» можно открыть несколько причин, зачем вы худеете, после включения этого раздела в Настройках.',
+  },
+  {
     version: 1085,
     issue: 1114,
     date: '2026-10-29T08:41:14Z',
