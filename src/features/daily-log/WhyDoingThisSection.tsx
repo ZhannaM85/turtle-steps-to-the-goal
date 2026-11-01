@@ -61,7 +61,7 @@ function SortableReasonRow({
     <button
       type="button"
       aria-label={t.today.whyDoingThisReorderLabel(index + 1)}
-      className="mt-3 shrink-0 cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
+      className="inline-flex size-11 shrink-0 cursor-grab items-center justify-center touch-none text-muted-foreground active:cursor-grabbing"
       {...attributes}
       {...listeners}
     >
@@ -69,7 +69,7 @@ function SortableReasonRow({
     </button>
   )
   return (
-    <li ref={setNodeRef} style={style} className="flex items-start gap-2">
+    <li ref={setNodeRef} style={style} className="min-w-0">
       {children(dragHandle)}
     </li>
   )
@@ -157,26 +157,26 @@ export function WhyDoingThisSection() {
             items={draft.map((card) => card.id)}
             strategy={verticalListSortingStrategy}
           >
-            <ul className="flex flex-col gap-2">
+            <ul className="flex min-w-0 list-none flex-col gap-2 p-0">
               {draft.map((card, index) => (
                 <SortableReasonRow key={card.id} id={card.id} index={index}>
                   {(dragHandle) => (
-                    <>
-                      {dragHandle}
-                      <div className="flex min-w-0 flex-1 flex-col gap-2">
-                        {pendingDeleteId === card.id ? (
-                          <ConfirmDeleteEntryBar
-                            label={t.today.whyDoingThisConfirmDeleteLabel}
-                            onConfirm={() => {
-                              setDraft((current) =>
-                                current.filter((item) => item.id !== card.id),
-                              )
-                              setPendingDeleteId(null)
-                            }}
-                            onCancel={() => setPendingDeleteId(null)}
-                          />
-                        ) : null}
-                        <div className="flex items-start gap-1">
+                    <div className="flex min-w-0 flex-col gap-2">
+                      {pendingDeleteId === card.id ? (
+                        <ConfirmDeleteEntryBar
+                          label={t.today.whyDoingThisConfirmDeleteLabel}
+                          onConfirm={() => {
+                            setDraft((current) =>
+                              current.filter((item) => item.id !== card.id),
+                            )
+                            setPendingDeleteId(null)
+                          }}
+                          onCancel={() => setPendingDeleteId(null)}
+                        />
+                      ) : null}
+                      <div className="flex min-w-0 items-start gap-1">
+                        {dragHandle}
+                        <div className="min-w-0 flex-1">
                           <Textarea
                             aria-label={t.today.whyDoingThisCardLabel(index + 1)}
                             value={card.text}
@@ -184,26 +184,34 @@ export function WhyDoingThisSection() {
                               const text = event.target.value
                               setDraft((current) =>
                                 current.map((item) =>
-                                  item.id === card.id ? { ...item, text } : item,
+                                  item.id === card.id
+                                    ? { ...item, text }
+                                    : item,
                                 ),
                               )
                             }}
-                            className="min-h-12 flex-1"
-                          />
-                          <DayFieldHeaderDeleteButton
-                            label={t.today.whyDoingThisDeleteLabel(index + 1)}
-                            onClick={() => setPendingDeleteId(card.id)}
+                            className="min-h-12"
                           />
                         </div>
+                        <DayFieldHeaderDeleteButton
+                          label={t.today.whyDoingThisDeleteLabel(index + 1)}
+                          onClick={() => setPendingDeleteId(card.id)}
+                        />
                       </div>
-                    </>
+                    </div>
                   )}
                 </SortableReasonRow>
               ))}
             </ul>
           </SortableContext>
         </DndContext>
-        <Button type="button" variant="outline" size="sm" onClick={addCard}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="w-full"
+          onClick={addCard}
+        >
           {t.today.whyDoingThisAddLabel}
         </Button>
       </div>
@@ -235,16 +243,18 @@ export function WhyDoingThisSection() {
           onClick={openEdit}
         />
       }
-      contentClassName="flex flex-col gap-2 pt-2"
+      contentClassName="pt-2"
     >
-      {cards.map((card) => (
-        <p
-          key={card.id}
-          className="rounded-lg border border-border px-3 py-2 text-sm whitespace-pre-wrap"
-        >
-          {card.text}
-        </p>
-      ))}
+      <ul className="flex list-none flex-col gap-2 p-0">
+        {cards.map((card) => (
+          <li
+            key={card.id}
+            className="rounded-lg border border-border px-3 py-2 text-sm break-words whitespace-pre-wrap"
+          >
+            {card.text}
+          </li>
+        ))}
+      </ul>
     </SectionAccordion>
   )
 }

@@ -101,6 +101,78 @@ describe('WhyDoingThisSection (#1115)', () => {
     ).not.toBeInTheDocument()
   })
 
+  it('shows each saved reason as its own quiet card, then edits the whole stack', async () => {
+    const user = userEvent.setup()
+    useWhyDoingThisStore.setState({
+      cards: [
+        { id: 'a', text: 'Feel better' },
+        { id: 'b', text: 'More energy' },
+      ],
+    })
+    render(<WhyDoingThisSection />)
+
+    expect(screen.queryByText('Feel better')).not.toBeInTheDocument()
+    await user.click(
+      screen.getByRole('button', { name: "Show why I'm doing this" }),
+    )
+
+    const saved = screen.getAllByRole('listitem')
+    expect(saved).toHaveLength(2)
+    expect(saved[0]).toHaveTextContent('Feel better')
+    expect(saved[1]).toHaveTextContent('More energy')
+    expect(
+      screen.queryByRole('button', { name: 'Add a reason' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Reorder reason 1' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Delete reason 1' }),
+    ).not.toBeInTheDocument()
+
+    await user.click(
+      screen.getByRole('button', { name: "Edit why I'm doing this" }),
+    )
+    expect(screen.getByRole('textbox', { name: 'Reason 1' })).toHaveValue(
+      'Feel better',
+    )
+    expect(screen.getByRole('textbox', { name: 'Reason 2' })).toHaveValue(
+      'More energy',
+    )
+    expect(
+      screen.getByRole('button', { name: 'Reorder reason 1' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Reorder reason 2' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Delete reason 1' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Delete reason 2' }),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Add a reason' }))
+    await user.type(screen.getByRole('textbox', { name: 'Reason 3' }), 'Sleep')
+    expect(useWhyDoingThisStore.getState().cards.map((card) => card.text)).toEqual([
+      'Feel better',
+      'More energy',
+    ])
+
+    await user.click(
+      screen.getByRole('button', { name: "Save why I'm doing this" }),
+    )
+    expect(useWhyDoingThisStore.getState().cards.map((card) => card.text)).toEqual([
+      'Feel better',
+      'More energy',
+      'Sleep',
+    ])
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
+    expect(
+      screen.getAllByRole('listitem').map((item) => item.textContent),
+    ).toEqual(['Feel better', 'More energy', 'Sleep'])
+  })
+
   it('cancel restores the last saved cards', async () => {
     const user = userEvent.setup()
     useWhyDoingThisStore.setState({

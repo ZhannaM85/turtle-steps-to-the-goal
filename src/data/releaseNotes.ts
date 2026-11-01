@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1087,
+    issue: 1115,
+    date: '2026-11-01T08:27:47Z',
+    en: 'Reasons on the Day page are separate cards you can add, reorder, and remove.',
+    ru: 'Причины на экране «День» — отдельные карточки: их можно добавлять, менять местами и убирать.',
+  },
+  {
     version: 1086,
     issue: 1115,
     date: '2026-10-31T11:53:31Z',
