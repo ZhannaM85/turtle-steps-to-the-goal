@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1089,
+    issue: 1117,
+    date: '2026-11-03T23:16:41.846Z',
+    en: 'Shared-food QR codes are easier to scan from a photo of another phone’s screen.',
+    ru: 'QR-код общего блюда проще считать с фото экрана другого телефона.',
+  },
+  {
     version: 1088,
     issue: 1116,
     date: '2026-11-03T10:32:21.339Z',

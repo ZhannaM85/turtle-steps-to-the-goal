@@ -68,12 +68,12 @@ export function ShareFoodQrPanel({
         <img
           src={qrDataUrl}
           alt={qrAlt}
-          width={256}
-          height={256}
+          width={320}
+          height={320}
           className="rounded-lg border border-border bg-white p-2"
         />
       ) : (
-        <div className="flex h-64 w-64 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground">
+        <div className="flex h-80 w-80 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground">
           <QrCode aria-hidden="true" className="size-10 opacity-40" />
         </div>
       )}

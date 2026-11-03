@@ -101,7 +101,7 @@ _Apple Health weight import wrote float junk into the morning weight field (83.4
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1116](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1116) | 🔍 Pending validation | Apple Health weight import shows float junk (83.45 → 83.44999694824219) | Round HealthKit/HC weight to 2 decimals on aggregate, Settings sync apply, XML import, Day field sync, and form map/save so `83.44999694824219` becomes `83.45` (and already-stored junk heals in the Day field). |
-| [#1117](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1117) | 🔲 Open | Shared-dish QR: scan from photo fails to read the code | On-device: share «Смузи (клубника-банан-шпинат)» QR, then Settings → Import shared dish → Scan from photo shows «Не удалось прочитать QR-код на этом фото…». Live camera path unclear; import blocked. |
+| [#1117](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1117) | 🔍 Pending validation | Shared-dish QR: scan from photo fails to read the code | Photo decode: downscale large iPhone shots + TRY_HARDER via canvas; share QR uses larger size, quiet zone, and medium EC so screen photos decode more reliably. |
 
 ---
 
