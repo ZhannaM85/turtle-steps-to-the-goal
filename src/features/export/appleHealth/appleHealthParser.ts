@@ -464,7 +464,8 @@ export class AppleHealthPatchBuilder {
     }
 
     for (const [date, { value }] of this.latestWeightByDate) {
-      patchFor(date).weightKg = value
+      // #1116 — same hundredths rounding as live HealthKit sync.
+      patchFor(date).weightKg = round2(value)
     }
     for (const [date, { value }] of this.latestBodyFatByDate) {
       patchFor(date).bodyFatPercent = value

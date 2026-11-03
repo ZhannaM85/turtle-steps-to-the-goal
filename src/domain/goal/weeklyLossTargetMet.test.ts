@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   roundKgToOneDecimal,
+  roundKgToTwoDecimals,
   weeklyLossTargetMet,
 } from './weeklyLossTargetMet'
 
@@ -9,6 +10,12 @@ describe('roundKgToOneDecimal', () => {
     expect(59.8 - 59.7).toBe(0.09999999999999432)
     expect(59.8 - 59.7).toBeLessThan(0.1)
     expect(roundKgToOneDecimal(59.8 - 59.7)).toBe(0.1)
+  })
+})
+
+describe('roundKgToTwoDecimals (#1116)', () => {
+  it('turns HealthKit 83.45 float junk into 83.45', () => {
+    expect(roundKgToTwoDecimals(83.44999694824219)).toBe(83.45)
   })
 })
 

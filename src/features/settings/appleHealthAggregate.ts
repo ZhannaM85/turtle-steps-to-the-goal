@@ -1,3 +1,5 @@
+import { roundKgToTwoDecimals } from '@/domain/goal'
+
 /**
  * #1098 — turn Capgo HealthKit sample lists into per-day readings that
  * `applyHealthConnectDayReadings` can upsert (same shape as Android HC).
@@ -57,7 +59,8 @@ export function aggregateWeightByDay(
     if (!Number.isFinite(sample.value) || sample.value <= 0) continue
     const date = localDateKey(sample.startDate)
     if (byDay.has(date)) continue
-    byDay.set(date, sample.value)
+    // #1116 — HealthKit often yields 83.44999694824219 for 83.45 kg.
+    byDay.set(date, roundKgToTwoDecimals(sample.value))
   }
   return [...byDay.entries()].map(([date, weightKg]) => ({ date, weightKg }))
 }

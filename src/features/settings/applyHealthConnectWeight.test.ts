@@ -23,6 +23,15 @@ describe('applyHealthConnectWeight (#693)', () => {
     expect(result.weightKg).toBe(58.5)
   })
 
+  it('rounds HealthKit float junk to two decimals (#1116)', () => {
+    const result = applyHealthConnectWeight(
+      '2026-11-03',
+      83.44999694824219,
+      undefined,
+    )
+    expect(result.weightKg).toBe(83.45)
+  })
+
   it('overwrites an already-logged weight on explicit Sync', () => {
     const existing = entry({ date: '2026-08-11', weightKg: 59.0, steps: 4000 })
     const result = applyHealthConnectWeight('2026-08-11', 58.2, existing)

@@ -100,7 +100,7 @@ _Apple Health weight import wrote float junk into the morning weight field (83.4
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1116](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1116) | 🔲 Open | Apple Health weight import shows float junk (83.45 → 83.44999694824219) | On-device: morning Вес (кг) edit showed `83.44999694824219` after Apple Health import of 83.45 kg (classic binary float for 0.45). Seen around goal-reached. Round/format on import or display so kg never shows multi-decimal float noise. |
+| [#1116](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1116) | 🔍 Pending validation | Apple Health weight import shows float junk (83.45 → 83.44999694824219) | Round HealthKit/HC weight to 2 decimals on aggregate, Settings sync apply, XML import, Day field sync, and form map/save so `83.44999694824219` becomes `83.45` (and already-stored junk heals in the Day field). |
 
 ---
 

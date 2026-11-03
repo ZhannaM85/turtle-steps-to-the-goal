@@ -37,6 +37,12 @@ describe('entryToFormValues', () => {
     })
   })
 
+  it('rounds HealthKit float junk weight for the form (#1116)', () => {
+    expect(
+      entryToFormValues(makeEntry({ weightKg: 83.44999694824219 })).weightKg,
+    ).toBe(83.45)
+  })
+
   it('maps body measurements (#225)', () => {
     expect(
       entryToFormValues(
@@ -159,6 +165,17 @@ describe('formValuesToEntry', () => {
       { weightKg: 66.5, weightFromAppleHealth: true },
     )
     expect(edited.weightFromAppleHealth).toBeUndefined()
+  })
+
+  it('keeps Apple Health provenance when healing float junk to the same kg (#1116)', () => {
+    const entry = formValuesToEntry(
+      { weightKg: 83.45 },
+      '2026-11-03',
+      { id: 'entry-1', createdAt: '2026-11-03T00:00:00.000Z' },
+      { weightKg: 83.44999694824219, weightFromAppleHealth: true },
+    )
+    expect(entry.weightKg).toBe(83.45)
+    expect(entry.weightFromAppleHealth).toBe(true)
   })
 
   it('keeps Apple Health steps provenance only while the value is unchanged (#1104)', () => {

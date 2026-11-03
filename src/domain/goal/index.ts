@@ -25,6 +25,7 @@ export {
 export type { GoalWindowProgress } from './goalWindowProgress'
 export {
   roundKgToOneDecimal,
+  roundKgToTwoDecimals,
   weeklyLossTargetMet,
 } from './weeklyLossTargetMet'
 export { pastGoals, earliestGoalCreatedAt } from './goalHistory'

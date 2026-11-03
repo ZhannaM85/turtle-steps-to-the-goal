@@ -9,6 +9,17 @@ export function roundKgToOneDecimal(kg: number): number {
 }
 
 /**
+ * Round a kilogram value to two decimals (#1116).
+ *
+ * HealthKit / Health Connect body-mass samples often arrive as binary floats
+ * like `83.44999694824219` for a scale reading of 83.45 kg. Diary weight is
+ * shown and typed to hundredths, so store that precision.
+ */
+export function roundKgToTwoDecimals(kg: number): number {
+  return Math.round(kg * 100) / 100
+}
+
+/**
  * Whether loss from `baselineKg` to `currentKg` meets `targetLossKg`.
  *
  * Rounds both weights and the resulting loss (and the target) to 1 decimal

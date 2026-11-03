@@ -1,4 +1,5 @@
 import type { DailyEntry } from '@/domain/dailyEntry'
+import { roundKgToTwoDecimals } from '@/domain/goal'
 import {
   type DailyEntryPatch,
   mergeDailyEntryPatches,
@@ -51,7 +52,10 @@ export function applyHealthConnectDayReadings(
   const patches = new Map<string, DailyEntryPatch>()
   for (const reading of readings) {
     const patch: DailyEntryPatch = {}
-    if (reading.weightKg !== undefined) patch.weightKg = reading.weightKg
+    // #1116 — store kg to hundredths (HealthKit/HC float noise).
+    if (reading.weightKg !== undefined) {
+      patch.weightKg = roundKgToTwoDecimals(reading.weightKg)
+    }
     if (reading.steps !== undefined) patch.steps = reading.steps
     if (reading.sleepHours !== undefined) patch.sleepHours = reading.sleepHours
     if (reading.deepSleepHours !== undefined) {

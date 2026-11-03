@@ -1,4 +1,5 @@
 import type { DailyEntry } from '@/domain/dailyEntry'
+import { roundKgToTwoDecimals } from '@/domain/goal'
 import type { DailyEntryFormValues } from './dailyEntryFormSchema'
 
 export function entryToFormValues(
@@ -6,7 +7,11 @@ export function entryToFormValues(
 ): Partial<DailyEntryFormValues> {
   if (!entry) return {}
   return {
-    weightKg: entry.weightKg,
+    // #1116 — heal HealthKit float junk already in the diary (83.44999…).
+    weightKg:
+      entry.weightKg !== undefined
+        ? roundKgToTwoDecimals(entry.weightKg)
+        : undefined,
     calorieEntries: entry.calorieEntries,
     dayTotals: entry.dayTotals,
     note: entry.note,
@@ -54,7 +59,9 @@ export function formValuesToEntry(
   // is unchanged; any edit/delete clears the flag.
   const weightFromAppleHealth =
     values.weightKg !== undefined &&
-    values.weightKg === existing?.weightKg &&
+    existing?.weightKg !== undefined &&
+    roundKgToTwoDecimals(values.weightKg) ===
+      roundKgToTwoDecimals(existing.weightKg) &&
     existing.weightFromAppleHealth === true
       ? true
       : undefined
@@ -75,7 +82,10 @@ export function formValuesToEntry(
   return {
     id: identity.id,
     date,
-    weightKg: values.weightKg,
+    weightKg:
+      values.weightKg !== undefined
+        ? roundKgToTwoDecimals(values.weightKg)
+        : undefined,
     weightFromAppleHealth,
     calorieEntries: values.calorieEntries,
     dayTotals: values.dayTotals,

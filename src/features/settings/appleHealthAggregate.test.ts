@@ -17,6 +17,13 @@ describe('aggregateWeightByDay', () => {
     expect(rows.map((r) => r.weightKg)).toEqual([66.5, 67.0])
     expect(new Set(rows.map((r) => r.date)).size).toBe(2)
   })
+
+  it('rounds HealthKit float junk to two decimals (#1116)', () => {
+    const rows = aggregateWeightByDay([
+      { startDate: '2026-11-03T07:00:00.000Z', value: 83.44999694824219 },
+    ])
+    expect(rows).toEqual([{ date: '2026-11-03', weightKg: 83.45 }])
+  })
 })
 
 describe('aggregateSleepByWakeDay', () => {

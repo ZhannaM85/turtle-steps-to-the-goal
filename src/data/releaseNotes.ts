@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1088,
+    issue: 1116,
+    date: '2026-11-03T10:32:21.339Z',
+    en: 'Weight from Apple Health is stored to two decimals, so values like 83.45 no longer show as long float junk.',
+    ru: 'Вес из Apple Health сохраняется с двумя знаками после запятой, поэтому значения вроде 83,45 больше не отображаются длинной «дробью».',
+  },
+  {
     version: 1087,
     issue: 1115,
     date: '2026-11-01T08:27:47Z',

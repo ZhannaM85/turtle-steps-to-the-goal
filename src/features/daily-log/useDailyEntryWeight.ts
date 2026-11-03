@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { DailyEntry } from '@/domain/dailyEntry'
+import { roundKgToTwoDecimals } from '@/domain/goal'
 import { useDailyEntryStore } from '@/stores'
 import { isBlankSaveValue } from '@/shared/lib/isBlankSaveValue'
 import { weightSchema } from './dailyEntryFormSchema'
@@ -91,13 +92,15 @@ export function useDailyEntryWeight({
 
   /** #1105 — fill empty weight from Apple Health and mark provenance. */
   function applyAppleHealthWeight(weightKg: number) {
-    setValue('weightKg', weightKg, { shouldDirty: true })
+    // #1116 — round HealthKit floats (e.g. 83.44999694824219 → 83.45).
+    const rounded = roundKgToTwoDecimals(weightKg)
+    setValue('weightKg', rounded, { shouldDirty: true })
     clearErrors('weightKg')
     setPendingUnusualWeight(null)
     setIsEditingWeight(false)
     setHasSavedWeight(true)
     persistWithAppleHealth(
-      { ...getValues(), weightKg },
+      { ...getValues(), weightKg: rounded },
       { weightFromAppleHealth: true },
     )
   }
