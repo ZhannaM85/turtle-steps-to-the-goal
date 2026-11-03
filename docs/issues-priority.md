@@ -94,6 +94,16 @@ _On Day, an opt-in section under the weekly target holds several reasons for los
 
 ---
 
+## Tier 194 — Live feedback (2026-11-03)
+
+_Apple Health weight import wrote float junk into the morning weight field (83.45 → 83.44999694824219); noticed when the weekly goal was reached._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1116](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1116) | 🔲 Open | Apple Health weight import shows float junk (83.45 → 83.44999694824219) | On-device: morning Вес (кг) edit showed `83.44999694824219` after Apple Health import of 83.45 kg (classic binary float for 0.45). Seen around goal-reached. Round/format on import or display so kg never shows multi-decimal float noise. |
+
+---
+
 ## Tier 163 — Live feedback (2026-09-15)
 
 _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack (#905) + diary follow-ups; sticky page tops._
