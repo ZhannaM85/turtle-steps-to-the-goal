@@ -1134,3 +1134,13 @@ _Closed rows only. Open / pending items stay in the active file._
 |---|--------|-------|-------|
 | [#1114](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1114) | ✅ Done | iPhone Safari and PWA: header title looks blurred | Confirmed on-device 2026-10-29. The header title is sharp in Safari and the home-screen PWA. The native iOS app header was left unchanged. |
 
+---
+
+## Tier 193 — Why I’m doing this (2026-10-31)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1115](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1115) | ✅ Done | Day: optional Why I am doing this cards under the weekly target | Confirmed on-device 2026-11-04. Optional reasons under the weekly target work as cards (edit, reorder, confirmed delete). |
+
