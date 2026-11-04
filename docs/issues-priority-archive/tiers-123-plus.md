@@ -1144,3 +1144,13 @@ _Closed rows only. Open / pending items stay in the active file._
 |---|--------|-------|-------|
 | [#1115](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1115) | ✅ Done | Day: optional Why I am doing this cards under the weekly target | Confirmed on-device 2026-11-04. Optional reasons under the weekly target work as cards (edit, reorder, confirmed delete). |
 
+---
+
+## Tier 194 — Live feedback (2026-11-03)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1116](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1116) | ✅ Done | Apple Health weight import shows float junk (83.45 → 83.44999694824219) | Confirmed on-device 2026-11-04. Imported weight shows two decimals (e.g. 83.45) instead of float junk. |
+
