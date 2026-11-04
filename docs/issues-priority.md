@@ -99,7 +99,6 @@ _Apple Health weight import wrote float junk into the morning weight field (83.4
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1117](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1117) | 🔍 Pending validation | Shared-dish QR: scan from photo fails to read the code | Photo decode: downscale large iPhone shots + TRY_HARDER via canvas; share QR uses larger size, quiet zone, and medium EC so screen photos decode more reliably. |
 
 ---
 

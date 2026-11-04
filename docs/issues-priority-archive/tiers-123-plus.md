@@ -1153,4 +1153,5 @@ _Closed rows only. Open / pending items stay in the active file._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1116](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1116) | ✅ Done | Apple Health weight import shows float junk (83.45 → 83.44999694824219) | Confirmed on-device 2026-11-04. Imported weight shows two decimals (e.g. 83.45) instead of float junk. |
+| [#1117](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1117) | ✅ Done | Shared-dish QR: scan from photo fails to read the code | Confirmed on-device 2026-11-04. Shared-dish QR scan from photo reads the code more reliably. |
 
