@@ -102,6 +102,16 @@ _Apple Health weight import wrote float junk into the morning weight field (83.4
 
 ---
 
+## Tier 195 — Live feedback (2026-11-05)
+
+_Shared-dish QR review shows float junk on macros (e.g. protein `4.499999999999999`, carbs `41.800000000000004`); round to 1–2 decimals._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1118](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1118) | ⬜ Open | Round shared-dish QR macros to 1–2 decimal places | «Проверка общего блюда» after QR import; same precision when adding to Мои блюда. Related float cleanup: #1116 |
+
+---
+
 ## Tier 163 — Live feedback (2026-09-15)
 
 _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack (#905) + diary follow-ups; sticky page tops._
