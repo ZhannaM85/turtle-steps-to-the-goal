@@ -98,6 +98,26 @@ describe('sharedFoodPayload (#661)', () => {
     expect(nutrition.amountG).toBe(50)
   })
 
+  it('rounds absolute macro float junk to two decimals (#1118)', () => {
+    expect(
+      sharedFoodAbsoluteNutrition({
+        v: 1,
+        name: 'Смузи (клубника-банан-шпинат)',
+        amountKcal: 222,
+        proteinG: 4.499999999999999,
+        fatG: 6.2,
+        carbsG: 41.800000000000004,
+        amountG: 310,
+      }),
+    ).toEqual({
+      amountKcal: 222,
+      proteinG: 4.5,
+      fatG: 6.2,
+      carbsG: 41.8,
+      amountG: 310,
+    })
+  })
+
   it('matches by barcode first, then by normalized name', () => {
     const items = [
       item({ id: 'a', name: 'Yogurt', barcode: '111' }),

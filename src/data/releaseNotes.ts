@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1090,
+    issue: 1118,
+    date: '2026-11-05T08:40:19.000Z',
+    en: 'Shared-dish QR import rounds calories and macros to two decimals, so values no longer show as long float junk.',
+    ru: 'При импорте общего блюда по QR калории и макросы округляются до двух знаков после запятой, без длинной «дроби».',
+  },
+  {
     version: 1089,
     issue: 1117,
     date: '2026-11-03T23:16:41.846Z',

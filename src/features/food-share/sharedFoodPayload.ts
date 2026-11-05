@@ -105,6 +105,21 @@ export function decodeSharedFoodPayload(
   return result.success ? result.data : null
 }
 
+/**
+ * #1118 — strip IEEE leftovers before shared-food review/save (≤2
+ * decimals; matches Add-dish NumberField #800). Absolute payload macros
+ * skip `scaleOptional`'s 1-decimal round, so QR import otherwise showed
+ * values like `4.499999999999999`.
+ */
+function roundSharedNutrition(
+  value: number | undefined,
+  digits = 2,
+): number | undefined {
+  if (value === undefined || !Number.isFinite(value)) return undefined
+  const factor = 10 ** digits
+  return Math.round(value * factor) / factor
+}
+
 /** Build share payload from a personal library item. */
 export function mealItemToSharedFoodPayload(item: MealItem): SharedFoodPayload {
   const ldl = cholesterolForFoodRecord(item)
@@ -117,19 +132,24 @@ export function mealItemToSharedFoodPayload(item: MealItem): SharedFoodPayload {
   if (reason) payload.cholesterolReason = reason
   if (item.barcode) payload.barcode = item.barcode
   if (item.lastAmountG !== undefined && item.lastAmountG > 0) {
-    payload.amountG = item.lastAmountG
+    payload.amountG = roundSharedNutrition(item.lastAmountG)
   }
   if (item.lastAmountKcal !== undefined) {
-    payload.amountKcal = item.lastAmountKcal
-    if (item.lastProteinG !== undefined) payload.proteinG = item.lastProteinG
-    if (item.lastFatG !== undefined) payload.fatG = item.lastFatG
-    if (item.lastCarbsG !== undefined) payload.carbsG = item.lastCarbsG
+    const amountKcal = roundSharedNutrition(item.lastAmountKcal) ?? item.lastAmountKcal
+    const proteinG = roundSharedNutrition(item.lastProteinG)
+    const fatG = roundSharedNutrition(item.lastFatG)
+    const carbsG = roundSharedNutrition(item.lastCarbsG)
+    const amountG = roundSharedNutrition(item.lastAmountG)
+    payload.amountKcal = amountKcal
+    if (proteinG !== undefined) payload.proteinG = proteinG
+    if (fatG !== undefined) payload.fatG = fatG
+    if (carbsG !== undefined) payload.carbsG = carbsG
     const rates = ratesFromAbsolute(
-      item.lastAmountKcal,
-      item.lastProteinG,
-      item.lastFatG,
-      item.lastCarbsG,
-      item.lastAmountG,
+      amountKcal,
+      proteinG,
+      fatG,
+      carbsG,
+      amountG ?? item.lastAmountG,
     )
     payload.kcal100 = rates.kcal100
     if (rates.protein100 !== undefined) payload.protein100 = rates.protein100
@@ -207,11 +227,11 @@ export function sharedFoodAbsoluteNutrition(payload: SharedFoodPayload): {
 } {
   if (payload.amountKcal !== undefined) {
     return {
-      amountKcal: payload.amountKcal,
-      proteinG: payload.proteinG,
-      fatG: payload.fatG,
-      carbsG: payload.carbsG,
-      amountG: payload.amountG,
+      amountKcal: roundSharedNutrition(payload.amountKcal),
+      proteinG: roundSharedNutrition(payload.proteinG),
+      fatG: roundSharedNutrition(payload.fatG),
+      carbsG: roundSharedNutrition(payload.carbsG),
+      amountG: roundSharedNutrition(payload.amountG),
     }
   }
   if (payload.kcal100 !== undefined) {
@@ -225,11 +245,11 @@ export function sharedFoodAbsoluteNutrition(payload: SharedFoodPayload): {
       String(grams / 100),
     )
     return {
-      amountKcal: scaled.amountKcal,
-      proteinG: scaled.proteinG,
-      fatG: scaled.fatG,
-      carbsG: scaled.carbsG,
-      amountG: scaled.amountG,
+      amountKcal: roundSharedNutrition(scaled.amountKcal),
+      proteinG: roundSharedNutrition(scaled.proteinG),
+      fatG: roundSharedNutrition(scaled.fatG),
+      carbsG: roundSharedNutrition(scaled.carbsG),
+      amountG: roundSharedNutrition(scaled.amountG),
     }
   }
   return {
@@ -237,7 +257,7 @@ export function sharedFoodAbsoluteNutrition(payload: SharedFoodPayload): {
     proteinG: undefined,
     fatG: undefined,
     carbsG: undefined,
-    amountG: payload.amountG,
+    amountG: roundSharedNutrition(payload.amountG),
   }
 }
 

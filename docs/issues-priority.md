@@ -108,7 +108,7 @@ _Shared-dish QR review shows float junk on macros (e.g. protein `4.4999999999999
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1118](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1118) | ⬜ Open | Round shared-dish QR macros to 1–2 decimal places | «Проверка общего блюда» after QR import; same precision when adding to Мои блюда. Related float cleanup: #1116 |
+| [#1118](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1118) | 🔍 Pending validation | Round shared-dish QR macros to 1–2 decimal places | Round in `sharedFoodAbsoluteNutrition` (+ encode) to 2 decimals. Related: #1116. Needs on-device QR import check. |
 
 ---
 
