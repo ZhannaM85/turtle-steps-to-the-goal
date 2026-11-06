@@ -152,11 +152,13 @@ QR-код или ссылку, могут покинуть устройство.
 - Privacy policy URL:
   https://zhannam85.github.io/turtle-steps-to-the-goal/privacy  
   (open in a private window before submit — must load without sign-in).
-- Support URL (required): same site is fine —
-  https://zhannam85.github.io/turtle-steps-to-the-goal/  
-  or a public support page/email you choose. Do **not** put a private Git
-  author address in the listing.
-- Marketing URL (optional): same GitHub Pages site.
+- Support URL (required, #1120):  
+  https://zhannam85.github.io/turtle-steps-to-the-goal/support  
+  (public page with `turtlestepstothegoal@gmail.com` — do **not** put a
+  private Git / Apple ID address in the listing). Paste into Connect in #1121.
+- Marketing URL / Developer Website (optional, #1119):  
+  https://zhannam85.github.io/turtle-steps-to-the-goal/welcome  
+  Paste into Connect in #1121.
 - Copyright: e.g. `2026 Zhanna Myshkovskaia`
 - Price: Free
 - No promise of live Apple Health sync in the listing (file import only until #334).

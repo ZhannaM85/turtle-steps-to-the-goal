@@ -1,4 +1,10 @@
-import type { AboutDict, FeaturesOverviewDict, PrivacyPolicyDict } from './dict/types/about'
+import type {
+  AboutDict,
+  FeaturesOverviewDict,
+  PrivacyPolicyDict,
+  SupportDict,
+  WelcomeDict,
+} from './dict/types/about'
 import type { DashboardDict } from './dict/types/dashboard'
 import type { DailyEntryDict } from './dict/types/dailyEntry'
 import type { ExportDict, ExportXlsxDict, PdfSummaryDict, AppleHealthImportDict, MyFitnessPalImportDict, ZeppLifeImportDict } from './dict/types/export'
@@ -35,4 +41,6 @@ export interface Dictionary {
   about: AboutDict
   privacyPolicy: PrivacyPolicyDict
   featuresOverview: FeaturesOverviewDict
+  support: SupportDict
+  welcome: WelcomeDict
 }

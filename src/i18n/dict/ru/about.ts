@@ -1,4 +1,10 @@
-import type { AboutDict, PrivacyPolicyDict, FeaturesOverviewDict } from '../types/about'
+import type {
+  AboutDict,
+  PrivacyPolicyDict,
+  FeaturesOverviewDict,
+  SupportDict,
+  WelcomeDict,
+} from '../types/about'
 
 export const about: AboutDict = {
     title: 'О приложении',
@@ -47,8 +53,44 @@ export const privacyPolicy: PrivacyPolicyDict = {
       'Если эта политика когда-либо изменится, обновление будет опубликовано на этой же странице.',
     contactHeading: 'Контакты',
     contactBody:
-      'Вопросы по этой политике можно направить через страницу проекта на GitHub.',
+      'Вопросы по этой политике можно отправить на turtlestepstothegoal@gmail.com (см. также страницу поддержки).',
     backToAboutLabel: 'Назад к разделу «О приложении»',
+  }
+
+export const support: SupportDict = {
+    title: 'Поддержка',
+    description: 'Помощь и контакты для «Черепашьи шаги к цели»',
+    contactHeading: 'Контакты',
+    contactBody:
+      'По вопросам работы приложения, отзывам и идеям пишите на адрес ниже. Это публичный ящик поддержки Turtle Steps — пожалуйста, не присылайте сюда личную переписку по другим темам.',
+    emailLabel: 'Написать в поддержку',
+    faqHeading: 'Частые вопросы',
+    faqLocalHeading: 'Где хранятся мои данные?',
+    faqLocalBody:
+      'Дневник остаётся на вашем устройстве. Аккаунта нет, и у разработчика нет облачной копии ваших записей.',
+    faqBackupHeading: 'Как сделать резервную копию?',
+    faqBackupBody:
+      'В «Настройках» → «Экспорт» сохраните резервную копию. Удаление приложения или очистка его хранилища может удалить локальные записи.',
+    faqExportHeading: 'Можно ли выгрузить дневник?',
+    faqExportBody:
+      'Да. В «Настройках» можно экспортировать JSON-резервную копию или файлы Excel, CSV и Markdown.',
+    faqOnlineHeading: 'Нужен ли интернет?',
+    faqOnlineBody:
+      'Ежедневные записи работают офлайн. Дополнительный поиск продуктов онлайн требует соединения, только когда вы сами его запускаете.',
+    privacyLinkLabel: 'Читать политику конфиденциальности',
+    backToAboutLabel: 'Назад к разделу «О приложении»',
+  }
+
+export const welcome: WelcomeDict = {
+    title: 'Черепашьи шаги к цели',
+    tagline: 'Личный дневник питания, КБЖУ, воды и веса.',
+    body: '«Черепашьи шаги к цели» хранит записи на вашем устройстве — без аккаунта, аналитики и облачного дневника у разработчика. Выберите комфортный темп, изучайте историю и сохраняйте резервные копии, когда нужно. Приложение есть в App Store для iPhone и как веб-версия здесь.',
+    privacyLinkLabel: 'Политика конфиденциальности',
+    supportLinkLabel: 'Поддержка',
+    openAppLabel: 'Открыть дневник',
+    authorHeading: 'Об авторе',
+    authorBody: 'Автор: Жанна Мышковская.',
+    githubLabel: 'Профиль на GitHub',
   }
 
 export const featuresOverview: FeaturesOverviewDict = {

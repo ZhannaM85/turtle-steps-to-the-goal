@@ -54,6 +54,12 @@ export const AboutScreen = lazy(() =>
 export const PrivacyScreen = lazy(() =>
   import('@/features/about').then((m) => ({ default: m.PrivacyScreen })),
 )
+export const SupportScreen = lazy(() =>
+  import('@/features/about').then((m) => ({ default: m.SupportScreen })),
+)
+export const WelcomeScreen = lazy(() =>
+  import('@/features/about').then((m) => ({ default: m.WelcomeScreen })),
+)
 export const FeaturesScreen = lazy(() =>
   import('@/features/about').then((m) => ({ default: m.FeaturesScreen })),
 )

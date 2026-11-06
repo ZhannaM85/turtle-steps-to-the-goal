@@ -14,7 +14,9 @@ import {
   PrivacyScreen,
   RecipesSettingsScreen,
   SettingsScreen,
+  SupportScreen,
   WeeklyReviewScreen,
+  WelcomeScreen,
 } from './lazyRoutes'
 
 export const routes: RouteObject[] = [
@@ -42,6 +44,10 @@ export const routes: RouteObject[] = [
       { path: '/about', element: <AboutScreen /> },
       // #312 — required by both app stores as a stable, linkable URL.
       { path: '/privacy', element: <PrivacyScreen /> },
+      // #1120 — App Store Support URL (contact + FAQ; not the diary root).
+      { path: '/support', element: <SupportScreen /> },
+      // #1119 — App Store Marketing / Developer Website (not the diary root).
+      { path: '/welcome', element: <WelcomeScreen /> },
       // #346 — a scannable current-features summary, distinct from About's
       // intro copy and the chronological release-notes changelog.
       { path: '/features', element: <FeaturesScreen /> },

@@ -1,5 +1,11 @@
 import type { Dictionary } from './Dictionary'
-import { about, featuresOverview, privacyPolicy } from './dict/en/about'
+import {
+  about,
+  featuresOverview,
+  privacyPolicy,
+  support,
+  welcome,
+} from './dict/en/about'
 import { dashboard } from './dict/en/dashboard'
 import { dailyEntry } from './dict/en/dailyEntry'
 import {
@@ -48,4 +54,6 @@ export const en: Dictionary = {
   about,
   privacyPolicy,
   featuresOverview,
+  support,
+  welcome,
 }

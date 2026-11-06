@@ -26,6 +26,20 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1092,
+    issue: 1120,
+    date: '2026-11-06T00:00:00.000Z',
+    en: 'A public Support page lists the app contact email and answers common questions about local data and backups.',
+    ru: 'Публичная страница поддержки показывает адрес для связи и отвечает на частые вопросы о локальных данных и резервных копиях.',
+  },
+  {
+    version: 1091,
+    issue: 1119,
+    date: '2026-11-06T00:00:00.000Z',
+    en: 'A Welcome page introduces Turtle Steps for App Store visitors without opening the diary first.',
+    ru: 'Страница «Welcome» коротко представляет приложение для посетителей из App Store, без открытия дневника сразу.',
+  },
+  {
     version: 1090,
     issue: 1118,
     date: '2026-11-05T08:40:19.000Z',

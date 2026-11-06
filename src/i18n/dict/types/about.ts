@@ -71,3 +71,36 @@ export interface FeaturesOverviewDict {
     screenshotAlt: (heading: string) => string
     backToAboutLabel: string
   }
+
+/** #1120 — public App Store Support URL page. */
+export interface SupportDict {
+    title: string
+    description: string
+    contactHeading: string
+    contactBody: string
+    emailLabel: string
+    faqHeading: string
+    faqLocalHeading: string
+    faqLocalBody: string
+    faqBackupHeading: string
+    faqBackupBody: string
+    faqExportHeading: string
+    faqExportBody: string
+    faqOnlineHeading: string
+    faqOnlineBody: string
+    privacyLinkLabel: string
+    backToAboutLabel: string
+  }
+
+/** #1119 — public Marketing / Developer Website page. */
+export interface WelcomeDict {
+    title: string
+    tagline: string
+    body: string
+    privacyLinkLabel: string
+    supportLinkLabel: string
+    openAppLabel: string
+    authorHeading: string
+    authorBody: string
+    githubLabel: string
+  }

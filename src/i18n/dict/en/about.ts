@@ -1,4 +1,10 @@
-import type { AboutDict, PrivacyPolicyDict, FeaturesOverviewDict } from '../types/about'
+import type {
+  AboutDict,
+  PrivacyPolicyDict,
+  FeaturesOverviewDict,
+  SupportDict,
+  WelcomeDict,
+} from '../types/about'
 
 export const about: AboutDict = {
     title: 'About',
@@ -47,8 +53,44 @@ export const privacyPolicy: PrivacyPolicyDict = {
       'If this policy ever changes, the update will be posted on this same page.',
     contactHeading: 'Contact',
     contactBody:
-      'Questions about this policy can be sent via the project’s GitHub page.',
+      'Questions about this policy can be sent to turtlestepstothegoal@gmail.com (see also the Support page).',
     backToAboutLabel: 'Back to About',
+  }
+
+export const support: SupportDict = {
+    title: 'Support',
+    description: 'Help and contact for Turtle Steps to the Goal',
+    contactHeading: 'Contact',
+    contactBody:
+      'For app issues, feedback, or feature ideas, email the address below. This is a public support inbox for Turtle Steps — please do not send unrelated personal mail here.',
+    emailLabel: 'Email support',
+    faqHeading: 'Common questions',
+    faqLocalHeading: 'Where is my data?',
+    faqLocalBody:
+      'Your diary stays on your device. There is no account and no developer cloud copy of your entries.',
+    faqBackupHeading: 'How do I keep a backup?',
+    faqBackupBody:
+      'Use Settings → Export to save a backup. Uninstalling the app or clearing its storage can remove local records.',
+    faqExportHeading: 'Can I export my diary?',
+    faqExportBody:
+      'Yes. From Settings you can export a JSON backup, or Excel, CSV, or Markdown files.',
+    faqOnlineHeading: 'Does the app need the internet?',
+    faqOnlineBody:
+      'Daily logging works offline. Optional online food lookup needs a connection when you choose to search online.',
+    privacyLinkLabel: 'Read the privacy policy',
+    backToAboutLabel: 'Back to About',
+  }
+
+export const welcome: WelcomeDict = {
+    title: 'Turtle Steps to the Goal',
+    tagline: 'A private daily diary for meals, macros, water, and weight.',
+    body: 'Turtle Steps keeps your entries on your device — no account, no analytics, no developer cloud diary. Set a gentle pace, explore your history, and export a backup whenever you need one. Available on the App Store for iPhone, and as a web app here.',
+    privacyLinkLabel: 'Privacy policy',
+    supportLinkLabel: 'App support',
+    openAppLabel: 'Open the diary',
+    authorHeading: 'About the author',
+    authorBody: 'Made by Zhanna Myshkovskaia.',
+    githubLabel: 'GitHub profile',
   }
 
 export const featuresOverview: FeaturesOverviewDict = {
