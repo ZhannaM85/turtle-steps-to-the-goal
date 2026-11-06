@@ -44,6 +44,7 @@ describe('WelcomeScreen', () => {
       'href',
       'https://github.com/ZhannaM85',
     )
+    expect(screen.getByText('Made by Zhanna M.')).toBeInTheDocument()
   })
 
   it('renders in Russian when the locale is switched', () => {
@@ -57,5 +58,6 @@ describe('WelcomeScreen', () => {
       'href',
       '/support',
     )
+    expect(screen.getByText('Автор: Жанна М.')).toBeInTheDocument()
   })
 })

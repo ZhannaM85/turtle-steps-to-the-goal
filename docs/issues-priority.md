@@ -121,6 +121,7 @@ _App Support and Developer Website currently open the GitHub Pages PWA root (bro
 | [#1120](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1120) | 🔍 Pending validation | App Store: public `/support` page with contact email | `/support` with FAQ + `turtlestepstothegoal@gmail.com`. Connect URL paste is #1121. |
 | [#1119](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1119) | 🔍 Pending validation | App Store: public marketing page for Developer Website | `/welcome` about-the-app page; links to `/privacy` and `/support`. Connect URL paste is #1121. |
 | [#1121](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1121) | 🔲 Open | App Store Connect: paste Support and Marketing URLs after public pages ship | Owner step on the Connect device after #1120 and #1119 are live; keep Privacy at `/privacy`. |
+| [#1122](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1122) | 🔍 Pending validation | Author credit: use “Zhanna M.” — drop full surname everywhere in the app | Welcome author line (EN and RU) and the App Store listing copyright example now use the short form. Pending on-device / Pages confirmation. |
 
 ---
 

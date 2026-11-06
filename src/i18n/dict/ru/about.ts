@@ -89,7 +89,7 @@ export const welcome: WelcomeDict = {
     supportLinkLabel: 'Поддержка',
     openAppLabel: 'Открыть дневник',
     authorHeading: 'Об авторе',
-    authorBody: 'Автор: Жанна Мышковская.',
+    authorBody: 'Автор: Жанна М.',
     githubLabel: 'Профиль на GitHub',
   }
 

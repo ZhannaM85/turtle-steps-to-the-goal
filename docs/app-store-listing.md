@@ -159,7 +159,7 @@ QR-код или ссылку, могут покинуть устройство.
 - Marketing URL / Developer Website (optional, #1119):  
   https://zhannam85.github.io/turtle-steps-to-the-goal/welcome  
   Paste into Connect in #1121.
-- Copyright: e.g. `2026 Zhanna Myshkovskaia`
+- Copyright: e.g. `2026 Zhanna M.`
 - Price: Free
 - No promise of live Apple Health sync in the listing (file import only until #334).
 

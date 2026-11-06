@@ -89,7 +89,7 @@ export const welcome: WelcomeDict = {
     supportLinkLabel: 'App support',
     openAppLabel: 'Open the diary',
     authorHeading: 'About the author',
-    authorBody: 'Made by Zhanna Myshkovskaia.',
+    authorBody: 'Made by Zhanna M.',
     githubLabel: 'GitHub profile',
   }
 

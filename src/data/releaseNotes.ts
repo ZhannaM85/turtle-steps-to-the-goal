@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1093,
+    issue: 1122,
+    date: '2026-11-06T08:23:31.000Z',
+    en: 'The Welcome page credits the author as Zhanna M.',
+    ru: 'На странице приветствия автор указан как Жанна М.',
+  },
+  {
     version: 1092,
     issue: 1120,
     date: '2026-11-06T00:00:00.000Z',
