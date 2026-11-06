@@ -112,14 +112,15 @@ _Shared-dish QR review shows float junk on macros (e.g. protein `4.4999999999999
 
 ---
 
-## Tier 195 — App Store public pages (2026-11-06)
+## Tier 196 — App Store public pages (2026-11-06)
 
-_App Support and Developer Website currently open the GitHub Pages PWA root (browser diary). Replace with dedicated public pages on the same site; keep `/privacy`. Support contact: `turtlestepstothegoal@gmail.com`. No separate about-author repo; LinkedIn only as an optional link from the marketing page, not as Marketing URL._
+_App Support and Developer Website currently open the GitHub Pages PWA root (browser diary). Replace with dedicated public pages on the same site; keep `/privacy`. Support contact: `turtlestepstothegoal@gmail.com`. No separate about-author repo; LinkedIn only as an optional link from the marketing page, not as Marketing URL. Pasting the new URLs into App Store Connect is a separate owner step on another device (#1121)._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1120](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1120) | 🔲 Open | App Store: public `/support` page with contact email | FAQ + `turtlestepstothegoal@gmail.com`; then set Support URL to `/support` and update `docs/app-store-listing.md`. |
-| [#1119](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1119) | 🔲 Open | App Store: public marketing page for Developer Website | Lightweight about-the-app page for Marketing URL; links to `/privacy` and `/support`; optional LinkedIn from the page only. |
+| [#1120](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1120) | 🔲 Open | App Store: public `/support` page with contact email | FAQ + `turtlestepstothegoal@gmail.com`. Connect URL paste is #1121. |
+| [#1119](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1119) | 🔲 Open | App Store: public marketing page for Developer Website | Lightweight about-the-app page; links to `/privacy` and `/support`; optional LinkedIn from the page only. Connect URL paste is #1121. |
+| [#1121](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1121) | 🔲 Open | App Store Connect: paste Support and Marketing URLs after public pages ship | Owner step on the Connect device after #1120 and #1119 are live; keep Privacy at `/privacy`. |
 
 ---
 
