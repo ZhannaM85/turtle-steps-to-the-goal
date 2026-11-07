@@ -102,16 +102,6 @@ _Apple Health weight import wrote float junk into the morning weight field (83.4
 
 ---
 
-## Tier 195 — Live feedback (2026-11-05)
-
-_Shared-dish QR review shows float junk on macros (e.g. protein `4.499999999999999`, carbs `41.800000000000004`); round to 1–2 decimals._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#1118](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1118) | 🔍 Pending validation | Round shared-dish QR macros to 1–2 decimal places | Round in `sharedFoodAbsoluteNutrition` (+ encode) to 2 decimals. Related: #1116. Needs on-device QR import check. |
-
----
-
 ## Tier 196 — App Store public pages (2026-11-06)
 
 _App Support and Developer Website currently open the GitHub Pages PWA root (browser diary). Replace with dedicated public pages on the same site; keep `/privacy`. Support contact: `turtlestepstothegoal@gmail.com`. No separate about-author repo; LinkedIn only as an optional link from the marketing page, not as Marketing URL. Pasting the new URLs into App Store Connect is a separate owner step on another device (#1121)._

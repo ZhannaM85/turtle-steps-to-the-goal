@@ -1157,6 +1157,16 @@ _Closed rows only. Open / pending items stay in the active file._
 
 ---
 
+## Tier 195 — Live feedback (2026-11-05)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1118](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1118) | ✅ Done | Round shared-dish QR macros to 1–2 decimal places | Confirmed on-device 2026-11-07. Shared-dish QR macros round to two decimals. |
+
+---
+
 ## Tier 196 — App Store public pages (2026-11-06)
 
 _Closed rows only. Open / pending items stay in the active file._
