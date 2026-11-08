@@ -38,6 +38,24 @@ function addLocalDays(base: Date, days: number): Date {
 }
 
 /**
+ * Whether today's diary already has a row (#1108 / #1123).
+ * - Store win when the loaded day is today and non-null.
+ * - Otherwise use the repository read.
+ * - `'unknown'` when IndexedDB is not ready — caller must **not** schedule
+ *   a today fire (better to miss one nudge than nag after a log).
+ */
+export function resolveTodayHasEntry(input: {
+  today: string
+  storeDate: string | null
+  storeHasEntry: boolean
+  repositoryEntry: 'yes' | 'no' | 'unavailable'
+}): 'yes' | 'no' | 'unknown' {
+  if (input.storeDate === input.today && input.storeHasEntry) return 'yes'
+  if (input.repositoryEntry === 'unavailable') return 'unknown'
+  return input.repositoryEntry
+}
+
+/**
  * Next datetime to fire the reminder.
  * - If today already has a `DailyEntry` → tomorrow at reminder time.
  * - Else if reminder time today is still ahead → today at that time.

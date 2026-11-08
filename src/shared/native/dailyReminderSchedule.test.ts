@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { nextDailyReminderAt, parseReminderTime } from './dailyReminderSchedule'
+import {
+  nextDailyReminderAt,
+  parseReminderTime,
+  resolveTodayHasEntry,
+} from './dailyReminderSchedule'
 
 describe('parseReminderTime', () => {
   it('parses HH:MM', () => {
@@ -31,5 +35,48 @@ describe('nextDailyReminderAt (#1108)', () => {
     const now = new Date(2026, 9, 19, 20, 30, 0)
     const at = nextDailyReminderAt(now, '20:00', false)
     expect(at).toEqual(new Date(2026, 9, 20, 20, 0, 0))
+  })
+})
+
+describe('resolveTodayHasEntry (#1123)', () => {
+  it('trusts the store when the loaded day is today with an entry', () => {
+    expect(
+      resolveTodayHasEntry({
+        today: '2026-11-07',
+        storeDate: '2026-11-07',
+        storeHasEntry: true,
+        repositoryEntry: 'unavailable',
+      }),
+    ).toBe('yes')
+  })
+
+  it('returns unknown when IndexedDB is unavailable and store is not today', () => {
+    expect(
+      resolveTodayHasEntry({
+        today: '2026-11-07',
+        storeDate: '2026-11-06',
+        storeHasEntry: true,
+        repositoryEntry: 'unavailable',
+      }),
+    ).toBe('unknown')
+  })
+
+  it('uses the repository when the store is on another day', () => {
+    expect(
+      resolveTodayHasEntry({
+        today: '2026-11-07',
+        storeDate: '2026-11-06',
+        storeHasEntry: true,
+        repositoryEntry: 'yes',
+      }),
+    ).toBe('yes')
+    expect(
+      resolveTodayHasEntry({
+        today: '2026-11-07',
+        storeDate: null,
+        storeHasEntry: false,
+        repositoryEntry: 'no',
+      }),
+    ).toBe('no')
   })
 })

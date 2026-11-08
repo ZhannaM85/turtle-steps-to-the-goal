@@ -14,7 +14,7 @@ _App Store 1.0.1 daily reminder still fires when today is already logged (#1108 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1123](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1123) | ⬜ Open | iOS App Store: daily reminder still fires when today already has a log | Same as #1108; seen on public App Store 1.0.1 (build 23), not only TestFlight. |
+| [#1123](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1123) | 🔍 Pending validation | iOS App Store: daily reminder still fires when today already has a log | Hardened #1108 one-shot sync (serialize races; skip schedule when IndexedDB unknown). TestFlight build 24. |
 
 ---
 
