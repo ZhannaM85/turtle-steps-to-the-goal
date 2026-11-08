@@ -102,16 +102,6 @@ _Apple Health weight import wrote float junk into the morning weight field (83.4
 
 ---
 
-## Tier 196 — App Store public pages (2026-11-06)
-
-_App Support and Developer Website currently open the GitHub Pages PWA root (browser diary). Replace with dedicated public pages on the same site; keep `/privacy`. Support contact: `turtlestepstothegoal@gmail.com`. No separate about-author repo; LinkedIn only as an optional link from the marketing page, not as Marketing URL. Pasting the new URLs into App Store Connect is a separate owner step on another device (#1121)._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#1122](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1122) | 🔍 Pending validation | Author credit: use “Zhanna M.” — drop full surname everywhere in the app | Welcome author line (EN and RU) and the App Store listing copyright example now use the short form. Pending on-device / Pages confirmation. |
-
----
-
 ## Tier 163 — Live feedback (2026-09-15)
 
 _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack (#905) + diary follow-ups; sticky page tops._

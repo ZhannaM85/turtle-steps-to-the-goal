@@ -1176,4 +1176,5 @@ _Closed rows only. Open / pending items stay in the active file._
 | [#1121](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1121) | ✅ Done | App Store Connect: paste Support and Marketing URLs after public pages ship | Confirmed on-device 2026-11-07. Support `/support` and Marketing `/welcome` set on Connect version 1.0.1 (build 23). |
 | [#1119](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1119) | ✅ Done | App Store: public marketing page for Developer Website | Confirmed on-device 2026-11-07. Public `/welcome` page works for App Store visitors. |
 | [#1120](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1120) | ✅ Done | App Store: public `/support` page with contact email | Confirmed on-device 2026-11-07. Public `/support` page with contact email works. |
+| [#1122](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1122) | ✅ Done | Author credit: use “Zhanna M.” — drop full surname everywhere in the app | Confirmed on-device 2026-11-07. Author credit uses Zhanna M. (short form). |
 
