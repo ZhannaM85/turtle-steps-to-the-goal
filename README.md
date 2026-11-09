@@ -11,8 +11,10 @@ correlations to learn what helps over time.
 
 **Live app:** [zhannam85.github.io/turtle-steps-to-the-goal](https://zhannam85.github.io/turtle-steps-to-the-goal/)
 
-Local-first — no backend, no accounts, no telemetry, and no AI. All your data
-stays on your own device in the browser's IndexedDB.
+Also on the iOS App Store as a native app. Local-first either way — no backend,
+no accounts, no telemetry, and no AI. All your data stays on your own device
+(browser IndexedDB on the web; on-device storage in the iOS app). The daily
+reminder skips days that already have a log.
 
 Export a backup regularly, especially before clearing browser data or switching
 devices. Local browser storage is not a substitute for a saved backup.
