@@ -1178,3 +1178,13 @@ _Closed rows only. Open / pending items stay in the active file._
 | [#1120](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1120) | ✅ Done | App Store: public `/support` page with contact email | Confirmed on-device 2026-11-07. Public `/support` page with contact email works. |
 | [#1122](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1122) | ✅ Done | Author credit: use “Zhanna M.” — drop full surname everywhere in the app | Confirmed on-device 2026-11-07. Author credit uses Zhanna M. (short form). |
 
+---
+
+## Tier 197 — Live feedback (2026-11-08)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1123](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1123) | ✅ Done | iOS App Store: daily reminder still fires when today already has a log | Confirmed on-device 2026-11-09. Hardened #1108 one-shot sync (serialize races; skip schedule when IndexedDB unknown). TestFlight 1.0.2 build 24. |
+
