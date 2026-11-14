@@ -41,6 +41,8 @@ import { TodayInsightBanners } from './TodayInsightBanners'
 import { TodayStatsSection } from './TodayStatsSection'
 import { TodayWeeklyTarget } from './TodayWeeklyTarget'
 import { WhyDoingThisSection } from './WhyDoingThisSection'
+import { ExemplaryDayLink } from './ExemplaryDayLink'
+import { useAllDailyEntries } from './useAllDailyEntries'
 import { shiftDate } from './todayScreenUtils'
 import { useTodayDayStats } from './useTodayDayStats'
 
@@ -113,6 +115,7 @@ export function TodayScreen() {
     : null
   const { goal: dayGoal, progress: dayGoalProgress } = useGoalCoveringDate(date)
   const latestWeightKg = useLatestWeight(dayGoal)
+  const allEntries = useAllDailyEntries(entry)
 
   useEffect(() => {
     loadActiveGoal()
@@ -291,6 +294,12 @@ export function TodayScreen() {
             <DailyEntryFormBottom />
             <DailyEntryFormNightFood />
             <DailyEntryFormNextMorningWeight />
+            <ExemplaryDayLink
+              viewedDate={date}
+              entries={allEntries}
+              targetWeeklyLossKg={goal?.targetWeeklyLossKg}
+              dailyCalorieTargetKcal={goal?.dailyCalorieTargetKcal}
+            />
             <CompleteDayProjectionDialog />
           </DailyEntryFormStateProvider>
         </div>

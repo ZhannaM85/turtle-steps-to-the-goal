@@ -18,6 +18,12 @@ export {
 } from './mealEatingReasons'
 export type { DailyEntryRepository } from './DailyEntryRepository'
 export { totalCalories } from './totalCalories'
+export { suggestExemplaryDays } from './exemplaryDay'
+export type {
+  ExemplaryDayCandidate,
+  ExemplaryDayInput,
+  SuggestExemplaryDayOptions,
+} from './exemplaryDay'
 export {
   totalProtein,
   totalFat,

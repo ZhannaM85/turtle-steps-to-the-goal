@@ -67,6 +67,14 @@ export const settingsPreferencesSchema = z
     whyDoingThisCards: z
       .array(z.object({ id: z.string().min(1), text: z.string() }))
       .optional(),
+    exemplaryDayPin: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .nullable()
+      .optional(),
+    exemplaryDayDismissedDates: z
+      .array(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+      .optional(),
     customEatingReasons: z.array(z.string()).optional(),
     builtinEatingReasonLabels: z
       .object({

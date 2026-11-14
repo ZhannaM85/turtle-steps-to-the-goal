@@ -3,6 +3,7 @@ import {
   useDailyReminderStore,
   useMealLabelPresetStore,
   useWhyDoingThisStore,
+  useExemplaryDayStore,
   useEatingReasonTrackingStore,
   useMealSlotDefaultTimesStore,
   useMicronutrientTrackingStore,
@@ -55,6 +56,10 @@ export function collectSettingsPreferences(): ExportSettingsPreferences {
       id: card.id,
       text: card.text,
     })),
+    exemplaryDayPin: useExemplaryDayStore.getState().pinnedDate,
+    exemplaryDayDismissedDates: [
+      ...useExemplaryDayStore.getState().dismissedDates,
+    ],
     customEatingReasons: [
       ...useEatingReasonTrackingStore.getState().customReasons,
     ],
@@ -135,6 +140,14 @@ export function applySettingsPreferences(
       cards: settings.whyDoingThisCards
         .map((card) => ({ id: card.id, text: card.text.trim() }))
         .filter((card) => card.text !== ''),
+    })
+  }
+  if (settings.exemplaryDayPin !== undefined) {
+    useExemplaryDayStore.setState({ pinnedDate: settings.exemplaryDayPin })
+  }
+  if (settings.exemplaryDayDismissedDates) {
+    useExemplaryDayStore.setState({
+      dismissedDates: [...settings.exemplaryDayDismissedDates],
     })
   }
   if (settings.customEatingReasons || settings.builtinEatingReasonLabels) {

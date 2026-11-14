@@ -1,5 +1,6 @@
 import { useTrackedFieldsStore } from "@/stores/trackedFieldsStore"
 import { useWhyDoingThisStore } from "@/stores/whyDoingThisStore"
+import { useExemplaryDayStore } from "@/stores/exemplaryDayStore"
 import { describe, expect, it } from 'vitest'
 import {
   applyPortableDayToggles,
@@ -140,5 +141,33 @@ describe('why doing this cards (#1115)', () => {
     expect(collectSettingsPreferences().whyDoingThisCards).toEqual([
       { id: 'a', text: 'Health' },
     ])
+  })
+})
+
+describe('exemplary day pin (#1125)', () => {
+  it('replaces the pin and dismissed dates only when the backup contains them', () => {
+    useExemplaryDayStore.setState({
+      pinnedDate: '2026-03-02',
+      dismissedDates: ['2026-03-01'],
+    })
+
+    applySettingsPreferences(settingsPreferencesSchema.parse({ unit: 'kg' }))
+    expect(useExemplaryDayStore.getState().pinnedDate).toBe('2026-03-02')
+    expect(useExemplaryDayStore.getState().dismissedDates).toEqual(['2026-03-01'])
+
+    applySettingsPreferences(
+      settingsPreferencesSchema.parse({
+        exemplaryDayPin: '2026-04-04',
+        exemplaryDayDismissedDates: ['2026-04-01'],
+      }),
+    )
+    expect(useExemplaryDayStore.getState().pinnedDate).toBe('2026-04-04')
+    expect(useExemplaryDayStore.getState().dismissedDates).toEqual(['2026-04-01'])
+
+    applySettingsPreferences(
+      settingsPreferencesSchema.parse({ exemplaryDayPin: null }),
+    )
+    expect(useExemplaryDayStore.getState().pinnedDate).toBeNull()
+    expect(useExemplaryDayStore.getState().dismissedDates).toEqual(['2026-04-01'])
   })
 })

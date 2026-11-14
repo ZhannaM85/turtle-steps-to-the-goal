@@ -371,4 +371,13 @@ export interface DailyEntryFieldsDict {
     cholesterolImpactFormHint: string
     cholesterolReasonLabel: string
     cholesterolReasonPlaceholder: string
+    /** #1125 — link at the bottom of Day. */
+    exemplaryDaySuggestionLabel: (date: string) => string
+    exemplaryDayPinnedLabel: (date: string) => string
+    exemplaryDayChangeLabel: string
+    exemplaryDayUseThisDayLabel: string
+    exemplaryDayChooseAutomaticallyLabel: string
+    exemplaryDayDismissLabel: string
+    exemplaryDayCaloriesLabel: (kcal: string) => string
+    exemplaryDayWeightChangeLabel: (change: string, unit: string) => string
 }

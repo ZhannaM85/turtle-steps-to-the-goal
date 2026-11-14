@@ -459,4 +459,12 @@ export const dailyEntry: DailyEntryDict = {
       'A qualitative LDL note, not a medical score.',
     cholesterolReasonLabel: 'Reason (optional)',
     cholesterolReasonPlaceholder: 'Short note',
+    exemplaryDaySuggestionLabel: (date) => `A day close to your pace — ${date}`,
+    exemplaryDayPinnedLabel: (date) => `A day you chose as a reference — ${date}`,
+    exemplaryDayChangeLabel: 'Change',
+    exemplaryDayUseThisDayLabel: 'Use this day',
+    exemplaryDayChooseAutomaticallyLabel: 'Choose automatically',
+    exemplaryDayDismissLabel: "Don't suggest this",
+    exemplaryDayCaloriesLabel: (kcal) => `${kcal} kcal`,
+    exemplaryDayWeightChangeLabel: (change, unit) => `${change} ${unit}`,
   }

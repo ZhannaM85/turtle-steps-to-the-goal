@@ -210,6 +210,8 @@ export interface SettingsDict {
     ldlImpactTrackingLabel: string
     /** #1115 — opt-in reasons under the Day weekly target (default off). */
     whyDoingThisTrackingLabel: string
+    /** #1125 — opt-in link to a past day near the weekly pace (default off). */
+    exemplaryDayTrackingLabel: string
     /** #237: unified "what to track" section — folds cycle/digestion
      * tracking's own opt-in toggles in with the 5 fields below, which
      * didn't have an opt-out at all before this. */
@@ -259,6 +261,7 @@ export interface SettingsDict {
     trackedFieldHintMealKcalVsYesterday: string
     trackedFieldHintLdlImpact: string
     trackedFieldHintWhyDoingThis: string
+    trackedFieldHintExemplaryDay: string
     /** #1015 — paste JSON into the searchable food catalog. */
     catalogFoodImportLabel: string
     catalogFoodImportDescription: string

@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1095,
+    issue: 1125,
+    date: '2026-11-14T09:10:00.000Z',
+    en: 'You can open a past day close to your weekly pace from the Day page, and change which day that is.',
+    ru: 'На экране «День» можно открыть прошлый день, близкий к вашему недельному темпу, и сменить его.',
+  },
+  {
     version: 1094,
     issue: 1123,
     date: '2026-11-08T11:56:00.000Z',

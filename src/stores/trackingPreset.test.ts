@@ -7,6 +7,7 @@ import { useSectionVisibilityStore } from './sectionVisibilityStore'
 import { useTodayCardOrderStore } from './todayCardOrderStore'
 import { useTrackedFieldsStore } from './trackedFieldsStore'
 import { useWaterTrackingStore } from './waterTrackingStore'
+import { useExemplaryDayStore } from './exemplaryDayStore'
 
 afterEach(() => {
   localStorage.clear()
@@ -117,5 +118,16 @@ describe('applyTrackingPreset (#604)', () => {
     applyTrackingPreset('full')
 
     expect(useTodayCardOrderStore.getState().order[0]).toBe('remainingCalories')
+  })
+
+  it('both presets leave the exemplary-day switch off (#1125)', () => {
+    useExemplaryDayStore.setState({ enabled: true })
+
+    applyTrackingPreset('simple')
+    expect(useExemplaryDayStore.getState().enabled).toBe(false)
+
+    useExemplaryDayStore.setState({ enabled: true })
+    applyTrackingPreset('full')
+    expect(useExemplaryDayStore.getState().enabled).toBe(false)
   })
 })

@@ -483,4 +483,14 @@ export const dailyEntry: DailyEntryDict = {
       'Качественная пометка про ЛПНП, не медицинская оценка.',
     cholesterolReasonLabel: 'Причина (необязательно)',
     cholesterolReasonPlaceholder: 'Короткая пометка',
+    exemplaryDaySuggestionLabel: (date) =>
+      `День, близкий к вашему темпу — ${date}`,
+    exemplaryDayPinnedLabel: (date) =>
+      `День, который вы выбрали как образец — ${date}`,
+    exemplaryDayChangeLabel: 'Изменить',
+    exemplaryDayUseThisDayLabel: 'Этот день',
+    exemplaryDayChooseAutomaticallyLabel: 'Выбрать автоматически',
+    exemplaryDayDismissLabel: 'Не предлагать',
+    exemplaryDayCaloriesLabel: (kcal) => `${kcal} ккал`,
+    exemplaryDayWeightChangeLabel: (change, unit) => `${change} ${unit}`,
   }

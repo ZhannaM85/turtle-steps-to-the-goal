@@ -11,6 +11,7 @@ import {
   useMealKcalVsYesterdayStore,
   useMicronutrientTrackingStore,
   usePlannedMealsTrackingStore,
+  useExemplaryDayStore,
   useProfileStore,
   useTrackedFieldsStore,
   useWaterTrackingStore,
@@ -34,6 +35,7 @@ type UnifiedTrackedKey =
   | 'alcohol'
   | 'water'
   | 'plannedMeals'
+  | 'exemplaryDay'
   | 'eatingReason'
   | 'copyYesterdayMeals'
   | 'mealKcalVsYesterday'
@@ -68,6 +70,10 @@ export function SettingsTrackedFieldsSection() {
     (state) => state.enabled,
   )
   const setPlannedMealsTrackingEnabled = usePlannedMealsTrackingStore(
+    (state) => state.setEnabled,
+  )
+  const exemplaryDayEnabled = useExemplaryDayStore((state) => state.enabled)
+  const setExemplaryDayEnabled = useExemplaryDayStore(
     (state) => state.setEnabled,
   )
   const eatingReasonTrackingEnabled = useEatingReasonTrackingStore(
@@ -117,6 +123,7 @@ export function SettingsTrackedFieldsSection() {
     'dayTotals',
     'fiber',
     'plannedMeals',
+    'exemplaryDay',
     'mealNotes',
     'mealReactions',
     'copyYesterdayMeals',
@@ -131,6 +138,7 @@ export function SettingsTrackedFieldsSection() {
     if (key === 'alcohol') return alcoholTrackingEnabled
     if (key === 'water') return waterTrackingEnabled
     if (key === 'plannedMeals') return plannedMealsTrackingEnabled
+    if (key === 'exemplaryDay') return exemplaryDayEnabled
     if (key === 'eatingReason') return eatingReasonTrackingEnabled
     if (key === 'copyYesterdayMeals') return copyYesterdayMealsEnabled
     if (key === 'mealKcalVsYesterday') return mealKcalVsYesterdayEnabled
@@ -144,6 +152,7 @@ export function SettingsTrackedFieldsSection() {
     else if (key === 'alcohol') setAlcoholTrackingEnabled(value)
     else if (key === 'water') setWaterTrackingEnabled(value)
     else if (key === 'plannedMeals') setPlannedMealsTrackingEnabled(value)
+    else if (key === 'exemplaryDay') setExemplaryDayEnabled(value)
     else if (key === 'eatingReason') setEatingReasonTrackingEnabled(value)
     else if (key === 'copyYesterdayMeals') setCopyYesterdayMealsEnabled(value)
     else if (key === 'mealKcalVsYesterday') setMealKcalVsYesterdayEnabled(value)
@@ -234,6 +243,11 @@ export function SettingsTrackedFieldsSection() {
         return {
           label: t.settings.plannedMealsTrackingLabel,
           description: t.settings.trackedFieldHintPlannedMeals,
+        }
+      case 'exemplaryDay':
+        return {
+          label: t.settings.exemplaryDayTrackingLabel,
+          description: t.settings.trackedFieldHintExemplaryDay,
         }
       case 'copyYesterdayMeals':
         return {

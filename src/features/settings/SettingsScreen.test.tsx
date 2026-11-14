@@ -10,6 +10,7 @@ import {
   useDigestionTrackingStore,
   useLastBackupStore,
   usePlannedMealsTrackingStore,
+  useExemplaryDayStore,
   useEatingReasonTrackingStore,
   useCopyYesterdayMealsStore,
   useLdlImpactStore,
@@ -60,6 +61,11 @@ beforeEach(() => {
   useDigestionTrackingStore.setState({ enabled: false })
   useWaterTrackingStore.setState({ enabled: false })
   usePlannedMealsTrackingStore.setState({ enabled: false })
+  useExemplaryDayStore.setState({
+    enabled: false,
+    pinnedDate: null,
+    dismissedDates: [],
+  })
   useEatingReasonTrackingStore.setState({
     enabled: false,
     customReasons: [],
@@ -105,6 +111,11 @@ afterEach(() => {
   useDigestionTrackingStore.setState({ enabled: false })
   useWaterTrackingStore.setState({ enabled: false })
   usePlannedMealsTrackingStore.setState({ enabled: false })
+  useExemplaryDayStore.setState({
+    enabled: false,
+    pinnedDate: null,
+    dismissedDates: [],
+  })
   useEatingReasonTrackingStore.setState({
     enabled: false,
     customReasons: [],
@@ -436,6 +447,19 @@ describe('SettingsScreen', () => {
 
       expect(plannedMealsToggle).toBeChecked()
       expect(usePlannedMealsTrackingStore.getState().enabled).toBe(true)
+    })
+
+    it('defaults the exemplary-day link to off (#1125)', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      const exemplaryDayToggle = trackedSwitch('Exemplary day', 'Other')
+      expect(exemplaryDayToggle).not.toBeChecked()
+
+      await user.click(exemplaryDayToggle)
+
+      expect(exemplaryDayToggle).toBeChecked()
+      expect(useExemplaryDayStore.getState().enabled).toBe(true)
     })
 
     it('defaults why-eating tracking to off, and switches it on when selected (#764)', async () => {
