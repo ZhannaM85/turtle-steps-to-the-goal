@@ -102,13 +102,14 @@ _Apple Health weight import wrote float junk into the morning weight field (83.4
 
 ---
 
-## Tier 198 — Exemplary day (2026-11-14)
+## Tier 198 — Exemplary day and weight averages (2026-11-14)
 
-_On Day, an opt-in link at the bottom opens a past day close to the weekly pace, so the user can see what they ate. They can change, dismiss, or pin that day. The biggest scale drop is not the example: days far below their calorie target, and days that only look low because the log is incomplete, are not suggested. Off until What to track is turned on._
+_On Day, two opt-in pieces, each with its own What to track switch that starts off. A link at the bottom opens a past day close to the weekly pace, and the user can change, dismiss, or pin that day. Under the weight, a card shows the average weight for the past week, month, and year as three numbers._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1125](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1125) | 🔲 Open | Day: optional link to an exemplary day the user can change | Bottom of Day. Settings → What to track, Other group, off by default, and left off by the Simple and Full presets. Suggestion scores the stretch between weigh-ins near the weekly pace, with calories near the daily target and a filled-in log. Change lists date, calories, and the surrounding weigh-in change. Pin, dismiss, or clear the pin; pinning the open day is allowed. Pin and dismissed dates stay when the switch is off and travel in the settings backup. Copy is a personal reference, in English and Russian. |
+| [#1126](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1126) | 🔲 Open | Day: optional average weight for the past week, month, and year | Card under the morning weight with three numbers and the weight unit. Rolling windows ending on the open day: 7, 30, and 365 days. Average only days with a weigh-in. Hide a number with fewer than two weigh-ins, and hide the card when all three are hidden. Own What to track switch, Other group, off by default, left off by the Simple and Full presets, included in the settings backup. The info icon beside the weight stays the previous-weigh-in and 30-days-ago comparison. |
 
 ---
 
