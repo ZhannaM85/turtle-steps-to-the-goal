@@ -102,6 +102,16 @@ _Apple Health weight import wrote float junk into the morning weight field (83.4
 
 ---
 
+## Tier 198 — Exemplary day (2026-11-14)
+
+_On Day, an opt-in link at the bottom opens a past day close to the weekly pace, so the user can see what they ate. They can change, dismiss, or pin that day. The biggest scale drop is not the example: days far below their calorie target, and days that only look low because the log is incomplete, are not suggested. Off until What to track is turned on._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1125](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1125) | 🔲 Open | Day: optional link to an exemplary day the user can change | Bottom of Day. Settings → What to track, Other group, off by default, and left off by the Simple and Full presets. Suggestion scores the stretch between weigh-ins near the weekly pace, with calories near the daily target and a filled-in log. Change lists date, calories, and the surrounding weigh-in change. Pin, dismiss, or clear the pin; pinning the open day is allowed. Pin and dismissed dates stay when the switch is off and travel in the settings backup. Copy is a personal reference, in English and Russian. |
+
+---
+
 ## Tier 163 — Live feedback (2026-09-15)
 
 _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack (#905) + diary follow-ups; sticky page tops._
