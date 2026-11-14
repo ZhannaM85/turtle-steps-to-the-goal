@@ -186,6 +186,7 @@ export const settings: SettingsDict = {
     ldlImpactTrackingLabel: 'Показывать влияние на ЛПНП',
     whyDoingThisTrackingLabel: 'Зачем я это делаю',
     exemplaryDayTrackingLabel: 'Удачный день',
+    averageWeightTrackingLabel: 'Средний вес',
     trackingPresetLabel: 'Пресет макета',
     trackingPresetDescription:
       'Быстрая отправная точка для дня: «Просто» оставляет вес, приёмы пищи/калории и цель; «Полностью» включает всё. Всё ниже по-прежнему можно настроить вручную.',
@@ -238,6 +239,8 @@ export const settings: SettingsDict = {
       'Причины, которые можно открыть на экране «День», когда хочется остановиться.',
     trackedFieldHintExemplaryDay:
       'Прошлый день, близкий к вашему недельному темпу. День можно сменить.',
+    trackedFieldHintAverageWeight:
+      'Средний вес за неделю, месяц и год под весом на экране «День».',
     catalogFoodImportLabel: 'Импорт продуктов в каталог',
     catalogFoodImportDescription:
       'Вставьте один продукт или список. Калории и БЖУ — на 100 г. Штрихкод обновляет тот же продукт, иначе — то же русское название. Бренд сохраняется. Пометки ЛПНП у совпадающих блюд в дневнике обновятся. Калории и БЖУ в прошлых приёмах остаются как записаны.',

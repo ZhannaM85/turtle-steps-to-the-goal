@@ -8,6 +8,7 @@ import { useTodayCardOrderStore } from './todayCardOrderStore'
 import { useTrackedFieldsStore } from './trackedFieldsStore'
 import { useWaterTrackingStore } from './waterTrackingStore'
 import { useExemplaryDayStore } from './exemplaryDayStore'
+import { useAverageWeightStore } from './averageWeightStore'
 
 afterEach(() => {
   localStorage.clear()
@@ -129,5 +130,16 @@ describe('applyTrackingPreset (#604)', () => {
     useExemplaryDayStore.setState({ enabled: true })
     applyTrackingPreset('full')
     expect(useExemplaryDayStore.getState().enabled).toBe(false)
+  })
+
+  it('both presets leave the average-weight switch off (#1126)', () => {
+    useAverageWeightStore.setState({ enabled: true })
+
+    applyTrackingPreset('simple')
+    expect(useAverageWeightStore.getState().enabled).toBe(false)
+
+    useAverageWeightStore.setState({ enabled: true })
+    applyTrackingPreset('full')
+    expect(useAverageWeightStore.getState().enabled).toBe(false)
   })
 })

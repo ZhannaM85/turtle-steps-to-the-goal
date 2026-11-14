@@ -24,6 +24,7 @@ export type {
   ExemplaryDayInput,
   SuggestExemplaryDayOptions,
 } from './exemplaryDay'
+export { rollingAverageWeightKg } from './rollingAverageWeight'
 export {
   totalProtein,
   totalFat,

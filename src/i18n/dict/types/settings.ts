@@ -212,6 +212,8 @@ export interface SettingsDict {
     whyDoingThisTrackingLabel: string
     /** #1125 — opt-in link to a past day near the weekly pace (default off). */
     exemplaryDayTrackingLabel: string
+    /** #1126 — opt-in week, month, and year averages under Day weight (default off). */
+    averageWeightTrackingLabel: string
     /** #237: unified "what to track" section — folds cycle/digestion
      * tracking's own opt-in toggles in with the 5 fields below, which
      * didn't have an opt-out at all before this. */
@@ -262,6 +264,7 @@ export interface SettingsDict {
     trackedFieldHintLdlImpact: string
     trackedFieldHintWhyDoingThis: string
     trackedFieldHintExemplaryDay: string
+    trackedFieldHintAverageWeight: string
     /** #1015 — paste JSON into the searchable food catalog. */
     catalogFoodImportLabel: string
     catalogFoodImportDescription: string

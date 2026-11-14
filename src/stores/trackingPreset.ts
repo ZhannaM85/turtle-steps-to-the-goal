@@ -7,6 +7,7 @@ import { useTodayCardOrderStore } from './todayCardOrderStore'
 import { useTrackedFieldsStore, type TrackedField } from './trackedFieldsStore'
 import { useWaterTrackingStore } from './waterTrackingStore'
 import { useExemplaryDayStore } from './exemplaryDayStore'
+import { useAverageWeightStore } from './averageWeightStore'
 
 export type TrackingPreset = 'simple' | 'full'
 
@@ -103,6 +104,7 @@ export function applyTrackingPreset(preset: TrackingPreset): void {
   // it on by default.
   useWaterTrackingStore.setState({ enabled: false })
   useExemplaryDayStore.setState({ enabled: false })
+  useAverageWeightStore.setState({ enabled: false })
   useMicronutrientTrackingStore.setState({
     tracked: { sodium: false, potassium: false, magnesium: false },
   })

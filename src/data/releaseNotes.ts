@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1096,
+    issue: 1126,
+    date: '2026-11-14T09:25:00.000Z',
+    en: 'Day can show your average weight for the past week, month, and year under the weight.',
+    ru: 'На экране «День» под весом можно показать средний вес за неделю, месяц и год.',
+  },
+  {
     version: 1095,
     issue: 1125,
     date: '2026-11-14T09:10:00.000Z',

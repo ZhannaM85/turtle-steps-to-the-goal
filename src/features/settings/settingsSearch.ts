@@ -209,6 +209,8 @@ function trackedRowLabels(id: string, dict: Dictionary): string[] {
       return [s.plannedMealsTrackingLabel, s.trackedFieldHintPlannedMeals]
     case 'exemplaryDay':
       return [s.exemplaryDayTrackingLabel, s.trackedFieldHintExemplaryDay]
+    case 'averageWeight':
+      return [s.averageWeightTrackingLabel, s.trackedFieldHintAverageWeight]
     case 'copyYesterdayMeals':
       return [
         s.copyYesterdayMealsTrackingLabel,
@@ -277,6 +279,7 @@ const TRACKED_ROW_IDS = [
   'fiber',
   'plannedMeals',
   'exemplaryDay',
+  'averageWeight',
   'mealNotes',
   'mealReactions',
   'copyYesterdayMeals',

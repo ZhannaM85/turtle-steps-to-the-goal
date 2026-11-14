@@ -493,4 +493,7 @@ export const dailyEntry: DailyEntryDict = {
     exemplaryDayDismissLabel: 'Не предлагать',
     exemplaryDayCaloriesLabel: (kcal) => `${kcal} ккал`,
     exemplaryDayWeightChangeLabel: (change, unit) => `${change} ${unit}`,
+    averageWeightWeekLabel: 'Неделя',
+    averageWeightMonthLabel: 'Месяц',
+    averageWeightYearLabel: 'Год',
   }

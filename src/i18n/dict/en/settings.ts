@@ -184,6 +184,7 @@ export const settings: SettingsDict = {
     ldlImpactTrackingLabel: 'Show LDL impact',
     whyDoingThisTrackingLabel: "Why I'm doing this",
     exemplaryDayTrackingLabel: 'Exemplary day',
+    averageWeightTrackingLabel: 'Average weight',
     trackingPresetLabel: 'Layout preset',
     trackingPresetDescription:
       "Quick starting point for Day: Simple keeps weight, meals/calories, and your goal; Full turns everything on. You can still adjust anything below afterward.",
@@ -235,6 +236,8 @@ export const settings: SettingsDict = {
       'Reasons you can open on the Day page when you feel like stopping.',
     trackedFieldHintExemplaryDay:
       'A past day close to your weekly pace, which you can change.',
+    trackedFieldHintAverageWeight:
+      'Week, month, and year averages under the weight on Day.',
     catalogFoodImportLabel: 'Import catalog foods',
     catalogFoodImportDescription:
       'Paste one food or a list. Calories and macros are per 100 g. A barcode updates that same product; otherwise the Russian name does. Brand is kept. LDL notes on matching diary foods update. Calories and macros on past meals stay as logged.',

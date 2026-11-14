@@ -11,6 +11,7 @@ import {
   useLastBackupStore,
   usePlannedMealsTrackingStore,
   useExemplaryDayStore,
+  useAverageWeightStore,
   useEatingReasonTrackingStore,
   useCopyYesterdayMealsStore,
   useLdlImpactStore,
@@ -66,6 +67,7 @@ beforeEach(() => {
     pinnedDate: null,
     dismissedDates: [],
   })
+  useAverageWeightStore.setState({ enabled: false })
   useEatingReasonTrackingStore.setState({
     enabled: false,
     customReasons: [],
@@ -116,6 +118,7 @@ afterEach(() => {
     pinnedDate: null,
     dismissedDates: [],
   })
+  useAverageWeightStore.setState({ enabled: false })
   useEatingReasonTrackingStore.setState({
     enabled: false,
     customReasons: [],
@@ -460,6 +463,19 @@ describe('SettingsScreen', () => {
 
       expect(exemplaryDayToggle).toBeChecked()
       expect(useExemplaryDayStore.getState().enabled).toBe(true)
+    })
+
+    it('defaults average weight to off (#1126)', async () => {
+      const user = userEvent.setup()
+      renderSettings()
+
+      const averageWeightToggle = trackedSwitch('Average weight', 'Other')
+      expect(averageWeightToggle).not.toBeChecked()
+
+      await user.click(averageWeightToggle)
+
+      expect(averageWeightToggle).toBeChecked()
+      expect(useAverageWeightStore.getState().enabled).toBe(true)
     })
 
     it('defaults why-eating tracking to off, and switches it on when selected (#764)', async () => {

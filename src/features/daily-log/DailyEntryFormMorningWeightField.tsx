@@ -2,11 +2,14 @@ import { formatExactNumber } from '@/i18n'
 import { parseNumberInput } from '@/shared/lib/parseNumberInput'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
+import { useAverageWeightStore } from '@/stores'
 import {
   EntryFieldComparisonInfo,
   EntryFieldComparisonLive,
 } from './EntryFieldComparison'
 import { AppleHealthDayFieldSyncButton } from './AppleHealthDayFieldSyncButton'
+import { AverageWeightCard } from './AverageWeightCard'
+import { useAllDailyEntries } from './useAllDailyEntries'
 import {
   DayFieldEditActions,
   DayFieldHeader,
@@ -19,6 +22,8 @@ export function DailyEntryFormMorningWeightField() {
   const state = useDailyEntryFormStateContext()
   const { t, locale } = state
   const comparison = state.entryComparisonBaselines
+  const averageWeightEnabled = useAverageWeightStore((store) => store.enabled)
+  const allEntries = useAllDailyEntries(state.weightKg)
 
   return (
     <>
@@ -187,6 +192,9 @@ export function DailyEntryFormMorningWeightField() {
                 )}
               </div>
             )}
+      {averageWeightEnabled && (
+        <AverageWeightCard date={state.date} entries={allEntries} />
+      )}
     </>
   )
 }

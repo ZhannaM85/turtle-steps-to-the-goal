@@ -380,4 +380,8 @@ export interface DailyEntryFieldsDict {
     exemplaryDayDismissLabel: string
     exemplaryDayCaloriesLabel: (kcal: string) => string
     exemplaryDayWeightChangeLabel: (change: string, unit: string) => string
+    /** #1126 — three numbers under the morning weight. */
+    averageWeightWeekLabel: string
+    averageWeightMonthLabel: string
+    averageWeightYearLabel: string
 }
