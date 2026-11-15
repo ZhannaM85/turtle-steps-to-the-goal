@@ -20,7 +20,6 @@ import { useExemplaryDayStore, useUnitStore } from '@/stores'
 interface ExemplaryDayLinkProps {
   viewedDate: string
   entries: DailyEntry[]
-  targetWeeklyLossKg?: number
   dailyCalorieTargetKcal?: number
 }
 
@@ -28,7 +27,6 @@ interface ExemplaryDayLinkProps {
 export function ExemplaryDayLink({
   viewedDate,
   entries,
-  targetWeeklyLossKg,
   dailyCalorieTargetKcal,
 }: ExemplaryDayLinkProps) {
   const t = useTranslation()
@@ -51,9 +49,13 @@ export function ExemplaryDayLink({
           calories: totalCalories(entry.calorieEntries, entry.dayTotals),
           mealCount: entry.calorieEntries?.length ?? 0,
         })),
-        { targetWeeklyLossKg, dailyCalorieTargetKcal, dismissedDates },
+        {
+          referenceDate: viewedDate,
+          dailyCalorieTargetKcal,
+          dismissedDates,
+        },
       ),
-    [entries, targetWeeklyLossKg, dailyCalorieTargetKcal, dismissedDates],
+    [entries, viewedDate, dailyCalorieTargetKcal, dismissedDates],
   )
 
   if (!enabled) return null

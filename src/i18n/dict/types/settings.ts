@@ -210,7 +210,7 @@ export interface SettingsDict {
     ldlImpactTrackingLabel: string
     /** #1115 — opt-in reasons under the Day weekly target (default off). */
     whyDoingThisTrackingLabel: string
-    /** #1125 — opt-in link to a past day near the weekly pace (default off). */
+    /** #1125 — opt-in link to a past day on target with a solid next weigh-in (default off). */
     exemplaryDayTrackingLabel: string
     /** #1126 — opt-in week, month, and year averages under Day weight (default off). */
     averageWeightTrackingLabel: string

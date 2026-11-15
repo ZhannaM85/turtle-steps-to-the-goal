@@ -39,7 +39,6 @@ function renderLink(
       <ExemplaryDayLink
         viewedDate="2026-03-10"
         entries={healthyWeek}
-        targetWeeklyLossKg={0.5}
         dailyCalorieTargetKcal={1800}
         {...overrides}
       />
@@ -64,12 +63,12 @@ describe('ExemplaryDayLink (#1125)', () => {
     expect(screen.queryByRole('link')).not.toBeInTheDocument()
   })
 
-  it('links to the day near the weekly pace', () => {
+  it('links to a recent day on target with a solid next weigh-in', () => {
     useExemplaryDayStore.setState({ enabled: true })
     renderLink()
 
     expect(
-      screen.getByRole('link', { name: 'A day close to your pace — 2 Mar' }),
+      screen.getByRole('link', { name: 'A solid day on target — 2 Mar' }),
     ).toHaveAttribute('href', '/?date=2026-03-02')
   })
 

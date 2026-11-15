@@ -235,7 +235,7 @@ export const settings: SettingsDict = {
     trackedFieldHintWhyDoingThis:
       'Reasons you can open on the Day page when you feel like stopping.',
     trackedFieldHintExemplaryDay:
-      'A past day close to your weekly pace, which you can change.',
+      'A past day with calories on target and a solid next weigh-in, which you can change.',
     trackedFieldHintAverageWeight:
       'Week, month, and year averages under the weight on Day.',
     catalogFoodImportLabel: 'Import catalog foods',

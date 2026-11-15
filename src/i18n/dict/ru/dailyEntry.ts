@@ -484,7 +484,7 @@ export const dailyEntry: DailyEntryDict = {
     cholesterolReasonLabel: 'Причина (необязательно)',
     cholesterolReasonPlaceholder: 'Короткая пометка',
     exemplaryDaySuggestionLabel: (date) =>
-      `День, близкий к вашему темпу — ${date}`,
+      `Удачный день в пределах нормы — ${date}`,
     exemplaryDayPinnedLabel: (date) =>
       `День, который вы выбрали как образец — ${date}`,
     exemplaryDayChangeLabel: 'Изменить',

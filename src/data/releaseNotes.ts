@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1097,
+    issue: 1125,
+    date: '2026-11-15T07:00:00.000Z',
+    en: 'The exemplary-day link now picks a recent day with calories on target and at least 200 g loss by the next weigh-in.',
+    ru: 'Ссылка на удачный день теперь выбирает недавний день с калориями в норме и потерей не меньше 200 г к следующему взвешиванию.',
+  },
+  {
     version: 1096,
     issue: 1126,
     date: '2026-11-14T09:25:00.000Z',

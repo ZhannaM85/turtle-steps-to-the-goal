@@ -297,7 +297,6 @@ export function TodayScreen() {
             <ExemplaryDayLink
               viewedDate={date}
               entries={allEntries}
-              targetWeeklyLossKg={goal?.targetWeeklyLossKg}
               dailyCalorieTargetKcal={goal?.dailyCalorieTargetKcal}
             />
             <CompleteDayProjectionDialog />

@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
 /**
- * #1125 — opt-in link to a past day near the weekly pace. Off by default.
+ * #1125 — opt-in link to a past day on target with a solid next weigh-in. Off by default.
  * The pin and dismissed dates stay when the switch is off.
  */
 interface ExemplaryDayStoreState {
