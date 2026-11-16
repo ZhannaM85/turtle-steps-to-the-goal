@@ -104,11 +104,10 @@ _Apple Health weight import wrote float junk into the morning weight field (83.4
 
 ## Tier 198 — Exemplary day and weight averages (2026-11-14)
 
-_On Day, two opt-in pieces, each with its own What to track switch that starts off. A link at the bottom opens a recent past day on calorie target with a solid next weigh-in, and the user can change, dismiss, or pin that day. Under the weight, a card shows the average weight for the past week, month, and year as three numbers._
+_On Day, an opt-in card under the weight shows the average weight for the past week, month, and year as three numbers. Off until What to track is turned on._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1125](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1125) | 🔍 Pending validation | Day: optional link to an exemplary day the user can change | Bottom of Day. Settings → What to track, Other group, off by default, and left off by the Simple and Full presets. Suggestion: filled-in day with calories at/under the daily target (not below ~80%), next weigh-in lost ≥ 200 g; nearest to the open day wins. Change lists date, calories, and the weigh-in change. Pin, dismiss, or clear the pin; pinning the open day is allowed. Pin and dismissed dates stay when the switch is off and travel in the settings backup. TestFlight 1.0.3 build 27. |
 | [#1126](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1126) | 🔍 Pending validation | Day: optional average weight for the past week, month, and year | Card under the morning weight with three numbers and the weight unit. Rolling windows ending on the open day: 7, 30, and 365 days. Average only days with a weigh-in. Hide a number with fewer than two weigh-ins, and hide the card when all three are hidden. Own What to track switch, Other group, off by default, left off by the Simple and Full presets, included in the settings backup. The info icon beside the weight stays the previous-weigh-in and 30-days-ago comparison. TestFlight 1.0.3 build 26 (also includes #1125). |
 
 ---

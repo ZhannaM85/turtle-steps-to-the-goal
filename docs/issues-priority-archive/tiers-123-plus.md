@@ -1188,3 +1188,13 @@ _Closed rows only. Open / pending items stay in the active file._
 |---|--------|-------|-------|
 | [#1123](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1123) | ✅ Done | iOS App Store: daily reminder still fires when today already has a log | Confirmed on-device 2026-11-09. Hardened #1108 one-shot sync (serialize races; skip schedule when IndexedDB unknown). TestFlight 1.0.2 build 24. |
 
+---
+
+## Tier 198 — Exemplary day and weight averages (2026-11-14)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1125](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1125) | ✅ Done | Day: optional link to an exemplary day the user can change | Confirmed on-device 2026-11-16. The link at the bottom of Day opens a past day near the weekly pace, and that day can be changed. |
+
