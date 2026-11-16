@@ -1197,4 +1197,5 @@ _Closed rows only. Open / pending items stay in the active file._
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1125](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1125) | ✅ Done | Day: optional link to an exemplary day the user can change | Confirmed on-device 2026-11-16. The link at the bottom of Day opens a past day near the weekly pace, and that day can be changed. |
+| [#1126](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1126) | ✅ Done | Day: optional average weight for the past week, month, and year | Confirmed on-device 2026-11-16. Week, month, and year averages show as numbers under the weight on Day. |
 

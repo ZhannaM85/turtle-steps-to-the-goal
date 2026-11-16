@@ -102,16 +102,6 @@ _Apple Health weight import wrote float junk into the morning weight field (83.4
 
 ---
 
-## Tier 198 — Exemplary day and weight averages (2026-11-14)
-
-_On Day, an opt-in card under the weight shows the average weight for the past week, month, and year as three numbers. Off until What to track is turned on._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#1126](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1126) | 🔍 Pending validation | Day: optional average weight for the past week, month, and year | Card under the morning weight with three numbers and the weight unit. Rolling windows ending on the open day: 7, 30, and 365 days. Average only days with a weigh-in. Hide a number with fewer than two weigh-ins, and hide the card when all three are hidden. Own What to track switch, Other group, off by default, left off by the Simple and Full presets, included in the settings backup. The info icon beside the weight stays the previous-weigh-in and 30-days-ago comparison. TestFlight 1.0.3 build 26 (also includes #1125). |
-
----
-
 ## Tier 163 — Live feedback (2026-09-15)
 
 _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack (#905) + diary follow-ups; sticky page tops._
