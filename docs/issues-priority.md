@@ -102,13 +102,14 @@ _Apple Health weight import wrote float junk into the morning weight field (83.4
 
 ---
 
-## Tier 199 — Exemplary day explanation (2026-11-18)
+## Tier 199 — Live feedback and Dependabot (2026-11-18)
 
-_On Day, the exemplary-day line needs a short explanation of how that day is chosen. A nearby drop of about 350 g is the closest qualifying day, not the biggest loss in the history._
+_On Day, the exemplary-day line needs a short explanation of how that day is chosen. A nearby drop of about 350 g is the closest qualifying day, not the biggest loss in the history. Also clear open Dependabot npm alerts that are development/transitive only._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1127](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1127) | 🔍 Pending validation | Day: explain how the exemplary day is chosen | Info icon beside the Day link. Closest qualifying day (two meals, calories in range, next weigh-in at least 200 g lower), not the largest loss. |
+| [#1128](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1128) | 🔲 Open | Clear open Dependabot npm alerts | Dev/transitive only; production audit clean. Prefer lockfile bumps/overrides; dismiss withdrawn deepmerge #117; no `npm audit fix --force`. |
 
 ---
 
