@@ -15,6 +15,11 @@ import {
   useTranslation,
 } from '@/i18n'
 import { Button } from '@/shared/ui/button'
+import {
+  CONTROL_INFO_TOOLTIP_CLASS,
+  ControlWithInfo,
+  InfoTooltip,
+} from '@/shared/ui/info-tooltip'
 import { useExemplaryDayStore, useUnitStore } from '@/stores'
 
 interface ExemplaryDayLinkProps {
@@ -81,17 +86,25 @@ export function ExemplaryDayLink({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-baseline justify-between gap-2">
-        <Link
-          to={href}
-          className="text-sm text-foreground underline-offset-4 hover:underline"
-        >
-          {linkText}
-        </Link>
+      <div className="flex items-center justify-between gap-2">
+        <ControlWithInfo className="min-w-0">
+          <Link
+            to={href}
+            className="min-w-0 text-sm text-foreground underline-offset-4 hover:underline"
+          >
+            {linkText}
+          </Link>
+          <InfoTooltip
+            text={t.dailyEntry.exemplaryDayHowTooltip}
+            label={t.dailyEntry.exemplaryDayHowTooltipLabel}
+            className={CONTROL_INFO_TOOLTIP_CLASS}
+          />
+        </ControlWithInfo>
         <Button
           type="button"
           variant="ghost"
           size="sm"
+          className="shrink-0"
           onClick={() => setOpen((current) => !current)}
         >
           {t.dailyEntry.exemplaryDayChangeLabel}

@@ -468,6 +468,9 @@ export const dailyEntry: DailyEntryDict = {
     exemplaryDayDismissLabel: "Don't suggest this",
     exemplaryDayCaloriesLabel: (kcal) => `${kcal} kcal`,
     exemplaryDayWeightChangeLabel: (change, unit) => `${change} ${unit}`,
+    exemplaryDayHowTooltipLabel: 'How this day is chosen',
+    exemplaryDayHowTooltip:
+      'The closest day to this one with at least two meals, calories from 80% up to your daily target (or 75–100% of a typical day), and a next weigh-in at least 200 g lower. Closer days come first, and Change shows up to five.',
     averageWeightWeekLabel: 'Week',
     averageWeightMonthLabel: 'Month',
     averageWeightYearLabel: 'Year',

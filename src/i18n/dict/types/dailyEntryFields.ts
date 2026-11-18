@@ -380,6 +380,9 @@ export interface DailyEntryFieldsDict {
     exemplaryDayDismissLabel: string
     exemplaryDayCaloriesLabel: (kcal: string) => string
     exemplaryDayWeightChangeLabel: (change: string, unit: string) => string
+    /** #1127 — tap-to-open note beside the Day link. */
+    exemplaryDayHowTooltipLabel: string
+    exemplaryDayHowTooltip: string
     /** #1126 — three numbers under the morning weight. */
     averageWeightWeekLabel: string
     averageWeightMonthLabel: string

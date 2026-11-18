@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1098,
+    issue: 1127,
+    date: '2026-11-18T08:10:00.000Z',
+    en: 'An info icon beside the exemplary-day link explains that it is the closest day on target with a later weigh-in at least 200 g lower.',
+    ru: 'Значок рядом со ссылкой на удачный день объясняет, что это ближайший день в норме, у которого следующее взвешивание ниже хотя бы на 200 г.',
+  },
+  {
     version: 1097,
     issue: 1125,
     date: '2026-11-15T07:00:00.000Z',

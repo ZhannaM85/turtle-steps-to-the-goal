@@ -72,6 +72,21 @@ describe('ExemplaryDayLink (#1125)', () => {
     ).toHaveAttribute('href', '/?date=2026-03-02')
   })
 
+  it('explains that the day is the closest qualifying one (#1127)', async () => {
+    const user = userEvent.setup()
+    useExemplaryDayStore.setState({ enabled: true })
+    renderLink()
+
+    await user.click(
+      screen.getByRole('button', { name: 'How this day is chosen' }),
+    )
+
+    expect(await screen.findByText(/at least two meals/)).toHaveTextContent(
+      '200 g',
+    )
+    expect(screen.getByText(/Closer days come first/)).toBeInTheDocument()
+  })
+
   it('hides the link on the exemplary day itself', () => {
     useExemplaryDayStore.setState({ enabled: true })
     renderLink({ viewedDate: '2026-03-02' })
