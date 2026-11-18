@@ -102,6 +102,16 @@ _Apple Health weight import wrote float junk into the morning weight field (83.4
 
 ---
 
+## Tier 199 — Exemplary day explanation (2026-11-18)
+
+_On Day, the exemplary-day line needs a short explanation of how that day is chosen. A nearby drop of about 350 g is the closest qualifying day, not the biggest loss in the history._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1127](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1127) | 🔲 Open | Day: explain how the exemplary day is chosen | Info icon beside the Day link. Closest qualifying day (two meals, calories in range, next weigh-in at least 200 g lower), not the largest loss. |
+
+---
+
 ## Tier 163 — Live feedback (2026-09-15)
 
 _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack (#905) + diary follow-ups; sticky page tops._
