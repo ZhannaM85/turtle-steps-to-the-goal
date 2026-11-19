@@ -108,7 +108,6 @@ _On Day, the exemplary-day line needs a short explanation of how that day is cho
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1127](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1127) | 🔍 Pending validation | Day: explain how the exemplary day is chosen | Info icon beside the Day link. Closest qualifying day (two meals, calories in range, next weigh-in at least 200 g lower), not the largest loss. |
 | [#1128](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1128) | 🔍 Pending validation | Clear open Dependabot npm alerts | Overrides for systeminformation, qs, and minimatch; dismissed withdrawn deepmerge #117. Production audit still clean. |
 
 ---

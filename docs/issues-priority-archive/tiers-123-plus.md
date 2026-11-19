@@ -1199,3 +1199,13 @@ _Closed rows only. Open / pending items stay in the active file._
 | [#1125](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1125) | ✅ Done | Day: optional link to an exemplary day the user can change | Confirmed on-device 2026-11-16. The link at the bottom of Day opens a past day near the weekly pace, and that day can be changed. |
 | [#1126](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1126) | ✅ Done | Day: optional average weight for the past week, month, and year | Confirmed on-device 2026-11-16. Week, month, and year averages show as numbers under the weight on Day. |
 
+---
+
+## Tier 199 — Live feedback and Dependabot (2026-11-18)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1127](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1127) | ✅ Done | Day: explain how the exemplary day is chosen | Confirmed on-device 2026-11-19. Info icon beside the Day link explains closest qualifying day (two meals, calories in range, next weigh-in at least 200 g lower), not the largest loss. |
+
