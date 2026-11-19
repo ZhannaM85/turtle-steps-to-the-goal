@@ -108,7 +108,6 @@ _On Day, the exemplary-day line needs a short explanation of how that day is cho
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1128](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1128) | 🔍 Pending validation | Clear open Dependabot npm alerts | Overrides for systeminformation, qs, and minimatch; dismissed withdrawn deepmerge #117. Production audit still clean. |
 
 ---
 
