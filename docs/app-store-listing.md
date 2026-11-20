@@ -76,6 +76,12 @@ weight,calories,macros,nutrition,food diary,meal tracker,local,privacy,fitness
 First App Store release. Local-first diary for meals, macros, water, weight and
 related habits, with backup/export and optional online food lookup.
 
+### What's New (version 1.0.2)
+
+• Optional week, month, and year weight averages under the morning weight, with two decimal places
+• Link to an exemplary past day on Day, with a short tip on how that day is chosen
+• Daily reminder no longer fires on days you already logged
+
 ## Russian (ru)
 
 Add a **Russian** localization on the version’s App Store page (App Store Connect
@@ -145,6 +151,12 @@ QR-код или ссылку, могут покинуть устройство.
 Первый выпуск в App Store. Локальный дневник питания, КБЖУ, воды, веса и
 связанных привычек, с резервным копированием и необязательным поиском
 продуктов онлайн.
+
+### What's New (version 1.0.2)
+
+• По желанию — средний вес за неделю, месяц и год под утренним весом, с двумя знаками после запятой
+• Ссылка на удачный прошлый день на экране «День» и короткая подсказка, как он выбирается
+• Ежедневное напоминание больше не приходит в дни, когда запись уже есть
 
 ## URLs and listing settings
 
