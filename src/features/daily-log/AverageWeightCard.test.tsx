@@ -27,16 +27,16 @@ beforeEach(() => {
   useUnitStore.setState({ unit: 'kg' })
 })
 
-describe('AverageWeightCard (#1126)', () => {
-  it('shows week, month, and year as numbers', () => {
+describe('AverageWeightCard (#1126 / #1129)', () => {
+  it('shows week, month, and year as numbers with two decimals', () => {
     render(<AverageWeightCard date="2026-03-08" entries={entries} />)
 
     expect(screen.getByText('Week')).toBeInTheDocument()
-    expect(screen.getByText('81.0')).toBeInTheDocument()
+    expect(screen.getByText('81.00')).toBeInTheDocument()
     expect(screen.getByText('Month')).toBeInTheDocument()
-    expect(screen.getByText('82.0')).toBeInTheDocument()
+    expect(screen.getByText('82.00')).toBeInTheDocument()
     expect(screen.getByText('Year')).toBeInTheDocument()
-    expect(screen.getByText('84.0')).toBeInTheDocument()
+    expect(screen.getByText('84.00')).toBeInTheDocument()
   })
 
   it('hides a window with fewer than two weigh-ins, and the card when none qualify', () => {

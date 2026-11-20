@@ -31,7 +31,7 @@ export function AverageWeightCard({ date, entries }: AverageWeightCardProps) {
     return {
       days: window.days,
       label: t.dailyEntry[window.labelKey],
-      value: formatNumber(display, locale, 1),
+      value: formatNumber(display, locale, 2),
     }
   })
 

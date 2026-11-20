@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1100,
+    issue: 1129,
+    date: '2026-11-20T08:35:00.000Z',
+    en: 'Week, month, and year weight averages under the morning weight now show two decimal places, like the day’s weight.',
+    ru: 'Средний вес за неделю, месяц и год под утренним весом теперь показывается с двумя знаками после запятой, как и вес за день.',
+  },
+  {
     version: 1099,
     issue: 1128,
     date: '2026-11-18T08:30:00.000Z',

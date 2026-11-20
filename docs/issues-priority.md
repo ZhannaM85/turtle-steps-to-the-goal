@@ -117,7 +117,7 @@ _On Day, the week / month / year weight averages under the morning weight field 
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
-| [#1129](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1129) | ⬜ Open | Day: show weight averages (week/month/year) with two decimal places | Same panel as #1126. Device shows e.g. 60,4 / 60,3 / 59,9 while day weight is 60,15. Likely display formatting only |
+| [#1129](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1129) | 🔍 Pending validation | Day: show weight averages (week/month/year) with two decimal places | `AverageWeightCard` now formats with 2 decimals (`formatNumber(..., 2)`). Needs on-device check |
 
 ---
 
