@@ -201,8 +201,10 @@ that lands in `dist/`, **or** native work under `ios/` / HealthKit / Capgo
 Health / native plugins / `Capacitor.isNativePlatform()`-only UI — **in the
 same session as the implementation push** unless the user explicitly defers:
 
-1. Bump `CURRENT_PROJECT_VERSION` in `ios/App/App.xcodeproj/project.pbxproj`
-   (integer build number; do not reuse — last shipped was **12**, next **13**).
+1. Bump **only** `CURRENT_PROJECT_VERSION` in
+   `ios/App/App.xcodeproj/project.pbxproj` (integer build number; do not
+   reuse — last shipped was **12**, next **13**). Do **not** bump
+   `MARKETING_VERSION` on a routine TestFlight ship (see below).
 2. `npm run build` (plain `/` base — **not** the Pages `--base=…` build).
 3. `npx cap sync ios`.
 4. Archive + upload to App Store Connect (CLI `xcodebuild` archive, then
@@ -212,6 +214,19 @@ same session as the implementation push** unless the user explicitly defers:
 5. Commit/push the build-number bump under the same `#N:` issue.
 6. Tell the user the **new build number** and that TestFlight processing may
    take minutes (email / app update).
+
+### Marketing version vs build number (2026-11-20)
+
+Two different fields — do not treat them the same:
+
+| Field | Example | When to change |
+|-------|---------|----------------|
+| `CURRENT_PROJECT_VERSION` (build) | 28, 29, … | **Every** TestFlight / App Store upload. Always +1. Burning builds on TestFlight-only is expected and fine. |
+| `MARKETING_VERSION` (user-facing) | 1.0.1, 1.0.2 | **Only** when preparing the **next App Store version** (or when the user explicitly asks). Keep TestFlight on the same marketing version as the live (or next intended) store release while iterating builds under it. |
+
+**Do not** climb `1.0.1 → 1.0.2 → 1.0.3` across ordinary feature TestFlight drops while the App Store is still on an older marketing version. That burns version numbers TestFlight-only and blocks “go back” to an intermediate store version (Connect often rejects a lower marketing version after a higher one was uploaded). **2026-11-20:** store was still **1.0.1 Ready for Distribution** while local/TestFlight had already moved to **1.0.3** — next public release then had to choose between skipping a public 1.0.2 or fighting Connect.
+
+Working loop: store live at **1.0.N** → TestFlight stays **1.0.N** and only the build rises → when ready to ship the next public update, bump once to **1.0.(N+1)** and keep builds under that until it is live → then bump again for the following cycle.
 
 Do **not** leave “TestFlight if needed” as an unchecked todo after a `src/`
 push, skip because “it was only web,” or ask them to validate the Capacitor
