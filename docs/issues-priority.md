@@ -111,16 +111,6 @@ _On Day, the exemplary-day line needs a short explanation of how that day is cho
 
 ---
 
-## Tier 200 — Live feedback (2026-11-20)
-
-_On Day, the week / month / year weight averages under the morning weight field show one decimal; show two so they match the day weight precision._
-
-| # | Status | Issue | Notes |
-|---|--------|-------|-------|
-| [#1129](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1129) | 🔍 Pending validation | Day: show weight averages (week/month/year) with two decimal places | `AverageWeightCard` now formats with 2 decimals (`formatNumber(..., 2)`). App Store target **1.0.2** build **29** (marketing version aligned with store sequence after live 1.0.1). Needs on-device check |
-
----
-
 ## Tier 163 — Live feedback (2026-09-15)
 
 _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack (#905) + diary follow-ups; sticky page tops._

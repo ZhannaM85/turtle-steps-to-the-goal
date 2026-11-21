@@ -1210,3 +1210,13 @@ _Closed rows only. Open / pending items stay in the active file._
 | [#1127](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1127) | ✅ Done | Day: explain how the exemplary day is chosen | Confirmed on-device 2026-11-19. Info icon beside the Day link explains closest qualifying day (two meals, calories in range, next weigh-in at least 200 g lower), not the largest loss. |
 | [#1128](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1128) | ✅ Done | Clear open Dependabot npm alerts | Confirmed on-device 2026-11-19. Overrides for systeminformation, qs, and minimatch; dismissed withdrawn deepmerge #117. Production audit still clean. |
 
+---
+
+## Tier 200 — Live feedback (2026-11-20)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1129](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1129) | ✅ Done | Day: show weight averages (week/month/year) with two decimal places | Confirmed on-device 2026-11-21. Week/month/year averages under morning weight show two decimals. |
+
