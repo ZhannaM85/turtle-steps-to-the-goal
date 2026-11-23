@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1101,
+    issue: 1130,
+    date: '2026-11-23T08:12:26.000Z',
+    en: 'About now shows the installed app version and a short history of App Store releases, separate from the internal change list.',
+    ru: 'В разделе «О приложении» теперь видна установленная версия и короткая история выпусков App Store, отдельно от внутреннего списка изменений.',
+  },
+  {
     version: 1100,
     issue: 1129,
     date: '2026-11-20T08:35:00.000Z',

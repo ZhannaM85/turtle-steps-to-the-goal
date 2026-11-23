@@ -111,6 +111,16 @@ _On Day, the exemplary-day line needs a short explanation of how that day is cho
 
 ---
 
+## Tier 201 — About app version (2026-11-23)
+
+_About should show which mobile build is installed. The release-notes number is an internal counter, not the App Store version._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1130](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1130) | 🔍 Pending validation | About: show installed mobile app version and store version history | About reads the native version and build at runtime (web says this is the web version), lists confirmed App Store versions 1.0 and 1.0.2, and labels the release-notes number as an internal counter. |
+
+---
+
 ## Tier 163 — Live feedback (2026-09-15)
 
 _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack (#905) + diary follow-ups; sticky page tops._

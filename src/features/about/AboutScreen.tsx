@@ -13,18 +13,29 @@ import {
 } from '@/shared/ui/card'
 import { PageHeader } from '@/shared/ui/page-header'
 import { ReleaseNotesSection } from './ReleaseNotesSection'
+import { StoreVersionHistory } from './StoreVersionHistory'
+import { useInstalledAppInfo } from './useInstalledAppInfo'
 
 const AUTHOR = 'ZhannaM85'
 const AUTHOR_GITHUB_URL = 'https://github.com/ZhannaM85'
 
 export function AboutScreen() {
   const t = useTranslation()
-  // Most-recent-first (see releaseNotes.ts), so the first entry's version
-  // is the current one — shown prominently rather than only inside the
-  // collapsed release-notes list, so a bug report can be pinned to a
-  // specific version at a glance.
+  // Most-recent-first (see releaseNotes.ts). The number on the release-notes
+  // card is the internal change counter, so a bug report can be pinned to
+  // a change. It is not the installed App Store version (#1130).
   const currentVersion = releaseNotes[0]?.version
+  const installedApp = useInstalledAppInfo()
   const [isReleaseNotesExpanded, setIsReleaseNotesExpanded] = useState(false)
+  const [isStoreHistoryExpanded, setIsStoreHistoryExpanded] = useState(false)
+  const appVersionText =
+    installedApp?.kind === 'web'
+      ? t.about.appVersionWeb
+      : installedApp?.kind === 'native'
+        ? t.about.appVersionNative(installedApp.version, installedApp.build)
+        : installedApp?.kind === 'unavailable'
+          ? t.about.appVersionUnavailable
+          : null
 
   return (
     <div className="flex flex-col gap-6">
@@ -61,15 +72,60 @@ export function AboutScreen() {
           </CardContent>
         </Card>
 
+        {/* #1130 — installed bundle version, read at runtime. Web has no
+         * native info, so this row says so instead of showing a number. */}
+        <Card>
+          <CardHeader>
+            <CardTitle>{t.about.appVersionLabel}</CardTitle>
+          </CardHeader>
+          {appVersionText !== null && (
+            <CardContent>
+              <p className="text-sm text-foreground">{appVersionText}</p>
+            </CardContent>
+          )}
+        </Card>
+
+        {/* #1130 — App Store versions, separate from the internal counter. */}
+        <Card>
+          <CardHeader>
+            <CardTitle>{t.about.storeVersionsLabel}</CardTitle>
+            <CardAction>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-xs"
+                aria-label={
+                  isStoreHistoryExpanded
+                    ? t.about.hideStoreVersions
+                    : t.about.showStoreVersions
+                }
+                aria-expanded={isStoreHistoryExpanded}
+                onClick={() => setIsStoreHistoryExpanded((prev) => !prev)}
+              >
+                {isStoreHistoryExpanded ? (
+                  <ChevronUp aria-hidden="true" />
+                ) : (
+                  <ChevronDown aria-hidden="true" />
+                )}
+              </Button>
+            </CardAction>
+          </CardHeader>
+          {isStoreHistoryExpanded && (
+            <CardContent>
+              <StoreVersionHistory />
+            </CardContent>
+          )}
+        </Card>
+
         {/* #655 — one card, title combines both since release notes are
-         * keyed on the version number right next to them; the expand
-         * toggle moved into the header (icon-only, no more separate
-         * "Show release notes" button) next to that same title. */}
+         * keyed on the internal change counter right next to them; the
+         * expand toggle sits in the header. #1130 — that number is the
+         * internal counter, not the store version. */}
         {currentVersion !== undefined && (
           <Card>
             <CardHeader>
               <CardTitle>
-                {t.settings.releaseNotesLabel} · {t.about.currentVersionLabel(currentVersion)}
+                {t.settings.releaseNotesLabel} · {t.about.internalChangeLabel(currentVersion)}
               </CardTitle>
               <CardAction>
                 <Button

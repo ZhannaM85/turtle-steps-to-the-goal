@@ -414,8 +414,8 @@ export interface SettingsDict {
     /** #283 — compact clickable version badge at the top of Settings
      * (PageHeader's action slot), navigating to /about — the About card
      * further down the page was otherwise the only way to find the
-     * version. Distinct from about.currentVersionLabel's full sentence,
-     * which stays as-is on the About page itself. */
+     * version. Distinct from about.internalChangeLabel, which names the
+     * same counter on the About page and is not the store version. */
     versionBadgeLabel: (version: number) => string
     /** Wipes every local IndexedDB table (#164) — two-step confirm, same
      * pattern as deleting a single entry/meal, scaled up in wording since

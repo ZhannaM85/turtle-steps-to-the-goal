@@ -20,7 +20,14 @@ export const about: AboutDict = {
     readPrivacyPolicyLabel: 'Читать полную политику конфиденциальности',
     viewFeaturesLabel: 'Посмотреть все возможности приложения',
     madeBy: (author) => `Автор: ${author}`,
-    currentVersionLabel: (version) => `Версия ${version}`,
+    appVersionLabel: 'Версия приложения',
+    appVersionWeb: 'Это веб-версия.',
+    appVersionNative: (version, build) => `${version} (сборка ${build})`,
+    appVersionUnavailable: 'Версия приложения недоступна.',
+    storeVersionsLabel: 'Версии App Store',
+    showStoreVersions: 'Показать версии App Store',
+    hideStoreVersions: 'Скрыть версии App Store',
+    internalChangeLabel: (version) => `Внутренний счётчик ${version}`,
   }
 
 export const privacyPolicy: PrivacyPolicyDict = {

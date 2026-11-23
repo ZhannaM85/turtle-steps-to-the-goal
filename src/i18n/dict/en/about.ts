@@ -20,7 +20,14 @@ export const about: AboutDict = {
     readPrivacyPolicyLabel: 'Read the full privacy policy',
     viewFeaturesLabel: 'See everything the app can do',
     madeBy: (author) => `Made by ${author}`,
-    currentVersionLabel: (version) => `Version ${version}`,
+    appVersionLabel: 'App version',
+    appVersionWeb: 'This is the web version.',
+    appVersionNative: (version, build) => `${version} (build ${build})`,
+    appVersionUnavailable: 'App version unavailable.',
+    storeVersionsLabel: 'App Store versions',
+    showStoreVersions: 'Show App Store versions',
+    hideStoreVersions: 'Hide App Store versions',
+    internalChangeLabel: (version) => `Internal counter ${version}`,
   }
 
 export const privacyPolicy: PrivacyPolicyDict = {

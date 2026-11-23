@@ -15,10 +15,20 @@ export interface AboutDict {
     /** #346 — links to the full features-summary page (`/features`). */
     viewFeaturesLabel: string
     madeBy: (author: string) => string
-    /** Current release-notes version number (simple incrementing counter,
-     * ReleaseNotesSection.tsx) — lets a reported bug be pinned to a
-     * specific version rather than just a date. */
-    currentVersionLabel: (version: number) => string
+    /** #1130 — installed native version and build, or the web-version line. */
+    appVersionLabel: string
+    appVersionWeb: string
+    appVersionNative: (version: string, build: string) => string
+    appVersionUnavailable: string
+    /** #1130 — collapsible App Store version history, separate from the
+     * internal release-notes counter. */
+    storeVersionsLabel: string
+    showStoreVersions: string
+    hideStoreVersions: string
+    /** Internal release-notes counter (ReleaseNotesSection.tsx) — not the
+     * App Store version. Lets a reported bug be pinned to a specific
+     * change rather than just a date. */
+    internalChangeLabel: (version: number) => string
   }
 
 export interface PrivacyPolicyDict {
