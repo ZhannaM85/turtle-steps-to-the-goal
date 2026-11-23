@@ -1220,3 +1220,13 @@ _Closed rows only. Open / pending items stay in the active file._
 |---|--------|-------|-------|
 | [#1129](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1129) | ✅ Done | Day: show weight averages (week/month/year) with two decimal places | Confirmed on-device 2026-11-21. Week/month/year averages under morning weight show two decimals. |
 
+---
+
+## Tier 201 — About app version (2026-11-23)
+
+_Closed rows only. Open / pending items stay in the active file._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1130](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1130) | ✅ Done | About: show installed mobile app version and store version history | Confirmed on-device 2026-11-23. About shows native version/build at runtime (web says web version), lists App Store 1.0 and 1.0.2, and labels the release-notes number as an internal counter. |
+
