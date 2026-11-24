@@ -26,7 +26,11 @@ devices. Local browser storage is not a substitute for a saved backup.
 - Search the built-in food database, save personal foods, scan barcodes, and
   build reusable multi-ingredient recipes.
 - Set weekly weight-change goals and optional daily nutrition and hydration
-  targets.
+  targets. On Day, the nutrition summary stays expanded while you scroll
+  unless you pin it.
+- On Day, optionally show your average weight for the past week, month, and
+  year, and open a recent day that stayed on target and was followed by a
+  weigh-in at least 200 g lower.
 - Explore trends, calendar history, weekly/monthly summaries, and fixed or
   user-defined correlations.
 - Create custom metrics for anything else you want to observe.
@@ -38,12 +42,13 @@ devices. Local browser storage is not a substitute for a saved backup.
   Settings. Overlapping sleep records count once, and synced step totals match
   Apple Health's daily aggregate.
 - Use the installable PWA in English or Russian, with light/dark mode and
-  several color themes.
+  several color themes. In Settings, saved foods show when you last ate them
+  and can be sorted by that date.
 
-Recent improvements include reminders that skip days you've already logged,
-and a Day nutrition summary that stays expanded while you scroll unless you
-pin it. In Settings, saved foods show when you last ate them and can be sorted
-by that date.
+Recent improvements: week, month, and year weight averages use two decimal
+places, like the day's weight. An info icon explains that the linked day is
+the closest one on target with a later weigh-in at least 200 g lower. About
+shows the installed app version and a short history of App Store releases.
 
 ## Screenshots
 
