@@ -122,11 +122,12 @@ _About should show which mobile build is installed. The release-notes number is 
 
 ## Tier 202 — Live feedback (2026-11-26)
 
-_Add food allows save with an empty title and empty macros; title must be required and at least one macro filled._
+_Add food allows save with an empty title and empty macros; title must be required and at least one macro filled. Body composition What-to-track off should be able to stop from a chosen date so past Day entries stay visible._
 
 | # | Status | Issue | Notes |
 |---|--------|-------|-------|
 | [#1131](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1131) | 🔲 Open | Add food: require title and at least one macro before save | Title mandatory; at least one of protein/fat/carbs filled. Save should stay disabled or block until both rules are met. |
+| [#1132](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1132) | 🔲 Open | Settings: stop body composition from a chosen date without hiding past data | Optional stop-from date; days before still show data. No date + off = hide completely (current behavior). |
 
 ---
 
