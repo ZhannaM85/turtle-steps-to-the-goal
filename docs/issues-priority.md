@@ -120,6 +120,16 @@ _About should show which mobile build is installed. The release-notes number is 
 
 ---
 
+## Tier 202 — Live feedback (2026-11-26)
+
+_Add food allows save with an empty title and empty macros; title must be required and at least one macro filled._
+
+| # | Status | Issue | Notes |
+|---|--------|-------|-------|
+| [#1131](https://github.com/ZhannaM85/turtle-steps-to-the-goal/issues/1131) | 🔲 Open | Add food: require title and at least one macro before save | Title mandatory; at least one of protein/fat/carbs filled. Save should stay disabled or block until both rules are met. |
+
+---
+
 ## Tier 163 — Live feedback (2026-09-15)
 
 _Day КБЖУ / export labels & gating; Day date-nav checkmark; PDF HTML+CSS stack (#905) + diary follow-ups; sticky page tops._
