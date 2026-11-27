@@ -43,6 +43,8 @@ describe('DailyEntryForm', () => {
 
     await openAddItemFlow(user)
     await user.type(screen.getByLabelText('kcal/100g'), '300')
+    await user.type(screen.getByLabelText('Dish name'), 'Test dish')
+    await user.type(screen.getByLabelText('Protein'), '1')
     await user.click(screen.getByRole('button', { name: 'Save' }))
 
     expect(onSave).toHaveBeenCalledTimes(2)

@@ -134,6 +134,8 @@ describe('DailyEntryForm', () => {
 
       await openAddItemFlow(user)
       await user.type(screen.getByLabelText('kcal/100g'), '200')
+      await user.type(screen.getByLabelText('Dish name'), 'Test dish')
+      await user.type(screen.getByLabelText('Protein'), '1')
       await user.click(screen.getByRole('button', { name: 'Save' }))
       await user.click(screen.getByRole('button', { name: 'Done' }))
 
@@ -160,6 +162,8 @@ describe('DailyEntryForm', () => {
 
       await openAddItemFlow(user)
       await user.type(screen.getByLabelText('kcal/100g'), '200')
+      await user.type(screen.getByLabelText('Dish name'), 'Test dish')
+      await user.type(screen.getByLabelText('Protein'), '1')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       expect(onSave).toHaveBeenCalledTimes(1)
@@ -200,6 +204,8 @@ describe('DailyEntryForm', () => {
       await openAddItemFlow(user)
       await user.click(screen.getByRole('button', { name: 'Thumbs up' }))
       await user.type(screen.getByLabelText('kcal/100g'), '200')
+      await user.type(screen.getByLabelText('Dish name'), 'Test dish')
+      await user.type(screen.getByLabelText('Protein'), '1')
       await user.click(screen.getByRole('button', { name: 'Save' }))
       await user.click(screen.getByRole('button', { name: 'Done' }))
 
@@ -225,6 +231,7 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('Protein'), '20')
       await user.type(screen.getByLabelText('Fat'), '10')
       await user.type(screen.getByLabelText('Carbs'), '30')
+      await user.type(screen.getByLabelText('Dish name'), 'Test dish')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       expect(onSave.mock.calls[0][0].calorieEntries[0].items[0]).toMatchObject({
@@ -269,6 +276,7 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('Carbs'), '4')
       await user.clear(screen.getByLabelText('× 100g'))
       await user.type(screen.getByLabelText('× 100g'), '0.5')
+      await user.type(screen.getByLabelText('Dish name'), 'Test dish')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       expect(onSave.mock.calls[0][0].calorieEntries[0].items[0]).toMatchObject({
@@ -321,6 +329,8 @@ describe('DailyEntryForm', () => {
       await openAddItemFlow(user)
       await user.clear(screen.getByLabelText('× 100g'))
       await user.type(screen.getByLabelText('kcal/100g'), '250')
+      await user.type(screen.getByLabelText('Dish name'), 'Test dish')
+      await user.type(screen.getByLabelText('Protein'), '1')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       expect(onSave.mock.calls[0][0].calorieEntries[0].items[0]).toMatchObject({
@@ -344,6 +354,8 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.clear(screen.getByLabelText('× 100g'))
       await user.type(screen.getByLabelText('× 100g'), '1.5')
+      await user.type(screen.getByLabelText('Dish name'), 'Test dish')
+      await user.type(screen.getByLabelText('Protein'), '1')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       // 200 kcal/100g scaled by 1.5 portions (#96, #140): 200 * 1.5 = 300.
@@ -392,6 +404,7 @@ describe('DailyEntryForm', () => {
       await openAddItemFlow(user)
       await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.type(screen.getByLabelText('Fat'), '10')
+      await user.type(screen.getByLabelText('Dish name'), 'Test dish')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       expect(onSave.mock.calls[0][0].calorieEntries[0].items[0]).toMatchObject({
@@ -413,7 +426,7 @@ describe('DailyEntryForm', () => {
       ).toBeInTheDocument()
     })
 
-    it('shows no macro summary line for a meal that logged none (#51)', async () => {
+    it('keeps Save disabled when name and kcal are set but macros are empty (#1131)', async () => {
       const user = userEvent.setup()
       render(
         <DailyEntryForm
@@ -425,25 +438,11 @@ describe('DailyEntryForm', () => {
 
       await openAddItemFlow(user)
       await user.type(screen.getByLabelText('kcal/100g'), '200')
-      await user.click(screen.getByRole('button', { name: 'Save' }))
+      await user.type(screen.getByLabelText('Dish name'), 'Test dish')
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled()
 
-      // The day-level total now always shows once *any* value — even just
-      // calories — is logged (#462), with dashes for the unset macros, on
-      // its own StatCard (#467).
-      const consumedCard = screen
-        .getByText('Consumed')
-        .closest('[data-slot="card"]') as HTMLElement
-      expect(within(consumedCard).getByText('200')).toBeInTheDocument()
-      expect(
-        within(consumedCard).getByText('Protein — · Fat — · Carbs —'),
-      ).toBeInTheDocument()
-      // The per-meal summary line (macro-only, unaffected by #462) stays
-      // absent when no macros were logged at all — every match for this
-      // text lives inside the day-total card above, none elsewhere.
-      const macrosMatches = screen.getAllByText('Protein — · Fat — · Carbs —')
-      expect(macrosMatches.every((el) => consumedCard.contains(el))).toBe(
-        true,
-      )
+      await user.type(screen.getByLabelText('Protein'), '1')
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled()
     })
   })
 })

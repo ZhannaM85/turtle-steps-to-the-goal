@@ -32,6 +32,8 @@ describe('DailyEntryForm', () => {
           expect(screen.getByLabelText('Time')).toHaveValue('14:00')
           await openAddItemFlow(user)
           await user.type(screen.getByLabelText('kcal/100g'), '200')
+          await user.type(screen.getByLabelText('Dish name'), 'Test dish')
+          await user.type(screen.getByLabelText('Protein'), '1')
           await user.click(screen.getByRole('button', { name: 'Save' }))
 
           expect(onSave.mock.calls[0][0].calorieEntries[0].timeEaten).toBe('14:00')
@@ -57,6 +59,8 @@ describe('DailyEntryForm', () => {
           })
           await openAddItemFlow(user)
           await user.type(screen.getByLabelText('kcal/100g'), '200')
+          await user.type(screen.getByLabelText('Dish name'), 'Test dish')
+          await user.type(screen.getByLabelText('Protein'), '1')
           await user.click(screen.getByRole('button', { name: 'Save' }))
 
           expect(onSave.mock.calls[0][0].calorieEntries[0].timeEaten).toBe(
@@ -84,6 +88,8 @@ describe('DailyEntryForm', () => {
           })
           await openAddItemFlow(user)
           await user.type(screen.getByLabelText('kcal/100g'), '200')
+          await user.type(screen.getByLabelText('Dish name'), 'Test dish')
+          await user.type(screen.getByLabelText('Protein'), '1')
           await user.click(screen.getByRole('button', { name: 'Save' }))
 
           expect(

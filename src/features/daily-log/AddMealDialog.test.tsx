@@ -1329,6 +1329,7 @@ describe('AddMealDialog (#454)', () => {
       await user.click(await openAddMealAction(user, 'Add food'))
       await user.type(screen.getByLabelText('Dish name'), 'Homemade soup')
       await user.type(screen.getByLabelText('kcal/100g'), '150')
+      await user.type(screen.getByLabelText('Protein'), '5')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       // The saved dish is also touched into the personal library, so once
@@ -1361,6 +1362,7 @@ describe('AddMealDialog (#454)', () => {
       await user.click(await openAddMealAction(user, 'Add food'))
       await user.type(screen.getByLabelText('Dish name'), 'Homemade soup')
       await user.type(screen.getByLabelText('kcal/100g'), '150')
+      await user.type(screen.getByLabelText('Protein'), '5')
       await user.click(
         screen.getByRole('button', { name: 'Add Homemade soup to favorites' }),
       )
@@ -1605,6 +1607,7 @@ describe('AddMealDialog (#454)', () => {
 
       await user.type(screen.getByLabelText('Dish name'), 'Scanned Yogurt')
       await user.type(screen.getByLabelText('kcal/100g'), '80')
+      await user.type(screen.getByLabelText('Protein'), '3')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       await waitFor(() =>
@@ -1648,9 +1651,9 @@ describe('AddMealDialog (#454)', () => {
         'No food found for this barcode — you can still add it by hand below.',
       )
       await user.type(screen.getByLabelText('kcal/100g'), '90')
+      await user.type(screen.getByLabelText('Protein'), '2')
 
-      // Calories alone used to enable Save; touch then skipped (no name),
-      // so the meal line appeared but Custom foods / rescan stayed empty.
+      // Calories + macro without a name: Save stays disabled (#518 / #1131).
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled()
     })
 
@@ -1670,6 +1673,7 @@ describe('AddMealDialog (#454)', () => {
       // when a scanned barcode is being attached.
       await user.type(screen.getByLabelText('Dish name'), 'Salmon')
       await user.type(screen.getByLabelText('kcal/100g'), '150')
+      await user.type(screen.getByLabelText('Protein'), '20')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       await waitFor(() =>

@@ -35,12 +35,14 @@ describe('DailyEntryForm', () => {
       await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.type(screen.getByLabelText('Protein'), '20')
       await user.type(screen.getByLabelText('Fat'), '10')
+      await user.type(screen.getByLabelText('Dish name'), 'Test dish')
       await user.click(screen.getByRole('button', { name: 'Save' }))
       await user.click(screen.getByRole('button', { name: 'Done' }))
 
       await openAddItemFlow(user)
       await user.type(screen.getByLabelText('kcal/100g'), '150')
       await user.type(screen.getByLabelText('Protein'), '5')
+      await user.type(screen.getByLabelText('Dish name'), 'Second dish')
       await user.click(screen.getByRole('button', { name: 'Save' }))
       await user.click(screen.getByRole('button', { name: 'Done' }))
 
@@ -69,6 +71,7 @@ describe('DailyEntryForm', () => {
       await openAddItemFlow(user)
       await user.type(screen.getByLabelText('kcal/100g'), '200')
       await user.type(screen.getByLabelText('Dish name'), 'Pizza')
+      await user.type(screen.getByLabelText('Protein'), '1')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       // Wait until the meal card has rendered (kcal appears both on the
@@ -147,6 +150,8 @@ describe('DailyEntryForm', () => {
 
       await openAddItemFlow(user)
       await user.type(screen.getByLabelText('kcal/100g'), '200')
+      await user.type(screen.getByLabelText('Dish name'), 'Test dish')
+      await user.type(screen.getByLabelText('Protein'), '1')
       await user.click(screen.getByRole('button', { name: 'Save' }))
       // #1093 — local noon suggests Lunch regardless of the existing meal.
       expectMealCard('Lunch', '200 kcal')
@@ -156,6 +161,8 @@ describe('DailyEntryForm', () => {
 
       await openAddItemFlow(user)
       await user.type(screen.getByLabelText('kcal/100g'), '150')
+      await user.type(screen.getByLabelText('Dish name'), 'Second dish')
+      await user.type(screen.getByLabelText('Protein'), '1')
       await user.keyboard('{Enter}')
       expectMealCard('Lunch', '150 kcal')
       expect(onSave).toHaveBeenCalledTimes(2)
@@ -189,6 +196,8 @@ describe('DailyEntryForm', () => {
       expect(thumbsUpButton).toHaveAttribute('aria-pressed', 'false')
 
       await user.type(screen.getByLabelText('kcal/100g'), '150')
+      await user.type(screen.getByLabelText('Dish name'), 'Test dish')
+      await user.type(screen.getByLabelText('Protein'), '1')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       expectMealCard('Lunch', '150 kcal')
@@ -208,6 +217,7 @@ describe('DailyEntryForm', () => {
 
       await openAddItemFlow(user)
       await user.type(screen.getByLabelText('kcal/100g'), '0')
+      await user.type(screen.getByLabelText('Protein'), '1')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       expect(onSave).not.toHaveBeenCalled()
@@ -219,7 +229,7 @@ describe('DailyEntryForm', () => {
       ).not.toBeInTheDocument()
     })
 
-    it('disables Add until a valid kcal/100g rate is entered (#109)', async () => {
+    it('disables Save until name, kcal, and at least one macro are set (#109 / #1131)', async () => {
       const user = userEvent.setup()
       render(
         <DailyEntryForm
@@ -238,6 +248,12 @@ describe('DailyEntryForm', () => {
 
       await user.clear(screen.getByLabelText('kcal/100g'))
       await user.type(screen.getByLabelText('kcal/100g'), '150')
+      expect(saveButton).toBeDisabled()
+
+      await user.type(screen.getByLabelText('Dish name'), 'Soup')
+      expect(saveButton).toBeDisabled()
+
+      await user.type(screen.getByLabelText('Protein'), '1')
       expect(saveButton).toBeEnabled()
     })
   })

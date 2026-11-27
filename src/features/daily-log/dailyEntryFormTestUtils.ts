@@ -52,6 +52,20 @@ export async function openAddItemFlow(
   await user.click(await openAddMealAction(user, 'Add food'))
 }
 
+/** #1131 — Save needs a trimmed name and at least one macro. */
+export async function fillRequiredDishFields(
+  user: ReturnType<typeof userEvent.setup>,
+  {
+    name = 'Test dish',
+    kcal = '100',
+    protein = '1',
+  }: { name?: string; kcal?: string; protein?: string } = {},
+) {
+  await user.type(screen.getByLabelText('Dish name'), name)
+  await user.type(screen.getByLabelText('kcal/100g'), kcal)
+  await user.type(screen.getByLabelText('Protein'), protein)
+}
+
 // #473 split the meal card's old single "Breakfast — 200 kcal" header line
 // into a label-only title plus a calorie/macro summary line below it, so a
 // saved meal can no longer be asserted with one exact string. Scoping to

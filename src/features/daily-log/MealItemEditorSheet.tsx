@@ -139,10 +139,6 @@ export interface MealItemEditorSheetProps {
    * (one stray keystroke would overwrite it). Defaults to true for add
    * flows, where focusing the empty name field is still helpful. */
   autoFocusName?: boolean
-  /** #518 follow-up — when true (barcode not-found → create), Save stays
-   * disabled until a dish name is typed. Without a name, `touch` never
-   * wrote a MealItem, so Custom foods stayed empty and rescans missed. */
-  requireName?: boolean
 }
 
 /**
@@ -222,7 +218,6 @@ export function MealItemEditorSheet({
   onSave,
   onSaveAndAddAnother,
   autoFocusName = true,
-  requireName = false,
 }: MealItemEditorSheetProps) {
   const t = useTranslation()
   const locale = useLocale()
@@ -258,8 +253,13 @@ export function MealItemEditorSheet({
 
   const amountNum = parseNumberInput(amount)
   const hasValidAmount = amountNum !== undefined && amountNum > 0
-  const canSave =
-    hasValidAmount && (!requireName || name.trim().length > 0)
+  // #1131 — title mandatory; at least one of protein/fat/carbs filled.
+  const hasName = name.trim().length > 0
+  const hasAtLeastOneMacro =
+    parseOptionalMacro(protein) !== undefined ||
+    parseOptionalMacro(fat) !== undefined ||
+    parseOptionalMacro(carbs) !== undefined
+  const canSave = hasValidAmount && hasName && hasAtLeastOneMacro
   const scaledPreview = hasValidAmount
     ? macroMode === 'per100g'
       ? scaleFromPer100g(

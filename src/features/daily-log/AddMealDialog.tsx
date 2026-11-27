@@ -449,9 +449,6 @@ export function AddMealDialog({
             todayRemainingPreview={sheetTodayRemainingPreview}
             barcodeNotFoundMessage={sheet.barcodeNotFoundMessage}
             barcode={manualSheetBarcode}
-            requireName={
-              sheet.pendingBarcode !== null && sheet.editingItemId === null
-            }
             onSave={sheet.saveManualDraft}
           />
         </DialogContent>

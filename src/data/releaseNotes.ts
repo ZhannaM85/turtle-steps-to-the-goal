@@ -26,6 +26,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: 1102,
+    issue: 1131,
+    date: '2026-11-27T18:40:05.000Z',
+    en: 'Add food now requires a dish name and at least one of protein, fat, or carbs before Save is available.',
+    ru: 'В «Добавить блюдо» теперь нужно указать название и хотя бы одно из полей Б/Ж/У, прежде чем станет доступна кнопка «Сохранить».',
+  },
+  {
     version: 1101,
     issue: 1130,
     date: '2026-11-23T08:12:26.000Z',

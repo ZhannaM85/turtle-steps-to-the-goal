@@ -36,7 +36,6 @@ export function AddMealDialogEditorSheet({
   todayRemainingPreview,
   barcodeNotFoundMessage,
   barcode,
-  requireName,
   onSave,
 }: {
   open: boolean
@@ -86,7 +85,6 @@ export function AddMealDialogEditorSheet({
   todayRemainingPreview?: string
   barcodeNotFoundMessage: boolean
   barcode?: string
-  requireName: boolean
   onSave: () => void
 }) {
   const t = useTranslation()
@@ -155,7 +153,6 @@ export function AddMealDialogEditorSheet({
           : undefined
       }
       barcode={barcode}
-      requireName={requireName}
       onSave={onSave}
     />
   )

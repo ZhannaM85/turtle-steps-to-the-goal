@@ -18,23 +18,32 @@ it('shows food reactions only when enabled (#1071)', () => {
   expect(screen.getByText('Reaction')).toBeInTheDocument()
 })
 
-function sheetElement(brand = '') {
+function sheetElement(
+  brand = '',
+  overrides: Partial<{
+    name: string
+    amount: string
+    protein: string
+    fat: string
+    carbs: string
+  }> = {},
+) {
   return (
     <MealItemEditorSheet
       open
       onOpenChange={vi.fn()}
       title="Добавить блюдо"
-      name="Гуляш"
+      name={overrides.name ?? 'Гуляш'}
       onNameChange={vi.fn()}
       brand={brand}
       onBrandChange={vi.fn()}
-      amount="110"
+      amount={overrides.amount ?? '110'}
       onAmountChange={vi.fn()}
-      protein="9"
+      protein={overrides.protein ?? '9'}
       onProteinChange={vi.fn()}
-      fat="5"
+      fat={overrides.fat ?? '5'}
       onFatChange={vi.fn()}
-      carbs="8"
+      carbs={overrides.carbs ?? '8'}
       onCarbsChange={vi.fn()}
       fiber=""
       onFiberChange={vi.fn()}
@@ -56,9 +65,29 @@ function sheetElement(brand = '') {
   )
 }
 
-function renderSheet(brand = '') {
-  return render(sheetElement(brand))
+function renderSheet(
+  brand = '',
+  overrides?: Parameters<typeof sheetElement>[1],
+) {
+  return render(sheetElement(brand, overrides))
 }
+
+describe('MealItemEditorSheet save gate (#1131)', () => {
+  it('disables Save when the title is blank', () => {
+    renderSheet('', { name: '   ' })
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled()
+  })
+
+  it('disables Save when protein, fat, and carbs are all blank', () => {
+    renderSheet('', { protein: '', fat: '', carbs: '' })
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled()
+  })
+
+  it('enables Save with a title, kcal, and any one macro', () => {
+    renderSheet('', { protein: '1', fat: '', carbs: '' })
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled()
+  })
+})
 
 describe('MealItemEditorSheet nutrition row (#990)', () => {
   it('keeps protein, fat, and carbs on one row in Russian', () => {

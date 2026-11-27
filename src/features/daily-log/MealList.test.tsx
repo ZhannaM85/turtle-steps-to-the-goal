@@ -106,6 +106,7 @@ describe('MealList', () => {
     await user.click(await openAddMealAction(user, 'Add food'))
     await user.type(screen.getByLabelText('Dish name'), 'Soup')
     await user.type(screen.getByLabelText('kcal/100g'), '150')
+    await user.type(screen.getByLabelText('Protein'), '1')
     await user.click(screen.getByRole('button', { name: 'Save' }))
     fireEvent.change(screen.getByLabelText('Time'), { target: { value: '20:00' } })
     expect(screen.getByLabelText('Meal name')).toHaveTextContent('Dinner')
@@ -194,6 +195,7 @@ describe('MealList', () => {
     await user.click(await openAddMealAction(user, 'Add food'))
     await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
     await user.type(screen.getByLabelText('kcal/100g'), '300')
+    await user.type(screen.getByLabelText('Protein'), '1')
     await user.click(screen.getByRole('button', { name: 'Save' }))
     expect(screen.getAllByText('Oatmeal').length).toBeGreaterThan(0)
 
@@ -236,6 +238,7 @@ describe('MealList', () => {
     await user.click(await openAddMealAction(user, 'Add food'))
     await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
     await user.type(screen.getByLabelText('kcal/100g'), '300')
+    await user.type(screen.getByLabelText('Protein'), '1')
     await user.click(screen.getByRole('button', { name: 'Save' }))
     await user.click(screen.getByRole('button', { name: 'Done' }))
 
@@ -261,6 +264,7 @@ describe('MealList', () => {
     await user.click(await openAddMealAction(user, 'Add food'))
     await user.type(screen.getByLabelText('Dish name'), 'Salad')
     await user.type(screen.getByLabelText('kcal/100g'), '150')
+    await user.type(screen.getByLabelText('Protein'), '1')
     await user.click(screen.getByRole('button', { name: 'Save' }))
     await user.click(screen.getByRole('button', { name: 'Done' }))
 
@@ -1066,7 +1070,9 @@ describe('MealList', () => {
       const calorieEntries: CalorieEntry[] = [
         {
           id: 'c1',
-          items: [{ id: 'i1', name: 'Oatmeal', amountKcal: 300 }],
+          items: [
+            { id: 'i1', name: 'Oatmeal', amountKcal: 300, proteinG: 10 },
+          ],
           createdAt: '2026-01-01T00:00:00.000Z',
         },
       ]
@@ -1518,6 +1524,7 @@ describe('MealList', () => {
       await user.click(await openAddMealAction(user, 'Add food'))
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
+      await user.type(screen.getByLabelText('Protein'), '1')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       expect(
@@ -1608,6 +1615,7 @@ describe('MealList', () => {
       await user.click(await openAddMealAction(user, 'Add food'))
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
+      await user.type(screen.getByLabelText('Protein'), '1')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       expect(
@@ -1642,6 +1650,7 @@ describe('MealList', () => {
       await user.click(await openAddMealAction(user, 'Add food'))
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
+      await user.type(screen.getByLabelText('Protein'), '1')
       await user.click(screen.getByRole('button', { name: 'Save' }))
       await screen.findByText('Your fasting window was 12h.')
       await user.click(screen.getByRole('button', { name: 'Done' }))
@@ -1678,6 +1687,7 @@ describe('MealList', () => {
       await user.click(await openAddMealAction(user, 'Add food'))
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
+      await user.type(screen.getByLabelText('Protein'), '1')
       await user.click(screen.getByRole('button', { name: 'Save' }))
       await screen.findByText('Your fasting window was 12h.')
       await user.click(screen.getByRole('button', { name: 'Done' }))
@@ -1758,6 +1768,7 @@ describe('MealList', () => {
       await user.click(await openAddMealAction(user, 'Add food'))
       await user.type(screen.getByLabelText('Dish name'), 'Oatmeal')
       await user.type(screen.getByLabelText('kcal/100g'), '300')
+      await user.type(screen.getByLabelText('Protein'), '1')
       await user.click(screen.getByRole('button', { name: 'Save' }))
 
       expect(
